@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Mail, Phone, Clock, ChevronDown, Check, ArrowRight } from 'lucide-react';
 import { SERVICES } from '../constants';
@@ -5,6 +6,7 @@ import { SERVICES } from '../constants';
 const Contact: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
@@ -33,11 +35,41 @@ const Contact: React.FC = () => {
   const handleOptionClick = (option: string) => {
     setSubject(option);
     setIsDropdownOpen(false);
+    setHighlightedIndex(-1);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (isDropdownOpen && highlightedIndex >= 0) {
+        handleOptionClick(subjectOptions[highlightedIndex]);
+      } else {
+        setIsDropdownOpen(!isDropdownOpen);
+        if (!isDropdownOpen) setHighlightedIndex(0);
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!isDropdownOpen) {
+        setIsDropdownOpen(true);
+        setHighlightedIndex(0);
+      } else {
+        setHighlightedIndex(prev => (prev < subjectOptions.length - 1 ? prev + 1 : prev));
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (isDropdownOpen) {
+        setHighlightedIndex(prev => (prev > 0 ? prev - 1 : 0));
+      }
+    } else if (e.key === 'Escape') {
+      setIsDropdownOpen(false);
+    } else if (e.key === 'Tab') {
+       if(isDropdownOpen) setIsDropdownOpen(false);
+    }
   };
 
   return (
@@ -215,7 +247,8 @@ const Contact: React.FC = () => {
                     aria-expanded={isDropdownOpen}
                     aria-labelledby="subject-label"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className={`w-full bg-brand-bg border ${isDropdownOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'} py-3 px-5 md:py-4 md:px-6 rounded-2xl text-brand-dark focus:outline-none transition-all flex justify-between items-center group`}
+                    onKeyDown={handleKeyDown}
+                    className={`w-full bg-brand-bg border ${isDropdownOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'} py-3 px-5 md:py-4 md:px-6 rounded-2xl text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-moss/50 transition-all flex justify-between items-center group`}
                   >
                     <span className={subject ? "text-brand-dark font-medium" : "text-brand-stone/40"}>
                       {subject || "Select a Topic"}
@@ -234,9 +267,9 @@ const Contact: React.FC = () => {
                           role="option"
                           aria-selected={subject === option}
                           onClick={() => handleOptionClick(option)}
-                          className="px-6 py-3 hover:bg-brand-bg cursor-pointer flex justify-between items-center group transition-colors"
+                          className={`px-6 py-3 cursor-pointer flex justify-between items-center group transition-colors ${highlightedIndex === idx ? 'bg-brand-bg text-brand-moss' : 'hover:bg-brand-bg text-brand-dark'}`}
                         >
-                          <span className={`text-sm md:text-base font-medium ${subject === option ? 'text-brand-moss font-bold' : 'text-brand-dark group-hover:text-brand-moss'}`}>
+                          <span className={`text-sm md:text-base font-medium ${subject === option ? 'text-brand-moss font-bold' : 'group-hover:text-brand-moss'}`}>
                             {option}
                           </span>
                           {subject === option && <Check size={16} className="text-brand-moss" />}

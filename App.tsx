@@ -37,38 +37,37 @@ const App: React.FC = () => {
       <ScrollToTop />
       <Preloader />
       <CustomCursor />
+      
+      {/* Fixed Elements must be OUTSIDE the SmoothScroll wrapper to avoid transform context issues */}
+      <div className="fixed top-0 left-0 w-full z-50 pointer-events-none">
+        <Navbar className="animate-content-reveal delay-2000 pointer-events-auto" />
+      </div>
+
+      {/* Global Background Noise */}
+      <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-[1] mix-blend-multiply" />
+
       <SmoothScroll>
-        <div className="relative bg-brand-bg min-h-screen flex flex-col">
-          {/* Global Noise Overlay for texture */}
-          <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-[1] mix-blend-multiply" />
+        <div className="animate-content-reveal delay-2000 relative z-10 flex flex-col min-h-screen bg-brand-bg">
+          <main id="main-content" className="flex-grow relative z-10" tabIndex={-1}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/services/:slug" element={<ServiceDetail />} />
+              <Route path="/insights" element={<Insights />} />
+              <Route path="/insights/:slug" element={<InsightDetail />} />
+              <Route path="/faqs" element={<FAQ />} />
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/resources/checklist/:slug" element={<ChecklistDetail />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/disclaimer" element={<Disclaimer />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+            </Routes>
+          </main>
           
-          {/* Navbar - Moved outside the content wrapper to ensure fixed positioning works relative to viewport */}
-          {/* We apply the same entrance animation so it rises with the content */}
-          <Navbar className="animate-content-reveal delay-2000" />
-          
-          {/* Main Content Wrapper with Entrance Animation */}
-          <div className="animate-content-reveal delay-2000 relative z-10 flex flex-col min-h-screen">
-            <main id="main-content" className="flex-grow relative z-10" tabIndex={-1}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/services/:slug" element={<ServiceDetail />} />
-                <Route path="/insights" element={<Insights />} />
-                <Route path="/insights/:slug" element={<InsightDetail />} />
-                <Route path="/faqs" element={<FAQ />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/resources/checklist/:slug" element={<ChecklistDetail />} />
-                <Route path="/careers" element={<Careers />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/disclaimer" element={<Disclaimer />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-              </Routes>
-            </main>
-            
-            <Footer />
-          </div>
+          <Footer />
         </div>
       </SmoothScroll>
     </HashRouter>
