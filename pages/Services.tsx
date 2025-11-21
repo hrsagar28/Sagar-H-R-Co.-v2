@@ -7,17 +7,17 @@ const Services: React.FC = () => {
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       
-      {/* Hero Header */}
-      <section className="pt-32 md:pt-48 pb-16 px-4 md:px-6 bg-grid relative overflow-hidden">
+      {/* UNIFIED HERO SECTION */}
+      <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="max-w-5xl">
              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
                 <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
-                Comprehensive Financial Solutions
+                Our Expertise
              </div>
              <h1 className="text-6xl md:text-8xl lg:text-9xl font-heading font-bold text-brand-dark mb-8 tracking-tighter leading-[0.9] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                Holistic <br/>
-               <span className="text-brand-stone opacity-50 font-serif italic">Expertise.</span>
+               <span className="text-brand-stone opacity-50 font-serif italic">Solutions.</span>
              </h1>
              <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-start md:items-end animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-2xl">
@@ -28,7 +28,7 @@ const Services: React.FC = () => {
         </div>
       </section>
 
-      {/* Services Index - Clean Typographic Layout (No Icons) */}
+      {/* Services Index */}
       <section className="py-20 px-4 md:px-6">
         <div className="container mx-auto max-w-7xl">
            <div className="flex flex-col gap-4">
@@ -38,10 +38,8 @@ const Services: React.FC = () => {
                   key={idx}
                   className="group relative bg-brand-surface rounded-[2rem] p-8 md:p-16 border border-brand-border hover:border-brand-moss transition-all duration-500 hover:shadow-2xl overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-20"
                 >
-                   {/* Hover Reveal Background */}
                    <div className="absolute inset-0 bg-brand-moss/0 group-hover:bg-brand-moss/[0.02] transition-colors duration-500"></div>
 
-                   {/* Left: Content (Typography Focus) */}
                    <div className="relative z-10 flex-1 max-w-4xl">
                       <h3 className="text-3xl md:text-5xl font-heading font-bold text-brand-dark mb-6 group-hover:text-brand-moss transition-colors duration-300 tracking-tight">
                         {service.title}
@@ -55,7 +53,6 @@ const Services: React.FC = () => {
                       </div>
                    </div>
 
-                   {/* Right: The Big Number - Styled as Architectural Element */}
                    <div className="relative z-10 shrink-0 self-start md:self-center border-t md:border-t-0 md:border-l border-brand-border/40 pt-6 md:pt-0 md:pl-16 w-full md:w-auto text-right md:text-left">
                       <span className="block text-6xl md:text-9xl font-heading font-bold text-brand-border/50 group-hover:text-brand-moss/20 transition-colors duration-500 tabular-nums tracking-tighter leading-none">
                          {idx < 9 ? `0${idx + 1}` : idx + 1}
@@ -67,7 +64,7 @@ const Services: React.FC = () => {
         </div>
       </section>
 
-      {/* Approach Section - Redesigned (No Icons, Blueprint Grid) */}
+      {/* Approach Section */}
       <section className="py-24 md:py-32 px-4 md:px-6 bg-brand-surface border-y border-brand-border">
          <div className="container mx-auto max-w-7xl">
             <div className="mb-16 md:mb-24 max-w-4xl">
@@ -104,7 +101,7 @@ const Services: React.FC = () => {
          </div>
       </section>
 
-      {/* Industries Section - High Contrast & Fixed Cursor */}
+      {/* Industries Section */}
       <section className="py-24 px-4 md:px-6 bg-brand-dark text-brand-surface rounded-t-[3rem] md:rounded-t-[5rem] relative -mt-20 z-20 shadow-2xl">
         <div className="container mx-auto max-w-7xl">
            <div className="mb-16 md:mb-24 border-b border-white/10 pb-8 flex flex-col md:flex-row justify-between items-end gap-6">
@@ -129,7 +126,6 @@ const Services: React.FC = () => {
               ))}
            </div>
            
-           {/* Footer CTA in section */}
            <div className="mt-20 flex justify-center">
               <Link to="/contact" className="group inline-flex items-center gap-3 px-8 py-4 rounded-full border border-white/20 hover:bg-white hover:text-brand-dark transition-all duration-300 text-white font-bold">
                 Industry not listed? Contact Us <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"/>

@@ -3,15 +3,29 @@ import { Briefcase, ArrowRight } from 'lucide-react';
 
 const Careers: React.FC = () => {
   return (
-    <div className="pt-40 pb-20 px-4 md:px-6 bg-brand-bg">
-       <div className="container mx-auto max-w-7xl">
-          <div className="mb-24 max-w-4xl">
-            <h1 className="text-6xl md:text-8xl font-heading font-bold text-brand-dark mb-8 tracking-tighter">Join The <br/><span className="text-brand-moss">Elite.</span></h1>
-            <p className="text-brand-stone text-xl font-medium leading-relaxed">
-              We are always looking for sharp minds. If you are passionate about finance and solving complex problems, this is your arena.
-            </p>
-          </div>
+    <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
+      
+      {/* UNIFIED HERO SECTION */}
+      <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
+        <div className="container mx-auto max-w-7xl relative z-10">
+           <div className="max-w-5xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
+                <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
+                Careers
+              </div>
+              <h1 className="text-6xl md:text-8xl lg:text-9xl font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                Join The <br/>
+                <span className="font-serif italic font-normal text-brand-stone opacity-60">Elite.</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                 We are always looking for sharp minds. If you are passionate about finance and solving complex problems, this is your arena.
+              </p>
+           </div>
+        </div>
+      </section>
 
+      <div className="py-20 px-4 md:px-6">
+       <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
              <div className="lg:col-span-2 space-y-6">
                 <div className="flex items-center gap-3 mb-10">
@@ -20,8 +34,7 @@ const Careers: React.FC = () => {
                 </div>
                 
                 {[
-                  { role: 'Senior Audit Associate', exp: '3-5 Years', type: 'Full Time' },
-                  { role: 'Tax Consultant', exp: '2-4 Years', type: 'Full Time' },
+                  { role: 'Audit Associate', exp: '1-2 Years', type: 'Full Time' },
                   { role: 'Articled Assistant', exp: 'Fresher', type: 'Internship' }
                 ].map((job, idx) => (
                   <div key={idx} className="p-10 bg-brand-surface rounded-[2rem] border border-brand-border hover:border-brand-moss hover:shadow-xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
@@ -53,6 +66,7 @@ const Careers: React.FC = () => {
              </div>
           </div>
        </div>
+      </div>
     </div>
   );
 };
