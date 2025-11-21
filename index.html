@@ -22,31 +22,52 @@
     <meta property="og:description" content="Professional CA services tailored for modern businesses. Expertise in Audit, Tax Advisory, and Strategic Consulting." />
     <meta property="og:site_name" content="Sagar H R & Co." />
 
-    <!-- Google Fonts -->
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AccountingService",
+      "name": "Sagar H R & Co.",
+      "url": "https://casagar.co.in",
+      "telephone": "+919482359455",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "1479, 2nd Floor, Thyagaraja Road, KR Mohalla",
+        "addressLocality": "Mysuru",
+        "postalCode": "570004",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 12.3051,
+        "longitude": 76.6551
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+          ],
+          "opens": "10:00",
+          "closes": "20:00"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Outfit (Headings), Plus Jakarta Sans (Body), Playfair Display (Editorial/Preloader) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 
-    <!-- Import Map for React -->
-    <script type="importmap">
-    {
-      "imports": {
-        "react/": "https://aistudiocdn.com/react@^19.2.0/",
-        "react": "https://aistudiocdn.com/react@^19.2.0",
-        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-        "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-        "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
-        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-        "vite": "https://aistudiocdn.com/vite@^7.2.4",
-        "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
-      }
-    }
-    </script>
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Tailwind Configuration -->
     <script>
       tailwind.config = {
         theme: {
@@ -119,10 +140,55 @@
                 '100%': { transform: 'translate(0px, 0px) scale(1)' },
               }
             }
-          }
-        }
+          },
+        },
       }
     </script>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      /* Cursor Reset */
+      body, a, button, input, textarea, select { 
+        cursor: none !important; 
+      }
+      
+      @media (max-width: 768px) { 
+        body, a, button, input, textarea, select { 
+          cursor: auto !important; 
+        } 
+      }
+
+      /* Utility for grid background */
+      .bg-grid {
+        background-size: 4rem 4rem;
+        background-image: linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px),
+                          linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px);
+      }
+      
+      /* Helper class for delaying content animation */
+      .delay-2000 {
+        animation-delay: 2.0s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+      }
+      
+      /* Ensure content is visible if JS fails or animation ends */
+      .animate-content-reveal {
+        opacity: 0; /* Start hidden, revealed by animation */
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0"
+  }
+}
+</script>
 </head>
   <body class="bg-brand-bg text-brand-dark antialiased overflow-x-hidden selection:bg-brand-moss selection:text-brand-inverse">
     <div id="root"></div>
