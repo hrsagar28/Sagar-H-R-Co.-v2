@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
@@ -102,16 +103,16 @@ const About: React.FC = () => {
          <div className="container mx-auto max-w-7xl">
             <div className="bg-brand-surface rounded-[3rem] border border-brand-border overflow-hidden flex flex-col lg:flex-row">
                
-               <div className="lg:w-2/5 bg-brand-stone/5 relative min-h-[400px] lg:min-h-auto border-b lg:border-b-0 lg:border-r border-brand-border">
-                  <div className="absolute inset-0 bg-grid opacity-40"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                     <div className="w-48 h-48 bg-brand-bg rounded-full flex items-center justify-center border border-brand-border shadow-xl">
-                        <span className="font-heading font-bold text-6xl text-brand-dark">SHR</span>
-                     </div>
-                  </div>
+               <div className="lg:w-2/5 relative min-h-[400px] lg:min-h-auto border-b lg:border-b-0 lg:border-r border-brand-border group overflow-hidden">
+                  <img 
+                    src="/sagar-hr.jpg" 
+                    alt="CA Sagar H R" 
+                    className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-brand-moss/10 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                </div>
 
-               <div className="lg:w-3/5 p-10 md:p-16">
+               <div className="lg:w-3/5 p-10 md:p-16 flex flex-col justify-center">
                   <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Principal Partner</span>
                   <h2 className="text-4xl md:text-6xl font-heading font-bold text-brand-dark mb-2">CA Sagar H R</h2>
                   <p className="text-brand-stone font-bold text-sm uppercase tracking-widest mb-8">B.Com, ACA</p>

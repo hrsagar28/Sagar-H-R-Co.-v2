@@ -183,7 +183,7 @@ const Resources: React.FC = () => {
                             type="number" 
                             value={income || ''} 
                             onChange={(e) => setIncome(parseFloat(e.target.value))}
-                            placeholder="₹ 10,0,000"
+                            placeholder="₹ 10,00,000"
                             className="w-full p-4 bg-brand-bg border border-brand-border rounded-2xl font-bold text-brand-dark focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
                           />
                        </div>
