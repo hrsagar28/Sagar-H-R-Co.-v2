@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { SERVICE_DETAILS } from '../constants';
-import { ArrowLeft, CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -21,48 +22,22 @@ const ServiceDetail: React.FC = () => {
 
   const schema = {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://casagar.co.in/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Services",
-            "item": "https://casagar.co.in/services"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": service.title
-          }
-        ]
-      },
-      {
-        "@type": "Service",
-        "name": service.title,
-        "description": service.longDescription,
-        "provider": {
-          "@type": "AccountingService",
-          "name": "Sagar H R & Co.",
-          "url": "https://casagar.co.in"
-        },
-        "areaServed": {
-          "@type": "City",
-          "name": "Mysuru"
-        },
-        "offers": {
-          "@type": "Offer",
-          "description": service.shortDescription
-        }
-      }
-    ]
+    "@type": "Service",
+    "name": service.title,
+    "description": service.longDescription,
+    "provider": {
+      "@type": "AccountingService",
+      "name": "Sagar H R & Co.",
+      "url": "https://casagar.co.in"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "Mysuru"
+    },
+    "offers": {
+      "@type": "Offer",
+      "description": service.shortDescription
+    }
   };
 
   return (
@@ -75,12 +50,14 @@ const ServiceDetail: React.FC = () => {
 
       <div className="container mx-auto max-w-7xl">
         
-        {/* Breadcrumb / Back */}
+        {/* Breadcrumb Navigation */}
         <div className="mb-12">
-          <Link to="/services" className="inline-flex items-center gap-2 text-brand-stone hover:text-brand-dark font-bold text-sm uppercase tracking-wider transition-colors group">
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            Back to Services
-          </Link>
+          <Breadcrumbs 
+            items={[
+              { label: 'Services', path: '/services' },
+              { label: service.title }
+            ]} 
+          />
         </div>
 
         {/* Header */}
