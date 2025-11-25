@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, ReactNode } from 'react';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 interface RevealProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface RevealProps {
 /**
  * Reveal Component
  * Uses IntersectionObserver to trigger premium entrance animations when elements scroll into view.
+ * Respects prefers-reduced-motion.
  */
 const Reveal: React.FC<RevealProps> = ({ 
   children, 
@@ -23,6 +25,7 @@ const Reveal: React.FC<RevealProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -45,6 +48,7 @@ const Reveal: React.FC<RevealProps> = ({
 
   // Define transition styles based on visibility
   const getTransformStyle = () => {
+    if (shouldReduceMotion) return 'none';
     if (isVisible) return 'translate(0, 0) scale(1)';
     
     switch (variant) {
@@ -56,15 +60,16 @@ const Reveal: React.FC<RevealProps> = ({
   };
 
   const getOpacityStyle = () => {
+    if (shouldReduceMotion) return 1;
     if (variant === 'reveal-mask') return 1; // Mask reveals don't usually fade opacity
     return isVisible ? 1 : 0;
   };
 
   const style = {
     transitionProperty: 'all',
-    transitionDuration: `${duration}s`,
+    transitionDuration: shouldReduceMotion ? '0s' : `${duration}s`,
     transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)', // Premium ease
-    transitionDelay: `${delay}s`,
+    transitionDelay: shouldReduceMotion ? '0s' : `${delay}s`,
     opacity: getOpacityStyle(),
     transform: getTransformStyle(),
   };

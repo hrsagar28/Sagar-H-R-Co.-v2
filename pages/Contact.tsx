@@ -1,8 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Mail, Phone, ChevronDown, Check, ArrowRight } from 'lucide-react';
 import { SERVICES } from '../constants';
 import Reveal from '../components/Reveal';
+import SEO from '../components/SEO';
 
 const Contact: React.FC = () => {
   const [subject, setSubject] = useState('');
@@ -17,11 +17,6 @@ const Contact: React.FC = () => {
     email: '',
     message: ''
   });
-
-  // SEO & Schema
-  useEffect(() => {
-    document.title = "Contact Sagar H R & Co. | CA Firm in Mysuru";
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -78,8 +73,31 @@ const Contact: React.FC = () => {
       }
   };
 
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "mainEntity": {
+      "@type": "AccountingService",
+      "name": "Sagar H R & Co.",
+      "telephone": "+919482359455",
+      "email": "mail@casagar.co.in",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "1479, 2nd Floor, Thyagaraja Road, KR Mohalla",
+        "addressLocality": "Mysuru",
+        "postalCode": "570004",
+        "addressCountry": "IN"
+      }
+    }
+  };
+
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
+      <SEO 
+        title="Contact Sagar H R & Co. | CA Firm in Mysuru"
+        description="Get in touch with Sagar H R & Co. for expert financial consultation. Located in Mysuru. Call or email us today for Audit, Tax, and Advisory services."
+        schema={schema}
+      />
       
       {/* UNIFIED HERO SECTION */}
       <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
@@ -149,7 +167,7 @@ const Contact: React.FC = () => {
                             </div>
 
                             <div className="flex items-start gap-6 group/item">
-                               <div className="w-16 h-16 rounded-2xl bg-brand-bg border border-brand-border flex items-center justify-center text-brand-moss shrink-0 group-hover/item:bg-brand-moss group-hover/item:text-white transition-colors duration-300 shadow-sm">
+                               <div className="w-16 h-16 rounded-2xl bg-brand-bg border border-brand-border flex items-center justify-center text-brand-moss shrink-0 group-hover/item:bg-brand-moss group-hover:text-white transition-colors duration-300 shadow-sm">
                                   <Phone size={28} />
                                </div>
                                <div>

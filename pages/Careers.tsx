@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Briefcase, ArrowRight } from 'lucide-react';
 import CareerForm from '../components/forms/CareerForm';
+import SEO from '../components/SEO';
 
 const Careers: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -62,7 +63,11 @@ const Careers: React.FC = () => {
 
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
-      
+      <SEO 
+        title="Careers | Join Sagar H R & Co."
+        description="Build a career in financial excellence. Explore job openings for Chartered Accountants, Articles, and Audit Associates in Mysuru."
+      />
+
       {/* UNIFIED HERO SECTION */}
       <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60 z-base">
         <div className="container mx-auto max-w-7xl relative z-10">

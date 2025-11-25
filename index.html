@@ -204,6 +204,23 @@
       .group:hover .roll-text-group .hover-text {
         transform: translateY(0);
       }
+
+      /* ACCESSIBILITY FOCUS STYLES */
+      :focus-visible {
+        outline: 2px solid #1A4D2E;
+        outline-offset: 4px;
+        z-index: 999;
+      }
+      
+      /* Remove default outline for mouse users if desired, but keep for keyboard */
+      :focus:not(:focus-visible) {
+        outline: none;
+      }
+
+      /* Programmatic focus on main container shouldn't show ring */
+      #main-content:focus {
+        outline: none;
+      }
     </style>
   </head>
   <body class="bg-[#F2F2F0] text-[#111111]">

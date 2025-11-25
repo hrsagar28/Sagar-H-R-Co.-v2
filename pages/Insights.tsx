@@ -2,10 +2,36 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
 import { ArrowUpRight, Calendar } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Insights: React.FC = () => {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Insights & Knowledge Base",
+    "description": "Analysis, regulatory updates, and strategic commentary from our research desk.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Sagar H R & Co."
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": INSIGHTS_MOCK.map((insight, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `https://casagar.co.in/insights/${insight.slug}`,
+        "name": insight.title
+      }))
+    }
+  };
+
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
+      <SEO 
+        title="Insights & Updates | Sagar H R & Co."
+        description="Stay ahead with the latest updates on Income Tax, GST, and economic trends. Expert analysis and commentary from CA Sagar H R."
+        schema={schema}
+      />
       
       {/* UNIFIED HERO SECTION */}
       <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">

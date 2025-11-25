@@ -25,11 +25,21 @@ const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-const ScrollToTop = () => {
+const RouteHandler = () => {
   const { pathname } = useLocation();
+  
   useEffect(() => {
+    // Scroll to top
     window.scrollTo(0, 0);
+    
+    // Focus management for accessibility
+    // Focus the main content wrapper to announce page change to screen readers
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.focus();
+    }
   }, [pathname]);
+  
   return null;
 };
 
@@ -39,7 +49,7 @@ const App: React.FC = () => {
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white">
         Skip to content
       </a>
-      <ScrollToTop />
+      <RouteHandler />
       <Preloader />
       <CustomCursor />
       

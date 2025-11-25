@@ -1,58 +1,42 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import ServiceBento from '../components/ServiceBento';
-import { INDUSTRIES } from '../constants';
+import { INDUSTRIES, SERVICES } from '../constants';
 import { ArrowUpRight } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Services: React.FC = () => {
-  // SEO & Schema
-  useEffect(() => {
-    document.title = "Professional CA Services in Mysuru | Audit, Tax & Advisory";
-    
-    // Update Meta Description
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', "Comprehensive financial services including GST, Income Tax Filing, Company Law, Auditing, and Business Advisory. Expert solutions for individuals and businesses.");
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Financial Services",
+    "description": "Comprehensive suite of financial services including GST, Income Tax, Audit, and Advisory.",
+    "provider": {
+      "@type": "AccountingService",
+      "name": "Sagar H R & Co."
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": SERVICES.map((service, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "Service",
+          "name": service.title,
+          "description": service.description,
+          "url": `https://casagar.co.in/services/${service.id}`
+        }
+      }))
     }
-
-    // JSON-LD Schema for Services
-    const schemaData = {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "serviceType": "Accounting and Financial Services",
-      "provider": {
-        "@type": "AccountingService",
-        "name": "Sagar H R & Co."
-      },
-      "areaServed": {
-        "@type": "City",
-        "name": "Mysuru"
-      },
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Financial Services",
-        "itemListElement": [
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "GST Registration & Filing" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Income Tax Compliance" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Audit & Assurance" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Company Law & ROC" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Advisory & Consulting" } }
-        ]
-      }
-    };
-
-    const script = document.createElement('script');
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(schemaData);
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+  };
 
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
+      <SEO 
+        title="Professional CA Services in Mysuru | Audit, Tax & Advisory"
+        description="Comprehensive financial services including GST, Income Tax Filing, Company Law, Auditing, and Business Advisory. Expert solutions for individuals and businesses."
+        schema={schema}
+      />
       
       {/* 1. HERO SECTION - Standard Clean Grid */}
       <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">

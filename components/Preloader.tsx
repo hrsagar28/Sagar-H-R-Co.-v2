@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const Preloader: React.FC = () => {
   const [animateOut, setAnimateOut] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    // If reduced motion is preferred, we skip the preloader entirely to avoid transition sickness
+    if (shouldReduceMotion) {
+      setHidden(true);
+      return;
+    }
+
     // Sequence:
     // 0s: Mount (Black screen)
     // 1.5s: Start lifting curtain (Reduced for snappier UX)
@@ -21,13 +29,14 @@ const Preloader: React.FC = () => {
       clearTimeout(timer);
       clearTimeout(cleanup);
     };
-  }, []);
+  }, [shouldReduceMotion]);
 
   if (hidden) return null;
 
   return (
     <div 
       className={`fixed inset-0 z-preloader flex items-center justify-center bg-[#0a0a0a] transition-transform duration-[800ms] ease-[cubic-bezier(0.83,0,0.17,1)] will-change-transform ${animateOut ? '-translate-y-full' : 'translate-y-0'}`}
+      role="presentation"
     >
       <div className={`flex flex-col items-center justify-center transition-opacity duration-500 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
         {/* Title - Using the new Serif font for editorial elegance */}

@@ -1,52 +1,39 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
+import { Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
 import OptimizedImage from '../components/OptimizedImage';
+import SEO from '../components/SEO';
 
 const About: React.FC = () => {
-  // SEO & Schema
-  useEffect(() => {
-    document.title = "About Sagar H R & Co. | Our Firm & Philosophy";
-    
-    // Update Meta Description
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', "Learn about Sagar H R & Co., a premier Chartered Accountancy firm in Mysuru. Discover our mission, values, and the expert team dedicated to your financial growth.");
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "mainEntity": {
+      "@type": "AccountingService",
+      "name": "Sagar H R & Co.",
+      "legalName": "Sagar H R & Co.",
+      "founder": {
+         "@type": "Person",
+         "name": "CA Sagar H R",
+         "jobTitle": "Principal Partner"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Mysuru",
+        "sameAs": "https://en.wikipedia.org/wiki/Mysore"
+      },
+      "knowsAbout": ["Taxation", "Audit", "Financial Advisory", "GST", "Company Law"],
+      "description": "Sagar H R & Co. is a premier Chartered Accountancy firm in Mysuru providing audit, tax, and advisory services."
     }
-
-    // JSON-LD Schema
-    const schemaData = {
-      "@context": "https://schema.org",
-      "@type": "AboutPage",
-      "name": "About Sagar H R & Co.",
-      "description": "Information about Sagar H R & Co., a Chartered Accountancy firm based in Mysuru.",
-      "url": window.location.href,
-      "mainEntity": {
-        "@type": "AccountingService",
-        "name": "Sagar H R & Co.",
-        "founder": {
-           "@type": "Person",
-           "name": "CA Sagar H R"
-        },
-        "areaServed": "Mysuru, Karnataka",
-        "knowsAbout": ["Taxation", "Audit", "Financial Advisory", "GST"]
-      }
-    };
-
-    const script = document.createElement('script');
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(schemaData);
-    document.head.appendChild(script);
-
-    return () => {
-      // Clean up on unmount
-      document.head.removeChild(script);
-      // Optional: Reset title/meta if needed, but usually next page handles it
-    };
-  }, []);
+  };
 
   return (
     <div className="min-h-screen bg-brand-bg selection:bg-brand-moss selection:text-white">
+      <SEO 
+        title="About Sagar H R & Co. | Our Firm & Philosophy"
+        description="Learn about Sagar H R & Co., a premier Chartered Accountancy firm in Mysuru. Discover our mission, values, and the expert team dedicated to your financial growth."
+        schema={schema}
+      />
       
       {/* UNIFIED HERO SECTION */}
       <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">

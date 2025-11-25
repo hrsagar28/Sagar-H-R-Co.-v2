@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FAQS } from '../constants';
 import { Plus, Minus } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const FAQ: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -12,33 +13,26 @@ const FAQ: React.FC = () => {
     setActiveIndex(activeIndex === idx ? null : idx);
   };
 
-  // Inject JSON-LD for SEO
-  useEffect(() => {
-    const schemaData = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": FAQS.map(faq => ({
-        "@type": "Question",
-        "name": faq.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": faq.answer
-        }
-      }))
-    };
-
-    const script = document.createElement('script');
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(schemaData);
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": FAQS.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
 
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
+      <SEO 
+        title="Frequently Asked Questions | Sagar H R & Co."
+        description="Answers to common queries regarding Income Tax, GST, Business Registration, and our engagement process."
+        schema={schema}
+      />
       
       {/* UNIFIED HERO SECTION */}
       <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">

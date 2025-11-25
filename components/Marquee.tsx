@@ -1,6 +1,9 @@
 import React from 'react';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const Marquee: React.FC = () => {
+  const shouldReduceMotion = useReducedMotion();
+
   const content = [
     { prefix: "Strategic", highlight: "Finance" },
     { prefix: "Precision", highlight: "Audit" },
@@ -32,10 +35,16 @@ const Marquee: React.FC = () => {
        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-brand-bg to-transparent z-10 pointer-events-none"></div>
        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-brand-bg to-transparent z-10 pointer-events-none"></div>
 
-       <div className="animate-marquee flex items-center shrink-0 group-hover:[animation-play-state:paused]">
+       <div 
+         className="animate-marquee flex items-center shrink-0 group-hover:[animation-play-state:paused]"
+         style={shouldReduceMotion ? { animationPlayState: 'paused' } : {}}
+       >
           <ItemGroup />
        </div>
-       <div className="animate-marquee flex items-center shrink-0 group-hover:[animation-play-state:paused]">
+       <div 
+         className="animate-marquee flex items-center shrink-0 group-hover:[animation-play-state:paused]"
+         style={shouldReduceMotion ? { animationPlayState: 'paused' } : {}}
+       >
           <ItemGroup />
        </div>
     </div>

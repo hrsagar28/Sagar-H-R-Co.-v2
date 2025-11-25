@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { SERVICE_DETAILS } from '../constants';
 import { ArrowLeft, CheckCircle2, ArrowRight } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -18,8 +19,60 @@ const ServiceDetail: React.FC = () => {
 
   if (!service) return null;
 
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://casagar.co.in/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Services",
+            "item": "https://casagar.co.in/services"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": service.title
+          }
+        ]
+      },
+      {
+        "@type": "Service",
+        "name": service.title,
+        "description": service.longDescription,
+        "provider": {
+          "@type": "AccountingService",
+          "name": "Sagar H R & Co.",
+          "url": "https://casagar.co.in"
+        },
+        "areaServed": {
+          "@type": "City",
+          "name": "Mysuru"
+        },
+        "offers": {
+          "@type": "Offer",
+          "description": service.shortDescription
+        }
+      }
+    ]
+  };
+
   return (
     <div className="pt-32 md:pt-40 pb-20 px-4 md:px-6 bg-brand-bg bg-grid min-h-screen">
+      <SEO 
+        title={`${service.title} | Sagar H R & Co.`}
+        description={service.shortDescription}
+        schema={schema}
+      />
+
       <div className="container mx-auto max-w-7xl">
         
         {/* Breadcrumb / Back */}

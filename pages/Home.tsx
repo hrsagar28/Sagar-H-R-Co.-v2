@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { ArrowRight, Shield, TrendingUp, CheckCircle2, BarChart3, Calculator } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Shield, TrendingUp, CheckCircle2, BarChart3, Calculator, ArrowRight } from 'lucide-react';
 import Marquee from '../components/Marquee';
 import Reveal from '../components/Reveal';
 import MagneticButton from '../components/MagneticButton';
 import OptimizedImage from '../components/OptimizedImage';
+import SEO from '../components/SEO';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -24,8 +25,59 @@ const Home: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "AccountingService",
+        "@id": "https://casagar.co.in/#organization",
+        "name": "Sagar H R & Co.",
+        "url": "https://casagar.co.in",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://casagar.co.in/logo.png"
+        },
+        "description": "Premium Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "1479, 2nd Floor, Thyagaraja Road, KR Mohalla",
+          "addressLocality": "Mysuru",
+          "postalCode": "570004",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 12.3051,
+          "longitude": 76.6551
+        },
+        "telephone": "+919482359455",
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "opens": "10:00",
+            "closes": "20:00"
+          }
+        ],
+        "priceRange": "$$"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://casagar.co.in/#website",
+        "url": "https://casagar.co.in",
+        "name": "Sagar H R & Co.",
+        "publisher": { "@id": "https://casagar.co.in/#organization" }
+      }
+    ]
+  };
+
   return (
     <div className="w-full bg-brand-bg overflow-hidden">
+      <SEO 
+        title="Sagar H R & Co. | Premium Chartered Accountants | Mysuru"
+        description="Sagar H R & Co. - Trusted financial advisors in Mysuru. Expert services in Audit, Taxation, GST, and Business Advisory for modern businesses."
+        schema={schema}
+      />
       
       {/* 1. CINEMATIC HERO SECTION */}
       <section className="relative min-h-screen flex flex-col justify-center px-4 md:px-6 overflow-hidden pt-20">

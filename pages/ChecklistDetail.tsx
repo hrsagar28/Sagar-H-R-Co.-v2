@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { CHECKLIST_DATA } from '../constants';
 import { ArrowLeft, Printer, CheckSquare } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const ChecklistDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -23,6 +24,11 @@ const ChecklistDetail: React.FC = () => {
 
   return (
     <div className="pt-32 md:pt-40 pb-20 px-4 md:px-6 bg-brand-bg min-h-screen">
+      <SEO 
+        title={`${checklist.title} | Resources`}
+        description={`Download and view the checklist for ${checklist.title}. ${checklist.subtitle}`}
+      />
+
       <div className="container mx-auto max-w-4xl">
         
         <div className="flex justify-between items-center mb-12 print:hidden">

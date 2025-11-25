@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
 import { ArrowLeft, Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const InsightDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -64,8 +65,64 @@ const InsightDetail: React.FC = () => {
 
   if (!insight) return null;
 
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://casagar.co.in/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Insights",
+            "item": "https://casagar.co.in/insights"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": insight.title
+          }
+        ]
+      },
+      {
+        "@type": "Article",
+        "headline": insight.title,
+        "description": insight.summary,
+        "author": {
+          "@type": "Person",
+          "name": insight.author
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Sagar H R & Co.",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://casagar.co.in/logo.png"
+          }
+        },
+        "datePublished": new Date(insight.date).toISOString(),
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `https://casagar.co.in/insights/${insight.slug}`
+        }
+      }
+    ]
+  };
+
   return (
     <div className="bg-brand-surface min-h-screen relative selection:bg-brand-moss selection:text-white">
+      <SEO 
+        title={`${insight.title} | Insights`}
+        description={insight.summary}
+        ogType="article"
+        schema={schema}
+      />
       
       {/* Reading Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-1.5 z-sticky bg-transparent">
