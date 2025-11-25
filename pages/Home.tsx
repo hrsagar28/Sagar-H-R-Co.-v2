@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Marquee from '../components/Marquee';
 import Reveal from '../components/Reveal';
 import MagneticButton from '../components/MagneticButton';
+import OptimizedImage from '../components/OptimizedImage';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -32,10 +33,11 @@ const Home: React.FC = () => {
         {/* Stylized Background Image */}
         <div className="absolute inset-0 z-0 bg-black">
            {/* Darker, professional architecture image */}
-           <img 
+           <OptimizedImage 
             src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
             alt="Corporate Architecture" 
-            className="w-full h-full object-cover opacity-50 scale-105 animate-spin-slow origin-center" 
+            priority={true}
+            className="w-full h-full opacity-50 scale-105 animate-spin-slow origin-center" 
             style={{ animationDuration: '90s', animationDirection: 'alternate' }}
            />
            {/* Dark Black Vignette & Overlays */}

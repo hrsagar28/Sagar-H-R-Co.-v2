@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
+import OptimizedImage from '../components/OptimizedImage';
 
 const About: React.FC = () => {
   // SEO & Schema
@@ -144,10 +145,11 @@ const About: React.FC = () => {
             <div className="bg-brand-surface rounded-[3rem] border border-brand-border overflow-hidden flex flex-col lg:flex-row">
                
                <div className="lg:w-2/5 relative min-h-[400px] lg:min-h-auto border-b lg:border-b-0 lg:border-r border-brand-border group overflow-hidden">
-                  <img 
+                  <OptimizedImage 
                     src="/sagar-hr.jpg" 
                     alt="CA Sagar H R" 
-                    className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full"
+                    imgClassName="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-brand-moss/10 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                </div>
