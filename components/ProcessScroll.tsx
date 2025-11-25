@@ -2,40 +2,8 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Search, Layout, Rocket } from 'lucide-react';
 
 const ProcessScroll: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current) return;
-      
-      const rect = sectionRef.current.getBoundingClientRect();
-      const sectionTop = rect.top;
-      const sectionHeight = rect.height;
-      const windowHeight = window.innerHeight;
-
-      // Calculate how far we've scrolled *into* the section (sticky logic)
-      // We want the animation to start when section hits top of viewport
-      // And end when the bottom of section hits bottom of viewport
-      
-      const scrollDistance = -sectionTop; 
-      const maxScroll = sectionHeight - windowHeight;
-      
-      let p = scrollDistance / maxScroll;
-      
-      // Clamp
-      if (p < 0) p = 0;
-      if (p > 1) p = 1;
-      
-      setProgress(p);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Init
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const [activePhase, setActivePhase] = useState(0);
 
   const phases = [
     {
@@ -58,62 +26,93 @@ const ProcessScroll: React.FC = () => {
     }
   ];
 
-  // Dynamic background color based on progress
-  // 0-0.33: Light, 0.33-0.66: Moss Light, 0.66-1: Dark
-  let bgClass = "bg-brand-bg";
-  if (progress > 0.6) bgClass = "bg-brand-dark text-brand-surface";
-  else if (progress > 0.3) bgClass = "bg-brand-mossLight text-brand-dark";
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute('data-index'));
+            setActivePhase(index);
+          }
+        });
+      },
+      {
+        root: containerRef.current,
+        threshold: 0.6, // Trigger when 60% visible
+      }
+    );
+
+    const elements = containerRef.current?.querySelectorAll('.snap-section');
+    elements?.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Dynamic styling based on active phase
+  const getTheme = (index: number) => {
+    if (index === 0) return 'bg-brand-bg text-brand-dark';
+    if (index === 1) return 'bg-brand-mossLight text-brand-dark';
+    return 'bg-brand-dark text-brand-surface';
+  };
 
   return (
-    <div ref={sectionRef} className="relative h-[300vh] w-full">
-       <div className={`sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center transition-colors duration-700 ${bgClass}`}>
-          
-          <div className="absolute top-10 left-10 z-10">
-             <span className="text-xs font-bold uppercase tracking-widest opacity-50">The Methodology</span>
-          </div>
+    <div className={`relative w-full transition-colors duration-700 ease-in-out ${getTheme(activePhase)}`}>
+      
+      {/* Sticky Progress Indicator */}
+      <div className="absolute top-10 left-4 md:left-10 z-20 flex flex-col gap-2 pointer-events-none">
+         <span className="text-xs font-bold uppercase tracking-widest opacity-50">The Methodology</span>
+         <div className="flex gap-2">
+            {phases.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-1 rounded-full transition-all duration-300 ${i === activePhase ? 'w-8 bg-current opacity-100' : 'w-2 bg-current opacity-30'}`}
+              />
+            ))}
+         </div>
+      </div>
 
-          <div className="container mx-auto max-w-7xl px-4 relative">
-             
-             {/* Horizontal Movement Container */}
-             <div 
-               className="flex gap-20 md:gap-40 will-change-transform"
-               style={{ transform: `translateX(-${progress * 200}%)` }} // Move 2 full widths roughly
-             >
-               {phases.map((phase, i) => (
-                  <div key={i} className="min-w-[80vw] md:min-w-[40vw] shrink-0">
-                      <div className="mb-8 opacity-50 font-serif italic text-6xl md:text-8xl">
-                        {phase.id}
-                      </div>
-                      <div className="mb-8 p-6 rounded-full border border-current inline-block opacity-80">
+      {/* Horizontal Scroll Container */}
+      <div 
+        ref={containerRef}
+        className="flex overflow-x-auto snap-x snap-mandatory w-full h-screen no-scrollbar scroll-smooth"
+      >
+        {phases.map((phase, i) => (
+          <div 
+            key={i} 
+            data-index={i}
+            className="snap-section snap-center shrink-0 w-full h-screen flex flex-col justify-center items-center px-6 relative"
+          >
+             <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
+                <div className="order-2 md:order-1">
+                    <div className="mb-6 p-6 rounded-full border border-current inline-block opacity-80">
                          {phase.icon}
-                      </div>
-                      <h3 className="text-4xl md:text-7xl font-heading font-bold mb-6 leading-tight">
+                    </div>
+                    <h3 className="text-4xl md:text-7xl font-heading font-bold mb-6 leading-tight">
                         {phase.title}
-                      </h3>
-                      <p className="text-xl md:text-2xl opacity-80 leading-relaxed max-w-xl">
+                    </h3>
+                    <p className="text-xl md:text-2xl opacity-80 leading-relaxed max-w-xl">
                         {phase.desc}
-                      </p>
-                  </div>
-               ))}
-               
-               {/* Final decorative slide */}
-               <div className="min-w-[50vw] shrink-0 flex items-center">
-                   <div className="text-4xl md:text-6xl font-serif italic opacity-50">
-                      Results Delivered.
-                   </div>
-               </div>
+                    </p>
+                </div>
+                <div className="order-1 md:order-2 flex justify-center md:justify-end">
+                    <div className="font-serif italic text-[10rem] md:text-[15rem] leading-none opacity-10 select-none">
+                        {phase.id}
+                    </div>
+                </div>
              </div>
-
-             {/* Progress Line */}
-             <div className="absolute bottom-0 left-0 w-full h-[1px] bg-current opacity-20 mt-20">
-                <div 
-                  className="h-full bg-brand-moss transition-all duration-100 ease-linear"
-                  style={{ width: `${progress * 100}%` }}
-                ></div>
-             </div>
-
           </div>
-       </div>
+        ))}
+        
+        {/* Results Slide */}
+        <div 
+           data-index={phases.length} // Treat as last index for styling
+           className="snap-section snap-center shrink-0 w-full h-screen flex justify-center items-center bg-brand-dark text-white px-6"
+        >
+             <h3 className="text-5xl md:text-8xl font-serif italic opacity-50 text-center">
+                Results Delivered.
+             </h3>
+        </div>
+      </div>
     </div>
   );
 };

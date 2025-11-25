@@ -1,95 +1,84 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { INDUSTRIES } from '../constants';
 
 const IndustrySpotlight: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: -500, y: -500 }); // Start off-screen
-  const [isTouch, setIsTouch] = useState(false);
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
-     setIsTouch(window.matchMedia("(pointer: coarse)").matches);
-  }, []);
+    const container = containerRef.current;
+    if (!container) return;
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setMousePos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+    const handleMouseMove = (e: MouseEvent) => {
+      // Use requestAnimationFrame for smooth updates without layout thrashing
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        container.style.setProperty('--mouse-x', `${x}px`);
+        container.style.setProperty('--mouse-y', `${y}px`);
       });
-    }
-  };
+    };
+
+    container.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      container.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return (
     <div 
       ref={containerRef} 
-      className="relative bg-black text-white py-32 px-4 overflow-hidden cursor-none"
-      onMouseMove={handleMouseMove}
+      className="relative bg-[#050505] text-white py-32 px-4 overflow-hidden group"
+      style={{ '--mouse-x': '-500px', '--mouse-y': '-500px' } as React.CSSProperties}
     >
-       <div className="container mx-auto max-w-7xl relative z-20">
+       {/* 
+          Spotlight Effect Logic:
+          A radial gradient background follows the mouse via CSS variables.
+          We use mix-blend-mode to "light up" the content or create a glow.
+          The 'after' pseudo-element creates the glow.
+       */}
+       <div 
+          className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+          style={{
+            background: `radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(26, 77, 46, 0.15), transparent 40%)`
+          }}
+       />
+
+       <div className="container mx-auto max-w-7xl relative z-10">
           <div className="mb-20">
              <span className="text-green-500 text-xs font-bold uppercase tracking-widest">Sectors</span>
-             <h2 className="text-5xl md:text-7xl font-heading font-bold mt-4 text-zinc-800">
+             <h2 className="text-5xl md:text-7xl font-heading font-bold mt-4 text-zinc-100">
                 Industry Expertise
              </h2>
           </div>
 
-          {/* Base Layer (Dark/Hidden) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 opacity-20 pointer-events-none">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
              {INDUSTRIES.map((ind, i) => (
-                <div key={i} className="border border-zinc-800 p-8 rounded-3xl aspect-square flex flex-col justify-end">
-                   <span className="text-2xl font-bold text-zinc-700">{ind.title}</span>
+                <div 
+                  key={i} 
+                  className="relative p-8 rounded-3xl border border-white/10 bg-white/5 overflow-hidden transition-colors hover:border-brand-moss/50 hover:bg-white/10 group/card"
+                >
+                   {/* Card-specific hover glow */}
+                   <div className="absolute inset-0 bg-brand-moss/20 blur-xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
+                   
+                   <div className="relative z-10 h-full flex flex-col justify-between">
+                      <div className="text-green-500 mb-6 group-hover/card:scale-110 transition-transform duration-300 origin-left">
+                          {React.cloneElement(ind.icon as React.ReactElement<any>, { size: 32 })}
+                      </div>
+                      <div>
+                          <h3 className="text-xl md:text-2xl font-bold text-white mb-2">{ind.title}</h3>
+                          <p className="text-xs md:text-sm text-zinc-400 group-hover/card:text-zinc-200 transition-colors leading-relaxed">
+                            {ind.description}
+                          </p>
+                      </div>
+                   </div>
                 </div>
              ))}
           </div>
        </div>
-
-       {/* Spotlight Layer (Revealed) */}
-       <div 
-          className="absolute inset-0 z-30 pointer-events-none"
-          style={{
-             background: `radial-gradient(circle 300px at ${mousePos.x}px ${mousePos.y}px, rgba(0,0,0,0) 10%, rgba(0,0,0,0.98) 100%)`
-          }}
-       ></div>
-       
-       {/* Content that lights up (Duplicate Grid on top) */}
-       <div 
-         className="absolute inset-0 z-10 flex items-center justify-center py-32 px-4"
-         style={{
-             maskImage: isTouch ? 'none' : `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 100%, transparent 100%)`,
-             WebkitMaskImage: isTouch ? 'none' : `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 100%, transparent 100%)`
-         }}
-       >
-          <div className="container mx-auto max-w-7xl h-full">
-              <div className="mb-20">
-                <span className="text-green-500 text-xs font-bold uppercase tracking-widest">Sectors</span>
-                <h2 className="text-5xl md:text-7xl font-heading font-bold mt-4 text-white">
-                    Industry Expertise
-                </h2>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-                {INDUSTRIES.map((ind, i) => (
-                    <div key={i} className="bg-zinc-900/50 border border-zinc-700 p-8 rounded-3xl aspect-square flex flex-col justify-between hover:bg-zinc-800 transition-colors">
-                        <div className="text-green-400">
-                            {React.cloneElement(ind.icon as React.ReactElement<any>, { size: 32 })}
-                        </div>
-                        <div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-2">{ind.title}</h3>
-                            <p className="text-xs md:text-sm text-zinc-400">{ind.description}</p>
-                        </div>
-                    </div>
-                ))}
-              </div>
-          </div>
-       </div>
-       
-       {/* Flashlight Glow at cursor */}
-       {!isTouch && (
-         <div 
-            className="absolute w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[100px] pointer-events-none z-0 mix-blend-screen transform -translate-x-1/2 -translate-y-1/2"
-            style={{ left: mousePos.x, top: mousePos.y }}
-         ></div>
-       )}
     </div>
   );
 };

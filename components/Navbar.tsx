@@ -14,6 +14,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
+  // Scroll detection
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -25,9 +26,58 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isOpen]);
 
+  // Close on route change
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
+
+  // Body Scroll Lock & Focus Trap Logic
+  useEffect(() => {
+    if (isOpen) {
+      // Lock scroll
+      document.body.style.overflow = 'hidden';
+      
+      // Focus Trap
+      const focusableElements = menuRef.current?.querySelectorAll(
+        'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+      );
+      const firstElement = focusableElements ? focusableElements[0] as HTMLElement : null;
+      const lastElement = focusableElements ? focusableElements[focusableElements.length - 1] as HTMLElement : null;
+
+      const handleTabKey = (e: KeyboardEvent) => {
+        if (e.key === 'Tab') {
+          if (e.shiftKey) { // Shift + Tab
+            if (document.activeElement === firstElement) {
+              e.preventDefault();
+              lastElement?.focus();
+            }
+          } else { // Tab
+            if (document.activeElement === lastElement) {
+              e.preventDefault();
+              firstElement?.focus();
+            }
+          }
+        } else if (e.key === 'Escape') {
+          setIsOpen(false);
+          buttonRef.current?.focus();
+        }
+      };
+
+      document.addEventListener('keydown', handleTabKey);
+      
+      // Initial focus
+      setTimeout(() => {
+        firstElement?.focus();
+      }, 100);
+
+      return () => {
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', handleTabKey);
+      };
+    } else {
+        document.body.style.overflow = '';
+    }
+  }, [isOpen]);
 
   // Handle click outside
   useEffect(() => {
@@ -59,7 +109,11 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       `}>
         
         {/* Logo - Left Pill */}
-        <Link to="/" className="flex items-center gap-2 md:gap-3 bg-brand-surface/50 md:bg-brand-surface px-2 md:px-5 py-1.5 md:py-2 rounded-full md:border border-brand-border/30 shadow-none md:shadow-sm group hover:border-brand-moss/30 transition-all shrink-0">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 md:gap-3 bg-brand-surface/50 md:bg-brand-surface px-3 py-2 md:px-5 rounded-full md:border border-brand-border/30 shadow-none md:shadow-sm group hover:border-brand-moss/30 transition-all shrink-0 min-h-[44px]"
+          aria-label="Sagar H R & Co. Home"
+        >
            <div className="w-8 h-8 md:w-8 md:h-8 bg-brand-dark text-brand-inverse rounded-full flex items-center justify-center font-heading font-bold text-base md:text-lg group-hover:scale-110 transition-transform duration-300 shrink-0">S</div>
            <h1 className="font-heading text-sm md:text-lg font-bold text-brand-dark tracking-tight block whitespace-nowrap">
             Sagar H R & Co.
@@ -67,12 +121,13 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         </Link>
 
         {/* Desktop Menu - Center Pill (Rolling Text Effect) */}
-        <div className="hidden lg:flex items-center bg-brand-surface/80 px-1 py-1 rounded-full border border-brand-border/30 shadow-sm backdrop-blur-md mx-2">
+        <div className="hidden lg:flex items-center bg-brand-surface/80 px-1 py-1 rounded-full border border-brand-border/30 shadow-sm backdrop-blur-md mx-2" role="menubar">
           {NAV_LINKS.slice(0, 7).map((link) => (
             <Link 
               key={link.name} 
               to={link.path}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden whitespace-nowrap group ${
+              role="menuitem"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden whitespace-nowrap group min-h-[44px] flex items-center ${
                 location.pathname === link.path 
                   ? 'bg-brand-moss text-brand-inverse shadow-md' 
                   : 'text-brand-stone hover:bg-brand-bg'
@@ -97,7 +152,8 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           {/* Desktop CTA - New Pill with Icon Circle */}
           <Link 
             to="/contact" 
-            className="hidden md:flex pl-6 pr-1.5 py-1.5 bg-brand-dark text-brand-inverse text-sm font-bold rounded-full shadow-lg shadow-brand-dark/10 items-center gap-3 group transition-all duration-300 hover:bg-brand-dark/90 hover:ring-4 hover:ring-brand-border/20"
+            className="hidden md:flex pl-6 pr-1.5 py-1.5 bg-brand-dark text-brand-inverse text-sm font-bold rounded-full shadow-lg shadow-brand-dark/10 items-center gap-3 group transition-all duration-300 hover:bg-brand-dark/90 hover:ring-4 hover:ring-brand-border/20 min-h-[44px]"
+            aria-label="Contact Us"
           >
             <span className="pl-1 group-hover:translate-x-0.5 transition-transform duration-300">Let's Talk</span>
             <div className="w-9 h-9 bg-brand-moss text-white rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white group-hover:text-brand-dark group-hover:scale-110">
@@ -131,6 +187,9 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         <div 
           ref={menuRef}
           id="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile Navigation"
           className={`absolute top-full right-0 w-[95vw] md:w-80 mt-4 bg-brand-surface rounded-[2rem] border border-brand-border shadow-2xl p-6 flex flex-col gap-2 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right ${
             isOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'
           }`}
@@ -140,8 +199,8 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                key={link.name}
                to={link.path}
                onClick={() => setIsOpen(false)}
-               // Increased padding for better touch target (py-4)
-               className="text-xl font-heading font-bold text-brand-dark hover:text-brand-moss px-4 py-4 hover:bg-brand-bg rounded-xl transition-all flex justify-between items-center group"
+               // Increased padding for better touch target (py-4) and min-height
+               className="text-xl font-heading font-bold text-brand-dark hover:text-brand-moss px-4 py-4 hover:bg-brand-bg rounded-xl transition-all flex justify-between items-center group min-h-[60px]"
                style={{ transitionDelay: isOpen ? `${idx * 50}ms` : '0ms' }}
              >
                {link.name}
@@ -152,7 +211,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
              <Link 
               to="/contact"
               onClick={() => setIsOpen(false)}
-              className="w-full py-5 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 text-lg"
+              className="w-full py-5 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 text-lg min-h-[60px]"
              >
                 Let's Talk <MessageSquare size={20} />
              </Link>
