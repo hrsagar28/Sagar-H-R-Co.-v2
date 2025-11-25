@@ -68,7 +68,7 @@ const InsightDetail: React.FC = () => {
     <div className="bg-brand-surface min-h-screen relative selection:bg-brand-moss selection:text-white">
       
       {/* Reading Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1.5 z-[100] bg-transparent">
+      <div className="fixed top-0 left-0 w-full h-1.5 z-sticky bg-transparent">
         <div 
           className="h-full bg-gradient-to-r from-brand-moss to-green-600 transition-all duration-150 ease-out rounded-r-full shadow-[0_0_10px_rgba(26,77,46,0.5)]" 
           style={{ width: `${progress * 100}%` }}
@@ -76,12 +76,12 @@ const InsightDetail: React.FC = () => {
       </div>
 
       {/* Decorative Background Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-moss/5 rounded-full blur-[120px] -z-10"></div>
         <div className="absolute inset-0 bg-noise opacity-[0.4] mix-blend-soft-light z-0"></div>
       </div>
 
-      <div className="relative z-10 pt-32 md:pt-48 pb-24 px-4 md:px-8 max-w-[1200px] mx-auto">
+      <div className="relative z-base pt-32 md:pt-48 pb-24 px-4 md:px-8 max-w-[1200px] mx-auto">
         
         {/* Editorial Header */}
         <header className="text-center max-w-4xl mx-auto mb-16 md:mb-24 animate-fade-in-up">
@@ -127,7 +127,7 @@ const InsightDetail: React.FC = () => {
                       {copied ? <Check size={20} className="text-green-600" /> : <Share2 size={20} />}
                       
                       {/* Tooltip */}
-                      <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                      <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-tooltip">
                         {copied ? 'Copied!' : 'Share'}
                       </span>
                     </button>
@@ -139,7 +139,7 @@ const InsightDetail: React.FC = () => {
                       title="Print this article"
                     >
                       <Printer size={20} />
-                      <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                      <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-tooltip">
                         Print
                       </span>
                     </button>
@@ -205,7 +205,7 @@ const InsightDetail: React.FC = () => {
       </div>
 
       {/* Mobile Fixed Bottom Bar */}
-      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 p-2 bg-brand-dark/90 backdrop-blur-lg rounded-full shadow-2xl shadow-brand-dark/30 border border-white/10">
+      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-fixed flex items-center gap-2 p-2 bg-brand-dark/90 backdrop-blur-lg rounded-full shadow-2xl shadow-brand-dark/30 border border-white/10">
         <button onClick={handleShare} aria-label="Share article" className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white active:scale-90 transition-transform">
             {copied ? <Check size={20} /> : <Share2 size={20} />}
         </button>

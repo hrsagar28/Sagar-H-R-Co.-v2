@@ -36,7 +36,7 @@ const ScrollToTop = () => {
 const App: React.FC = () => {
   return (
     <HashRouter>
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[10000] focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white">
         Skip to content
       </a>
       <ScrollToTop />
@@ -44,18 +44,18 @@ const App: React.FC = () => {
       <CustomCursor />
       
       {/* Fixed Elements must be OUTSIDE the SmoothScroll wrapper to avoid transform context issues */}
-      <div className="fixed top-0 left-0 w-full z-50 pointer-events-none">
+      <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none">
         <Navbar className="animate-content-reveal delay-2000 pointer-events-auto" />
       </div>
 
       <WhatsAppWidget />
 
       {/* Global Background Noise */}
-      <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-[1] mix-blend-multiply" />
+      <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply" />
 
       <SmoothScroll>
-        <div className="animate-content-reveal delay-2000 relative z-10 flex flex-col min-h-screen bg-brand-bg">
-          <main id="main-content" className="flex-grow relative z-10" tabIndex={-1}>
+        <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg">
+          <main id="main-content" className="flex-grow relative z-base" tabIndex={-1}>
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Home />} />

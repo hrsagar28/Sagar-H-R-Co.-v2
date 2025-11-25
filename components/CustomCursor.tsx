@@ -114,7 +114,7 @@ const CustomCursor: React.FC = () => {
       <div 
         ref={cursorRef} 
         className={`
-          fixed top-0 left-0 w-2.5 h-2.5 bg-white rounded-full pointer-events-none z-[9999] 
+          fixed top-0 left-0 w-2.5 h-2.5 bg-white rounded-full pointer-events-none z-cursor 
           -mt-1.25 -ml-1.25 ${blendModeClass} 
           transition-opacity duration-300 ease-out
           ${(isHovering || !isVisible) ? 'opacity-0' : 'opacity-100'}
@@ -125,7 +125,7 @@ const CustomCursor: React.FC = () => {
       <div 
         ref={followerRef}
         className={`
-          fixed top-0 left-0 rounded-full pointer-events-none z-[9998] 
+          fixed top-0 left-0 rounded-full pointer-events-none z-cursor 
           -mt-5 -ml-5 w-10 h-10
           ${blendModeClass}
           transition-all duration-500 ease-out

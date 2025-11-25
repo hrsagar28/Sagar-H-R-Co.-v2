@@ -50,7 +50,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   }, [isOpen]);
 
   return (
-    <nav className={`fixed top-4 md:top-6 left-0 w-full z-50 flex justify-center px-2 md:px-4 pointer-events-none ${className}`}>
+    <nav className={`fixed top-4 md:top-6 left-0 w-full z-fixed flex justify-center px-2 md:px-4 pointer-events-none ${className}`}>
       <div className={`
         pointer-events-auto relative flex justify-between items-center px-2 py-2 md:px-3 md:py-3 rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
         ${scrolled 

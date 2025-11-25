@@ -6,7 +6,7 @@ const WhatsAppWidget: React.FC = () => {
       href="https://wa.me/919482359455?text=Hi,%20I%20would%20like%20to%20book%20a%20consultation."
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-[9000] group"
+      className="fixed bottom-6 right-6 z-toast group"
       aria-label="Chat on WhatsApp"
     >
       <div className="relative w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300">

@@ -1,3 +1,14 @@
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6"
+  }
+}
+</script>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
@@ -72,6 +83,19 @@
       tailwind.config = {
         theme: {
           extend: {
+            zIndex: {
+              'base': '1',
+              'dropdown': '100',
+              'sticky': '200',
+              'fixed': '300',
+              'modal-backdrop': '400',
+              'modal': '500',
+              'popover': '600',
+              'tooltip': '700',
+              'toast': '800',
+              'cursor': '900',
+              'preloader': '1000',
+            },
             fontFamily: {
               sans: ['"Plus Jakarta Sans"', 'sans-serif'],
               heading: ['Outfit', 'sans-serif'],
@@ -83,222 +107,106 @@
                 surface: '#FFFFFF', // Pure White
                 dark: '#111111', // Charcoal Black
                 moss: '#1A4D2E', // Deep Forest Green
-                mossLight: '#E8F5E9', // Very light green for tints
-                stone: '#52525B', // Zinc 600
-                border: '#D4D4D8', // Zinc 300
+                mossLight: '#E8F5E9',
+                border: '#e7e5e4',
+                stone: '#78716c',
                 inverse: '#FFFFFF'
               }
             },
-            backgroundImage: {
-              'noise': "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.04%22/%3E%3C/svg%3E')",
-              'grid-pattern': "linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)"
-            },
-            transitionTimingFunction: {
-              'premium': 'cubic-bezier(0.16, 1, 0.3, 1)',
-            },
             animation: {
-              'marquee': 'marquee 30s linear infinite',
-              'marquee2': 'marquee2 30s linear infinite',
-              'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'reveal-up': 'revealUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'scale-in': 'scaleIn 0.5s ease-out forwards',
-              'expand-width': 'expandWidth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'content-reveal': 'contentReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'spin-slow': 'spin 12s linear infinite',
+              'marquee': 'marquee 25s linear infinite',
               'blob': 'blob 7s infinite',
+              'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'scale-in': 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'expand-width': 'expandWidth 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
             },
             keyframes: {
               marquee: {
                 '0%': { transform: 'translateX(0%)' },
                 '100%': { transform: 'translateX(-100%)' },
               },
-              marquee2: {
-                '0%': { transform: 'translateX(100%)' },
-                '100%': { transform: 'translateX(0%)' },
-              },
-              fadeInUp: {
-                '0%': { opacity: 0, transform: 'translateY(20px)' },
-                '100%': { opacity: 1, transform: 'translateY(0)' },
-              },
-              slideUp: {
-                '0%': { transform: 'translateY(40px)', opacity: 0 },
-                '100%': { transform: 'translateY(0)', opacity: 1 },
-              },
-              revealUp: {
-                '0%': { transform: 'translateY(100%)' },
-                '100%': { transform: 'translateY(0%)' },
-              },
-              scaleIn: {
-                 '0%': { opacity: 0, transform: 'scale(0.9)' },
-                 '100%': { opacity: 1, transform: 'scale(1)' },
-              },
-              expandWidth: {
-                '0%': { width: '0%' },
-                '100%': { width: '120px' },
-              },
-              contentReveal: {
-                '0%': { opacity: 0, transform: 'translateY(150px)' },
-                '100%': { opacity: 1, transform: 'translateY(0)' },
-              },
               blob: {
                 '0%': { transform: 'translate(0px, 0px) scale(1)' },
                 '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
                 '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
                 '100%': { transform: 'translate(0px, 0px) scale(1)' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              scaleIn: {
+                '0%': { opacity: '0', transform: 'scale(0.9)' },
+                '100%': { opacity: '1', transform: 'scale(1)' },
+              },
+              expandWidth: {
+                '0%': { width: '0' },
+                '100%': { width: '6rem' },
               }
             }
-          },
-        },
+          }
+        }
       }
     </script>
     <style>
-      .no-scrollbar::-webkit-scrollbar { display: none; }
-      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      
-      /* Cursor control via class */
-      body.custom-cursor-active, 
-      body.custom-cursor-active a, 
-      body.custom-cursor-active button, 
-      body.custom-cursor-active input, 
-      body.custom-cursor-active textarea, 
-      body.custom-cursor-active select { 
-        cursor: none; 
-      }
-
-      /* Utility for grid background */
       .bg-grid {
-        background-size: 4rem 4rem;
-        background-image: linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px),
-                          linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                          linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+      }
+      .bg-noise {
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+      }
+      .custom-cursor-active, 
+      .custom-cursor-active a, 
+      .custom-cursor-active button {
+        cursor: none;
+      }
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
       }
       
-      /* Helper class for delaying content animation */
-      .delay-2000 {
-        animation-delay: 2.0s;
-        opacity: 0;
-        animation-fill-mode: forwards;
-      }
-      
-      /* Ensure content is visible if JS fails or animation ends */
-      .animate-content-reveal {
-        opacity: 0; /* Start hidden, revealed by animation */
-      }
-      
-      /* --- Form Micro-interactions --- */
-      .peer:focus ~ .peer-label,
-      .peer:not(:placeholder-shown) ~ .peer-label {
-        top: -12px;
-        font-size: 0.75rem;
-        color: #1A4D2E;
-        font-weight: 700;
-      }
-
-      .peer:focus ~ .peer-border {
-        width: 100%;
-        left: 0;
-      }
-
-      /* --- Awwwards Style Micro-interactions --- */
-  
-      /* 1. Rolling Text for Nav */
+      /* Roll Text Effect for Navbar */
       .roll-text-group {
+        display: inline-block;
         position: relative;
         overflow: hidden;
+        height: 1.2em; /* Adjust based on line-height */
+        vertical-align: bottom;
+      }
+      
+      .roll-text-group .original-text,
+      .roll-text-group .hover-text {
         display: block;
-        line-height: 1.2;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      .roll-text-group span {
-        display: block;
-        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .roll-text-group:hover .original-text {
-        transform: translateY(-120%);
-      }
-      .roll-text-group:hover .hover-text {
-        transform: translateY(0);
-      }
+      
       .roll-text-group .hover-text {
         position: absolute;
         top: 0;
         left: 0;
-        transform: translateY(120%);
-        color: #1A4D2E; /* brand-moss */
-      }
-
-      /* 2. Button Swipe Animation */
-      .btn-liquid {
-        position: relative;
-        overflow: hidden;
-        z-index: 1;
-        transition: color 0.4s ease;
-      }
-      .btn-liquid::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #1A4D2E; 
         transform: translateY(100%);
-        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        z-index: -1;
-      }
-      .btn-liquid:hover::before {
-        transform: translateY(0);
-      }
-      .btn-liquid:hover {
-        color: #ffffff !important;
+        font-weight: 700; /* Optional bold on hover */
+        color: #1A4D2E;
       }
       
-      /* 3. Link Underline Slide */
-      .link-underline {
-        position: relative;
-        display: inline-block;
-        text-decoration: none;
+      .group:hover .roll-text-group .original-text {
+        transform: translateY(-100%);
       }
-      .link-underline::after {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 1px;
-        bottom: -2px;
-        left: 0;
-        background-color: currentColor;
-        transform: scaleX(0);
-        transform-origin: bottom right;
-        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .link-underline:hover::after {
-        transform: scaleX(1);
-        transform-origin: bottom left;
-      }
-
-      /* 4. Social Icon Magnetic Pull (CSS approximation) */
-      .social-icon-hover {
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, border-color 0.3s ease;
-      }
-      .social-icon-hover:hover {
-        transform: translateY(-4px) scale(1.1);
-        background-color: #111111; /* brand-dark */
-        border-color: #111111;
-        color: #ffffff;
+      
+      .group:hover .roll-text-group .hover-text {
+        transform: translateY(0);
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0"
-  }
-}
-</script>
-</head>
-  <body class="bg-brand-bg text-brand-dark antialiased overflow-x-hidden selection:bg-brand-moss selection:text-brand-inverse">
+  </head>
+  <body class="bg-[#F2F2F0] text-[#111111]">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
   </body>
