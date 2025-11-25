@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
 
 interface NavbarProps {
   className?: string;
@@ -35,47 +35,59 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         
         {/* Logo - Left Pill */}
         <Link to="/" className="flex items-center gap-2 md:gap-3 bg-brand-surface/50 md:bg-brand-surface px-2 md:px-5 py-1.5 md:py-2 rounded-full md:border border-brand-border/30 shadow-none md:shadow-sm group hover:border-brand-moss/30 transition-all shrink-0">
-           <div className="w-8 h-8 md:w-8 md:h-8 bg-brand-dark text-brand-inverse rounded-full flex items-center justify-center font-heading font-bold text-base md:text-lg group-hover:bg-brand-moss transition-colors duration-300 shrink-0">S</div>
+           <div className="w-8 h-8 md:w-8 md:h-8 bg-brand-dark text-brand-inverse rounded-full flex items-center justify-center font-heading font-bold text-base md:text-lg group-hover:scale-110 transition-transform duration-300 shrink-0">S</div>
            <h1 className="font-heading text-sm md:text-lg font-bold text-brand-dark tracking-tight block whitespace-nowrap">
             Sagar H R & Co.
           </h1>
         </Link>
 
-        {/* Desktop Menu - Center Pill */}
+        {/* Desktop Menu - Center Pill (Rolling Text Effect) */}
         <div className="hidden lg:flex items-center bg-brand-surface/80 px-1 py-1 rounded-full border border-brand-border/30 shadow-sm backdrop-blur-md mx-2">
           {NAV_LINKS.slice(0, 7).map((link) => (
             <Link 
               key={link.name} 
               to={link.path}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden whitespace-nowrap group ${
                 location.pathname === link.path 
                   ? 'bg-brand-moss text-brand-inverse shadow-md' 
-                  : 'text-brand-stone hover:text-brand-dark hover:bg-brand-bg'
+                  : 'text-brand-stone hover:bg-brand-bg'
               }`}
             >
-              {link.name}
+              {location.pathname === link.path ? (
+                // Active State: Simple text
+                <span>{link.name}</span>
+              ) : (
+                // Inactive State: Rolling Animation
+                <span className="roll-text-group">
+                  <span className="original-text">{link.name}</span>
+                  <span className="hover-text">{link.name}</span>
+                </span>
+              )}
             </Link>
           ))}
         </div>
 
         {/* Actions - Right Pill */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* Desktop CTA */}
+          {/* Desktop CTA - New Pill with Icon Circle */}
           <Link 
             to="/contact" 
-            className="hidden md:flex px-5 md:px-6 py-3 bg-brand-dark text-brand-inverse text-sm font-bold rounded-full hover:bg-brand-moss transition-all duration-300 shadow-lg shadow-brand-dark/10 items-center gap-2 whitespace-nowrap"
+            className="hidden md:flex pl-6 pr-1.5 py-1.5 bg-brand-dark text-brand-inverse text-sm font-bold rounded-full shadow-lg shadow-brand-dark/10 items-center gap-3 group transition-all duration-300 hover:bg-brand-dark/90 hover:ring-4 hover:ring-brand-border/20"
           >
-            Let's Talk
-            <span className="w-1.5 h-1.5 bg-brand-moss group-hover:bg-white rounded-full transition-colors"></span>
+            <span className="pl-1 group-hover:translate-x-0.5 transition-transform duration-300">Let's Talk</span>
+            <div className="w-9 h-9 bg-brand-moss text-white rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white group-hover:text-brand-dark group-hover:scale-110">
+              <MessageSquare size={14} className="group-hover:rotate-12 transition-transform duration-300" />
+            </div>
           </Link>
 
-          {/* Mobile specific CTA - Text Button */}
-          <Link 
-            to="/contact" 
-            className="md:hidden px-4 py-2 bg-brand-dark text-brand-inverse text-xs font-bold rounded-full active:scale-95 transition-transform shadow-md whitespace-nowrap"
+          {/* Mobile specific Call Button */}
+          <a
+            href="tel:+919482359455"
+            className="md:hidden w-10 h-10 bg-brand-moss text-brand-inverse rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-md"
+            aria-label="Call Now"
           >
-             Let's Talk
-          </Link>
+            <Phone size={18} />
+          </a>
           
           {/* Mobile Toggle */}
           <button 
@@ -92,22 +104,31 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         {/* Mobile Menu Overlay */}
         <div 
           id="mobile-menu"
-          className={`absolute top-full left-0 w-full mt-4 bg-brand-surface rounded-[2rem] border border-brand-border shadow-2xl p-6 flex flex-col gap-4 transition-all duration-300 origin-top ${
-            isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
+          className={`absolute top-full right-0 w-[95vw] md:w-80 mt-4 bg-brand-surface rounded-[2rem] border border-brand-border shadow-2xl p-6 flex flex-col gap-2 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right ${
+            isOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'
           }`}
         >
-           {/* Filter out 'Contact' from the list because 'Let's Talk' is already in the header */}
-           {NAV_LINKS.filter(link => link.name !== 'Contact').map((link) => (
+           {NAV_LINKS.filter(link => link.name !== 'Contact').map((link, idx) => (
              <Link 
                key={link.name}
                to={link.path}
                onClick={() => setIsOpen(false)}
-               className="text-xl font-heading font-bold text-brand-dark hover:text-brand-moss px-4 py-2 hover:bg-brand-bg rounded-xl transition-all"
+               className="text-xl font-heading font-bold text-brand-dark hover:text-brand-moss px-4 py-3 hover:bg-brand-bg rounded-xl transition-all flex justify-between items-center group"
+               style={{ transitionDelay: isOpen ? `${idx * 50}ms` : '0ms' }}
              >
                {link.name}
+               <ArrowRight size={16} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
              </Link>
            ))}
-           {/* Removed redundant 'Get in Touch' button since 'Let's Talk' is persistent in the header */}
+           <div className="mt-4 pt-4 border-t border-brand-border/50">
+             <Link 
+              to="/contact"
+              onClick={() => setIsOpen(false)}
+              className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2"
+             >
+                Let's Talk <MessageSquare size={16} />
+             </Link>
+           </div>
         </div>
       </div>
     </nav>

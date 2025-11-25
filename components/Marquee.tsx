@@ -1,25 +1,43 @@
 import React from 'react';
 
-interface MarqueeProps {
-  text: string;
-}
+const Marquee: React.FC = () => {
+  const content = [
+    { prefix: "Strategic", highlight: "Finance" },
+    { prefix: "Precision", highlight: "Audit" },
+    { prefix: "Expert", highlight: "Taxation" },
+    { prefix: "Business", highlight: "Advisory" },
+    { prefix: "Regulatory", highlight: "Compliance" },
+    { prefix: "Growth", highlight: "Strategy" },
+  ];
 
-const Marquee: React.FC<MarqueeProps> = ({ text }) => {
+  const ItemGroup = () => (
+    <>
+      {content.map((item, i) => (
+        <div key={i} className="flex items-center gap-6 mx-8">
+           <span className="font-serif italic text-4xl md:text-6xl text-brand-stone opacity-70 font-light">
+             {item.prefix}
+           </span>
+           <span className="font-heading font-bold text-4xl md:text-6xl text-brand-dark uppercase tracking-tight">
+             {item.highlight}
+           </span>
+           <div className="w-3 h-3 rounded-full border border-brand-moss ml-8"></div>
+        </div>
+      ))}
+    </>
+  );
+
   return (
-    <div className="py-20 overflow-hidden bg-brand-bg relative">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-full h-[1px] bg-brand-border/50"></div>
-      </div>
-      <div className="relative flex overflow-x-hidden py-8 bg-brand-dark rotate-1 hover:rotate-0 transition-transform duration-700 border-y border-brand-stone/30">
-        <div className="animate-marquee whitespace-nowrap flex gap-8">
-          <span className="text-7xl md:text-9xl font-heading font-bold text-brand-bg mx-4 uppercase tracking-tighter opacity-90">{text}</span>
-          <span className="text-7xl md:text-9xl font-heading font-bold text-brand-bg mx-4 uppercase tracking-tighter opacity-90">{text}</span>
-        </div>
-        <div className="absolute top-0 py-8 animate-marquee2 whitespace-nowrap flex gap-8">
-           <span className="text-7xl md:text-9xl font-heading font-bold text-brand-bg mx-4 uppercase tracking-tighter opacity-90">{text}</span>
-           <span className="text-7xl md:text-9xl font-heading font-bold text-brand-bg mx-4 uppercase tracking-tighter opacity-90">{text}</span>
-        </div>
-      </div>
+    <div className="py-20 bg-brand-bg border-y border-brand-border/60 relative overflow-hidden flex select-none group">
+       {/* Gradient Masks for smooth fade in/out */}
+       <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-brand-bg to-transparent z-10 pointer-events-none"></div>
+       <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-brand-bg to-transparent z-10 pointer-events-none"></div>
+
+       <div className="animate-marquee flex items-center shrink-0 group-hover:[animation-play-state:paused]">
+          <ItemGroup />
+       </div>
+       <div className="animate-marquee flex items-center shrink-0 group-hover:[animation-play-state:paused]">
+          <ItemGroup />
+       </div>
     </div>
   );
 };

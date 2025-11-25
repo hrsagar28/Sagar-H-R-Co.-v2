@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { IMPORTANT_LINKS, COMPLIANCE_CALENDAR, CHECKLIST_DATA } from '../constants';
 import { Download, ExternalLink, Calculator, Calendar, Search, Filter, ChevronDown, ChevronUp, FileText } from 'lucide-react';
@@ -13,6 +14,43 @@ const Resources: React.FC = () => {
 
   const [calFilter, setCalFilter] = useState('all');
   const [calSearch, setCalSearch] = useState('');
+
+  // SEO & Schema
+  useEffect(() => {
+    document.title = "Financial Resources & Tools | Tax Calculator & Calendars";
+
+    // Update Meta Description
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', "Access essential financial tools, tax calculators, compliance calendars, and checklists. Stay updated with important links for GST and Income Tax.");
+    }
+
+    // JSON-LD Schema
+    const schemaData = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Financial Resources",
+      "description": "Tools, checklists, and calendars for financial compliance.",
+      "provider": {
+        "@type": "AccountingService",
+        "name": "Sagar H R & Co."
+      },
+      "hasPart": [
+        { "@type": "SoftwareApplication", "name": "Income Tax Calculator" },
+        { "@type": "Dataset", "name": "Compliance Calendar" },
+        { "@type": "WebPage", "name": "Document Checklists" }
+      ]
+    };
+
+    const script = document.createElement('script');
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   // --- Calculator Logic ---
   const calculateTax = (annualIncome: number, age: string, reg: 'new' | 'old', deds: any) => {
@@ -183,7 +221,7 @@ const Resources: React.FC = () => {
                             type="number" 
                             value={income || ''} 
                             onChange={(e) => setIncome(parseFloat(e.target.value))}
-                            placeholder="₹ 10,00,000"
+                            placeholder="₹ 10,0,000"
                             className="w-full p-4 bg-brand-bg border border-brand-border rounded-2xl font-bold text-brand-dark focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
                           />
                        </div>

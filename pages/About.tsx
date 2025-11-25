@@ -1,9 +1,49 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
 
 const About: React.FC = () => {
+  // SEO & Schema
+  useEffect(() => {
+    document.title = "About Sagar H R & Co. | Our Firm & Philosophy";
+    
+    // Update Meta Description
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', "Learn about Sagar H R & Co., a premier Chartered Accountancy firm in Mysuru. Discover our mission, values, and the expert team dedicated to your financial growth.");
+    }
+
+    // JSON-LD Schema
+    const schemaData = {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About Sagar H R & Co.",
+      "description": "Information about Sagar H R & Co., a Chartered Accountancy firm based in Mysuru.",
+      "url": window.location.href,
+      "mainEntity": {
+        "@type": "AccountingService",
+        "name": "Sagar H R & Co.",
+        "founder": {
+           "@type": "Person",
+           "name": "CA Sagar H R"
+        },
+        "areaServed": "Mysuru, Karnataka",
+        "knowsAbout": ["Taxation", "Audit", "Financial Advisory", "GST"]
+      }
+    };
+
+    const script = document.createElement('script');
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+
+    return () => {
+      // Clean up on unmount
+      document.head.removeChild(script);
+      // Optional: Reset title/meta if needed, but usually next page handles it
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-brand-bg selection:bg-brand-moss selection:text-white">
       
@@ -41,7 +81,7 @@ const About: React.FC = () => {
                  </p>
                  <div className="flex flex-col gap-4 border-l border-brand-border pl-6">
                     <p className="text-brand-stone/80 text-lg">
-                       Founded with a singular ambition: to disrupt the traditional "compliance-only" model of accountancy. We are architects of financial stability.
+                       Founded with a singular ambition: to disrupt the traditional "compliance-only" model of accountancy. We are custodians of financial stability.
                     </p>
                  </div>
               </div>
@@ -137,8 +177,10 @@ const About: React.FC = () => {
                      </div>
                      <div>
                         <h4 className="font-bold text-brand-dark mb-2">Affiliations</h4>
-                        <ul className="text-sm text-brand-stone space-y-1">
-                           <li>• Fellow Member, ICAI</li>
+                        <ul className="text-sm text-brand-stone space-y-2">
+                           <li className="flex items-center gap-2">
+                              Associate Member, ICAI
+                           </li>
                            <li>• Mysuru Branch, SIRC</li>
                         </ul>
                      </div>

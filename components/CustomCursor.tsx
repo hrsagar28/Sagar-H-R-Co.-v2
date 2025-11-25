@@ -6,6 +6,7 @@ const CustomCursor: React.FC = () => {
   
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   
   // Use refs for coordinates to avoid re-renders on every frame
   const mouse = useRef({ x: -100, y: -100 }); // Start off-screen
@@ -22,6 +23,13 @@ const CustomCursor: React.FC = () => {
       if (cursorRef.current) {
         cursorRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
       }
+
+      // Show cursor when moving inside the window
+      setIsVisible(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsVisible(false);
     };
 
     const handleMouseOver = (e: MouseEvent) => {
@@ -47,7 +55,8 @@ const CustomCursor: React.FC = () => {
     const handleMouseDown = () => setIsClicking(true);
     const handleMouseUp = () => setIsClicking(false);
 
-    window.addEventListener('mousemove', moveMouse);
+    document.addEventListener('mousemove', moveMouse);
+    document.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('mouseover', handleMouseOver);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
@@ -74,7 +83,8 @@ const CustomCursor: React.FC = () => {
     rafId = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener('mousemove', moveMouse);
+      document.removeEventListener('mousemove', moveMouse);
+      document.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('mouseover', handleMouseOver);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
@@ -93,7 +103,7 @@ const CustomCursor: React.FC = () => {
           hidden md:block fixed top-0 left-0 w-2.5 h-2.5 bg-white rounded-full pointer-events-none z-[9999] 
           -mt-1.25 -ml-1.25 ${blendModeClass} 
           transition-opacity duration-300 ease-out
-          ${isHovering ? 'opacity-0' : 'opacity-100'}
+          ${(isHovering || !isVisible) ? 'opacity-0' : 'opacity-100'}
         `}
       />
       
@@ -105,11 +115,13 @@ const CustomCursor: React.FC = () => {
           -mt-5 -ml-5 w-10 h-10
           ${blendModeClass}
           transition-all duration-500 ease-out
-          ${isHovering 
-            ? 'scale-[2.5] bg-white border-0 opacity-100' // Hover: Becomes a large, solid "Lens"
-            : isClicking 
-              ? 'scale-75 border border-white bg-transparent opacity-50' // Click: Sharp shrink
-              : 'scale-100 border border-white bg-transparent opacity-100' // Normal: Thin ring
+          ${!isVisible
+             ? 'opacity-0 scale-50'
+             : isHovering 
+                ? 'scale-[2.5] bg-white border-0 opacity-100' // Hover: Becomes a large, solid "Lens"
+                : isClicking 
+                  ? 'scale-75 border border-white bg-transparent opacity-50' // Click: Sharp shrink
+                  : 'scale-100 border border-white bg-transparent opacity-100' // Normal: Thin ring
           }
         `}
       />

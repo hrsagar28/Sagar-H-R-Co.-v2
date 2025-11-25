@@ -93,11 +93,15 @@
               'noise': "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.04%22/%3E%3C/svg%3E')",
               'grid-pattern': "linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)"
             },
+            transitionTimingFunction: {
+              'premium': 'cubic-bezier(0.16, 1, 0.3, 1)',
+            },
             animation: {
               'marquee': 'marquee 30s linear infinite',
               'marquee2': 'marquee2 30s linear infinite',
               'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'reveal-up': 'revealUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'scale-in': 'scaleIn 0.5s ease-out forwards',
               'expand-width': 'expandWidth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'content-reveal': 'contentReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
@@ -120,6 +124,10 @@
               slideUp: {
                 '0%': { transform: 'translateY(40px)', opacity: 0 },
                 '100%': { transform: 'translateY(0)', opacity: 1 },
+              },
+              revealUp: {
+                '0%': { transform: 'translateY(100%)' },
+                '100%': { transform: 'translateY(0%)' },
               },
               scaleIn: {
                  '0%': { opacity: 0, transform: 'scale(0.9)' },
@@ -176,6 +184,107 @@
       /* Ensure content is visible if JS fails or animation ends */
       .animate-content-reveal {
         opacity: 0; /* Start hidden, revealed by animation */
+      }
+      
+      /* --- Form Micro-interactions --- */
+      .peer:focus ~ .peer-label,
+      .peer:not(:placeholder-shown) ~ .peer-label {
+        top: -12px;
+        font-size: 0.75rem;
+        color: #1A4D2E;
+        font-weight: 700;
+      }
+
+      .peer:focus ~ .peer-border {
+        width: 100%;
+        left: 0;
+      }
+
+      /* --- Awwwards Style Micro-interactions --- */
+  
+      /* 1. Rolling Text for Nav */
+      .roll-text-group {
+        position: relative;
+        overflow: hidden;
+        display: block;
+        line-height: 1.2;
+      }
+      .roll-text-group span {
+        display: block;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .roll-text-group:hover .original-text {
+        transform: translateY(-120%);
+      }
+      .roll-text-group:hover .hover-text {
+        transform: translateY(0);
+      }
+      .roll-text-group .hover-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: translateY(120%);
+        color: #1A4D2E; /* brand-moss */
+      }
+
+      /* 2. Button Swipe Animation */
+      .btn-liquid {
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        transition: color 0.4s ease;
+      }
+      .btn-liquid::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #1A4D2E; 
+        transform: translateY(100%);
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: -1;
+      }
+      .btn-liquid:hover::before {
+        transform: translateY(0);
+      }
+      .btn-liquid:hover {
+        color: #ffffff !important;
+      }
+      
+      /* 3. Link Underline Slide */
+      .link-underline {
+        position: relative;
+        display: inline-block;
+        text-decoration: none;
+      }
+      .link-underline::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        bottom: -2px;
+        left: 0;
+        background-color: currentColor;
+        transform: scaleX(0);
+        transform-origin: bottom right;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .link-underline:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+      }
+
+      /* 4. Social Icon Magnetic Pull (CSS approximation) */
+      .social-icon-hover {
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .social-icon-hover:hover {
+        transform: translateY(-4px) scale(1.1);
+        background-color: #111111; /* brand-dark */
+        border-color: #111111;
+        color: #ffffff;
       }
     </style>
   <script type="importmap">

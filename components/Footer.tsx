@@ -1,67 +1,127 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Linkedin, Twitter, Facebook, ArrowUpRight } from 'lucide-react';
+import { Linkedin, ArrowUp } from 'lucide-react';
 
 const Footer: React.FC = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <footer className="bg-brand-bg pt-10 md:pt-20 pb-6 md:pb-10 px-4 md:px-6">
-      <div className="container mx-auto max-w-7xl bg-brand-surface rounded-[2rem] md:rounded-[2.5rem] border border-brand-border overflow-hidden relative shadow-sm">
-        {/* Grid Background */}
-        <div className="absolute inset-0 bg-grid opacity-50 pointer-events-none"></div>
+    <footer className="bg-brand-bg pt-20">
+      {/* Main Footer Container */}
+      <div className="bg-[#0f0f0f] text-white rounded-t-[3rem] relative overflow-hidden">
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 p-8 md:p-20 relative z-10">
-          <div className="lg:col-span-2 space-y-6 md:space-y-8">
-            <Link to="/" className="flex items-center gap-3">
-               <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-dark text-brand-inverse rounded-lg flex items-center justify-center font-heading font-bold text-lg md:text-xl">S</div>
-               <h2 className="font-heading text-2xl md:text-3xl font-bold text-brand-dark tracking-tight">
-                Sagar H R & Co.
-              </h2>
-            </Link>
-            <p className="text-brand-stone text-base md:text-lg max-w-md leading-relaxed">
-              Architecting financial stability through precision audit, strategic tax planning, and regulatory foresight.
-            </p>
-            <div className="flex gap-4 pt-2 md:pt-4">
-              {[
-                { Icon: Linkedin, label: "LinkedIn" },
-                { Icon: Twitter, label: "Twitter" },
-                { Icon: Facebook, label: "Facebook" }
-              ].map(({ Icon, label }, i) => (
-                <a 
-                  key={i} 
-                  href="#" 
-                  aria-label={`Visit our ${label} page`}
-                  className="w-10 h-10 md:w-12 md:h-12 border border-brand-border rounded-full flex items-center justify-center hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all duration-300 group"
-                >
-                  <Icon size={18} className="md:w-5 md:h-5" />
-                </a>
-              ))}
-            </div>
-          </div>
+        {/* Navigation Grid - Moved to top of footer content since CTA is removed */}
+        <div className="px-6 md:px-20 py-20">
+           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8">
+              
+              {/* Column 1: Brand & Address */}
+              <div className="md:col-span-4 lg:col-span-5 space-y-8">
+                 <Link to="/" className="inline-block">
+                    <div className="w-12 h-12 bg-white text-brand-dark rounded-xl flex items-center justify-center font-heading font-bold text-2xl">S</div>
+                 </Link>
+                 <address className="not-italic text-zinc-400 text-lg leading-relaxed max-w-sm font-medium">
+                    1479, 2nd Floor, Thyagaraja Road,<br/>
+                    KR Mohalla, Mysuru - 570004<br/>
+                    Karnataka, India
+                 </address>
+                 <div className="flex gap-4">
+                    <a href="https://www.linkedin.com/in/sagar-h-r-507495261/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-brand-dark transition-all">
+                       <Linkedin size={18} />
+                    </a>
+                 </div>
+              </div>
 
-          <div>
-            <h3 className="font-heading font-bold text-brand-dark text-base md:text-lg mb-4 md:mb-6 uppercase tracking-wider">Firm</h3>
-            <ul className="space-y-3 md:space-y-4 text-brand-stone font-medium text-sm md:text-base">
-              <li><Link to="/about" className="hover:text-brand-moss transition-colors flex items-center gap-1 group">About Us <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity"/></Link></li>
-              <li><Link to="/services" className="hover:text-brand-moss transition-colors flex items-center gap-1 group">Expertise <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity"/></Link></li>
-              <li><Link to="/careers" className="hover:text-brand-moss transition-colors flex items-center gap-1 group">Careers <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity"/></Link></li>
-              <li><Link to="/contact" className="hover:text-brand-moss transition-colors flex items-center gap-1 group">Contact <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity"/></Link></li>
-            </ul>
-          </div>
+              {/* Column 2: Explore (Main Pages) */}
+              <div className="md:col-span-2 lg:col-span-2">
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Explore</h3>
+                 <ul className="space-y-4">
+                    {[
+                       { name: "Home", path: "/" },
+                       { name: "About Firm", path: "/about" },
+                       { name: "Our Services", path: "/services" },
+                       { name: "Insights", path: "/insights" },
+                    ].map(link => (
+                       <li key={link.name}>
+                          <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-[#4ADE80] transition-colors inline-flex items-center gap-2 group">
+                             {link.name}
+                          </Link>
+                       </li>
+                    ))}
+                 </ul>
+              </div>
 
-          <div>
-            <h3 className="font-heading font-bold text-brand-dark text-base md:text-lg mb-4 md:mb-6 uppercase tracking-wider">Legal</h3>
-            <ul className="space-y-3 md:space-y-4 text-brand-stone font-medium text-sm md:text-base">
-              <li><Link to="/privacy" className="hover:text-brand-moss transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-brand-moss transition-colors">Terms of Engagement</Link></li>
-              <li><Link to="/disclaimer" className="hover:text-brand-moss transition-colors">ICAI Disclaimer</Link></li>
-            </ul>
-          </div>
+              {/* Column 3: Resources */}
+              <div className="md:col-span-3 lg:col-span-2">
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Resources</h3>
+                 <ul className="space-y-4">
+                    {[
+                       { name: "Client Resources", path: "/resources" },
+                       { name: "FAQs", path: "/faqs" },
+                       { name: "Careers", path: "/careers" },
+                       { name: "Contact Us", path: "/contact" },
+                    ].map(link => (
+                       <li key={link.name}>
+                          <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-[#4ADE80] transition-colors inline-flex items-center gap-2 group">
+                             {link.name}
+                          </Link>
+                       </li>
+                    ))}
+                 </ul>
+              </div>
+
+              {/* Column 4: Quick Contact */}
+              <div className="md:col-span-3 lg:col-span-3">
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Get in touch</h3>
+                 <ul className="space-y-6">
+                    <li>
+                       <span className="block text-sm text-zinc-500 mb-1">Email</span>
+                       <a href="mailto:mail@casagar.co.in" className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">mail@casagar.co.in</a>
+                    </li>
+                    <li>
+                       <span className="block text-sm text-zinc-500 mb-1">Phone</span>
+                       <a href="tel:+919482359455" className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">+91 94823 59455</a>
+                    </li>
+                 </ul>
+              </div>
+
+           </div>
         </div>
 
-        <div className="border-t border-brand-border p-6 md:p-8 flex flex-col md:flex-row justify-between items-center text-sm font-medium text-brand-stone/80 relative z-10 bg-brand-bg/50 backdrop-blur-sm gap-4 md:gap-0 text-center md:text-left">
-          <p>&copy; {new Date().getFullYear()} Sagar H R & Co. Chartered Accountants.</p>
-          <p>Designed with Precision.</p>
+        {/* Bottom Section: Huge Typography & Legal */}
+        <div className="px-6 md:px-20 pb-10">
+           <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
+              <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-500">
+                 <span>&copy; {new Date().getFullYear()} Sagar H R & Co.</span>
+                 <Link to="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
+                 <Link to="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
+                 <Link to="/disclaimer" className="hover:text-zinc-300 transition-colors">Disclaimer</Link>
+              </div>
+
+              <button 
+                 onClick={scrollToTop} 
+                 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-white hover:text-[#4ADE80] transition-colors group"
+              >
+                 Back to Top 
+                 <ArrowUp size={16} className="group-hover:-translate-y-1 transition-transform" />
+              </button>
+           </div>
+
+           {/* Watermark Text - Outline Style for Premium Look */}
+           <div className="relative overflow-hidden select-none pb-4">
+              <h1 
+                className="text-[12vw] leading-[0.8] font-heading font-bold text-center tracking-tighter opacity-20"
+                style={{ 
+                   WebkitTextStroke: '1px rgba(255, 255, 255, 0.5)', 
+                   color: 'transparent' 
+                }}
+              >
+                 SAGAR H R & CO.
+              </h1>
+           </div>
         </div>
+
       </div>
     </footer>
   );

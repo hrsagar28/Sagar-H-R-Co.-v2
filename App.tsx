@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor';
 import SmoothScroll from './components/SmoothScroll';
 import Preloader from './components/Preloader';
+import WhatsAppWidget from './components/WhatsAppWidget';
 import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Services';
@@ -42,6 +43,8 @@ const App: React.FC = () => {
       <div className="fixed top-0 left-0 w-full z-50 pointer-events-none">
         <Navbar className="animate-content-reveal delay-2000 pointer-events-auto" />
       </div>
+
+      <WhatsAppWidget />
 
       {/* Global Background Noise */}
       <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-[1] mix-blend-multiply" />

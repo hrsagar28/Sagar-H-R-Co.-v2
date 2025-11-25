@@ -7,15 +7,15 @@ const Preloader: React.FC = () => {
   useEffect(() => {
     // Sequence:
     // 0s: Mount (Black screen)
-    // 2.2s: Start lifting curtain
-    // 3.2s: Remove from DOM
+    // 1.5s: Start lifting curtain (Reduced for snappier UX)
+    // 2.0s: Remove from DOM
     const timer = setTimeout(() => {
       setAnimateOut(true);
-    }, 2200);
+    }, 1500);
 
     const cleanup = setTimeout(() => {
       setHidden(true);
-    }, 3200);
+    }, 2000);
 
     return () => {
       clearTimeout(timer);
@@ -27,7 +27,7 @@ const Preloader: React.FC = () => {
 
   return (
     <div 
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-[#0a0a0a] transition-transform duration-[1000ms] ease-[cubic-bezier(0.83,0,0.17,1)] will-change-transform ${animateOut ? '-translate-y-full' : 'translate-y-0'}`}
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-[#0a0a0a] transition-transform duration-[800ms] ease-[cubic-bezier(0.83,0,0.17,1)] will-change-transform ${animateOut ? '-translate-y-full' : 'translate-y-0'}`}
     >
       <div className={`flex flex-col items-center justify-center transition-opacity duration-500 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
         {/* Title - Using the new Serif font for editorial elegance */}
