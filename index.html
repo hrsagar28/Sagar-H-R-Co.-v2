@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#1A4D2E" />
     
+    <!-- Security Headers -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://cdn.tailwindcss.com https://esm.sh https://aistudiocdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://formsubmit.co https://esm.sh https://aistudiocdn.com; frame-src 'self' https://maps.google.com; object-src 'none'; base-uri 'self';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -17,13 +18,16 @@
     <meta name="geo.region" content="IN-KA" />
     <meta name="geo.placename" content="Mysuru, Karnataka" />
     
+    <!-- Canonical URL -->
     <link rel="canonical" href="https://casagar.co.in/" />
 
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Sagar H R & Co. | Premium Chartered Accountancy Firm Mysuru" />
     <meta property="og:description" content="Professional CA services tailored for modern businesses. Expertise in Audit, Tax Advisory, and Strategic Consulting." />
     <meta property="og:site_name" content="Sagar H R & Co." />
 
+    <!-- Structured Data / JSON-LD -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -68,8 +72,10 @@
     }
     </script>
 
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
@@ -242,20 +248,44 @@
       }
     </style>
   
+  <!-- Import Map using esm.sh for universal compatibility (Netlify/Local/AI Studio) -->
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react/": "https://esm.sh/react@18.3.1/",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/": "https://esm.sh/react-dom@18.3.1/",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.344.0?external=react",
+    "fs": "https://aistudiocdn.com/fs@^0.0.1-security",
+    "path": "https://aistudiocdn.com/path@^0.12.7",
+    "url": "https://aistudiocdn.com/url@^0.11.4",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
+  }
+}
+</script>
+  
+  <!-- Process shim for library compatibility -->
   <script>
     window.process = { env: { NODE_ENV: 'production' } };
   </script>
 
-  </head>
+</head>
   <body class="bg-[#F2F2F0] text-[#111111]">
+    <!-- HTML Preloader -->
     <div class="preloader" id="preloader">
       <div class="preloader-logo">Sagar H R & Co.</div>
     </div>
 
     <div id="root"></div>
     
+    <!-- Vite Entry Point -->
     <script type="module" src="/index.tsx"></script>
 
+    <!-- Hide Preloader Script -->
     <script>
       window.addEventListener('load', function() {
         // Minimal delay to ensure React mounts
