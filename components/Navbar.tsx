@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
 import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
@@ -11,18 +11,43 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
+      if (isOpen) {
+        setIsOpen(false);
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
+
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
     <nav className={`fixed top-4 md:top-6 left-0 w-full z-50 flex justify-center px-2 md:px-4 pointer-events-none ${className}`}>
@@ -91,6 +116,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           
           {/* Mobile Toggle */}
           <button 
+            ref={buttonRef}
             className="lg:hidden p-2.5 bg-brand-surface rounded-full border border-brand-border text-brand-dark hover:bg-brand-bg transition-colors active:scale-90"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Close menu" : "Open menu"}
@@ -103,6 +129,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
 
         {/* Mobile Menu Overlay */}
         <div 
+          ref={menuRef}
           id="mobile-menu"
           className={`absolute top-full right-0 w-[95vw] md:w-80 mt-4 bg-brand-surface rounded-[2rem] border border-brand-border shadow-2xl p-6 flex flex-col gap-2 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right ${
             isOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'
