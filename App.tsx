@@ -46,26 +46,30 @@ const RouteHandler = () => {
 const App: React.FC = () => {
   return (
     <HashRouter>
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white print:hidden">
         Skip to content
       </a>
       <RouteHandler />
-      <Preloader />
-      <CustomCursor />
+      <div className="print:hidden">
+        <Preloader />
+        <CustomCursor />
+      </div>
       
       {/* Fixed Elements must be OUTSIDE the SmoothScroll wrapper to avoid transform context issues */}
-      <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none">
+      <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none print:hidden">
         <Navbar className="animate-content-reveal delay-2000 pointer-events-auto" />
       </div>
 
-      <WhatsAppWidget />
+      <div className="print:hidden">
+        <WhatsAppWidget />
+      </div>
 
       {/* Global Background Noise */}
-      <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply" />
+      <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply print:hidden" />
 
       <SmoothScroll>
         {/* Added overflow-x-hidden to prevent horizontal scroll on mobile */}
-        <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg w-full overflow-x-hidden">
+        <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg w-full overflow-x-hidden print:bg-white">
           <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
             <Suspense fallback={<PageLoader />}>
               <Routes>
@@ -88,7 +92,9 @@ const App: React.FC = () => {
             </Suspense>
           </main>
           
-          <Footer />
+          <div className="print:hidden">
+            <Footer />
+          </div>
         </div>
       </SmoothScroll>
     </HashRouter>

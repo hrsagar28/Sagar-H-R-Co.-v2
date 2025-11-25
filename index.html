@@ -225,6 +225,51 @@
       #main-content:focus {
         outline: none;
       }
+
+      @media print {
+        @page {
+          margin: 1.5cm;
+        }
+        body {
+          background-color: white !important;
+          color: black !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .no-print, nav, footer, iframe, .print-hidden {
+          display: none !important;
+        }
+        /* Ensure readable text */
+        p, h1, h2, h3, h4, h5, h6, li, span {
+          color: black !important;
+          text-shadow: none !important;
+        }
+        /* Remove shadows and backgrounds for cleaner print */
+        .shadow-xl, .shadow-2xl, .shadow-lg, .shadow-md, .shadow-sm {
+          box-shadow: none !important;
+        }
+        /* Expand containers to full width */
+        .container, .max-w-7xl, .max-w-5xl, .max-w-4xl {
+          max-width: 100% !important;
+          width: 100% !important;
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+          margin: 0 !important;
+        }
+        /* Force background images/colors to print if specifically needed */
+        .print-bg-force {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        /* Reset heights */
+        .min-h-screen {
+          min-height: auto !important;
+        }
+        /* Hide fixed elements */
+        .fixed, .sticky {
+          position: static !important;
+        }
+      }
     </style>
   </head>
   <body class="bg-[#F2F2F0] text-[#111111]">

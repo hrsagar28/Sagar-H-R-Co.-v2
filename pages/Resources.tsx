@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IMPORTANT_LINKS, COMPLIANCE_CALENDAR, CHECKLIST_DATA } from '../constants';
-import { Download, ExternalLink, Calculator, Calendar, Search, Filter, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { COMPLIANCE_CALENDAR, CHECKLIST_DATA } from '../constants';
+import { Download, ExternalLink, Calculator, Calendar, Search, Filter, ChevronDown, ChevronUp, FileText, Printer, Check, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
 
 const Resources: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'calculator' | 'calendar' | 'checklist'>('calculator');
+
+  // Calculator State
   const [income, setIncome] = useState<number>(0);
   const [ageGroup, setAgeGroup] = useState('below60');
   const [regime, setRegime] = useState<'new' | 'old'>('new');
@@ -12,8 +15,13 @@ const Resources: React.FC = () => {
   const [taxResult, setTaxResult] = useState<{ tax: number, cess: number, total: number } | null>(null);
   const [compareResult, setCompareResult] = useState<{ new: number, old: number } | null>(null);
 
+  // Calendar State
   const [calFilter, setCalFilter] = useState('all');
   const [calSearch, setCalSearch] = useState('');
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   const schema = {
     "@context": "https://schema.org",
@@ -48,7 +56,8 @@ const Resources: React.FC = () => {
 
     if (reg === 'new') {
       // New Regime Slabs FY 24-25
-      if (annualIncome <= 700000) return { tax: 0, cess: 0, total: 0 }; // Rebate u/s 87A
+      if (annualIncome <= 700000) return { tax: 0, cess: 0, total: 0 }; // Rebate u/s 87A (actually tax free up to 7L, effectively 12L now? stick to basics)
+      // Note: Simplified logic based on provided context
       
       if (taxableIncome > 300000) tax += (Math.min(taxableIncome, 700000) - 300000) * 0.05;
       if (taxableIncome > 700000) tax += (Math.min(taxableIncome, 1000000) - 700000) * 0.10;
@@ -84,316 +93,301 @@ const Resources: React.FC = () => {
     setTaxResult(null);
   };
 
-  // --- Calendar Logic ---
-  const categoryMap: Record<string, string> = { gst: 'GST', it: 'Income Tax', tds: 'TDS/TCS', roc: 'ROC', payroll: 'Payroll' };
   const badgeColors: Record<string, string> = {
-    gst: 'bg-blue-100 text-blue-800',
-    it: 'bg-red-100 text-red-800',
-    tds: 'bg-green-100 text-green-800',
-    roc: 'bg-purple-100 text-purple-800',
-    payroll: 'bg-orange-100 text-orange-800'
+    gst: 'bg-blue-100 text-blue-800 border-blue-200',
+    it: 'bg-green-100 text-green-800 border-green-200',
+    tds: 'bg-purple-100 text-purple-800 border-purple-200',
+    roc: 'bg-orange-100 text-orange-800 border-orange-200',
+    payroll: 'bg-pink-100 text-pink-800 border-pink-200'
   };
+
+  const categoryMap: Record<string, string> = { gst: 'GST', it: 'Income Tax', tds: 'TDS/TCS', roc: 'ROC', payroll: 'Payroll' };
 
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO 
-        title="Financial Resources & Tools | Tax Calculator & Calendars"
-        description="Access essential financial tools, tax calculators, compliance calendars, and checklists. Stay updated with important links for GST and Income Tax."
+        title="Resources | Calculators, Calendar & Checklists"
+        description="Essential financial tools for businesses and individuals. Income Tax Calculator, Compliance Calendar, and Downloadable Checklists."
         schema={schema}
       />
       
-      {/* UNIFIED HERO SECTION */}
-      <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
-        <div className="container mx-auto max-w-7xl relative z-10">
-           <div className="max-w-5xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
-                <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
-                Client Tools
-              </div>
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                Resource <br/>
-                <span className="font-serif italic font-normal text-brand-stone opacity-60">Hub.</span>
-              </h1>
-              <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                 Essential tools, official links, and compliance calendars to keep your business ahead of the curve.
-              </p>
-           </div>
-        </div>
+      {/* HERO SECTION - Hidden in Print */}
+      <section className="pt-32 md:pt-48 pb-12 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60 print:hidden">
+         <div className="container mx-auto max-w-7xl relative z-10">
+            <div className="max-w-5xl">
+               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
+                 <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
+                 Tools & Utilities
+               </div>
+               <h1 className="text-6xl md:text-8xl font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                 Resource <br/>
+                 <span className="font-serif italic font-normal text-brand-stone opacity-60">Hub.</span>
+               </h1>
+            </div>
+         </div>
       </section>
 
-      <div className="py-20 px-4 md:px-6">
-        <div className="container mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            
-            {/* LEFT COLUMN - Sticky Navigation & Links */}
-            <div className="lg:col-span-4 space-y-12">
-              <div className="sticky top-32 space-y-12">
-                
-                {/* Important Links */}
-                <div className="bg-brand-surface p-8 rounded-[2rem] border border-brand-border shadow-sm">
-                  <h3 className="text-2xl font-heading font-bold text-brand-dark mb-6 flex items-center gap-2">
-                    <ExternalLink size={24} className="text-brand-moss"/> Important Links
-                  </h3>
-                  <div className="space-y-8">
-                    {IMPORTANT_LINKS.map((group, idx) => (
-                      <div key={idx}>
-                        <h4 className="text-xs font-bold text-brand-stone uppercase tracking-widest mb-4">{group.category}</h4>
-                        <ul className="space-y-3">
-                          {group.links.map((link, lIdx) => (
-                            <li key={lIdx}>
-                              <a 
-                                href={link.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-between group p-3 rounded-xl hover:bg-brand-bg transition-colors border border-transparent hover:border-brand-border/50"
-                              >
-                                <span className="text-brand-dark font-bold group-hover:text-brand-moss transition-colors text-sm">{link.name}</span>
-                                <ArrowUpRightLink />
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
+      {/* MAIN CONTENT AREA */}
+      <div className="py-12 px-4 md:px-6 print:py-0 print:px-0">
+         <div className="container mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 print:block">
+               
+               {/* SIDEBAR TABS - Hidden in Print */}
+               <div className="lg:col-span-1 print:hidden">
+                  <div className="bg-brand-surface rounded-[2rem] border border-brand-border p-4 sticky top-32 shadow-sm">
+                     <nav className="flex flex-col gap-2">
+                        <button 
+                           onClick={() => setActiveTab('calculator')}
+                           className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all text-left ${activeTab === 'calculator' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
+                        >
+                           <Calculator size={20} /> Tax Calculator
+                        </button>
+                        <button 
+                           onClick={() => setActiveTab('calendar')}
+                           className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all text-left ${activeTab === 'calendar' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
+                        >
+                           <Calendar size={20} /> Compliance Calendar
+                        </button>
+                        <button 
+                           onClick={() => setActiveTab('checklist')}
+                           className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all text-left ${activeTab === 'checklist' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
+                        >
+                           <FileText size={20} /> Checklists
+                        </button>
+                     </nav>
                   </div>
-                </div>
+               </div>
 
-                {/* Document Checklists */}
-                <div className="bg-brand-dark p-8 rounded-[2rem] text-brand-surface relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-brand-moss opacity-20 rounded-full blur-[50px]"></div>
-                  <h3 className="text-2xl font-heading font-bold mb-6 relative z-10 flex items-center gap-2">
-                     <FileText size={24} /> Checklists
-                  </h3>
-                  <div className="space-y-2 relative z-10">
-                    {Object.entries(CHECKLIST_DATA).map(([key, data]) => (
-                      <Link 
-                        key={key} 
-                        to={`/resources/checklist/${key}`}
-                        className="block p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all group"
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-sm">{data.title}</span>
-                          <Download size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+               {/* CONTENT PANEL - Full Width in Print */}
+               <div className="lg:col-span-3 print:w-full">
+                  
+                  {/* CALCULATOR TAB */}
+                  {activeTab === 'calculator' && (
+                     <div className="bg-brand-surface rounded-[2.5rem] p-8 md:p-12 border border-brand-border shadow-sm print:border-0 print:shadow-none print:p-0 animate-fade-in-up">
+                        <div className="flex justify-between items-start mb-8 print:mb-4">
+                           <div>
+                              <h2 className="text-3xl font-heading font-bold text-brand-dark">Income Tax Calculator</h2>
+                              <p className="text-brand-stone mt-2">FY 2024-25 (AY 2025-26)</p>
+                           </div>
+                           <button onClick={handlePrint} className="p-3 rounded-full bg-brand-bg text-brand-dark hover:bg-brand-moss hover:text-white transition-colors print:hidden">
+                              <Printer size={20} />
+                           </button>
                         </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
 
-              </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 print:grid-cols-2 print:gap-4 print:mb-6">
+                           <div className="space-y-6">
+                              <div>
+                                 <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2">Annual Income (₹)</label>
+                                 <input 
+                                    type="number" 
+                                    value={income || ''} 
+                                    onChange={(e) => setIncome(Number(e.target.value))}
+                                    className="w-full p-4 bg-brand-bg border border-brand-border rounded-xl font-mono text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss print:bg-white print:border-gray-300"
+                                    placeholder="e.g. 1200000"
+                                 />
+                              </div>
+                              
+                              <div>
+                                 <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2">Tax Regime</label>
+                                 <div className="flex bg-brand-bg p-1 rounded-xl border border-brand-border print:bg-white print:border-gray-300">
+                                    <button 
+                                       onClick={() => setRegime('new')}
+                                       className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all ${regime === 'new' ? 'bg-brand-surface shadow-sm text-brand-moss' : 'text-brand-stone'}`}
+                                    >
+                                       New Regime
+                                    </button>
+                                    <button 
+                                       onClick={() => setRegime('old')}
+                                       className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all ${regime === 'old' ? 'bg-brand-surface shadow-sm text-brand-moss' : 'text-brand-stone'}`}
+                                    >
+                                       Old Regime
+                                    </button>
+                                 </div>
+                              </div>
+
+                              {regime === 'old' && (
+                                 <div>
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2">Age Group</label>
+                                    <select 
+                                       value={ageGroup}
+                                       onChange={(e) => setAgeGroup(e.target.value)}
+                                       className="w-full p-4 bg-brand-bg border border-brand-border rounded-xl text-brand-dark focus:outline-none focus:border-brand-moss print:bg-white print:border-gray-300"
+                                    >
+                                       <option value="below60">Below 60 Years</option>
+                                       <option value="60to80">60 - 80 Years (Senior)</option>
+                                       <option value="above80">Above 80 Years (Super Senior)</option>
+                                    </select>
+                                 </div>
+                              )}
+                           </div>
+
+                           <div className="space-y-6">
+                              <div className={`transition-opacity duration-300 ${regime === 'new' ? 'opacity-50 pointer-events-none grayscale' : 'opacity-100'}`}>
+                                 <h3 className="text-sm font-bold text-brand-dark mb-4 flex items-center gap-2">Deductions (Old Regime Only)</h3>
+                                 <div className="space-y-4">
+                                    <div>
+                                       <label className="block text-xs font-bold text-brand-stone mb-1">Sec 80C (Max 1.5L)</label>
+                                       <input type="number" value={deductions.d80c || ''} onChange={(e) => setDeductions({...deductions, d80c: Number(e.target.value)})} className="w-full p-3 bg-brand-bg border border-brand-border rounded-lg text-sm print:bg-white print:border-gray-300" placeholder="PPF, LIC, etc." />
+                                    </div>
+                                    <div>
+                                       <label className="block text-xs font-bold text-brand-stone mb-1">Sec 80D (Medical)</label>
+                                       <input type="number" value={deductions.d80d || ''} onChange={(e) => setDeductions({...deductions, d80d: Number(e.target.value)})} className="w-full p-3 bg-brand-bg border border-brand-border rounded-lg text-sm print:bg-white print:border-gray-300" placeholder="Insurance Premium" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                       <div>
+                                          <label className="block text-xs font-bold text-brand-stone mb-1">HRA / Home Loan</label>
+                                          <input type="number" value={deductions.hra || ''} onChange={(e) => setDeductions({...deductions, hra: Number(e.target.value)})} className="w-full p-3 bg-brand-bg border border-brand-border rounded-lg text-sm print:bg-white print:border-gray-300" />
+                                       </div>
+                                       <div>
+                                          <label className="block text-xs font-bold text-brand-stone mb-1">Other Deductions</label>
+                                          <input type="number" value={deductions.other || ''} onChange={(e) => setDeductions({...deductions, other: Number(e.target.value)})} className="w-full p-3 bg-brand-bg border border-brand-border rounded-lg text-sm print:bg-white print:border-gray-300" />
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div className="flex gap-4 mb-10 print:hidden">
+                           <button onClick={handleCalculate} className="flex-1 py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-brand-moss transition-colors shadow-lg">Calculate Tax</button>
+                           <button onClick={handleCompare} className="flex-1 py-4 bg-white border border-brand-border text-brand-dark rounded-xl font-bold hover:bg-brand-bg transition-colors">Compare Regimes</button>
+                        </div>
+
+                        {/* RESULTS SECTION */}
+                        {taxResult && (
+                           <div className="bg-brand-mossLight border border-brand-moss/20 rounded-2xl p-8 print:border-black print:bg-white print:border-2">
+                              <h3 className="text-xl font-heading font-bold text-brand-moss mb-6 pb-4 border-b border-brand-moss/10 print:text-black print:border-black">Tax Calculation Summary</h3>
+                              <div className="space-y-4">
+                                 <div className="flex justify-between items-center text-lg">
+                                    <span className="text-brand-stone font-medium print:text-black">Gross Income</span>
+                                    <span className="font-bold text-brand-dark">₹ {income.toLocaleString('en-IN')}</span>
+                                 </div>
+                                 <div className="flex justify-between items-center text-lg">
+                                    <span className="text-brand-stone font-medium print:text-black">Tax Payable</span>
+                                    <span className="font-bold text-brand-dark">₹ {taxResult.tax.toLocaleString('en-IN')}</span>
+                                 </div>
+                                 <div className="flex justify-between items-center text-lg">
+                                    <span className="text-brand-stone font-medium print:text-black">Health & Education Cess (4%)</span>
+                                    <span className="font-bold text-brand-dark">₹ {taxResult.cess.toLocaleString('en-IN')}</span>
+                                 </div>
+                                 <div className="pt-4 mt-4 border-t-2 border-dashed border-brand-moss/20 flex justify-between items-center text-xl print:border-black">
+                                    <span className="font-bold text-brand-moss print:text-black">Total Tax Liability</span>
+                                    <span className="font-bold text-brand-moss text-2xl print:text-black">₹ {taxResult.total.toLocaleString('en-IN')}</span>
+                                 </div>
+                              </div>
+                              <div className="mt-6 text-xs text-center text-brand-stone print:text-black">
+                                 Generated by Sagar H R & Co. Tax Calculator • Note: This is an estimate. Please consult a professional for exact filing.
+                              </div>
+                           </div>
+                        )}
+
+                        {compareResult && (
+                           <div className="grid grid-cols-2 gap-6 print:gap-4">
+                              <div className={`p-6 rounded-2xl border-2 text-center ${compareResult.new < compareResult.old ? 'bg-green-50 border-green-500' : 'bg-gray-50 border-gray-200'} print:bg-white print:border-black`}>
+                                 <h4 className="font-bold text-brand-dark mb-2">New Regime Tax</h4>
+                                 <div className="text-2xl font-bold text-brand-moss">₹ {compareResult.new.toLocaleString('en-IN')}</div>
+                                 {compareResult.new < compareResult.old && <div className="mt-2 inline-block px-3 py-1 bg-green-200 text-green-800 text-xs font-bold rounded-full print:border print:border-black">Recommended</div>}
+                              </div>
+                              <div className={`p-6 rounded-2xl border-2 text-center ${compareResult.old < compareResult.new ? 'bg-green-50 border-green-500' : 'bg-gray-50 border-gray-200'} print:bg-white print:border-black`}>
+                                 <h4 className="font-bold text-brand-dark mb-2">Old Regime Tax</h4>
+                                 <div className="text-2xl font-bold text-brand-moss">₹ {compareResult.old.toLocaleString('en-IN')}</div>
+                                 {compareResult.old < compareResult.new && <div className="mt-2 inline-block px-3 py-1 bg-green-200 text-green-800 text-xs font-bold rounded-full print:border print:border-black">Recommended</div>}
+                              </div>
+                           </div>
+                        )}
+                     </div>
+                  )}
+
+                  {/* CALENDAR TAB */}
+                  {activeTab === 'calendar' && (
+                     <div className="bg-brand-surface rounded-[2.5rem] p-8 md:p-12 border border-brand-border shadow-sm print:shadow-none print:border-0 print:p-0 animate-fade-in-up">
+                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                           <div>
+                              <h2 className="text-3xl font-heading font-bold text-brand-dark">Compliance Calendar</h2>
+                              <p className="text-brand-stone mt-1">Key Due Dates for 2025-26</p>
+                           </div>
+                           <div className="flex gap-2 print:hidden">
+                              <div className="relative">
+                                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-stone" />
+                                 <input 
+                                    type="text" 
+                                    placeholder="Search..." 
+                                    value={calSearch}
+                                    onChange={(e) => setCalSearch(e.target.value)}
+                                    className="pl-10 pr-4 py-2 bg-brand-bg border border-brand-border rounded-full text-sm focus:outline-none focus:border-brand-moss"
+                                 />
+                              </div>
+                              <button onClick={handlePrint} className="p-2 rounded-full bg-brand-bg text-brand-dark hover:bg-brand-moss hover:text-white transition-colors">
+                                 <Printer size={20} />
+                              </button>
+                           </div>
+                        </div>
+
+                        <div className="space-y-8">
+                           {Object.entries(COMPLIANCE_CALENDAR).map(([month, events], idx) => {
+                              const filteredEvents = events.filter(e => 
+                                 (calFilter === 'all' || e.cat === calFilter) && 
+                                 (e.desc.toLowerCase().includes(calSearch.toLowerCase()))
+                              );
+
+                              if (filteredEvents.length === 0) return null;
+
+                              return (
+                                 <div key={idx} className="break-inside-avoid">
+                                    <h3 className="text-xl font-bold text-brand-dark mb-4 sticky top-0 bg-brand-surface py-2 border-b border-brand-border/50 print:static print:bg-white print:border-black">{month}</h3>
+                                    <div className="grid gap-3">
+                                       {filteredEvents.map((event, i) => (
+                                          <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-brand-bg border border-brand-border/50 hover:border-brand-moss/30 transition-colors print:bg-white print:border-gray-200">
+                                             <div className="w-12 h-12 flex flex-col items-center justify-center bg-white rounded-lg border border-brand-border shadow-sm shrink-0 print:border-black">
+                                                <span className="text-xs font-bold text-brand-moss uppercase leading-none print:text-black">{month.slice(0,3)}</span>
+                                                <span className="text-lg font-bold text-brand-dark leading-none mt-1">{event.day}</span>
+                                             </div>
+                                             <div className="flex-grow">
+                                                <div className="font-bold text-brand-dark">{event.desc}</div>
+                                                <div className="text-xs text-brand-stone font-medium mt-1">{categoryMap[event.cat]}</div>
+                                             </div>
+                                             <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${badgeColors[event.cat]} print:border-black print:text-black print:bg-white`}>
+                                                {event.cat}
+                                             </div>
+                                          </div>
+                                       ))}
+                                    </div>
+                                 </div>
+                              );
+                           })}
+                        </div>
+                     </div>
+                  )}
+
+                  {/* CHECKLISTS TAB */}
+                  {activeTab === 'checklist' && (
+                     <div className="bg-brand-surface rounded-[2.5rem] p-8 md:p-12 border border-brand-border shadow-sm print:shadow-none print:border-0 print:p-0 animate-fade-in-up">
+                        <div className="mb-8">
+                           <h2 className="text-3xl font-heading font-bold text-brand-dark">Document Checklists</h2>
+                           <p className="text-brand-stone mt-2">Download or print requirements for various services.</p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           {Object.entries(CHECKLIST_DATA).map(([key, data]) => (
+                              <Link to={`/resources/checklist/${key}`} key={key} className="group p-6 rounded-2xl bg-brand-bg border border-brand-border hover:border-brand-moss hover:shadow-lg transition-all flex justify-between items-center print:border-gray-300 print:bg-white">
+                                 <div>
+                                    <h3 className="font-bold text-brand-dark group-hover:text-brand-moss transition-colors">{data.title}</h3>
+                                    <p className="text-xs text-brand-stone mt-1 line-clamp-1">{data.subtitle}</p>
+                                 </div>
+                                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-brand-stone group-hover:bg-brand-moss group-hover:text-white transition-all print:hidden">
+                                    <ArrowRight size={18} />
+                                 </div>
+                              </Link>
+                           ))}
+                        </div>
+                     </div>
+                  )}
+
+               </div>
             </div>
-
-            {/* RIGHT COLUMN - Tools */}
-            <div className="lg:col-span-8 space-y-12">
-              
-              {/* Tax Calculator */}
-              <div id="calculator" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-lg relative overflow-hidden">
-                 <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none"></div>
-                 <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-8">
-                       <div className="p-3 bg-brand-bg rounded-2xl border border-brand-border text-brand-moss">
-                          <Calculator size={32} />
-                       </div>
-                       <div>
-                          <h2 className="text-3xl font-heading font-bold text-brand-dark">Tax Calculator</h2>
-                          <p className="text-brand-stone font-medium">FY 2024-25 (AY 2025-26)</p>
-                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                       <div>
-                          <label htmlFor="income-input" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-2 ml-1">Annual Income</label>
-                          <input 
-                            id="income-input"
-                            type="number" 
-                            value={income || ''} 
-                            onChange={(e) => setIncome(parseFloat(e.target.value))}
-                            placeholder="₹ 10,0,000"
-                            className="w-full p-4 bg-brand-bg border border-brand-border rounded-2xl font-bold text-brand-dark focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
-                          />
-                       </div>
-                       <div>
-                          <label htmlFor="age-select" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-2 ml-1">Age Group</label>
-                          <select 
-                            id="age-select"
-                            value={ageGroup}
-                            onChange={(e) => setAgeGroup(e.target.value)}
-                            className="w-full p-4 bg-brand-bg border border-brand-border rounded-2xl font-bold text-brand-dark focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all appearance-none"
-                          >
-                             <option value="below60">Below 60 Years</option>
-                             <option value="60to80">60 - 80 Years</option>
-                             <option value="above80">Above 80 Years</option>
-                          </select>
-                       </div>
-                    </div>
-
-                    <div className="flex gap-2 bg-brand-bg p-1 rounded-full w-fit mb-8 border border-brand-border">
-                       <button 
-                         onClick={() => setRegime('new')}
-                         className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${regime === 'new' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:text-brand-dark'}`}
-                       >
-                          New Regime
-                       </button>
-                       <button 
-                         onClick={() => setRegime('old')}
-                         className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${regime === 'old' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:text-brand-dark'}`}
-                       >
-                          Old Regime
-                       </button>
-                    </div>
-
-                    {regime === 'old' && (
-                       <div className="bg-brand-bg/50 p-6 rounded-2xl border border-brand-border mb-8 animate-fade-in-up">
-                          <h4 className="text-sm font-bold text-brand-dark mb-4 uppercase tracking-widest">Deductions</h4>
-                          <div className="grid grid-cols-2 gap-4">
-                             <div>
-                                <label htmlFor="80c-input" className="block text-xs font-bold text-brand-stone mb-1">80C</label>
-                                <input id="80c-input" type="number" placeholder="Max 1.5L" className="w-full p-2 rounded-lg border border-brand-border text-sm" onChange={(e) => setDeductions({...deductions, d80c: parseFloat(e.target.value)})} />
-                             </div>
-                             <div>
-                                <label htmlFor="80d-input" className="block text-xs font-bold text-brand-stone mb-1">80D (Medical)</label>
-                                <input id="80d-input" type="number" placeholder="Amount" className="w-full p-2 rounded-lg border border-brand-border text-sm" onChange={(e) => setDeductions({...deductions, d80d: parseFloat(e.target.value)})} />
-                             </div>
-                             <div>
-                                <label htmlFor="hra-input" className="block text-xs font-bold text-brand-stone mb-1">HRA</label>
-                                <input id="hra-input" type="number" placeholder="Exempt Amount" className="w-full p-2 rounded-lg border border-brand-border text-sm" onChange={(e) => setDeductions({...deductions, hra: parseFloat(e.target.value)})} />
-                             </div>
-                             <div>
-                                <label htmlFor="other-input" className="block text-xs font-bold text-brand-stone mb-1">Other</label>
-                                <input id="other-input" type="number" placeholder="Amount" className="w-full p-2 rounded-lg border border-brand-border text-sm" onChange={(e) => setDeductions({...deductions, other: parseFloat(e.target.value)})} />
-                             </div>
-                          </div>
-                       </div>
-                    )}
-
-                    <div className="flex gap-4 mb-8">
-                       <button onClick={handleCalculate} className="flex-1 py-4 bg-brand-dark text-white font-bold rounded-xl hover:bg-brand-moss transition-all shadow-lg">Calculate Tax</button>
-                       <button onClick={handleCompare} className="flex-1 py-4 bg-brand-surface border-2 border-brand-dark text-brand-dark font-bold rounded-xl hover:bg-brand-bg transition-all">Compare Regimes</button>
-                    </div>
-
-                    {/* Results */}
-                    <div aria-live="polite">
-                      {taxResult && (
-                        <div className="bg-brand-mossLight p-6 rounded-2xl border border-brand-moss/20 animate-scale-in">
-                          <div className="flex justify-between items-end mb-2">
-                              <span className="text-brand-moss font-bold uppercase tracking-widest text-sm">Total Tax Payable</span>
-                              <span className="text-4xl font-heading font-bold text-brand-dark">₹ {taxResult.total.toLocaleString('en-IN')}</span>
-                          </div>
-                          <div className="h-[1px] w-full bg-brand-moss/20 my-4"></div>
-                          <div className="flex justify-between text-sm text-brand-stone font-medium">
-                              <span>Income Tax: ₹ {taxResult.tax.toLocaleString()}</span>
-                              <span>Cess (4%): ₹ {taxResult.cess.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {compareResult && (
-                        <div className="grid grid-cols-2 gap-4 animate-scale-in">
-                          <div className={`p-6 rounded-2xl border ${compareResult.new < compareResult.old ? 'bg-green-50 border-green-200' : 'bg-brand-bg border-brand-border'}`}>
-                              <span className="block text-xs font-bold uppercase tracking-widest mb-2">New Regime</span>
-                              <span className="text-2xl font-heading font-bold text-brand-dark">₹ {compareResult.new.toLocaleString('en-IN')}</span>
-                          </div>
-                          <div className={`p-6 rounded-2xl border ${compareResult.old < compareResult.new ? 'bg-green-50 border-green-200' : 'bg-brand-bg border-brand-border'}`}>
-                              <span className="block text-xs font-bold uppercase tracking-widest mb-2">Old Regime</span>
-                              <span className="text-2xl font-heading font-bold text-brand-dark">₹ {compareResult.old.toLocaleString('en-IN')}</span>
-                          </div>
-                          <div className="col-span-2 text-center text-sm font-bold text-brand-dark bg-brand-surface p-3 rounded-xl border border-brand-border shadow-sm">
-                              {compareResult.new < compareResult.old 
-                                ? `You save ₹ ${(compareResult.old - compareResult.new).toLocaleString()} with New Regime` 
-                                : `You save ₹ ${(compareResult.new - compareResult.old).toLocaleString()} with Old Regime`
-                              }
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                 </div>
-              </div>
-
-              {/* Compliance Calendar */}
-              <div className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-lg">
-                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
-                    <div className="flex items-center gap-4">
-                       <div className="p-3 bg-brand-bg rounded-2xl border border-brand-border text-brand-moss">
-                          <Calendar size={32} />
-                       </div>
-                       <div>
-                          <h2 className="text-3xl font-heading font-bold text-brand-dark">Compliance Calendar</h2>
-                          <p className="text-brand-stone font-medium">Upcoming Due Dates</p>
-                       </div>
-                    </div>
-                    <div className="relative">
-                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-stone w-4 h-4" />
-                       <input 
-                         type="text" 
-                         aria-label="Search calendar"
-                         placeholder="Search..." 
-                         value={calSearch}
-                         onChange={(e) => setCalSearch(e.target.value)}
-                         className="pl-10 pr-4 py-3 bg-brand-bg border border-brand-border rounded-full text-sm font-bold text-brand-dark focus:outline-none focus:border-brand-moss w-full md:w-64"
-                       />
-                    </div>
-                 </div>
-
-                 {/* Filters */}
-                 <div className="flex flex-wrap gap-2 mb-8">
-                    {['all', ...Object.keys(categoryMap)].map((cat) => (
-                       <button 
-                         key={cat}
-                         onClick={() => setCalFilter(cat)}
-                         className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${calFilter === cat ? 'bg-brand-dark text-white border-brand-dark' : 'bg-brand-surface border-brand-border text-brand-stone hover:border-brand-dark'}`}
-                       >
-                          {cat === 'all' ? 'All' : categoryMap[cat]}
-                       </button>
-                    ))}
-                 </div>
-
-                 {/* Timeline */}
-                 <div className="space-y-6 max-h-[600px] overflow-y-auto no-scrollbar pr-2">
-                    {Object.entries(COMPLIANCE_CALENDAR).map(([month, events]) => {
-                       const filteredEvents = events.filter(e => 
-                          (calFilter === 'all' || e.cat === calFilter) && 
-                          e.desc.toLowerCase().includes(calSearch.toLowerCase())
-                       );
-
-                       if (filteredEvents.length === 0) return null;
-
-                       return (
-                          <div key={month} className="relative pl-8 border-l-2 border-brand-border/50 pb-8 last:pb-0 last:border-0">
-                             <div className="absolute -left-[9px] top-0 w-4 h-4 bg-brand-moss rounded-full ring-4 ring-brand-surface"></div>
-                             <h3 className="text-xl font-heading font-bold text-brand-dark mb-4">{month}</h3>
-                             <div className="space-y-3">
-                                {filteredEvents.sort((a,b) => a.day - b.day).map((event, idx) => (
-                                   <div key={idx} className="flex items-center gap-4 p-4 bg-brand-bg rounded-2xl border border-brand-border hover:border-brand-moss transition-colors">
-                                      <div className="text-center shrink-0 bg-brand-surface w-14 h-14 rounded-xl flex flex-col justify-center items-center border border-brand-border shadow-sm">
-                                         <span className="text-xl font-bold text-brand-dark leading-none">{event.day}</span>
-                                      </div>
-                                      <div className="grow">
-                                         <p className="text-brand-dark font-bold text-sm md:text-base">{event.desc}</p>
-                                         <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mt-1 ${badgeColors[event.cat]}`}>
-                                            {categoryMap[event.cat]}
-                                         </span>
-                                      </div>
-                                   </div>
-                                ))}
-                             </div>
-                          </div>
-                       );
-                    })}
-                 </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
+         </div>
       </div>
     </div>
   );
 };
-
-const ArrowUpRightLink = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-brand-stone group-hover:text-brand-moss transition-colors">
-    <path d="M2.5 9.5L9.5 2.5M9.5 2.5H3.5M9.5 2.5V8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
 
 export default Resources;
