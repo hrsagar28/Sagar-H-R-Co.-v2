@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building } from 'lucide-react';
+import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';
 import { useFormValidation } from '../../hooks/useFormValidation';
@@ -25,9 +25,13 @@ const positionOptions = ['Audit Associate', 'Articled Assistant', 'General Appli
 const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years'];
 
 const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSuccess }) => {
-  const formRef = useRef<HTMLFormElement>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Submission States
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [honeypot, setHoneypot] = useState('');
 
   // Use the custom validation hook
   const { values, handleChange, errors, validate, setValues } = useFormValidation<FormData>({
@@ -42,7 +46,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     position: initialPosition || ''
   });
 
-  // Update position if initialPosition changes (e.g. user clicking "Apply Now" on different cards)
+  // Update position if initialPosition changes
   useEffect(() => {
     if (initialPosition) {
         setValues(prev => ({ ...prev, position: initialPosition }));
@@ -112,13 +116,41 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     }, 300);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (currentStep !== 3) return;
     
+    // Honeypot Check
+    if (honeypot) return;
+
     if (validateStep(3)) {
-      formRef.current?.submit();
-      if (onFormSubmitSuccess) onFormSubmitSuccess();
+      setIsSubmitting(true);
+      setSubmitStatus('idle');
+
+      try {
+        const res = await fetch("https://formsubmit.co/ajax/mail@casagar.co.in", {
+            method: "POST",
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                ...values,
+                _subject: `Job Application: ${values.fullName} - ${values.position || 'General'}`
+            })
+        });
+
+        if (res.ok) {
+            setSubmitStatus('success');
+            if (onFormSubmitSuccess) onFormSubmitSuccess();
+        } else {
+            setSubmitStatus('error');
+        }
+      } catch(e) {
+        setSubmitStatus('error');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -129,9 +161,44 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
       if (target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') return;
       e.preventDefault();
       if (currentStep < 3) handleNext();
-      else if (validateStep(3)) formRef.current?.submit();
+      else if (validateStep(3)) handleSubmit(e as unknown as React.FormEvent);
     }
   };
+
+  if (submitStatus === 'success') {
+    return (
+      <div id="form-header" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative overflow-hidden flex flex-col items-center justify-center text-center min-h-[400px] animate-fade-in-up">
+        <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
+        <div className="w-24 h-24 bg-brand-moss text-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-brand-moss/30">
+          <Check size={48} />
+        </div>
+        <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4">Application Submitted!</h2>
+        <p className="text-xl text-brand-stone font-medium max-w-md mx-auto mb-8">
+          Thank you for applying. Our HR team will review your profile and contact you if your qualifications match our requirements.
+        </p>
+        <button 
+          onClick={() => {
+            setSubmitStatus('idle');
+            setCurrentStep(1);
+            setValues({
+                fullName: '',
+                fatherName: '',
+                mobile: '',
+                email: '',
+                dob: '',
+                qualification: '',
+                experience: '',
+                previousCompanies: '',
+                position: initialPosition || ''
+            });
+          }}
+          className="px-8 py-4 bg-brand-bg border border-brand-border text-brand-dark font-bold rounded-full hover:bg-brand-moss hover:text-white transition-all duration-300"
+        >
+          Submit Another Application
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div id="form-header" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative overflow-hidden">
@@ -168,16 +235,20 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
         {/* Form */}
         <form 
-          ref={formRef}
-          action="https://formsubmit.co/mail@casagar.co.in" 
-          method="POST" 
           className="space-y-8"
           onSubmit={handleSubmit}
           onKeyDown={handleKeyDown}
         >
-          <input type="hidden" name="_subject" value={`Job Application: ${values.fullName} - ${values.position || 'General'}`} />
-          <input type="hidden" name="_template" value="table" />
-          <input type="hidden" name="_captcha" value="false" />
+          {/* Honeypot Field */}
+          <input 
+            type="text" 
+            name="_honeypot" 
+            style={{ display: 'none' }} 
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+          />
 
           {/* STEP 1: PERSONAL DETAILS */}
           <div className={`${currentStep === 1 ? 'block animate-fade-in-up' : 'hidden'}`}>
@@ -327,9 +398,16 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
             </div>
           </div>
 
+          {submitStatus === 'error' && (
+            <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600">
+              <AlertCircle size={20} />
+              <span className="text-sm font-medium">Something went wrong. Please try again later.</span>
+            </div>
+          )}
+
           {/* Navigation Buttons */}
           <div className="flex gap-4 pt-6">
-            {currentStep > 1 && (
+            {currentStep > 1 && !isSubmitting && (
               <button 
                 key="back-btn"
                 type="button"
@@ -353,9 +431,26 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
               <button 
                 key="submit-btn"
                 type="submit" 
-                className="flex-1 py-5 bg-brand-moss text-white font-heading font-bold text-lg rounded-full hover:bg-brand-dark transition-all duration-300 shadow-xl hover:shadow-brand-dark/30 flex justify-center items-center gap-2 group"
+                disabled={isSubmitting}
+                className={`
+                  flex-1 py-5 rounded-full font-heading font-bold text-lg 
+                  flex justify-center items-center gap-2 group transition-all duration-300 shadow-xl
+                  ${isSubmitting 
+                    ? 'bg-brand-moss opacity-80 cursor-wait' 
+                    : 'bg-brand-moss text-white hover:bg-brand-dark hover:shadow-brand-dark/30'
+                  }
+                `}
               >
-                Submit Application <Check size={20} className="group-hover:scale-110 transition-transform" />
+                {isSubmitting ? (
+                    <>
+                        <Loader2 size={24} className="animate-spin" />
+                        <span>Sending...</span>
+                    </>
+                ) : (
+                    <>
+                        Submit Application <Check size={20} className="group-hover:scale-110 transition-transform" />
+                    </>
+                )}
               </button>
             )}
           </div>

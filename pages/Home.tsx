@@ -72,7 +72,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-brand-bg overflow-hidden">
+    <div className="w-full bg-brand-bg overflow-x-hidden">
       <SEO 
         title="Sagar H R & Co. | Premium Chartered Accountants | Mysuru"
         description="Sagar H R & Co. - Trusted financial advisors in Mysuru. Expert services in Audit, Taxation, GST, and Business Advisory for modern businesses."
@@ -110,8 +110,8 @@ const Home: React.FC = () => {
               </Reveal>
               
               {/* Masked Text Reveal - Huge Typography */}
-              {/* Using variant='reveal-mask' forces the parent to overflow-hidden and child to slide up from 100% */}
-              <h1 className="font-heading font-bold text-white tracking-tighter leading-[0.85] mb-8 drop-shadow-2xl">
+              {/* Added break-all/words and overflow protection for small screens */}
+              <h1 className="font-heading font-bold text-white tracking-tighter leading-[0.85] mb-8 drop-shadow-2xl overflow-hidden max-w-full">
                 <Reveal variant="reveal-mask" delay={0.2} duration={1}>
                   <span className="block text-[13vw] md:text-[8rem] lg:text-[10rem]">
                     Trusted
@@ -172,7 +172,7 @@ const Home: React.FC = () => {
                
                {/* Card 1 */}
                <Reveal variant="scale" delay={0.1} className="lg:sticky lg:top-32 w-full">
-                 <div className="bg-brand-dark text-brand-surface p-12 md:p-20 rounded-[3rem] border border-white/10 shadow-2xl transform transition-transform hover:scale-[1.02] origin-top duration-500 ease-premium">
+                 <div className="bg-brand-dark text-brand-surface p-8 md:p-20 rounded-[3rem] border border-white/10 shadow-2xl transform transition-transform hover:scale-[1.02] origin-top duration-500 ease-premium">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-10">
                        <div>
                           <div className="w-16 h-16 bg-brand-surface/10 rounded-2xl flex items-center justify-center text-[#4ADE80] mb-8">
@@ -185,14 +185,14 @@ const Home: React.FC = () => {
                        </p>
                     </div>
                     <div className="mt-20 pt-10 border-t border-white/10 flex justify-between items-end">
-                       <span className="text-[10rem] font-serif italic opacity-10 leading-none -mb-10">01</span>
+                       <span className="text-[6rem] md:text-[10rem] font-serif italic opacity-10 leading-none -mb-6 md:-mb-10">01</span>
                     </div>
                  </div>
                </Reveal>
 
                {/* Card 2 */}
                <Reveal variant="scale" delay={0.1} className="lg:sticky lg:top-40 w-full">
-                 <div className="bg-[#1A4D2E] text-white p-12 md:p-20 rounded-[3rem] border border-white/10 shadow-2xl transform transition-transform hover:scale-[1.02] origin-top lg:rotate-1 duration-500 ease-premium">
+                 <div className="bg-[#1A4D2E] text-white p-8 md:p-20 rounded-[3rem] border border-white/10 shadow-2xl transform transition-transform hover:scale-[1.02] origin-top lg:rotate-1 duration-500 ease-premium">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-10">
                        <div>
                           <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-white mb-8">
@@ -205,14 +205,14 @@ const Home: React.FC = () => {
                        </p>
                     </div>
                     <div className="mt-20 pt-10 border-t border-white/10 flex justify-between items-end">
-                       <span className="text-[10rem] font-serif italic opacity-10 leading-none -mb-10">02</span>
+                       <span className="text-[6rem] md:text-[10rem] font-serif italic opacity-10 leading-none -mb-6 md:-mb-10">02</span>
                     </div>
                  </div>
                </Reveal>
 
                {/* Card 3 */}
                <Reveal variant="scale" delay={0.1} className="lg:sticky lg:top-48 w-full">
-                 <div className="bg-[#F2F2F0] text-brand-dark p-12 md:p-20 rounded-[3rem] border border-brand-dark/10 shadow-2xl transform transition-transform hover:scale-[1.02] origin-top lg:-rotate-1 duration-500 ease-premium">
+                 <div className="bg-[#F2F2F0] text-brand-dark p-8 md:p-20 rounded-[3rem] border border-brand-dark/10 shadow-2xl transform transition-transform hover:scale-[1.02] origin-top lg:-rotate-1 duration-500 ease-premium">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-10">
                        <div>
                           <div className="w-16 h-16 bg-brand-dark text-white rounded-2xl flex items-center justify-center mb-8">
@@ -225,7 +225,7 @@ const Home: React.FC = () => {
                        </p>
                     </div>
                     <div className="mt-20 pt-10 border-t border-brand-dark/10 flex justify-between items-end">
-                       <span className="text-[10rem] font-serif italic text-brand-dark opacity-5 leading-none -mb-10">03</span>
+                       <span className="text-[6rem] md:text-[10rem] font-serif italic text-brand-dark opacity-5 leading-none -mb-6 md:-mb-10">03</span>
                     </div>
                  </div>
                </Reveal>

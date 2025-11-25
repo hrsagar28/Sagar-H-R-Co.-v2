@@ -105,25 +105,25 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             </div>
           </Link>
 
-          {/* Mobile specific Call Button */}
+          {/* Mobile specific Call Button - Increased Touch Target */}
           <a
             href="tel:+919482359455"
-            className="md:hidden w-10 h-10 bg-brand-moss text-brand-inverse rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-md"
+            className="md:hidden w-12 h-12 bg-brand-moss text-brand-inverse rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-md"
             aria-label="Call Now"
           >
-            <Phone size={18} />
+            <Phone size={20} />
           </a>
           
-          {/* Mobile Toggle */}
+          {/* Mobile Toggle - Increased Touch Target */}
           <button 
             ref={buttonRef}
-            className="lg:hidden p-2.5 bg-brand-surface rounded-full border border-brand-border text-brand-dark hover:bg-brand-bg transition-colors active:scale-90"
+            className="lg:hidden w-12 h-12 flex items-center justify-center bg-brand-surface rounded-full border border-brand-border text-brand-dark hover:bg-brand-bg transition-colors active:scale-90"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Close menu" : "Open menu"}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
           >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
@@ -140,20 +140,21 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                key={link.name}
                to={link.path}
                onClick={() => setIsOpen(false)}
-               className="text-xl font-heading font-bold text-brand-dark hover:text-brand-moss px-4 py-3 hover:bg-brand-bg rounded-xl transition-all flex justify-between items-center group"
+               // Increased padding for better touch target (py-4)
+               className="text-xl font-heading font-bold text-brand-dark hover:text-brand-moss px-4 py-4 hover:bg-brand-bg rounded-xl transition-all flex justify-between items-center group"
                style={{ transitionDelay: isOpen ? `${idx * 50}ms` : '0ms' }}
              >
                {link.name}
-               <ArrowRight size={16} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+               <ArrowRight size={20} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
              </Link>
            ))}
            <div className="mt-4 pt-4 border-t border-brand-border/50">
              <Link 
               to="/contact"
               onClick={() => setIsOpen(false)}
-              className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2"
+              className="w-full py-5 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 text-lg"
              >
-                Let's Talk <MessageSquare size={16} />
+                Let's Talk <MessageSquare size={20} />
              </Link>
            </div>
         </div>

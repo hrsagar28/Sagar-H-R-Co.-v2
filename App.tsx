@@ -64,8 +64,9 @@ const App: React.FC = () => {
       <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply" />
 
       <SmoothScroll>
-        <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg">
-          <main id="main-content" className="flex-grow relative z-base" tabIndex={-1}>
+        {/* Added overflow-x-hidden to prevent horizontal scroll on mobile */}
+        <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg w-full overflow-x-hidden">
+          <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Home />} />

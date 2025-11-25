@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MapPin, Mail, Phone, ChevronDown, Check, ArrowRight } from 'lucide-react';
+import { MapPin, Mail, Phone, ChevronDown, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { SERVICES } from '../constants';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
@@ -9,6 +9,11 @@ const Contact: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Form States
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [honeypot, setHoneypot] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -73,6 +78,49 @@ const Contact: React.FC = () => {
       }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Honeypot check - if field is filled, it's a bot
+    if (honeypot) {
+        return; 
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+        const response = await fetch("https://formsubmit.co/ajax/mail@casagar.co.in", {
+            method: "POST",
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: formData.name,
+                company: formData.company,
+                phone: formData.phone,
+                email: formData.email,
+                subject: subject,
+                message: formData.message,
+                _subject: `New Inquiry: ${subject || 'General'}`
+            })
+        });
+
+        if (response.ok) {
+            setSubmitStatus('success');
+            setFormData({ name: '', company: '', phone: '', email: '', message: '' });
+            setSubject('');
+        } else {
+            setSubmitStatus('error');
+        }
+    } catch (error) {
+        setSubmitStatus('error');
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "ContactPage",
@@ -126,12 +174,12 @@ const Contact: React.FC = () => {
         </div>
       </section>
 
-      {/* Main Content Area - Increased Width for "Bigger" Elements */}
+      {/* Main Content Area */}
       <div className="py-24 px-4 md:px-8">
         <div className="container mx-auto max-w-[1600px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-24">
             
-            {/* Left Column: Contact Info - Bigger Padding/Icons */}
+            {/* Left Column: Contact Info */}
             <Reveal variant="fade-up">
               <div className="h-full">
                 <div className="bg-brand-surface p-12 md:p-20 rounded-[3rem] border border-brand-border shadow-xl relative overflow-hidden group hover:border-brand-moss/50 transition-colors duration-500 h-full flex flex-col justify-center">
@@ -182,168 +230,213 @@ const Contact: React.FC = () => {
               </div>
             </Reveal>
 
-            {/* Right Column: Form - Bigger Padding/Inputs */}
+            {/* Right Column: Form */}
             <Reveal variant="fade-up" delay={0.2}>
-              <div className="bg-brand-surface p-12 md:p-20 rounded-[3rem] border border-brand-border shadow-2xl shadow-brand-dark/5">
-                <h3 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">Send a message</h3>
-                
-                <form 
-                  action="https://formsubmit.co/mail@casagar.co.in" 
-                  method="POST" 
-                  className="space-y-8"
-                >
-                  <input type="hidden" name="_template" value="table" />
-                  <input type="hidden" name="_captcha" value="false" />
-                  <input type="hidden" name="_subject" value={`New Inquiry: ${subject || 'General'}`} />
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Name */}
-                    <div className="group">
-                      <label htmlFor="name" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                        Name <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        id="name"
-                        name="name" 
-                        type="text" 
-                        required 
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
-                        placeholder="John Doe" 
-                      />
+              <div className="bg-brand-surface p-12 md:p-20 rounded-[3rem] border border-brand-border shadow-2xl shadow-brand-dark/5 min-h-[600px] flex flex-col justify-center">
+                {submitStatus === 'success' ? (
+                  <div className="text-center animate-fade-in-up">
+                    <div className="w-24 h-24 bg-brand-moss text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-brand-moss/30">
+                      <Check size={48} />
                     </div>
-
-                    {/* Company */}
-                    <div className="group">
-                      <label htmlFor="company" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                        Company Name
-                      </label>
-                      <input 
-                        id="company"
-                        name="company" 
-                        type="text" 
-                        value={formData.company}
-                        onChange={handleChange}
-                        className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
-                        placeholder="Acme Corp" 
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Phone */}
-                    <div className="group">
-                      <label htmlFor="phone" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                        Phone Number <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        id="phone" 
-                        name="phone"
-                        type="tel" 
-                        required
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
-                        placeholder="+91..." 
-                      />
-                    </div>
-
-                    {/* Email */}
-                    <div className="group">
-                      <label htmlFor="email" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                        Email
-                      </label>
-                      <input 
-                        id="email" 
-                        name="email"
-                        type="email" 
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
-                        placeholder="john@company.com" 
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Dropdown */}
-                  <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
-                    <label id="subject-label" className="block text-xs font-bold text-brand-dark uppercase tracking-widest ml-1 mb-1">Subject <span className="text-red-500">*</span></label>
-                    <input type="hidden" name="subject" value={subject} />
-
+                    <h3 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4">Message Sent!</h3>
+                    <p className="text-xl text-brand-stone font-medium max-w-md mx-auto mb-10">
+                      Thank you for reaching out. We have received your inquiry and will get back to you shortly.
+                    </p>
                     <button 
-                      type="button"
-                      aria-haspopup="listbox"
-                      aria-expanded={isDropdownOpen}
-                      aria-labelledby="subject-label"
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      onKeyDown={handleKeyDown}
-                      className={`w-full bg-brand-bg border ${isDropdownOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'} py-5 px-8 rounded-2xl text-brand-dark focus:outline-none transition-all flex justify-between items-center group hover:border-brand-moss/50 text-lg`}
+                      onClick={() => setSubmitStatus('idle')}
+                      className="px-8 py-4 bg-brand-bg border border-brand-border text-brand-dark font-bold rounded-full hover:bg-brand-moss hover:text-white transition-all duration-300"
                     >
-                      <span className={subject ? "text-brand-dark font-medium" : "text-brand-stone/40"}>
-                        {subject || "Select a Topic"}
-                      </span>
-                      <ChevronDown size={20} className={`text-brand-stone transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} />
+                      Send Another Message
                     </button>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">Send a message</h3>
+                    
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                      {/* Honeypot Field */}
+                      <input 
+                        type="text" 
+                        name="_honeypot" 
+                        style={{ display: 'none' }} 
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Name */}
+                        <div className="group">
+                          <label htmlFor="name" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
+                            Name <span className="text-red-500">*</span>
+                          </label>
+                          <input 
+                            id="name"
+                            name="name" 
+                            type="text" 
+                            required 
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
+                            placeholder="John Doe" 
+                          />
+                        </div>
 
-                    <div 
-                      className={`absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden transition-all duration-300 z-50 origin-top ${isDropdownOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
-                      role="listbox"
-                    >
-                      <div className="max-h-60 overflow-y-auto py-2">
-                        {subjectOptions.map((option, idx) => (
-                          <div 
-                            key={idx}
-                            role="option"
-                            aria-selected={subject === option}
-                            onClick={() => handleOptionClick(option)}
-                            className={`px-8 py-4 cursor-pointer flex justify-between items-center group transition-colors ${highlightedIndex === idx ? 'bg-brand-bg text-brand-moss' : 'hover:bg-brand-bg text-brand-dark'}`}
-                          >
-                            <span className={`text-base md:text-lg font-medium ${subject === option ? 'text-brand-moss font-bold' : 'group-hover:text-brand-moss'}`}>
-                              {option}
-                            </span>
-                            {subject === option && <Check size={20} className="text-brand-moss" />}
-                          </div>
-                        ))}
+                        {/* Company */}
+                        <div className="group">
+                          <label htmlFor="company" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
+                            Company Name
+                          </label>
+                          <input 
+                            id="company"
+                            name="company" 
+                            type="text" 
+                            value={formData.company}
+                            onChange={handleChange}
+                            className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
+                            placeholder="Acme Corp" 
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Phone */}
+                        <div className="group">
+                          <label htmlFor="phone" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
+                            Phone Number <span className="text-red-500">*</span>
+                          </label>
+                          <input 
+                            id="phone" 
+                            name="phone"
+                            type="tel" 
+                            required
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
+                            placeholder="+91..." 
+                          />
+                        </div>
 
-                  {/* Textarea */}
-                  <div className="group pt-2">
-                    <label htmlFor="message" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                      Message <span className="text-red-500">*</span>
-                    </label>
-                    <textarea 
-                      id="message" 
-                      name="message"
-                      rows={5} 
-                      required
-                      value={formData.message}
-                      onChange={handleChange}
-                      className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all resize-none placeholder:text-brand-stone/40"
-                      placeholder="How can we help you?"
-                    ></textarea>
-                  </div>
+                        {/* Email */}
+                        <div className="group">
+                          <label htmlFor="email" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
+                            Email
+                          </label>
+                          <input 
+                            id="email" 
+                            name="email"
+                            type="email" 
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
+                            placeholder="john@company.com" 
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Dropdown */}
+                      <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
+                        <label id="subject-label" className="block text-xs font-bold text-brand-dark uppercase tracking-widest ml-1 mb-1">Subject <span className="text-red-500">*</span></label>
+                        <input type="hidden" name="subject" value={subject} />
 
-                  <button 
-                    type="submit" 
-                    className="mt-6 w-full relative overflow-hidden px-8 py-6 rounded-full font-bold text-xl tracking-wide flex items-center justify-center gap-4 group bg-brand-dark text-white shadow-xl hover:shadow-2xl transition-all duration-300"
-                  >
-                    <span className="relative z-10 group-hover:translate-x-[-4px] transition-transform duration-300">Send Message</span>
-                    <ArrowRight size={24} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
-                    {/* Hover Fill Effect */}
-                    <div className="absolute inset-0 bg-brand-moss translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-premium"></div>
-                  </button>
-                  
-                </form>
+                        <button 
+                          type="button"
+                          aria-haspopup="listbox"
+                          aria-expanded={isDropdownOpen}
+                          aria-labelledby="subject-label"
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          onKeyDown={handleKeyDown}
+                          className={`w-full bg-brand-bg border ${isDropdownOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'} py-5 px-8 rounded-2xl text-brand-dark focus:outline-none transition-all flex justify-between items-center group hover:border-brand-moss/50 text-lg`}
+                        >
+                          <span className={subject ? "text-brand-dark font-medium" : "text-brand-stone/40"}>
+                            {subject || "Select a Topic"}
+                          </span>
+                          <ChevronDown size={20} className={`text-brand-stone transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} />
+                        </button>
+
+                        <div 
+                          className={`absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden transition-all duration-300 z-50 origin-top ${isDropdownOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
+                          role="listbox"
+                        >
+                          <div className="max-h-60 overflow-y-auto py-2">
+                            {subjectOptions.map((option, idx) => (
+                              <div 
+                                key={idx}
+                                role="option"
+                                aria-selected={subject === option}
+                                onClick={() => handleOptionClick(option)}
+                                className={`px-8 py-4 cursor-pointer flex justify-between items-center group transition-colors ${highlightedIndex === idx ? 'bg-brand-bg text-brand-moss' : 'hover:bg-brand-bg text-brand-dark'}`}
+                              >
+                                <span className={`text-base md:text-lg font-medium ${subject === option ? 'text-brand-moss font-bold' : 'group-hover:text-brand-moss'}`}>
+                                  {option}
+                                </span>
+                                {subject === option && <Check size={20} className="text-brand-moss" />}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Textarea */}
+                      <div className="group pt-2">
+                        <label htmlFor="message" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
+                          Message <span className="text-red-500">*</span>
+                        </label>
+                        <textarea 
+                          id="message" 
+                          name="message"
+                          rows={5} 
+                          required
+                          value={formData.message}
+                          onChange={handleChange}
+                          className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all resize-none placeholder:text-brand-stone/40"
+                          placeholder="How can we help you?"
+                        ></textarea>
+                      </div>
+
+                      {submitStatus === 'error' && (
+                        <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600">
+                          <AlertCircle size={20} />
+                          <span className="text-sm font-medium">Something went wrong. Please try again later.</span>
+                        </div>
+                      )}
+
+                      <button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                        className={`
+                          mt-6 w-full relative overflow-hidden px-8 py-6 rounded-full font-bold text-xl tracking-wide 
+                          flex items-center justify-center gap-4 group bg-brand-dark text-white shadow-xl 
+                          transition-all duration-300
+                          ${isSubmitting ? 'opacity-80 cursor-wait' : 'hover:shadow-2xl'}
+                        `}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 size={24} className="animate-spin" />
+                            <span>Sending...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="relative z-10 group-hover:translate-x-[-4px] transition-transform duration-300">Send Message</span>
+                            <ArrowRight size={24} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
+                            {/* Hover Fill Effect */}
+                            <div className="absolute inset-0 bg-brand-moss translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-premium"></div>
+                          </>
+                        )}
+                      </button>
+                      
+                    </form>
+                  </>
+                )}
               </div>
             </Reveal>
           </div>
         </div>
       </div>
 
-      {/* Map Section - Full Width */}
+      {/* Map Section */}
       <section className="px-2 md:px-4 pb-4">
           <Reveal variant="scale" delay={0.4}>
             <div className="w-full rounded-[3rem] overflow-hidden border border-brand-border shadow-xl relative bg-brand-surface h-[500px] md:h-[700px] group">

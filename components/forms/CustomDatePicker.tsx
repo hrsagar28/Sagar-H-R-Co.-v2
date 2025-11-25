@@ -174,11 +174,11 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         className={`absolute top-full left-0 w-full md:w-80 mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden transition-all duration-300 z-popover origin-top-left outline-none ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
       >
         <div className="p-4 flex justify-between items-center border-b border-brand-border/50 bg-brand-bg/50">
-          <button type="button" onClick={() => changeMonth(-1)} disabled={calendarView === 'years'} tabIndex={-1} className={`p-1 hover:bg-brand-moss hover:text-white rounded-lg transition-colors ${calendarView === 'years' ? 'opacity-0 pointer-events-none' : ''}`}><ChevronLeft size={18} /></button>
-          <button type="button" onClick={() => setCalendarView(calendarView === 'days' ? 'years' : 'days')} tabIndex={-1} className="font-heading font-bold text-brand-dark hover:text-brand-moss transition-colors">
+          <button type="button" onClick={() => changeMonth(-1)} disabled={calendarView === 'years'} tabIndex={-1} className={`p-2 hover:bg-brand-moss hover:text-white rounded-lg transition-colors ${calendarView === 'years' ? 'opacity-0 pointer-events-none' : ''}`} aria-label="Previous Month"><ChevronLeft size={20} /></button>
+          <button type="button" onClick={() => setCalendarView(calendarView === 'days' ? 'years' : 'days')} tabIndex={-1} className="font-heading font-bold text-lg text-brand-dark hover:text-brand-moss transition-colors px-4 py-1 rounded-md">
             {calendarView === 'days' ? `${months[viewDate.getMonth()]} ${viewDate.getFullYear()}` : 'Select Year'}
           </button>
-          <button type="button" onClick={() => changeMonth(1)} disabled={calendarView === 'years'} tabIndex={-1} className={`p-1 hover:bg-brand-moss hover:text-white rounded-lg transition-colors ${calendarView === 'years' ? 'opacity-0 pointer-events-none' : ''}`}><ChevronRight size={18} /></button>
+          <button type="button" onClick={() => changeMonth(1)} disabled={calendarView === 'years'} tabIndex={-1} className={`p-2 hover:bg-brand-moss hover:text-white rounded-lg transition-colors ${calendarView === 'years' ? 'opacity-0 pointer-events-none' : ''}`} aria-label="Next Month"><ChevronRight size={20} /></button>
         </div>
 
         <div className="p-4">
@@ -197,7 +197,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                   const currentDayObj = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
                   const isFocused = currentDayObj.toDateString() === focusedDate.toDateString();
                   return (
-                    <button key={day} type="button" onClick={() => handleDateSelect(day)} tabIndex={-1} className={`w-8 h-8 rounded-full text-sm font-medium flex items-center justify-center mx-auto transition-all ${isSelected ? 'bg-brand-moss text-white shadow-md' : isFocused ? 'bg-brand-bg text-brand-moss ring-1 ring-brand-moss' : 'text-brand-dark hover:bg-brand-bg hover:text-brand-moss'}`}>
+                    // Increased touch target to w-10 h-10 (40px) from 32px
+                    <button key={day} type="button" onClick={() => handleDateSelect(day)} tabIndex={-1} className={`w-10 h-10 rounded-full text-sm font-medium flex items-center justify-center mx-auto transition-all ${isSelected ? 'bg-brand-moss text-white shadow-md' : isFocused ? 'bg-brand-bg text-brand-moss ring-1 ring-brand-moss' : 'text-brand-dark hover:bg-brand-bg hover:text-brand-moss'}`}>
                       {day}
                     </button>
                   );
@@ -207,7 +208,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
           ) : (
             <div className="h-64 overflow-y-auto grid grid-cols-3 gap-2 no-scrollbar">
               {generateYearRange().map(year => (
-                <button key={year} type="button" onClick={() => selectYear(year)} tabIndex={-1} className={`py-2 px-1 rounded-xl text-sm font-medium transition-colors ${viewDate.getFullYear() === year ? 'bg-brand-moss text-white' : 'hover:bg-brand-bg text-brand-dark'}`}>
+                <button key={year} type="button" onClick={() => selectYear(year)} tabIndex={-1} className={`py-3 px-1 rounded-xl text-base font-medium transition-colors ${viewDate.getFullYear() === year ? 'bg-brand-moss text-white' : 'hover:bg-brand-bg text-brand-dark'}`}>
                   {year}
                 </button>
               ))}
