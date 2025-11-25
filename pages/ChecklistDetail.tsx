@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { CHECKLIST_DATA } from '../constants';
-import { Printer, CheckSquare } from 'lucide-react';
+import { ArrowLeft, Printer, CheckSquare } from 'lucide-react';
 import SEO from '../components/SEO';
-import Breadcrumbs from '../components/Breadcrumbs';
 
 const ChecklistDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -32,13 +31,11 @@ const ChecklistDetail: React.FC = () => {
 
       <div className="container mx-auto max-w-4xl">
         
-        <div className="flex justify-between items-center mb-12 print:hidden flex-wrap gap-4">
-          <Breadcrumbs 
-            items={[
-              { label: 'Resources', path: '/resources' },
-              { label: 'Checklists' }
-            ]} 
-          />
+        <div className="flex justify-between items-center mb-12 print:hidden">
+          <Link to="/resources" className="inline-flex items-center gap-2 text-brand-stone hover:text-brand-dark font-bold text-sm uppercase tracking-wider transition-colors group">
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            Back to Resources
+          </Link>
           <button 
             onClick={handlePrint}
             className="flex items-center gap-2 px-6 py-2 bg-brand-moss text-white rounded-full font-bold hover:bg-brand-dark transition-colors shadow-md"

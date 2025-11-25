@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
-import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin } from 'lucide-react';
 import SEO from '../components/SEO';
-import Breadcrumbs from '../components/Breadcrumbs';
 
 const InsightDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -68,26 +67,52 @@ const InsightDetail: React.FC = () => {
 
   const schema = {
     "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": insight.title,
-    "description": insight.summary,
-    "author": {
-      "@type": "Person",
-      "name": insight.author
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Sagar H R & Co.",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://casagar.co.in/logo.png"
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://casagar.co.in/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Insights",
+            "item": "https://casagar.co.in/insights"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": insight.title
+          }
+        ]
+      },
+      {
+        "@type": "Article",
+        "headline": insight.title,
+        "description": insight.summary,
+        "author": {
+          "@type": "Person",
+          "name": insight.author
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Sagar H R & Co.",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://casagar.co.in/logo.png"
+          }
+        },
+        "datePublished": new Date(insight.date).toISOString(),
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `https://casagar.co.in/insights/${insight.slug}`
+        }
       }
-    },
-    "datePublished": new Date(insight.date).toISOString(),
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": `https://casagar.co.in/insights/${insight.slug}`
-    }
+    ]
   };
 
   return (
@@ -117,15 +142,13 @@ const InsightDetail: React.FC = () => {
         
         {/* Editorial Header */}
         <header className="text-center max-w-4xl mx-auto mb-16 md:mb-24 animate-fade-in-up">
-          <div className="flex justify-center mb-10">
-            <Breadcrumbs 
-              items={[
-                { label: 'Insights', path: '/insights' },
-                { label: insight.title }
-              ]} 
-              className="justify-center"
-            />
-          </div>
+          <Link 
+            to="/insights" 
+            className="inline-flex items-center gap-2 text-brand-stone hover:text-brand-moss font-bold text-xs uppercase tracking-[0.25em] transition-all mb-10 group border-b border-transparent hover:border-brand-moss pb-1"
+          >
+            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
+            Back to Insights
+          </Link>
           
           <div className="mb-6">
             <span className="inline-block px-3 py-1 rounded-full bg-brand-bg border border-brand-border text-[10px] font-bold uppercase tracking-widest text-brand-moss mb-4">

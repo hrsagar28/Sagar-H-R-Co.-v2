@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#1A4D2E" />
     
-    <!-- Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://cdn.tailwindcss.com https://aistudiocdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://formsubmit.co https://aistudiocdn.com; frame-src 'self' https://maps.google.com; object-src 'none'; base-uri 'self';">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    
     <title>Sagar H R & Co. | Chartered Accountants | Mysuru</title>
     <meta name="description" content="Sagar H R & Co. - Excellence in Financial Advisory, Audit, and Taxation in Mysuru. Expert services in GST, Income Tax, and Business Compliance." />
     <meta name="keywords" content="Chartered Accountant, CA Firm, Tax Planning, GST Registration, Audit Services, Business Advisory, Income Tax, Forensic Accounting, Mysuru, Mysore" />
@@ -27,26 +22,17 @@
     <meta property="og:description" content="Professional CA services tailored for modern businesses. Expertise in Audit, Tax Advisory, and Strategic Consulting." />
     <meta property="og:site_name" content="Sagar H R & Co." />
 
-    <!-- Process Shim for React Libs -->
-    <script>
-      window.process = window.process || { env: { NODE_ENV: 'production' } };
-    </script>
-
     <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@18.3.1",
-    "react-dom": "https://aistudiocdn.com/react-dom@18.3.1",
-    "react-dom/client": "https://aistudiocdn.com/react-dom@18.3.1/client",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@0.344.0",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@6.22.3",
-    "react-router": "https://aistudiocdn.com/react-router@6.22.3",
-    "@remix-run/router": "https://aistudiocdn.com/@remix-run/router@1.15.3",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/"
-  }
-}
-</script>
+    {
+      "imports": {
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+        "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6"
+      }
+    }
+    </script>
 
     <!-- Structured Data / JSON-LD -->
     <script type="application/ld+json">
@@ -54,18 +40,14 @@
       "@context": "https://schema.org",
       "@type": "AccountingService",
       "name": "Sagar H R & Co.",
-      "image": "https://casagar.co.in/logo.png",
       "url": "https://casagar.co.in",
       "telephone": "+919482359455",
-      "email": "mail@casagar.co.in",
-      "priceRange": "$$",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "1479, 2nd Floor, Thyagaraja Road, KR Mohalla",
         "addressLocality": "Mysuru",
         "postalCode": "570004",
-        "addressCountry": "IN",
-        "addressRegion": "Karnataka"
+        "addressCountry": "IN"
       },
       "geo": {
         "@type": "GeoCoordinates",
@@ -86,9 +68,6 @@
           "opens": "10:00",
           "closes": "20:00"
         }
-      ],
-      "sameAs": [
-        "https://www.linkedin.com/in/sagar-h-r-507495261/"
       ]
     }
     </script>
