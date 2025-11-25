@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1A4D2E" />
     
     <!-- Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://cdn.tailwindcss.com https://aistudiocdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://formsubmit.co https://aistudiocdn.com; frame-src 'self' https://maps.google.com; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://cdn.tailwindcss.com https://esm.sh; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://formsubmit.co https://esm.sh; frame-src 'self' https://maps.google.com; object-src 'none'; base-uri 'self';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     
@@ -26,27 +26,6 @@
     <meta property="og:title" content="Sagar H R & Co. | Premium Chartered Accountancy Firm Mysuru" />
     <meta property="og:description" content="Professional CA services tailored for modern businesses. Expertise in Audit, Tax Advisory, and Strategic Consulting." />
     <meta property="og:site_name" content="Sagar H R & Co." />
-
-    <!-- Process Shim for React Libs -->
-    <script>
-      window.process = window.process || { env: { NODE_ENV: 'production' } };
-    </script>
-
-    <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@18.3.1",
-    "react-dom": "https://aistudiocdn.com/react-dom@18.3.1",
-    "react-dom/client": "https://aistudiocdn.com/react-dom@18.3.1/client",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@0.344.0",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@6.22.3",
-    "react-router": "https://aistudiocdn.com/react-router@6.22.3",
-    "@remix-run/router": "https://aistudiocdn.com/@remix-run/router@1.15.3",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/"
-  }
-}
-</script>
 
     <!-- Structured Data / JSON-LD -->
     <script type="application/ld+json">
@@ -96,7 +75,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Outfit (Headings), Plus Jakarta Sans (Body), Playfair Display (Editorial/Preloader) -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
@@ -142,6 +121,7 @@
               'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'scale-in': 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'expand-width': 'expandWidth 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'pulse-slow': 'pulse 1.5s ease-in-out infinite',
             },
             keyframes: {
               marquee: {
@@ -195,12 +175,11 @@
           scrollbar-width: none;  /* Firefox */
       }
       
-      /* Roll Text Effect for Navbar */
       .roll-text-group {
         display: inline-block;
         position: relative;
         overflow: hidden;
-        height: 1.2em; /* Adjust based on line-height */
+        height: 1.2em;
         vertical-align: bottom;
       }
       
@@ -215,7 +194,7 @@
         top: 0;
         left: 0;
         transform: translateY(100%);
-        font-weight: 700; /* Optional bold on hover */
+        font-weight: 700;
         color: #1A4D2E;
       }
       
@@ -227,26 +206,94 @@
         transform: translateY(0);
       }
 
-      /* ACCESSIBILITY FOCUS STYLES */
       :focus-visible {
         outline: 2px solid #1A4D2E;
         outline-offset: 4px;
         z-index: 999;
       }
       
-      /* Remove default outline for mouse users if desired, but keep for keyboard */
       :focus:not(:focus-visible) {
         outline: none;
       }
 
-      /* Programmatic focus on main container shouldn't show ring */
       #main-content:focus {
         outline: none;
       }
+
+      /* HTML Preloader */
+      .preloader {
+        position: fixed;
+        inset: 0;
+        background: #1A4D2E;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+      .preloader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+      .preloader-logo {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #F2F2F0;
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(0.98); }
+      }
     </style>
-  </head>
+  
+  <!-- Import Map using esm.sh for universal compatibility (Netlify/Local/AI Studio) -->
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.344.0?external=react",
+    "path": "https://esm.sh/path-browserify@1.0.1",
+    "fs": "https://esm.sh/browserify-fs@1.0.0",
+    "url": "https://esm.sh/url@0.11.4",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
+  }
+}
+</script>
+  
+  <!-- Process shim for library compatibility -->
+  <script>
+    window.process = { env: { NODE_ENV: 'production' } };
+  </script>
+
+</head>
   <body class="bg-[#F2F2F0] text-[#111111]">
+    <!-- HTML Preloader -->
+    <div class="preloader" id="preloader">
+      <div class="preloader-logo">Sagar H R & Co.</div>
+    </div>
+
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
+    
+    <!-- Vite Entry Point -->
+    <script type="module" src="/index.tsx"></script>
+
+    <!-- Hide Preloader Script -->
+    <script>
+      window.addEventListener('load', function() {
+        // Minimal delay to ensure React mounts
+        setTimeout(function() {
+          const el = document.getElementById('preloader');
+          if(el) el.classList.add('hidden');
+        }, 600);
+      });
+    </script>
   </body>
 </html>
