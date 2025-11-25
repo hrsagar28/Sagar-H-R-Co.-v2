@@ -156,15 +156,14 @@
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       
-      /* Cursor Reset */
-      body, a, button, input, textarea, select { 
-        cursor: none !important; 
-      }
-      
-      @media (max-width: 768px) { 
-        body, a, button, input, textarea, select { 
-          cursor: auto !important; 
-        } 
+      /* Cursor control via class */
+      body.custom-cursor-active, 
+      body.custom-cursor-active a, 
+      body.custom-cursor-active button, 
+      body.custom-cursor-active input, 
+      body.custom-cursor-active textarea, 
+      body.custom-cursor-active select { 
+        cursor: none; 
       }
 
       /* Utility for grid background */

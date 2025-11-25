@@ -7,14 +7,26 @@ const CustomCursor: React.FC = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   
   // Use refs for coordinates to avoid re-renders on every frame
   const mouse = useRef({ x: -100, y: -100 }); // Start off-screen
   const follower = useRef({ x: -100, y: -100 });
   
   useEffect(() => {
-    // Only run on non-touch devices
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+    // Check for touch capability and reduced motion preference
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Do not activate custom cursor on touch devices or if reduced motion is requested
+    if (isTouch || prefersReducedMotion) {
+      return;
+    }
+
+    setIsActive(true);
+    
+    // Add the class that hides the default cursor
+    document.body.classList.add('custom-cursor-active');
 
     const moveMouse = (e: MouseEvent) => {
       mouse.current = { x: e.clientX, y: e.clientY };
@@ -66,8 +78,6 @@ const CustomCursor: React.FC = () => {
     
     const animate = () => {
       // Linear Interpolation (LERP) for smooth, organic movement
-      // 0.15 = 15% of the distance per frame. 
-      // Higher = Snappier, Lower = Floatior.
       const lerpFactor = 0.15; 
       
       follower.current.x += (mouse.current.x - follower.current.x) * lerpFactor;
@@ -83,6 +93,8 @@ const CustomCursor: React.FC = () => {
     rafId = requestAnimationFrame(animate);
 
     return () => {
+      // Cleanup
+      document.body.classList.remove('custom-cursor-active');
       document.removeEventListener('mousemove', moveMouse);
       document.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('mouseover', handleMouseOver);
@@ -92,6 +104,8 @@ const CustomCursor: React.FC = () => {
     };
   }, []);
 
+  if (!isActive) return null;
+
   const blendModeClass = "mix-blend-difference";
 
   return (
@@ -100,7 +114,7 @@ const CustomCursor: React.FC = () => {
       <div 
         ref={cursorRef} 
         className={`
-          hidden md:block fixed top-0 left-0 w-2.5 h-2.5 bg-white rounded-full pointer-events-none z-[9999] 
+          fixed top-0 left-0 w-2.5 h-2.5 bg-white rounded-full pointer-events-none z-[9999] 
           -mt-1.25 -ml-1.25 ${blendModeClass} 
           transition-opacity duration-300 ease-out
           ${(isHovering || !isVisible) ? 'opacity-0' : 'opacity-100'}
@@ -111,7 +125,7 @@ const CustomCursor: React.FC = () => {
       <div 
         ref={followerRef}
         className={`
-          hidden md:block fixed top-0 left-0 rounded-full pointer-events-none z-[9998] 
+          fixed top-0 left-0 rounded-full pointer-events-none z-[9998] 
           -mt-5 -ml-5 w-10 h-10
           ${blendModeClass}
           transition-all duration-500 ease-out
