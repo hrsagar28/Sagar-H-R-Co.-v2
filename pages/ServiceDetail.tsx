@@ -4,6 +4,7 @@ import { SERVICE_DETAILS } from '../constants';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { CONTACT_INFO } from '../config/contact';
 
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -27,12 +28,12 @@ const ServiceDetail: React.FC = () => {
     "description": service.longDescription,
     "provider": {
       "@type": "AccountingService",
-      "name": "Sagar H R & Co.",
+      "name": CONTACT_INFO.name,
       "url": "https://casagar.co.in"
     },
     "areaServed": {
       "@type": "City",
-      "name": "Mysuru"
+      "name": CONTACT_INFO.address.city
     },
     "offers": {
       "@type": "Offer",
@@ -43,7 +44,7 @@ const ServiceDetail: React.FC = () => {
   return (
     <div className="pt-32 md:pt-40 pb-20 px-4 md:px-6 bg-brand-bg bg-grid min-h-screen print:pt-0 print:pb-0 print:bg-white print:h-auto">
       <SEO 
-        title={`${service.title} | Sagar H R & Co.`}
+        title={`${service.title} | ${CONTACT_INFO.name}`}
         description={service.shortDescription}
         schema={schema}
       />
@@ -131,7 +132,7 @@ const ServiceDetail: React.FC = () => {
         </div>
         
         <div className="hidden print:block mt-12 pt-8 border-t border-black text-center text-sm font-bold uppercase tracking-widest">
-           Sagar H R & Co. • Chartered Accountants • Mysuru
+           {CONTACT_INFO.name} • Chartered Accountants • {CONTACT_INFO.address.city}
         </div>
       </div>
     </div>

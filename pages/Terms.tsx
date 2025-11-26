@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CONTACT_INFO } from '../config/contact';
 
 const Terms: React.FC = () => {
   return (
@@ -123,10 +124,10 @@ const Terms: React.FC = () => {
             <section>
               <h2 className="text-2xl font-heading font-bold text-brand-dark mb-4">14. Contact</h2>
               <div className="bg-brand-bg p-6 rounded-xl border border-brand-border">
-                <p className="font-bold text-brand-dark">Sagar H R & Co., Chartered Accountants</p>
-                <p>1479, 2nd Floor, Thyagaraja Road, KR Mohalla, Mysuru, Karnataka – 570004</p>
-                <p className="mt-2"><strong>Email:</strong> mail@casagar.co.in</p>
-                <p><strong>Phone:</strong> +91 94823 59455</p>
+                <p className="font-bold text-brand-dark">{CONTACT_INFO.name}, Chartered Accountants</p>
+                <p>{CONTACT_INFO.address.full}</p>
+                <p className="mt-2"><strong>Email:</strong> {CONTACT_INFO.email}</p>
+                <p><strong>Phone:</strong> {CONTACT_INFO.phone.display}</p>
               </div>
             </section>
           </div>

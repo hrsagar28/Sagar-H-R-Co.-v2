@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
 import OptimizedImage from '../components/OptimizedImage';
 import SEO from '../components/SEO';
+import { CONTACT_INFO } from '../config/contact';
 
 const About: React.FC = () => {
   const schema = {
@@ -10,8 +11,8 @@ const About: React.FC = () => {
     "@type": "AboutPage",
     "mainEntity": {
       "@type": "AccountingService",
-      "name": "Sagar H R & Co.",
-      "legalName": "Sagar H R & Co.",
+      "name": CONTACT_INFO.name,
+      "legalName": CONTACT_INFO.name,
       "founder": {
          "@type": "Person",
          "name": "CA Sagar H R",
@@ -19,19 +20,19 @@ const About: React.FC = () => {
       },
       "areaServed": {
         "@type": "City",
-        "name": "Mysuru",
+        "name": CONTACT_INFO.address.city,
         "sameAs": "https://en.wikipedia.org/wiki/Mysore"
       },
       "knowsAbout": ["Taxation", "Audit", "Financial Advisory", "GST", "Company Law"],
-      "description": "Sagar H R & Co. is a premier Chartered Accountancy firm in Mysuru providing audit, tax, and advisory services."
+      "description": `${CONTACT_INFO.name} is a premier Chartered Accountancy firm in Mysuru providing audit, tax, and advisory services.`
     }
   };
 
   return (
     <div className="min-h-screen bg-brand-bg selection:bg-brand-moss selection:text-white">
       <SEO 
-        title="About Sagar H R & Co. | Our Firm & Philosophy"
-        description="Learn about Sagar H R & Co., a premier Chartered Accountancy firm in Mysuru. Discover our mission, values, and the expert team dedicated to your financial growth."
+        title={`About ${CONTACT_INFO.name} | Our Firm & Philosophy`}
+        description={`Learn about ${CONTACT_INFO.name}, a premier Chartered Accountancy firm in Mysuru. Discover our mission, values, and the expert team dedicated to your financial growth.`}
         schema={schema}
       />
       
@@ -65,7 +66,7 @@ const About: React.FC = () => {
               </div>
               <div className="lg:col-span-5 pb-4">
                  <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed mb-8">
-                   Sagar H R & Co. bridges the gap between regulatory complexity and strategic business growth.
+                   {CONTACT_INFO.name} bridges the gap between regulatory complexity and strategic business growth.
                  </p>
                  <div className="flex flex-col gap-4 border-l border-brand-border pl-6">
                     <p className="text-brand-stone/80 text-lg">

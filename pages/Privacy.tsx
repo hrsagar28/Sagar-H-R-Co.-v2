@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CONTACT_INFO } from '../config/contact';
 
 const Privacy: React.FC = () => {
   return (
@@ -32,7 +33,7 @@ const Privacy: React.FC = () => {
             <section>
               <h2 className="text-2xl font-heading font-bold text-brand-dark mb-4">1. Introduction and scope</h2>
               <p>
-                Sagar H R & Co., Chartered Accountants (“the Firm”, “we”, “us”, “our”), acting as a Data Fiduciary, is committed to protecting Personal Data. This Privacy Policy explains how we collect, use, store, disclose and protect Personal Data via our website www.casagar.co.in (the “Site”) and related services, in accordance with the Digital Personal Data Protection Act, 2023 (“DPDP Act”) and other applicable law. By using the Site you accept the terms of this Policy.
+                {CONTACT_INFO.name}, Chartered Accountants (“the Firm”, “we”, “us”, “our”), acting as a Data Fiduciary, is committed to protecting Personal Data. This Privacy Policy explains how we collect, use, store, disclose and protect Personal Data via our website www.casagar.co.in (the “Site”) and related services, in accordance with the Digital Personal Data Protection Act, 2023 (“DPDP Act”) and other applicable law. By using the Site you accept the terms of this Policy.
               </p>
             </section>
 
@@ -143,10 +144,10 @@ const Privacy: React.FC = () => {
               <h2 className="text-2xl font-heading font-bold text-brand-dark mb-4">13. Grievance Officer / Contact details</h2>
               <div className="bg-brand-bg p-6 rounded-xl border border-brand-border">
                 <p className="font-bold text-brand-dark">CA Sagar H R (Proprietor)</p>
-                <p>Sagar H R & Co., Chartered Accountants</p>
-                <p>1479, 2nd Floor, Thyagaraja Road, KR Mohalla, Mysuru, Karnataka – 570004</p>
-                <p className="mt-2"><strong>Email:</strong> mail@casagar.co.in</p>
-                <p><strong>Phone:</strong> +91 94823 59455</p>
+                <p>{CONTACT_INFO.name}, Chartered Accountants</p>
+                <p>{CONTACT_INFO.address.full}</p>
+                <p className="mt-2"><strong>Email:</strong> {CONTACT_INFO.email}</p>
+                <p><strong>Phone:</strong> {CONTACT_INFO.phone.display}</p>
                 <p className="text-sm mt-2 text-brand-stone">Office hours: Mon–Sat, 10:00 AM – 2:00 PM & 4:00 PM – 8:00 PM IST</p>
               </div>
             </section>

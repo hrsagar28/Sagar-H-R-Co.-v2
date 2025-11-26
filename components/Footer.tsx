@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Linkedin, ArrowUp } from 'lucide-react';
+import { CONTACT_INFO } from '../config/contact';
 
 const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -22,12 +23,12 @@ const Footer: React.FC = () => {
                     <div className="w-12 h-12 bg-white text-brand-dark rounded-xl flex items-center justify-center font-heading font-bold text-2xl">S</div>
                  </Link>
                  <address className="not-italic text-zinc-400 text-lg leading-relaxed max-w-sm font-medium">
-                    1479, 2nd Floor, Thyagaraja Road,<br/>
-                    KR Mohalla, Mysuru - 570004<br/>
-                    Karnataka, India
+                    {CONTACT_INFO.address.street},<br/>
+                    {CONTACT_INFO.address.city} - {CONTACT_INFO.address.zip}<br/>
+                    {CONTACT_INFO.address.state}, {CONTACT_INFO.address.country}
                  </address>
                  <div className="flex gap-4">
-                    <a href="https://www.linkedin.com/in/sagar-h-r-507495261/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-brand-dark transition-all">
+                    <a href={CONTACT_INFO.social.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-brand-dark transition-all">
                        <Linkedin size={18} />
                     </a>
                  </div>
@@ -77,11 +78,11 @@ const Footer: React.FC = () => {
                  <ul className="space-y-6">
                     <li>
                        <span className="block text-sm text-zinc-500 mb-1">Email</span>
-                       <a href="mailto:mail@casagar.co.in" className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">mail@casagar.co.in</a>
+                       <a href={`mailto:${CONTACT_INFO.email}`} className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">{CONTACT_INFO.email}</a>
                     </li>
                     <li>
                        <span className="block text-sm text-zinc-500 mb-1">Phone</span>
-                       <a href="tel:+919482359455" className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">+91 94823 59455</a>
+                       <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">{CONTACT_INFO.phone.display}</a>
                     </li>
                  </ul>
               </div>
@@ -93,7 +94,7 @@ const Footer: React.FC = () => {
         <div className="px-6 md:px-20 pb-10">
            <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
               <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-500">
-                 <span>&copy; {new Date().getFullYear()} Sagar H R & Co.</span>
+                 <span>&copy; {new Date().getFullYear()} {CONTACT_INFO.name}</span>
                  <Link to="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
                  <Link to="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
                  <Link to="/disclaimer" className="hover:text-zinc-300 transition-colors">Disclaimer</Link>

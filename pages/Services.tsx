@@ -4,6 +4,7 @@ import ServiceBento from '../components/ServiceBento';
 import { INDUSTRIES, SERVICES } from '../constants';
 import { ArrowUpRight } from 'lucide-react';
 import SEO from '../components/SEO';
+import { CONTACT_INFO } from '../config/contact';
 
 const Services: React.FC = () => {
   const schema = {
@@ -13,7 +14,7 @@ const Services: React.FC = () => {
     "description": "Comprehensive suite of financial services including GST, Income Tax, Audit, and Advisory.",
     "provider": {
       "@type": "AccountingService",
-      "name": "Sagar H R & Co."
+      "name": CONTACT_INFO.name
     },
     "mainEntity": {
       "@type": "ItemList",

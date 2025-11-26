@@ -4,6 +4,7 @@ import { INSIGHTS_MOCK } from '../constants';
 import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { CONTACT_INFO } from '../config/contact';
 
 const InsightDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -36,7 +37,7 @@ const InsightDetail: React.FC = () => {
   // Robust Share Functionality
   const handleShare = async () => {
     const shareData = {
-      title: insight?.title || 'Insight from Sagar H R & Co.',
+      title: insight?.title || `Insight from ${CONTACT_INFO.name}`,
       text: insight?.summary,
       url: window.location.href,
     };
@@ -45,7 +46,7 @@ const InsightDetail: React.FC = () => {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        console.log('Share API error or cancelled', err);
+        // Share cancelled
       }
     } else {
       // Fallback to clipboard
@@ -54,7 +55,6 @@ const InsightDetail: React.FC = () => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
       } catch (err) {
-        console.error('Clipboard copy failed', err);
         alert('Unable to copy link to clipboard.');
       }
     }
@@ -77,7 +77,7 @@ const InsightDetail: React.FC = () => {
     },
     "publisher": {
       "@type": "Organization",
-      "name": "Sagar H R & Co.",
+      "name": CONTACT_INFO.name,
       "logo": {
         "@type": "ImageObject",
         "url": "https://casagar.co.in/logo.png"
@@ -221,7 +221,7 @@ const InsightDetail: React.FC = () => {
                         <p className="text-xs font-bold uppercase tracking-widest text-brand-moss mb-2">About the Author</p>
                         <h3 className="text-2xl font-heading font-bold text-brand-dark mb-3">{insight.author}</h3>
                         <p className="text-brand-stone text-base leading-relaxed mb-6">
-                          Senior Partner at Sagar H R & Co., specializing in corporate taxation, audit assurance, and strategic business advisory with over a decade of experience.
+                          Senior Partner at {CONTACT_INFO.name}, specializing in corporate taxation, audit assurance, and strategic business advisory with over a decade of experience.
                         </p>
                         <Link to="/contact" className="inline-block px-6 py-2 bg-white border border-brand-border text-brand-dark font-bold rounded-full hover:bg-brand-dark hover:text-white transition-all text-sm shadow-sm">
                           Book Consultation

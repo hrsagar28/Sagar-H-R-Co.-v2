@@ -1,9 +1,10 @@
 import React from 'react';
+import { CONTACT_INFO } from '../config/contact';
 
 const WhatsAppWidget: React.FC = () => {
   return (
     <a
-      href="https://wa.me/919482359455?text=Hi,%20I%20would%20like%20to%20book%20a%20consultation."
+      href={CONTACT_INFO.social.whatsapp}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-toast group"

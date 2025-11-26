@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FAQS } from '../constants';
 import { Plus, Minus } from 'lucide-react';
 import SEO from '../components/SEO';
+import { CONTACT_INFO } from '../config/contact';
 
 const FAQ: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -29,7 +30,7 @@ const FAQ: React.FC = () => {
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO 
-        title="Frequently Asked Questions | Sagar H R & Co."
+        title={`Frequently Asked Questions | ${CONTACT_INFO.name}`}
         description="Answers to common queries regarding Income Tax, GST, Business Registration, and our engagement process."
         schema={schema}
       />

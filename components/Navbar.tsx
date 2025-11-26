@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
 
 interface NavbarProps {
@@ -163,7 +164,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
 
           {/* Mobile specific Call Button - Increased Touch Target */}
           <a
-            href="tel:+919482359455"
+            href={`tel:${CONTACT_INFO.phone.value}`}
             className="md:hidden w-12 h-12 bg-brand-moss text-brand-inverse rounded-full flex items-center justify-center active:scale-95 transition-transform shadow-md"
             aria-label="Call Now"
           >

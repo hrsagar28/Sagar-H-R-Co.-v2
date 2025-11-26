@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
 import { ArrowUpRight, Calendar } from 'lucide-react';
 import SEO from '../components/SEO';
+import { CONTACT_INFO } from '../config/contact';
 
 const Insights: React.FC = () => {
   const schema = {
@@ -12,7 +13,7 @@ const Insights: React.FC = () => {
     "description": "Analysis, regulatory updates, and strategic commentary from our research desk.",
     "publisher": {
       "@type": "Organization",
-      "name": "Sagar H R & Co."
+      "name": CONTACT_INFO.name
     },
     "mainEntity": {
       "@type": "ItemList",
@@ -28,7 +29,7 @@ const Insights: React.FC = () => {
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO 
-        title="Insights & Updates | Sagar H R & Co."
+        title={`Insights & Updates | ${CONTACT_INFO.name}`}
         description="Stay ahead with the latest updates on Income Tax, GST, and economic trends. Expert analysis and commentary from CA Sagar H R."
         schema={schema}
       />

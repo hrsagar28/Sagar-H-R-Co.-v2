@@ -6,6 +6,7 @@ import Reveal from '../components/Reveal';
 import MagneticButton from '../components/MagneticButton';
 import OptimizedImage from '../components/OptimizedImage';
 import SEO from '../components/SEO';
+import { CONTACT_INFO } from '../config/contact';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const Home: React.FC = () => {
       {
         "@type": "AccountingService",
         "@id": "https://casagar.co.in/#organization",
-        "name": "Sagar H R & Co.",
+        "name": CONTACT_INFO.name,
         "url": "https://casagar.co.in",
         "logo": {
           "@type": "ImageObject",
@@ -40,17 +41,17 @@ const Home: React.FC = () => {
         "description": "Premium Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "1479, 2nd Floor, Thyagaraja Road, KR Mohalla",
-          "addressLocality": "Mysuru",
-          "postalCode": "570004",
+          "streetAddress": CONTACT_INFO.address.street,
+          "addressLocality": CONTACT_INFO.address.city,
+          "postalCode": CONTACT_INFO.address.zip,
           "addressCountry": "IN"
         },
         "geo": {
           "@type": "GeoCoordinates",
-          "latitude": 12.3051,
-          "longitude": 76.6551
+          "latitude": CONTACT_INFO.geo.latitude,
+          "longitude": CONTACT_INFO.geo.longitude
         },
-        "telephone": "+919482359455",
+        "telephone": CONTACT_INFO.phone.value,
         "openingHoursSpecification": [
           {
             "@type": "OpeningHoursSpecification",
@@ -65,7 +66,7 @@ const Home: React.FC = () => {
         "@type": "WebSite",
         "@id": "https://casagar.co.in/#website",
         "url": "https://casagar.co.in",
-        "name": "Sagar H R & Co.",
+        "name": CONTACT_INFO.name,
         "publisher": { "@id": "https://casagar.co.in/#organization" }
       }
     ]
@@ -74,8 +75,8 @@ const Home: React.FC = () => {
   return (
     <div className="w-full bg-brand-bg overflow-x-hidden">
       <SEO 
-        title="Sagar H R & Co. | Premium Chartered Accountants | Mysuru"
-        description="Sagar H R & Co. - Trusted financial advisors in Mysuru. Expert services in Audit, Taxation, GST, and Business Advisory for modern businesses."
+        title={`${CONTACT_INFO.name} | Premium Chartered Accountants | Mysuru`}
+        description={`${CONTACT_INFO.name} - Trusted financial advisors in Mysuru. Expert services in Audit, Taxation, GST, and Business Advisory for modern businesses.`}
         schema={schema}
       />
       

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Mail, Phone, ChevronDown, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { SERVICES } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
 
@@ -126,14 +127,14 @@ const Contact: React.FC = () => {
     "@type": "ContactPage",
     "mainEntity": {
       "@type": "AccountingService",
-      "name": "Sagar H R & Co.",
-      "telephone": "+919482359455",
-      "email": "mail@casagar.co.in",
+      "name": CONTACT_INFO.name,
+      "telephone": CONTACT_INFO.phone.value,
+      "email": CONTACT_INFO.email,
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "1479, 2nd Floor, Thyagaraja Road, KR Mohalla",
-        "addressLocality": "Mysuru",
-        "postalCode": "570004",
+        "streetAddress": CONTACT_INFO.address.street,
+        "addressLocality": CONTACT_INFO.address.city,
+        "postalCode": CONTACT_INFO.address.zip,
         "addressCountry": "IN"
       }
     }
@@ -142,8 +143,8 @@ const Contact: React.FC = () => {
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO 
-        title="Contact Sagar H R & Co. | CA Firm in Mysuru"
-        description="Get in touch with Sagar H R & Co. for expert financial consultation. Located in Mysuru. Call or email us today for Audit, Tax, and Advisory services."
+        title={`Contact ${CONTACT_INFO.name} | CA Firm in Mysuru`}
+        description={`Get in touch with ${CONTACT_INFO.name} for expert financial consultation. Located in Mysuru. Call or email us today for Audit, Tax, and Advisory services.`}
         schema={schema}
       />
       
@@ -198,8 +199,8 @@ const Contact: React.FC = () => {
                                <div>
                                   <h4 className="text-brand-dark font-bold mb-2 text-xl md:text-2xl">Visit Us</h4>
                                   <p className="text-brand-stone font-medium leading-relaxed text-lg">
-                                     1479, 2nd Floor, Thyagaraja Road,<br />
-                                     KR Mohalla, Mysuru - 570004
+                                     {CONTACT_INFO.address.street},<br />
+                                     {CONTACT_INFO.address.city} - {CONTACT_INFO.address.zip}
                                   </p>
                                </div>
                             </div>
@@ -210,17 +211,17 @@ const Contact: React.FC = () => {
                                </div>
                                <div>
                                   <h4 className="text-brand-dark font-bold mb-2 text-xl md:text-2xl">Email</h4>
-                                  <a href="mailto:mail@casagar.co.in" className="text-brand-stone font-medium hover:text-brand-moss transition-colors block break-all text-lg">mail@casagar.co.in</a>
+                                  <a href={`mailto:${CONTACT_INFO.email}`} className="text-brand-stone font-medium hover:text-brand-moss transition-colors block break-all text-lg">{CONTACT_INFO.email}</a>
                                </div>
                             </div>
 
                             <div className="flex items-start gap-6 group/item">
-                               <div className="w-16 h-16 rounded-2xl bg-brand-bg border border-brand-border flex items-center justify-center text-brand-moss shrink-0 group-hover/item:bg-brand-moss group-hover:text-white transition-colors duration-300 shadow-sm">
+                               <div className="w-16 h-16 rounded-2xl bg-brand-bg border border-brand-border flex items-center justify-center text-brand-moss shrink-0 group-hover/item:bg-brand-moss group-hover/item:text-white transition-colors duration-300 shadow-sm">
                                   <Phone size={28} />
                                </div>
                                <div>
                                   <h4 className="text-brand-dark font-bold mb-2 text-xl md:text-2xl">Call</h4>
-                                  <a href="tel:+919482359455" className="text-brand-stone font-medium hover:text-brand-moss transition-colors text-lg">+91 94823 59455</a>
+                                  <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-brand-stone font-medium hover:text-brand-moss transition-colors text-lg">{CONTACT_INFO.phone.display}</a>
                                </div>
                             </div>
                          </div>
@@ -356,7 +357,7 @@ const Contact: React.FC = () => {
                         </button>
 
                         <div 
-                          className={`absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden transition-all duration-300 z-50 origin-top ${isDropdownOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
+                          className={`absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden transition-all duration-300 z-popover origin-top ${isDropdownOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
                           role="listbox"
                         >
                           <div className="max-h-60 overflow-y-auto py-2">
@@ -445,18 +446,18 @@ const Contact: React.FC = () => {
                      <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></div>
                      <span className="text-xs font-bold uppercase tracking-widest text-brand-dark">Our Location</span>
                   </div>
-                  <h3 className="font-heading font-bold text-2xl text-brand-dark">Sagar H R & Co.</h3>
+                  <h3 className="font-heading font-bold text-2xl text-brand-dark">{CONTACT_INFO.name}</h3>
                </div>
 
                <iframe 
-                  title="Sagar H R & Co. Location"
+                  title={`${CONTACT_INFO.name} Location`}
                   width="100%" 
                   height="100%" 
                   frameBorder="0" 
                   scrolling="no" 
                   marginHeight={0} 
                   marginWidth={0} 
-                  src="https://maps.google.com/maps?q=12.300430367886586,76.65174852128196&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  src={CONTACT_INFO.geo.mapEmbedUrl}
                   className="w-full h-full grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-700 ease-in-out"
                   loading="lazy"
                ></iframe>
