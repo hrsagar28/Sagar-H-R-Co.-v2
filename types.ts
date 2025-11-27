@@ -49,10 +49,3 @@ export interface ServiceDetailContent {
   longDescription: string; // The "editorial" content
   features: SubService[]; // The list of specific services (e.g., ITR Filing)
 }
-
-export enum LoadingState {
-  IDLE = 'IDLE',
-  LOADING = 'LOADING',
-  SUCCESS = 'SUCCESS',
-  ERROR = 'ERROR'
-}
