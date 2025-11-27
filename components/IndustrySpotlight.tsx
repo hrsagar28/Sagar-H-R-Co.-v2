@@ -70,7 +70,7 @@ const IndustrySpotlight: React.FC = () => {
                 <div className="absolute inset-0 bg-brand-moss/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
                 <div className="relative z-10 w-12 h-12 rounded-xl flex items-center justify-center text-[#4ADE80] mb-6 bg-[#4ADE80]/10 border border-[#4ADE80]/20 group-hover/card:scale-105 transition-transform">
-                  {React.cloneElement(ind.icon as React.ReactElement<any>, { size: 24 })}
+                  {React.cloneElement(ind.icon as React.ReactElement<{size?: number}>, { size: 24 })}
                 </div>
                 <h3 className="relative z-10 text-xl font-heading font-bold text-white mb-3">{ind.title}</h3>
                 <p className="relative z-10 text-zinc-400 text-sm leading-relaxed font-medium">{ind.description}</p>

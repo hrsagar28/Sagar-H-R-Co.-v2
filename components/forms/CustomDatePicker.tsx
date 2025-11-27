@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAnnounce } from '../../hooks/useAnnounce';
 
 interface CustomDatePickerProps {
   label: string;
@@ -26,6 +27,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   const calendarRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+
+  const { announce } = useAnnounce();
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const daysOfWeek = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -77,6 +80,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     const newDate = new Date(viewDate);
     newDate.setMonth(newDate.getMonth() + offset);
     setViewDate(newDate);
+    announce(`${months[newDate.getMonth()]} ${newDate.getFullYear()}`);
   };
 
   const selectYear = (year: number) => {
@@ -84,6 +88,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     newDate.setFullYear(year);
     setViewDate(newDate);
     setCalendarView('days');
+    announce(`${months[newDate.getMonth()]} ${year}`);
   };
 
   const generateYearRange = () => {
@@ -164,7 +169,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         <Calendar size={20} className="text-brand-stone group-hover:text-brand-moss transition-colors" />
       </button>
       
-      {error && <p className="text-red-500 text-xs mt-2 font-bold">{error}</p>}
+      {error && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{error}</p>}
 
       {/* Calendar Popup */}
       <div 

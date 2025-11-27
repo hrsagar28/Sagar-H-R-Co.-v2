@@ -1,5 +1,11 @@
 import { ReactNode } from 'react';
 
+export interface IconComponentProps {
+  size?: number;
+  className?: string;
+  strokeWidth?: number;
+}
+
 export interface NavLink {
   name: string;
   path: string;
@@ -9,14 +15,14 @@ export interface ServiceItem {
   id: string;
   title: string;
   description: string;
-  icon: ReactNode;
+  icon: ReactNode; // Expects a Lucide icon component
   link: string;
 }
 
 export interface IndustryItem {
   title: string;
   description: string;
-  icon: ReactNode;
+  icon: ReactNode; // Expects a Lucide icon component
 }
 
 export interface InsightItem {

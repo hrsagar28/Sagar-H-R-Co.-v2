@@ -345,7 +345,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   placeholder="John Doe"
                   className={`w-full bg-brand-bg border ${errors.fullName ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.fullName && <p className="text-red-500 text-xs mt-2 font-bold">{errors.fullName}</p>}
+                {errors.fullName && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.fullName}</p>}
               </div>
 
               <div className="group">
@@ -361,7 +361,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   placeholder="Father's Full Name"
                   className={`w-full bg-brand-bg border ${errors.fatherName ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.fatherName && <p className="text-red-500 text-xs mt-2 font-bold">{errors.fatherName}</p>}
+                {errors.fatherName && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.fatherName}</p>}
               </div>
 
               {/* Date of Birth */}
@@ -394,7 +394,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   placeholder="+91 98765 43210"
                   className={`w-full bg-brand-bg border ${errors.mobile ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.mobile && <p className="text-red-500 text-xs mt-2 font-bold">{errors.mobile}</p>}
+                {errors.mobile && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.mobile}</p>}
               </div>
 
               <div className="group">
@@ -410,7 +410,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   placeholder="john@example.com"
                   className={`w-full bg-brand-bg border ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.email && <p className="text-red-500 text-xs mt-2 font-bold">{errors.email}</p>}
+                {errors.email && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.email}</p>}
               </div>
             </div>
           </div>
@@ -444,7 +444,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   placeholder="e.g. B.Com, CA Inter, MBA"
                   className={`w-full bg-brand-bg border ${errors.qualification ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.qualification && <p className="text-red-500 text-xs mt-2 font-bold">{errors.qualification}</p>}
+                {errors.qualification && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.qualification}</p>}
               </div>
 
               {/* Experience */}
@@ -478,8 +478,8 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           </div>
 
           {submitStatus === 'error' && (
-            <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600">
-              <AlertCircle size={20} />
+            <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600" role="alert" aria-live="assertive">
+              <AlertCircle size={20} aria-hidden="true" />
               <span className="text-sm font-medium">Something went wrong. Please try again later.</span>
             </div>
           )}

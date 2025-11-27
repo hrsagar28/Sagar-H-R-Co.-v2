@@ -395,8 +395,8 @@ const Contact: React.FC = () => {
                       </div>
 
                       {submitStatus === 'error' && (
-                        <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600">
-                          <AlertCircle size={20} />
+                        <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600" role="alert" aria-live="assertive">
+                          <AlertCircle size={20} aria-hidden="true" />
                           <span className="text-sm font-medium">Something went wrong. Please try again later.</span>
                         </div>
                       )}

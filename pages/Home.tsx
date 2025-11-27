@@ -262,7 +262,7 @@ const Home: React.FC = () => {
                         <div className="p-10 rounded-[2.5rem] bg-[#111111] border border-white/5 hover:bg-[#161616] hover:border-[#4ADE80]/30 transition-all duration-500 group h-full flex flex-col justify-between hover:-translate-y-2">
                             <div>
                                 <div className="w-14 h-14 rounded-2xl bg-[#4ADE80]/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
-                                    {React.cloneElement(s.icon as React.ReactElement<any>, { size: 28 })}
+                                    {React.cloneElement(s.icon as React.ReactElement<{size?: number}>, { size: 28 })}
                                 </div>
                                 <h3 className="text-2xl font-heading font-bold mb-4">{s.title}</h3>
                                 <p className="text-white/50 font-medium leading-relaxed">{s.desc}</p>

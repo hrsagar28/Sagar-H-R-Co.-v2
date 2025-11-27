@@ -99,7 +99,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         <ChevronDown size={20} className={`text-brand-stone transition-transform duration-300 ${isOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} />
       </button>
       
-      {error && <p className="text-red-500 text-xs mt-1 font-bold">{error}</p>}
+      {error && <p className="text-red-500 text-xs mt-1 font-bold" role="alert" aria-live="polite">{error}</p>}
 
       <div 
         className={`absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden transition-all duration-300 z-popover origin-top ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
