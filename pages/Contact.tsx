@@ -8,6 +8,7 @@ import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
 import { useRateLimit } from '../hooks/useRateLimit';
 import { useToast } from '../hooks/useToast';
+import { sanitizeInput } from '../utils/sanitize';
 
 const Contact: React.FC = () => {
   const [subject, setSubject] = useState('');
@@ -115,13 +116,13 @@ const Contact: React.FC = () => {
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                name: formData.name,
-                company: formData.company,
-                phone: formData.phone,
-                email: formData.email,
-                subject: subject,
-                message: formData.message,
-                _subject: `New Inquiry: ${subject || 'General'}`
+                name: sanitizeInput(formData.name),
+                company: sanitizeInput(formData.company),
+                phone: sanitizeInput(formData.phone),
+                email: sanitizeInput(formData.email),
+                subject: sanitizeInput(subject),
+                message: sanitizeInput(formData.message),
+                _subject: `New Inquiry: ${sanitizeInput(subject) || 'General'}`
             })
         });
 

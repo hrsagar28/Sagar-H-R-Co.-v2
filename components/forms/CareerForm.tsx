@@ -8,6 +8,7 @@ import { useToast } from '../../hooks/useToast';
 import { useRateLimit } from '../../hooks/useRateLimit';
 import { useFormDraft } from '../../hooks/useFormDraft';
 import { CONTACT_INFO } from '../../config/contact';
+import { sanitizeInput } from '../../utils/sanitize';
 
 interface CareerFormProps {
   initialPosition?: string;
@@ -183,8 +184,16 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                ...values,
-                _subject: `Job Application: ${values.fullName} - ${values.position || 'General'}`
+                fullName: sanitizeInput(values.fullName),
+                fatherName: sanitizeInput(values.fatherName),
+                mobile: sanitizeInput(values.mobile),
+                email: sanitizeInput(values.email),
+                dob: sanitizeInput(values.dob),
+                qualification: sanitizeInput(values.qualification),
+                experience: sanitizeInput(values.experience),
+                previousCompanies: sanitizeInput(values.previousCompanies),
+                position: sanitizeInput(values.position),
+                _subject: `Job Application: ${sanitizeInput(values.fullName)} - ${sanitizeInput(values.position) || 'General'}`
             })
         });
 
