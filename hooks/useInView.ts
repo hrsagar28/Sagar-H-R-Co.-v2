@@ -1,22 +1,42 @@
-import { useState, useEffect, useRef, RefObject } from 'react';
+import { useState, useEffect, useRef, RefObject, useMemo } from 'react';
 
-export function useInView(options?: IntersectionObserverInit): [RefObject<HTMLElement | null>, boolean] {
+interface UseInViewOptions {
+  threshold?: number | number[];
+  rootMargin?: string;
+  triggerOnce?: boolean;
+}
+
+export function useInView(options: UseInViewOptions = {}): [RefObject<HTMLElement | null>, boolean] {
+  const { threshold = 0.1, rootMargin = '0px', triggerOnce = false } = options;
   const ref = useRef<HTMLElement>(null);
   const [isInView, setIsInView] = useState(false);
   
+  // Memoize options to prevent unnecessary re-subscriptions
+  const observerOptions = useMemo(() => ({
+    threshold,
+    rootMargin,
+  }), [threshold, rootMargin]);
+  
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsInView(entry.isIntersecting);
-    }, { threshold: 0.1, ...options });
-    
     const currentRef = ref.current;
-    if (currentRef) observer.observe(currentRef);
+    if (!currentRef) return;
+    
+    const observer = new IntersectionObserver(([entry]) => {
+      const inView = entry.isIntersecting;
+      setIsInView(inView);
+      
+      if (inView && triggerOnce) {
+        observer.unobserve(currentRef);
+      }
+    }, observerOptions);
+    
+    observer.observe(currentRef);
     
     return () => {
-      if (currentRef) observer.unobserve(currentRef);
+      observer.unobserve(currentRef);
       observer.disconnect();
     };
-  }, []); // Dependencies empty to run once on mount with initial options
+  }, [observerOptions, triggerOnce]);
   
   return [ref, isInView];
 }

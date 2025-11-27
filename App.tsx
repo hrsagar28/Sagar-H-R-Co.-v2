@@ -12,6 +12,11 @@ import { AnnounceProvider } from './context/AnnounceContext';
 import ToastContainer from './components/ToastContainer';
 import NetworkStatus from './components/NetworkStatus';
 
+// Skeletons
+import ServiceDetailSkeleton from './components/skeletons/ServiceDetailSkeleton';
+import InsightDetailSkeleton from './components/skeletons/InsightDetailSkeleton';
+import ContactSkeleton from './components/skeletons/ContactSkeleton';
+
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -88,14 +93,26 @@ const App: React.FC = () => {
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/services" element={<Services />} />
-                    <Route path="/services/:slug" element={<ServiceDetail />} />
+                    <Route path="/services/:slug" element={
+                      <Suspense fallback={<ServiceDetailSkeleton />}>
+                        <ServiceDetail />
+                      </Suspense>
+                    } />
                     <Route path="/insights" element={<Insights />} />
-                    <Route path="/insights/:slug" element={<InsightDetail />} />
+                    <Route path="/insights/:slug" element={
+                      <Suspense fallback={<InsightDetailSkeleton />}>
+                        <InsightDetail />
+                      </Suspense>
+                    } />
                     <Route path="/faqs" element={<FAQ />} />
                     <Route path="/resources" element={<Resources />} />
                     <Route path="/resources/checklist/:slug" element={<ChecklistDetail />} />
                     <Route path="/careers" element={<Careers />} />
-                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/contact" element={
+                      <Suspense fallback={<ContactSkeleton />}>
+                        <Contact />
+                      </Suspense>
+                    } />
                     <Route path="/disclaimer" element={<Disclaimer />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />
