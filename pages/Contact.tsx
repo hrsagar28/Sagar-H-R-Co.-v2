@@ -5,12 +5,22 @@ import { CONTACT_INFO } from '../config/contact';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
+import { useRateLimit } from '../hooks/useRateLimit';
+import { useToast } from '../hooks/useToast';
 
 const Contact: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { addToast } = useToast();
+
+  // Rate Limiting
+  const { canSubmit, recordAttempt, timeUntilReset } = useRateLimit({
+    maxAttempts: 3,
+    windowMs: 60 * 1000, // 1 minute
+    storageKey: 'contact_submission_limit'
+  });
 
   // Form States
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,6 +98,11 @@ const Contact: React.FC = () => {
         return; 
     }
 
+    if (!canSubmit) {
+       addToast(`Rate limit exceeded. Please wait ${timeUntilReset} seconds.`, "error");
+       return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
@@ -113,6 +128,7 @@ const Contact: React.FC = () => {
             setSubmitStatus('success');
             setFormData({ name: '', company: '', phone: '', email: '', message: '' });
             setSubject('');
+            recordAttempt();
         } else {
             setSubmitStatus('error');
         }
@@ -387,12 +403,15 @@ const Contact: React.FC = () => {
 
                       <button 
                         type="submit" 
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || !canSubmit}
                         className={`
                           mt-6 w-full relative overflow-hidden px-8 py-6 rounded-full font-bold text-xl tracking-wide 
-                          flex items-center justify-center gap-4 group bg-brand-dark text-white shadow-xl 
+                          flex items-center justify-center gap-4 group shadow-xl 
                           transition-all duration-300
-                          ${isSubmitting ? 'opacity-80 cursor-wait' : 'hover:shadow-2xl'}
+                          ${(isSubmitting || !canSubmit)
+                             ? 'bg-brand-stone text-brand-surface opacity-80 cursor-not-allowed'
+                             : 'bg-brand-dark text-white hover:shadow-2xl'
+                          }
                         `}
                       >
                         {isSubmitting ? (
@@ -405,7 +424,7 @@ const Contact: React.FC = () => {
                             <span className="relative z-10 group-hover:translate-x-[-4px] transition-transform duration-300">Send Message</span>
                             <ArrowRight size={24} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
                             {/* Hover Fill Effect */}
-                            <div className="absolute inset-0 bg-brand-moss translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-premium"></div>
+                            {canSubmit && <div className="absolute inset-0 bg-brand-moss translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-premium"></div>}
                           </>
                         )}
                       </button>

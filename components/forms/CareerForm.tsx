@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { useToast } from '../../hooks/useToast';
+import { useRateLimit } from '../../hooks/useRateLimit';
+import { useFormDraft } from '../../hooks/useFormDraft';
 
 interface CareerFormProps {
   initialPosition?: string;
@@ -34,6 +36,14 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [honeypot, setHoneypot] = useState('');
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+
+  // Rate Limiter
+  const { canSubmit, recordAttempt, timeUntilReset, attemptsRemaining } = useRateLimit({
+    maxAttempts: 3,
+    windowMs: 60 * 1000, // 1 Minute
+    storageKey: 'career_submission_limit'
+  });
 
   // Use the custom validation hook
   const { values, handleChange, errors, validate, setValues } = useFormValidation<FormData>({
@@ -47,6 +57,33 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     previousCompanies: '',
     position: initialPosition || ''
   });
+
+  // Draft Hook
+  const { hasDraft, loadDraft, clearDraft, lastSaved } = useFormDraft('career_form_draft', values);
+
+  // Check for draft on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('career_form_draft');
+    // Only show banner if there is a draft and the form is currently "empty" (or user hasn't interacted much)
+    if (saved && !values.fullName) {
+      setShowDraftBanner(true);
+    }
+  }, []);
+
+  const handleRestoreDraft = () => {
+    const draft = loadDraft();
+    if (draft) {
+      setValues(draft);
+      setShowDraftBanner(false);
+      addToast("Application draft restored.", "success");
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    clearDraft();
+    setShowDraftBanner(false);
+    addToast("Draft discarded.", "info");
+  };
 
   // Update position if initialPosition changes
   useEffect(() => {
@@ -127,6 +164,11 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     // Honeypot Check
     if (honeypot) return;
 
+    if (!canSubmit) {
+       addToast(`Rate limit exceeded. Please wait ${timeUntilReset} seconds.`, "error");
+       return;
+    }
+
     if (validateStep(3)) {
       setIsSubmitting(true);
       setSubmitStatus('idle');
@@ -146,6 +188,8 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
         if (res.ok) {
             setSubmitStatus('success');
+            recordAttempt();
+            clearDraft();
             addToast("Application submitted successfully!", "success");
             if (onFormSubmitSuccess) onFormSubmitSuccess();
         } else {
@@ -214,6 +258,32 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
       <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
       <div className="relative z-10">
         
+        {/* Draft Banner */}
+        {showDraftBanner && (
+           <div className="mb-8 p-4 bg-brand-moss/10 border border-brand-moss/20 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-fade-in-up">
+              <div className="flex items-center gap-3">
+                 <AlertCircle size={20} className="text-brand-moss shrink-0" />
+                 <p className="text-sm font-medium text-brand-dark">
+                    We found an unsaved application. Would you like to resume?
+                 </p>
+              </div>
+              <div className="flex gap-2 w-full md:w-auto">
+                 <button 
+                   onClick={handleRestoreDraft}
+                   className="flex-1 md:flex-none px-4 py-2 bg-brand-moss text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-brand-dark transition-colors flex items-center justify-center gap-2"
+                 >
+                    <RotateCcw size={14} /> Resume
+                 </button>
+                 <button 
+                   onClick={handleDiscardDraft}
+                   className="flex-1 md:flex-none px-4 py-2 bg-white border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center justify-center gap-2"
+                 >
+                    <Trash2 size={14} /> Discard
+                 </button>
+              </div>
+           </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-8">
           <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Application Form</span>
@@ -415,7 +485,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex gap-4 pt-6">
+          <div className="flex gap-4 pt-6 flex-col md:flex-row">
             {currentStep > 1 && !isSubmitting && (
               <button 
                 key="back-btn"
@@ -440,12 +510,12 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
               <button 
                 key="submit-btn"
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isSubmitting || !canSubmit}
                 className={`
                   flex-1 py-5 rounded-full font-heading font-bold text-lg 
                   flex justify-center items-center gap-2 group transition-all duration-300 shadow-xl
-                  ${isSubmitting 
-                    ? 'bg-brand-moss opacity-80 cursor-wait' 
+                  ${(isSubmitting || !canSubmit)
+                    ? 'bg-brand-stone opacity-80 cursor-not-allowed' 
                     : 'bg-brand-moss text-white hover:bg-brand-dark hover:shadow-brand-dark/30'
                   }
                 `}
@@ -464,9 +534,16 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
             )}
           </div>
           
-          <p className="text-center text-xs text-brand-stone font-medium mt-4">
-             By submitting this form, you agree to our Privacy Policy.
-          </p>
+          <div className="flex justify-between items-center mt-4">
+             {lastSaved && (
+                 <span className="text-[10px] uppercase tracking-wider text-brand-stone flex items-center gap-1">
+                    <Save size={12} /> Draft saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                 </span>
+             )}
+             <p className="text-xs text-brand-stone font-medium">
+                Protected by reCAPTCHA and our Privacy Policy.
+             </p>
+          </div>
         </form>
       </div>
     </div>

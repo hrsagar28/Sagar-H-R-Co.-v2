@@ -1,68 +1,121 @@
 import { useState, useCallback } from 'react';
 
 type ValidationRule<T> = (values: T) => string | undefined;
-type ValidationSchema<T> = Record<keyof T, ValidationRule<T>>;
 
-/**
- * useFormValidation Hook
- * 
- * A lightweight hook for managing form state and validation logic.
- * 
- * @param initialState - Initial values for the form fields
- * @returns Object containing form state, change handlers, and validation utilities
- * 
- * @example
- * const { values, handleChange, errors, validate } = useFormValidation({ name: '' });
- * 
- * const handleSubmit = () => {
- *   const isValid = validate({
- *     name: (v) => !v.name ? 'Name is required' : undefined
- *   });
- *   if (isValid) {
- *     // submit logic
- *   }
- * }
- */
-export const useFormValidation = <T extends Record<string, any>>(initialState: T) => {
+type EnhancedValidationRule<T> = {
+  test: (values: T) => boolean;
+  message: string;
+  severity?: 'error' | 'warning';
+};
+
+type Rule<T> = ValidationRule<T> | EnhancedValidationRule<T>;
+
+type ValidationSchema<T> = Partial<Record<keyof T, Rule<T>>>;
+
+interface UseFormValidationOptions<T> {
+  validateOnChange?: boolean;
+  validationSchema?: ValidationSchema<T>;
+}
+
+export const useFormValidation = <T extends Record<string, any>>(
+  initialState: T,
+  options: UseFormValidationOptions<T> = {}
+) => {
   const [values, setValues] = useState<T>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [warnings, setWarnings] = useState<Record<string, string>>({});
+
+  const validateField = (name: keyof T, value: any, schema: ValidationSchema<T> = options.validationSchema || {}) => {
+    const rule = schema[name];
+    if (rule) {
+      const tempValues = { ...values, [name]: value };
+      
+      let error: string | undefined;
+      let warning: string | undefined;
+
+      if (typeof rule === 'function') {
+        error = rule(tempValues);
+      } else {
+        const isValid = rule.test(tempValues);
+        if (!isValid) {
+          if (rule.severity === 'warning') warning = rule.message;
+          else error = rule.message;
+        }
+      }
+
+      setErrors(prev => {
+        const next = { ...prev };
+        if (error) next[name as string] = error;
+        else delete next[name as string];
+        return next;
+      });
+
+      setWarnings(prev => {
+        const next = { ...prev };
+        if (warning) next[name as string] = warning;
+        else delete next[name as string];
+        return next;
+      });
+      
+      return !error;
+    }
+    return true;
+  };
 
   const handleChange = (name: keyof T, value: any) => {
     setValues(prev => ({ ...prev, [name]: value }));
-    // Clear error for the field being modified
-    if (errors[name as string]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[name as string];
-        return newErrors;
-      });
+    
+    // If validation schema is provided and real-time validation is on
+    if (options.validateOnChange && options.validationSchema) {
+        validateField(name, value);
+    } else {
+        // Default behavior: clear error when user types
+        if (errors[name as string]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name as string];
+                return newErrors;
+            });
+        }
     }
   };
 
-  /**
-   * Validates the form state against a schema.
-   * You can pass a partial schema to validate only specific fields (useful for multi-step forms).
-   */
-  const validate = useCallback((schema: Partial<ValidationSchema<T>>) => {
+  const validate = useCallback((schema: ValidationSchema<T> = options.validationSchema || {}) => {
     const newErrors: Record<string, string> = {};
+    const newWarnings: Record<string, string> = {};
     let isValid = true;
     
     Object.keys(schema).forEach((key) => {
       const rule = schema[key as keyof T];
       if (rule) {
-         const error = rule(values);
-         if (error) {
-           newErrors[key] = error;
-           isValid = false;
+         if (typeof rule === 'function') {
+             const error = rule(values);
+             if (error) {
+               newErrors[key] = error;
+               isValid = false;
+             }
+         } else {
+             if (!rule.test(values)) {
+                 if (rule.severity === 'warning') {
+                     newWarnings[key] = rule.message;
+                 } else {
+                     newErrors[key] = rule.message;
+                     isValid = false;
+                 }
+             }
          }
       }
     });
     
-    setErrors(prev => ({ ...prev, ...newErrors }));
+    setErrors(newErrors);
+    setWarnings(newWarnings);
     return isValid;
-  }, [values]);
+  }, [values, options.validationSchema]);
 
-  const clearErrors = () => setErrors({});
+  const clearErrors = () => {
+      setErrors({});
+      setWarnings({});
+  };
 
-  return { values, setValues, errors, handleChange, validate, setErrors, clearErrors };
+  return { values, setValues, errors, warnings, handleChange, validate, setErrors, clearErrors };
 };
