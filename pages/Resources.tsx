@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { COMPLIANCE_CALENDAR, CHECKLIST_DATA } from '../constants';
@@ -8,6 +9,7 @@ import {
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
 import CustomDropdown from '../components/forms/CustomDropdown';
+import { CONTACT_INFO } from '../config/contact';
 
 const Resources: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'calculator' | 'calendar' | 'checklist'>('calculator');
@@ -302,13 +304,13 @@ const Resources: React.FC = () => {
     "hasPart": [
       {
         "@type": "SoftwareApplication",
-        "name": "Income Tax Calculator AY 2026-27",
+        "name": `Income Tax Calculator ${CONTACT_INFO.assessmentYear}`,
         "applicationCategory": "FinanceApplication",
         "operatingSystem": "Web"
       },
       {
         "@type": "Dataset",
-        "name": "Compliance Calendar 2025"
+        "name": `Compliance Calendar ${CONTACT_INFO.financialYear}`
       }
     ]
   };
@@ -369,7 +371,7 @@ const Resources: React.FC = () => {
                         <div className="flex justify-between items-start mb-8 print:mb-4">
                            <div>
                               <h2 className="text-3xl font-heading font-bold text-brand-dark">Income Tax Calculator</h2>
-                              <p className="text-brand-stone mt-2 font-medium">AY 2026-27 (FY 2025-26) • Updated as per Budget 2025</p>
+                              <p className="text-brand-stone mt-2 font-medium">{CONTACT_INFO.assessmentYear} ({CONTACT_INFO.financialYear}) • Updated as per Budget 2025</p>
                            </div>
                            <button onClick={handlePrint} className="p-3 rounded-full bg-brand-bg text-brand-dark hover:bg-brand-moss hover:text-white transition-colors print:hidden" title="Print Calculation">
                               <Printer size={20} />
@@ -706,7 +708,7 @@ const Resources: React.FC = () => {
 
                         <div className="mt-10 text-center print:text-left">
                            <p className="text-xs text-brand-stone/60 max-w-2xl mx-auto print:text-black">
-                              <strong>Disclaimer:</strong> This calculator provides estimates based on Finance Bill 2025 proposals (AY 2026-27). Actual tax liability may vary. Please consult a Chartered Accountant for filing.
+                              <strong>Disclaimer:</strong> This calculator provides estimates based on Finance Bill 2025 proposals ({CONTACT_INFO.assessmentYear}). Actual tax liability may vary. Please consult a Chartered Accountant for filing.
                            </p>
                         </div>
                      </div>
@@ -718,7 +720,7 @@ const Resources: React.FC = () => {
                          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                            <div>
                               <h2 className="text-3xl font-heading font-bold text-brand-dark">Compliance Calendar</h2>
-                              <p className="text-brand-stone mt-1">Key Due Dates for 2025-26</p>
+                              <p className="text-brand-stone mt-1">Key Due Dates for {CONTACT_INFO.financialYear.replace('FY ', '')}</p>
                            </div>
                            <div className="flex gap-2 print:hidden">
                               <div className="relative">

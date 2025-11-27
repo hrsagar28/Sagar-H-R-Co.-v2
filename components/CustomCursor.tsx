@@ -1,8 +1,10 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 
 const CustomCursor: React.FC = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
+  const rafIdRef = useRef<number>(0);
   
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
@@ -74,8 +76,6 @@ const CustomCursor: React.FC = () => {
     window.addEventListener('mouseup', handleMouseUp);
 
     // Animation Loop for the follower (Ring)
-    let rafId: number;
-    
     const animate = () => {
       // Linear Interpolation (LERP) for smooth, organic movement
       const lerpFactor = 0.15; 
@@ -87,10 +87,10 @@ const CustomCursor: React.FC = () => {
         followerRef.current.style.transform = `translate3d(${follower.current.x}px, ${follower.current.y}px, 0)`;
       }
 
-      rafId = requestAnimationFrame(animate);
+      rafIdRef.current = requestAnimationFrame(animate);
     };
 
-    rafId = requestAnimationFrame(animate);
+    rafIdRef.current = requestAnimationFrame(animate);
 
     return () => {
       // Cleanup
@@ -100,7 +100,7 @@ const CustomCursor: React.FC = () => {
       window.removeEventListener('mouseover', handleMouseOver);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(rafIdRef.current);
     };
   }, []);
 

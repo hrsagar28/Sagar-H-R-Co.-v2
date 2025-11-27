@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
@@ -6,6 +7,7 @@ import { useFormValidation } from '../../hooks/useFormValidation';
 import { useToast } from '../../hooks/useToast';
 import { useRateLimit } from '../../hooks/useRateLimit';
 import { useFormDraft } from '../../hooks/useFormDraft';
+import { CONTACT_INFO } from '../../config/contact';
 
 interface CareerFormProps {
   initialPosition?: string;
@@ -174,7 +176,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
       setSubmitStatus('idle');
 
       try {
-        const res = await fetch("https://formsubmit.co/ajax/mail@casagar.co.in", {
+        const res = await fetch(CONTACT_INFO.formEndpoint, {
             method: "POST",
             headers: { 
                 'Content-Type': 'application/json',

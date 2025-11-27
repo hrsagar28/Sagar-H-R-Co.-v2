@@ -1,3 +1,4 @@
+
 export const CONTACT_INFO = {
   name: "Sagar H R & Co.",
   phone: {
@@ -21,5 +22,9 @@ export const CONTACT_INFO = {
     latitude: 12.3051,
     longitude: 76.6551,
     mapEmbedUrl: "https://maps.google.com/maps?q=12.300430367886586,76.65174852128196&t=&z=15&ie=UTF8&iwloc=&output=embed"
-  }
+  },
+  tagline: "Chartered Accountants",
+  assessmentYear: "AY 2026-27",
+  financialYear: "FY 2025-26",
+  formEndpoint: "https://formsubmit.co/ajax/mail@casagar.co.in"
 };

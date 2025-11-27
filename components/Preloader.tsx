@@ -1,5 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { CONTACT_INFO } from '../config/contact';
 
 const Preloader: React.FC = () => {
   const [animateOut, setAnimateOut] = useState(false);
@@ -48,7 +50,7 @@ const Preloader: React.FC = () => {
         <div className="h-[1px] w-0 bg-white/30 animate-expand-width rounded-full mb-6"></div>
         
         <p className="text-white/70 text-xs md:text-sm font-sans font-bold uppercase tracking-[0.4em] animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          Chartered Accountants
+          {CONTACT_INFO.tagline}
         </p>
       </div>
     </div>

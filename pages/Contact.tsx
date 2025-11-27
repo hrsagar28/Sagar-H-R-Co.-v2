@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Mail, Phone, ChevronDown, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { SERVICES } from '../constants';
@@ -107,7 +108,7 @@ const Contact: React.FC = () => {
     setSubmitStatus('idle');
 
     try {
-        const response = await fetch("https://formsubmit.co/ajax/mail@casagar.co.in", {
+        const response = await fetch(CONTACT_INFO.formEndpoint, {
             method: "POST",
             headers: { 
                 'Content-Type': 'application/json',
