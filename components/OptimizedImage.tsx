@@ -86,6 +86,9 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         src={currentSrc}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
+        // @ts-ignore - fetchPriority is supported in React 19 but types might lag or vary
+        fetchPriority={priority ? "high" : "auto"}
+        decoding={priority ? "sync" : "async"}
         onLoad={handleLoad}
         onError={handleError}
         className={`block w-full h-full object-cover transition-all duration-700 ease-in-out relative z-0 ${

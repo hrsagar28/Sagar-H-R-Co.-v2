@@ -1,8 +1,10 @@
 import React from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { useInView } from '../hooks/useInView';
 
 const Marquee: React.FC = React.memo(() => {
   const shouldReduceMotion = useReducedMotion();
+  const [ref, isVisible] = useInView({ rootMargin: '100px' });
 
   const content = [
     { prefix: "Strategic", highlight: "Finance" },
@@ -29,21 +31,29 @@ const Marquee: React.FC = React.memo(() => {
     </>
   );
 
+  const isPlaying = isVisible && !shouldReduceMotion;
+  const animationStyle = { 
+    animationPlayState: isPlaying ? 'running' : 'paused' 
+  };
+
   return (
-    <div className="py-20 bg-brand-bg border-y border-brand-border/60 relative overflow-hidden flex select-none group">
+    <div 
+      ref={ref as React.RefObject<HTMLDivElement>}
+      className="py-20 bg-brand-bg border-y border-brand-border/60 relative overflow-hidden flex select-none group"
+    >
        {/* Gradient Masks for smooth fade in/out */}
        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-brand-bg to-transparent z-10 pointer-events-none"></div>
        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-brand-bg to-transparent z-10 pointer-events-none"></div>
 
        <div 
          className="animate-marquee flex items-center shrink-0 group-hover:[animation-play-state:paused]"
-         style={shouldReduceMotion ? { animationPlayState: 'paused' } : {}}
+         style={animationStyle}
        >
           <ItemGroup />
        </div>
        <div 
          className="animate-marquee flex items-center shrink-0 group-hover:[animation-play-state:paused]"
-         style={shouldReduceMotion ? { animationPlayState: 'paused' } : {}}
+         style={animationStyle}
        >
           <ItemGroup />
        </div>
