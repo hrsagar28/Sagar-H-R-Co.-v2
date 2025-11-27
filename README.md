@@ -1,20 +1,39 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Sagar H R & Co. - Official Website
 
-# Run and deploy your AI Studio app
+Professional website for Sagar H R & Co., Chartered Accountants based in Mysuru, Karnataka.
 
-This contains everything you need to run your app locally.
+## Tech Stack
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS
+- React Router (HashRouter)
 
-View your app in AI Studio: https://ai.studio/apps/drive/1mO1mox98vLUWa2JAy-s78cvr1CbOJXCe
+## Local Development
+1. Clone the repository
+2. Run `npm install`
+3. Run `npm run dev`
+4. Open http://localhost:3000
 
-## Run Locally
+## Project Structure
+- `/pages` - Route components
+- `/components` - Reusable UI components
+- `/constants` - Static data (services, FAQs, calendar, etc.)
+- `/hooks` - Custom React hooks
+- `/config` - Configuration files
 
-**Prerequisites:**  Node.js
+## Updating Content
 
+### Compliance Calendar
+Edit `constants/resources.ts` - Update annually before April.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Services
+Edit `constants/services.tsx` for service list and `SERVICE_DETAILS` for detail pages.
+
+### Insights/Blog
+Edit `constants/insights.ts` to add new articles.
+
+## Deployment
+Configured for Netlify. Push to main branch triggers auto-deploy.
+
+## License
+© 2025 Sagar H R & Co. All rights reserved.
