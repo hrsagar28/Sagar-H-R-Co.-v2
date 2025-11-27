@@ -174,7 +174,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           {/* Mobile Toggle - Increased Touch Target */}
           <button 
             ref={buttonRef}
-            className="lg:hidden w-12 h-12 flex items-center justify-center bg-brand-surface rounded-full border border-brand-border text-brand-dark hover:bg-brand-bg transition-colors active:scale-90"
+            className="lg:hidden w-12 h-12 flex items-center justify-center bg-brand-surface rounded-full border border-brand-border text-brand-dark hover:bg-brand-bg transition-colors active:scale-90 z-dropdown relative"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Close menu" : "Open menu"}
             aria-expanded={isOpen}
@@ -191,34 +191,49 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation"
-          className={`absolute top-full right-0 w-[95vw] md:w-80 mt-4 bg-brand-surface rounded-[2rem] border border-brand-border shadow-2xl p-6 flex flex-col gap-2 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right ${
-            isOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4'
-          }`}
+          className={`
+            absolute top-full right-0 w-[calc(100vw-32px)] md:w-80 mt-4 
+            bg-brand-surface/95 backdrop-blur-2xl rounded-[2rem] border border-brand-border/60 shadow-2xl 
+            p-6 flex flex-col gap-2 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] origin-top-right
+            ${isOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-4 pointer-events-none'}
+          `}
         >
            {NAV_LINKS.filter(link => link.name !== 'Contact').map((link, idx) => (
              <Link 
                key={link.name}
                to={link.path}
                onClick={() => setIsOpen(false)}
-               // Increased padding for better touch target (py-4) and min-height
-               className="text-xl font-heading font-bold text-brand-dark hover:text-brand-moss px-4 py-4 hover:bg-brand-bg rounded-xl transition-all flex justify-between items-center group min-h-[60px]"
-               style={{ transitionDelay: isOpen ? `${idx * 50}ms` : '0ms' }}
+               // Staggered reveal animation logic integrated into styling
+               className={`
+                 text-xl font-heading font-bold text-brand-dark hover:text-brand-moss px-4 py-4 
+                 hover:bg-brand-bg rounded-xl transition-all duration-500 ease-out flex justify-between items-center group min-h-[60px]
+                 ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'}
+               `}
+               style={{ transitionDelay: isOpen ? `${idx * 75}ms` : '0ms' }}
              >
                {link.name}
                <ArrowRight size={20} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
              </Link>
            ))}
-           <div className="mt-4 pt-4 border-t border-brand-border/50">
+           <div 
+             className={`mt-4 pt-4 border-t border-brand-border/50 transition-all duration-500 delay-300 ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+           >
              <Link 
               to="/contact"
               onClick={() => setIsOpen(false)}
-              className="w-full py-5 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 text-lg min-h-[60px]"
+              className="w-full py-5 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 text-lg min-h-[60px] shadow-lg active:scale-95 transition-transform"
              >
                 Let's Talk <MessageSquare size={20} />
              </Link>
            </div>
         </div>
       </div>
+      
+      {/* Backdrop for mobile menu */}
+      <div 
+        className={`fixed inset-0 bg-black/20 backdrop-blur-sm -z-10 transition-opacity duration-500 lg:hidden ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} 
+        onClick={() => setIsOpen(false)}
+      />
     </nav>
   );
 };

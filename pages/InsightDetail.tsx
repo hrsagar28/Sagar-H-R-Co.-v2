@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
-import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin } from 'lucide-react';
+import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin, ArrowUp, Copy } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CONTACT_INFO } from '../config/contact';
@@ -11,7 +11,7 @@ const InsightDetail: React.FC = () => {
   const navigate = useNavigate();
   const insight = INSIGHTS_MOCK.find(i => i.slug === slug);
   
-  const [progress, setProgress] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -21,20 +21,59 @@ const InsightDetail: React.FC = () => {
     window.scrollTo(0, 0);
   }, [slug, insight, navigate]);
 
-  // Reading progress bar logic
+  // Reading progress logic
   useEffect(() => {
     const handleScroll = () => {
       const totalScroll = document.documentElement.scrollTop;
       const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       if (windowHeight === 0) return;
       const scroll = totalScroll / windowHeight;
-      setProgress(Number(scroll));
+      setScrollProgress(Number(scroll));
     }
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Robust Share Functionality
+  // Inject Copy Code Buttons
+  useEffect(() => {
+    const article = document.querySelector('.article-content');
+    if (!article) return;
+
+    const preTags = article.querySelectorAll('pre');
+    preTags.forEach(pre => {
+      // Avoid duplicate injection
+      if (pre.parentNode && (pre.parentNode as HTMLElement).classList.contains('code-wrapper')) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-wrapper relative group mb-8 rounded-xl overflow-hidden bg-[#1e1e1e] border border-white/10 shadow-xl';
+      
+      pre.parentNode?.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Style the pre tag itself to reset margin/rounding
+      pre.style.margin = '0';
+      pre.style.borderRadius = '0';
+      pre.style.padding = '1.5rem';
+
+      const btn = document.createElement('button');
+      btn.className = 'absolute top-3 right-3 p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 z-10';
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+      btn.setAttribute('aria-label', 'Copy code');
+      
+      btn.addEventListener('click', () => {
+           navigator.clipboard.writeText(pre.innerText);
+           // Change icon to check
+           btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+           setTimeout(() => {
+               // Revert icon
+               btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+           }, 2000);
+      });
+
+      wrapper.appendChild(btn);
+    });
+  }, [insight]);
+
   const handleShare = async () => {
     const shareData = {
       title: insight?.title || `Insight from ${CONTACT_INFO.name}`,
@@ -64,6 +103,10 @@ const InsightDetail: React.FC = () => {
     window.print();
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (!insight) return null;
 
   const schema = {
@@ -90,6 +133,11 @@ const InsightDetail: React.FC = () => {
     }
   };
 
+  // Circular Progress Calculation
+  const radius = 24; // r of circle
+  const circumference = 2 * Math.PI * radius;
+  const dashoffset = circumference - scrollProgress * circumference;
+
   return (
     <div className="bg-brand-surface min-h-screen relative selection:bg-brand-moss selection:text-white">
       <SEO 
@@ -99,14 +147,6 @@ const InsightDetail: React.FC = () => {
         schema={schema}
       />
       
-      {/* Reading Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1.5 z-sticky bg-transparent">
-        <div 
-          className="h-full bg-gradient-to-r from-brand-moss to-green-600 transition-all duration-150 ease-out rounded-r-full shadow-[0_0_10px_rgba(26,77,46,0.5)]" 
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-
       {/* Decorative Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-moss/5 rounded-full blur-[120px] -z-10"></div>
@@ -231,9 +271,8 @@ const InsightDetail: React.FC = () => {
               </div>
             </main>
 
-            {/* Right Sidebar - Table of Contents Placeholder (Optional) */}
+            {/* Right Sidebar - Empty for now */}
             <div className="hidden lg:block lg:col-span-2">
-               {/* Could add ToC here in future */}
             </div>
         </div>
       </div>
@@ -251,12 +290,44 @@ const InsightDetail: React.FC = () => {
             Consult Expert
         </Link>
       </div>
+      
+      {/* Scroll to Top Progress Ring */}
+      <div 
+         className={`fixed bottom-24 right-6 md:right-10 z-fixed transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${scrollProgress > 0.05 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}
+      >
+         <button 
+           onClick={scrollToTop}
+           className="relative w-14 h-14 bg-brand-surface rounded-full shadow-xl flex items-center justify-center group hover:scale-110 transition-transform"
+           aria-label="Scroll to top"
+           title={`${Math.round(scrollProgress * 100)}% Read`}
+         >
+           <svg className="w-full h-full -rotate-90" viewBox="0 0 60 60">
+              <circle 
+                cx="30" cy="30" r={radius} 
+                fill="none" 
+                stroke="#e5e7eb" 
+                strokeWidth="3" 
+              />
+              <circle 
+                cx="30" cy="30" r={radius} 
+                fill="none" 
+                stroke="#1A4D2E" 
+                strokeWidth="3" 
+                strokeDasharray={circumference}
+                strokeDashoffset={dashoffset}
+                strokeLinecap="round"
+                className="transition-all duration-100"
+              />
+           </svg>
+           <ArrowUp size={20} className="absolute text-brand-dark group-hover:text-brand-moss transition-colors" />
+         </button>
+      </div>
 
       <style>{`
         /* Modern Article Styling */
         .article-content {
           color: #27272a; /* Zinc-800 */
-          font-family: 'Plus Jakarta Sans', sans-serif; /* Modern Sans for Body */
+          font-family: 'Plus Jakarta Sans', sans-serif;
           line-height: 1.8;
           font-size: 1.125rem;
         }
@@ -270,7 +341,7 @@ const InsightDetail: React.FC = () => {
           font-weight: 700;
           margin-right: 0.75rem;
           margin-top: 0.25rem;
-          color: #1A4D2E; /* brand-moss */
+          color: #1A4D2E;
         }
 
         .article-content h2 {
@@ -301,7 +372,7 @@ const InsightDetail: React.FC = () => {
         .article-content p {
           margin-bottom: 1.75rem;
           font-weight: 400;
-          color: #4a4a52; /* Slightly softer text for reading */
+          color: #4a4a52;
         }
 
         .article-content ul {
@@ -325,7 +396,7 @@ const InsightDetail: React.FC = () => {
           position: absolute;
           left: 0;
           top: 0;
-          color: #1A4D2E; /* brand-moss */
+          color: #1A4D2E;
           font-weight: 900;
         }
         
@@ -349,7 +420,7 @@ const InsightDetail: React.FC = () => {
 
         /* Enhanced Summary Card - Glassmorphism */
         .article-content .summary-card {
-          background: rgba(242, 242, 240, 0.6); /* brand-bg with opacity */
+          background: rgba(242, 242, 240, 0.6);
           backdrop-filter: blur(12px);
           border: 1px solid #D4D4D8;
           border-left: 6px solid #1A4D2E;
@@ -382,14 +453,13 @@ const InsightDetail: React.FC = () => {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          padding-left: 0; /* Override heading padding */
+          padding-left: 0; 
         }
         
         .article-content .summary-card h3::before {
-           display: none; /* Remove heading accent inside card */
+           display: none;
         }
         
-        /* Icon inside summary title */
         .article-content .summary-card h3::after {
           content: '';
           display: block;
@@ -397,6 +467,18 @@ const InsightDetail: React.FC = () => {
           height: 1px;
           background: #D4D4D8;
           opacity: 0.5;
+        }
+        
+        /* Code Block Styling (for future use) */
+        .article-content pre {
+          background: #1e1e1e;
+          color: #d4d4d8;
+          padding: 1.5rem;
+          border-radius: 1rem;
+          overflow-x: auto;
+          font-family: 'Fira Code', monospace;
+          font-size: 0.9rem;
+          margin-bottom: 2rem;
         }
 
         /* Print Specific Styles */
@@ -410,10 +492,9 @@ const InsightDetail: React.FC = () => {
             display: none !important; 
           }
           
-          /* Reset layout for print */
           .pt-32, .pt-48, .pb-24 { padding: 0 !important; margin: 0 !important; }
           .min-h-screen { min-height: auto !important; }
-          .absolute { display: none !important; } /* Hide backgrounds */
+          .absolute { display: none !important; }
           
           .grid { display: block !important; }
           .lg\\:col-span-2 { display: none !important; }
@@ -435,7 +516,6 @@ const InsightDetail: React.FC = () => {
             font-family: sans-serif !important;
           }
           
-          /* Header Info */
           header { margin-bottom: 1cm !important; text-align: left !important; }
           header a { display: none !important; }
 
