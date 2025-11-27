@@ -2,18 +2,30 @@ import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 interface RevealProps {
+  /** The content to be animated */
   children: ReactNode;
+  /** Width of the container. Default: 'fit-content' */
   width?: 'fit-content' | '100%';
-  delay?: number; // Delay in seconds
-  duration?: number; // Duration in seconds
+  /** Delay in seconds before animation starts. Default: 0 */
+  delay?: number;
+  /** Duration in seconds of the animation. Default: 0.8 */
+  duration?: number;
+  /** Additional CSS classes */
   className?: string;
+  /** Animation style variant. Default: 'fade-up' */
   variant?: 'fade-up' | 'slide-up' | 'scale' | 'reveal-mask';
 }
 
 /**
  * Reveal Component
+ * 
  * Uses IntersectionObserver to trigger premium entrance animations when elements scroll into view.
- * Respects prefers-reduced-motion.
+ * Respects prefers-reduced-motion media query settings.
+ * 
+ * @example
+ * <Reveal variant="fade-up" delay={0.2}>
+ *   <h1>Animated Heading</h1>
+ * </Reveal>
  */
 const Reveal: React.FC<RevealProps> = ({ 
   children, 

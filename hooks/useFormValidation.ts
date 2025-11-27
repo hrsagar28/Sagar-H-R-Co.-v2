@@ -3,6 +3,26 @@ import { useState, useCallback } from 'react';
 type ValidationRule<T> = (values: T) => string | undefined;
 type ValidationSchema<T> = Record<keyof T, ValidationRule<T>>;
 
+/**
+ * useFormValidation Hook
+ * 
+ * A lightweight hook for managing form state and validation logic.
+ * 
+ * @param initialState - Initial values for the form fields
+ * @returns Object containing form state, change handlers, and validation utilities
+ * 
+ * @example
+ * const { values, handleChange, errors, validate } = useFormValidation({ name: '' });
+ * 
+ * const handleSubmit = () => {
+ *   const isValid = validate({
+ *     name: (v) => !v.name ? 'Name is required' : undefined
+ *   });
+ *   if (isValid) {
+ *     // submit logic
+ *   }
+ * }
+ */
 export const useFormValidation = <T extends Record<string, any>>(initialState: T) => {
   const [values, setValues] = useState<T>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});

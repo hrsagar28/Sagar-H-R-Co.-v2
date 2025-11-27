@@ -1,15 +1,35 @@
 import React, { useEffect } from 'react';
 
 interface SEOProps {
+  /** Page title - appears in browser tab and search results */
   title: string;
+  /** Meta description - summary for search results */
   description: string;
+  /** Meta keywords (comma-separated). Default provided. */
   keywords?: string;
+  /** Canonical URL to prevent duplicate content issues. Default: window.location.href */
   canonicalUrl?: string;
+  /** Open Graph type (e.g., 'website', 'article'). Default: 'website' */
   ogType?: 'website' | 'article' | 'profile';
+  /** URL for the social share image. Default provided. */
   ogImage?: string;
+  /** Structured Data (JSON-LD) object(s) */
   schema?: object | object[];
 }
 
+/**
+ * SEO Component
+ * 
+ * Manages document head elements including title, meta tags, Open Graph tags,
+ * and JSON-LD structured data for search engine optimization.
+ * 
+ * @example
+ * <SEO 
+ *   title="Home | My Site" 
+ *   description="Welcome to my site"
+ *   schema={{ "@context": "https://schema.org", "@type": "WebSite", ... }}
+ * />
+ */
 const SEO: React.FC<SEOProps> = ({
   title,
   description,

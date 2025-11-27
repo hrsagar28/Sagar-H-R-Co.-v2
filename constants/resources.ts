@@ -27,6 +27,25 @@ export const IMPORTANT_LINKS = [
   }
 ];
 
+/**
+ * COMPLIANCE CALENDAR DATA
+ * 
+ * Last Updated: November 2025
+ * Applicable For: FY 2025-26 (April 2025 - March 2026)
+ * 
+ * ANNUAL UPDATE CHECKLIST:
+ * 1. Review CBDT notifications for TDS/IT due dates
+ * 2. Review CBIC notifications for GST due dates
+ * 3. Check MCA for ROC filing deadlines
+ * 4. Verify PF/ESI payment dates
+ * 5. Update month keys (e.g., "April 2026")
+ * 6. Run generate-sitemap.js after updates
+ * 
+ * Sources:
+ * - incometax.gov.in
+ * - gst.gov.in
+ * - mca.gov.in
+ */
 export const COMPLIANCE_CALENDAR = {
   "April 2025": [ { day: 7, desc: "TDS/TCS Payment for March", cat: "tds" }, { day: 10, desc: "GSTR-7 & GSTR-8 (Mar)", cat: "gst" }, { day: 11, desc: "GSTR-1 (Monthly, Mar)", cat: "gst" }, { day: 13, desc: "GSTR-1 (QRMP, Jan-Mar)", cat: "gst" }, { day: 15, desc: "PF & ESI Payment (Mar)", cat: "payroll" }, { day: 18, desc: "CMP-08 (Jan-Mar)", cat: "gst" }, { day: 20, desc: "GSTR-3B (Monthly, Mar)", cat: "gst" }, { day: 22, desc: "GSTR-3B (QRMP, Jan-Mar)", cat: "gst" }, { day: 30, desc: "GSTR-4 (Annual, FY 24-25)", cat: "gst" }, { day: 30, desc: "Form 11 (LLP Annual Return)", cat: "roc" } ],
   "May 2025": [ { day: 7, desc: "TDS/TCS Payment (Apr)", cat: "tds" }, { day: 11, desc: "GSTR-1 (Monthly, Apr)", cat: "gst" }, { day: 15, desc: "TDS Quarterly Return (Q4, FY 24-25)", cat: "tds" }, { day: 15, desc: "PF & ESI Payment (Apr)", cat: "payroll" }, { day: 20, desc: "GSTR-3B (Monthly, Apr)", cat: "gst" } ],

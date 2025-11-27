@@ -1,16 +1,38 @@
 import React, { useState, useEffect } from 'react';
 
 interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Source URL of the image */
   src: string;
+  /** Alt text for accessibility */
   alt: string;
+  /** Additional classes for the image element itself */
   imgClassName?: string;
+  /** If true, uses eager loading. Default: false (lazy) */
   priority?: boolean;
+  /** Fallback image URL if primary src fails */
   fallbackSrc?: string;
+  /** CSS aspect-ratio property (e.g., "16/9") */
   aspectRatio?: string;
+  /** Callback when image loads successfully */
   onLoad?: () => void;
+  /** Callback when image fails to load */
   onError?: () => void;
 }
 
+/**
+ * OptimizedImage Component
+ * 
+ * Handles progressive loading with a blur-up effect.
+ * Provides fallback support and custom aspect ratio handling.
+ * 
+ * @example
+ * <OptimizedImage 
+ *   src="/path/to/image.jpg" 
+ *   alt="Description" 
+ *   aspectRatio="16/9" 
+ *   className="rounded-xl" 
+ * />
+ */
 const OptimizedImage: React.FC<OptimizedImageProps> = ({ 
   src, 
   alt, 
