@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
-import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin, ArrowUp, Copy } from 'lucide-react';
+import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin, ArrowUp, Link as LinkIcon, ArrowUpRight } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CONTACT_INFO } from '../config/contact';
@@ -12,7 +12,8 @@ const InsightDetail: React.FC = () => {
   const insight = INSIGHTS_MOCK.find(i => i.slug === slug);
   
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [copied, setCopied] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     if (!insight) {
@@ -91,11 +92,21 @@ const InsightDetail: React.FC = () => {
       // Fallback to clipboard
       try {
         await navigator.clipboard.writeText(window.location.href);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2500);
       } catch (err) {
         alert('Unable to copy link to clipboard.');
       }
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy link', err);
     }
   };
 
@@ -106,6 +117,26 @@ const InsightDetail: React.FC = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Get related insights
+  const relatedInsights = useMemo(() => {
+    if (!insight) return [];
+    
+    // Get insights in same category excluding current
+    const sameCategory = INSIGHTS_MOCK
+      .filter(i => i.category === insight.category && i.id !== insight.id)
+      .slice(0, 3);
+    
+    // If not enough, fill with recent others
+    if (sameCategory.length < 3) {
+      const additional = INSIGHTS_MOCK
+        .filter(i => i.id !== insight.id && i.category !== insight.category)
+        .slice(0, 3 - sameCategory.length);
+      return [...sameCategory, ...additional];
+    }
+    
+    return sameCategory;
+  }, [insight]);
 
   if (!insight) return null;
 
@@ -147,7 +178,7 @@ const InsightDetail: React.FC = () => {
         schema={schema}
       />
       
-      {/* Decorative Background Elements - Cleaned up */}
+      {/* Decorative Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-moss/5 rounded-full blur-[120px] -z-10"></div>
       </div>
@@ -191,17 +222,31 @@ const InsightDetail: React.FC = () => {
             <aside className="hidden lg:block lg:col-span-2 relative">
               <div className="sticky top-40 flex flex-col gap-6 items-center">
                  <div className="flex flex-col gap-3 p-2 bg-white/80 backdrop-blur-md border border-brand-border/50 rounded-2xl shadow-lg shadow-brand-dark/5">
+                    {/* Share Button */}
                     <button 
                       onClick={handleShare}
                       aria-label="Share article"
                       className="w-12 h-12 rounded-xl flex items-center justify-center text-brand-stone hover:text-brand-moss hover:bg-brand-bg transition-all relative group"
-                      title="Share this article"
                     >
-                      {copied ? <Check size={20} className="text-green-600" /> : <Share2 size={20} />}
+                      {shareCopied ? <Check size={20} className="text-green-600" /> : <Share2 size={20} />}
                       
                       {/* Tooltip */}
                       <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-tooltip">
-                        {copied ? 'Copied!' : 'Share'}
+                        {shareCopied ? 'Copied Link' : 'Share'}
+                      </span>
+                    </button>
+
+                    {/* Explicit Copy Link Button */}
+                    <button 
+                      onClick={handleCopyLink}
+                      aria-label="Copy Link"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center text-brand-stone hover:text-brand-moss hover:bg-brand-bg transition-all relative group"
+                    >
+                      {linkCopied ? <Check size={20} className="text-green-600" /> : <LinkIcon size={20} />}
+                      
+                      {/* Tooltip */}
+                      <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-tooltip">
+                        {linkCopied ? 'Link Copied!' : 'Copy Link'}
                       </span>
                     </button>
 
@@ -209,7 +254,6 @@ const InsightDetail: React.FC = () => {
                       onClick={handlePrint}
                       aria-label="Print article"
                       className="w-12 h-12 rounded-xl flex items-center justify-center text-brand-stone hover:text-brand-moss hover:bg-brand-bg transition-all relative group"
-                      title="Print this article"
                     >
                       <Printer size={20} />
                       <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-tooltip">
@@ -268,6 +312,44 @@ const InsightDetail: React.FC = () => {
                     </div>
                   </div>
               </div>
+
+              {/* Related Insights Section */}
+              {relatedInsights.length > 0 && (
+                <section className="mt-24 pt-16 border-t border-brand-border">
+                   <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+                      <div>
+                        <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-2 block">Further Reading</span>
+                        <h3 className="text-3xl font-heading font-bold text-brand-dark">Related Insights</h3>
+                      </div>
+                      <Link to="/insights" className="text-sm font-bold uppercase tracking-wider text-brand-stone hover:text-brand-moss transition-colors flex items-center gap-2 group">
+                         View All <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                      </Link>
+                   </div>
+
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {relatedInsights.map(item => (
+                        <Link 
+                          to={`/insights/${item.slug}`} 
+                          key={item.id}
+                          className="group bg-brand-surface rounded-[1.5rem] p-6 border border-brand-border hover:border-brand-moss hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+                        >
+                           <span className="inline-block px-3 py-1 bg-brand-bg rounded-full text-brand-stone text-[10px] font-bold uppercase tracking-widest mb-4 w-fit group-hover:bg-brand-moss group-hover:text-white transition-colors">
+                             {item.category}
+                           </span>
+                           <h4 className="text-lg font-heading font-bold text-brand-dark mb-3 group-hover:text-brand-moss transition-colors line-clamp-2">
+                             {item.title}
+                           </h4>
+                           <div className="mt-auto flex items-center justify-between pt-4 border-t border-brand-border/50 text-xs font-bold text-brand-stone">
+                              <span>{item.date}</span>
+                              <div className="w-8 h-8 rounded-full bg-brand-bg flex items-center justify-center group-hover:bg-brand-moss group-hover:text-white transition-all">
+                                 <ArrowUpRight size={14} />
+                              </div>
+                           </div>
+                        </Link>
+                      ))}
+                   </div>
+                </section>
+              )}
             </main>
 
             {/* Right Sidebar - Empty for now */}
@@ -279,10 +361,10 @@ const InsightDetail: React.FC = () => {
       {/* Mobile Fixed Bottom Bar */}
       <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-fixed flex items-center gap-2 p-2 bg-brand-dark/90 backdrop-blur-lg rounded-full shadow-2xl shadow-brand-dark/30 border border-white/10">
         <button onClick={handleShare} aria-label="Share article" className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white active:scale-90 transition-transform">
-            {copied ? <Check size={20} /> : <Share2 size={20} />}
+            {shareCopied ? <Check size={20} className="text-green-400" /> : <Share2 size={20} />}
         </button>
-        <button onClick={handlePrint} aria-label="Print article" className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white active:scale-90 transition-transform">
-            <Printer size={20} />
+        <button onClick={handleCopyLink} aria-label="Copy link" className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white active:scale-90 transition-transform">
+            {linkCopied ? <Check size={20} className="text-green-400" /> : <LinkIcon size={20} />}
         </button>
         <div className="w-[1px] h-8 bg-white/20 mx-2"></div>
         <Link to="/contact" className="px-6 py-3 bg-brand-moss text-white rounded-full font-bold text-sm whitespace-nowrap active:scale-95 transition-transform">
