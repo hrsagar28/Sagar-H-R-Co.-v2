@@ -5,6 +5,7 @@ import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin, ArrowUp, Li
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CONTACT_INFO } from '../config/contact';
+import { logger } from '../utils/logger';
 
 const InsightDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -106,7 +107,7 @@ const InsightDetail: React.FC = () => {
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy link', err);
+      logger.error('Failed to copy link', err);
     }
   };
 

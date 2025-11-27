@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '../utils/logger';
 
 interface UseRateLimitOptions {
   maxAttempts: number;
@@ -28,7 +29,7 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
           setAttempts(validAttempts);
         }
       } catch (e) {
-        console.error("Error parsing rate limit data", e);
+        logger.error("Error parsing rate limit data", e);
       }
     }
   }, [storageKey, windowMs]);
