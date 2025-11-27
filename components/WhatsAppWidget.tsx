@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CONTACT_INFO } from '../config/contact';
 
 const WhatsAppWidget: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Hide when scrolling down (more than 200px), show when scrolling up
+      if (currentScrollY > lastScrollY.current && currentScrollY > 200) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <a
       href={CONTACT_INFO.social.whatsapp}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-toast group"
+      className={`fixed bottom-6 right-6 z-toast group transition-all duration-300 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
       aria-label="Chat on WhatsApp"
     >
       <div className="relative w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300">

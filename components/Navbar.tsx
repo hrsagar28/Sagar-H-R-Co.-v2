@@ -14,6 +14,10 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
   const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  
+  // Touch tracking refs for swipe-to-close
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
 
   // Scroll detection
   useEffect(() => {
@@ -191,6 +195,20 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation"
+          onTouchStart={(e) => {
+            touchStartX.current = e.touches[0].clientX;
+            touchEndX.current = e.touches[0].clientX; // Initialize to avoid false positives
+          }}
+          onTouchMove={(e) => {
+            touchEndX.current = e.touches[0].clientX;
+          }}
+          onTouchEnd={() => {
+            const swipeDistance = touchEndX.current - touchStartX.current;
+            // If swiped right more than 100px, close menu
+            if (swipeDistance > 100) {
+              setIsOpen(false);
+            }
+          }}
           className={`
             absolute top-full right-0 w-[calc(100vw-32px)] md:w-80 mt-4 
             bg-brand-surface/95 backdrop-blur-2xl rounded-[2rem] border border-brand-border/60 shadow-2xl 
