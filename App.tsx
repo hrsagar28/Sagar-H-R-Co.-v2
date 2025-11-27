@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense, lazy } from 'react';
+import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -7,6 +7,8 @@ import SmoothScroll from './components/SmoothScroll';
 import Preloader from './components/Preloader';
 import WhatsAppWidget from './components/WhatsAppWidget';
 import PageLoader from './components/PageLoader';
+import { ToastProvider } from './context/ToastContext';
+import ToastContainer from './components/ToastContainer';
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));
@@ -28,9 +30,13 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const RouteHandler = () => {
   const { pathname } = useLocation();
   
-  useEffect(() => {
-    // Scroll to top
-    window.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    // Force instant scroll to top on route change, ignoring smooth scroll preferences
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant'
+    });
     
     // Focus management for accessibility
     // Focus the main content wrapper to announce page change to screen readers
@@ -45,59 +51,62 @@ const RouteHandler = () => {
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white print:hidden">
-        Skip to content
-      </a>
-      <RouteHandler />
-      <div className="print:hidden">
-        <Preloader />
-        <CustomCursor />
-      </div>
-      
-      {/* Fixed Elements must be OUTSIDE the SmoothScroll wrapper to avoid transform context issues */}
-      <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none print:hidden">
-        <Navbar className="animate-content-reveal delay-2000 pointer-events-auto" />
-      </div>
-
-      <div className="print:hidden">
-        <WhatsAppWidget />
-      </div>
-
-      {/* Global Background Noise */}
-      <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply print:hidden" />
-
-      <SmoothScroll>
-        {/* Added overflow-x-hidden to prevent horizontal scroll on mobile */}
-        <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg w-full overflow-x-hidden print:bg-white">
-          <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/services/:slug" element={<ServiceDetail />} />
-                <Route path="/insights" element={<Insights />} />
-                <Route path="/insights/:slug" element={<InsightDetail />} />
-                <Route path="/faqs" element={<FAQ />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/resources/checklist/:slug" element={<ChecklistDetail />} />
-                <Route path="/careers" element={<Careers />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/disclaimer" element={<Disclaimer />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </main>
-          
-          <div className="print:hidden">
-            <Footer />
-          </div>
+    <ToastProvider>
+      <HashRouter>
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white print:hidden">
+          Skip to content
+        </a>
+        <RouteHandler />
+        <div className="print:hidden">
+          <Preloader />
+          <CustomCursor />
         </div>
-      </SmoothScroll>
-    </HashRouter>
+        
+        {/* Fixed Elements must be OUTSIDE the SmoothScroll wrapper to avoid transform context issues */}
+        <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none print:hidden">
+          <Navbar className="animate-content-reveal delay-2000 pointer-events-auto" />
+        </div>
+
+        <div className="print:hidden">
+          <WhatsAppWidget />
+          <ToastContainer />
+        </div>
+
+        {/* Global Background Noise */}
+        <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply print:hidden" />
+
+        <SmoothScroll>
+          {/* Added overflow-x-hidden to prevent horizontal scroll on mobile */}
+          <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg w-full overflow-x-hidden print:bg-white">
+            <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/services/:slug" element={<ServiceDetail />} />
+                  <Route path="/insights" element={<Insights />} />
+                  <Route path="/insights/:slug" element={<InsightDetail />} />
+                  <Route path="/faqs" element={<FAQ />} />
+                  <Route path="/resources" element={<Resources />} />
+                  <Route path="/resources/checklist/:slug" element={<ChecklistDetail />} />
+                  <Route path="/careers" element={<Careers />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/disclaimer" element={<Disclaimer />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </main>
+            
+            <div className="print:hidden">
+              <Footer />
+            </div>
+          </div>
+        </SmoothScroll>
+      </HashRouter>
+    </ToastProvider>
   );
 };
 

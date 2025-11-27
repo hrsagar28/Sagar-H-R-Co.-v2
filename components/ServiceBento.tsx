@@ -4,7 +4,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { SERVICES } from '../constants';
 import Reveal from './Reveal';
 
-const ServiceBento: React.FC = () => {
+const ServiceBento: React.FC = React.memo(() => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
       {SERVICES.map((service, index) => {
@@ -149,6 +149,6 @@ const ServiceBento: React.FC = () => {
       </Reveal>
     </div>
   );
-};
+});
 
 export default ServiceBento;

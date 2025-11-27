@@ -6,6 +6,7 @@ import {
   FileText, Printer, ArrowRight, RotateCcw, Info, HelpCircle, X, Check, TrendingDown 
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import PageHero from '../components/PageHero';
 import CustomDropdown from '../components/forms/CustomDropdown';
 
 const Resources: React.FC = () => {
@@ -321,20 +322,12 @@ const Resources: React.FC = () => {
       />
       
       {/* HERO SECTION - Hidden in Print */}
-      <section className="pt-32 md:pt-48 pb-12 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60 print:hidden">
-         <div className="container mx-auto max-w-7xl relative z-10">
-            <div className="max-w-5xl">
-               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
-                 <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
-                 Tools & Utilities
-               </div>
-               <h1 className="text-6xl md:text-8xl font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                 Resource <br/>
-                 <span className="font-serif italic font-normal text-brand-stone opacity-60">Hub.</span>
-               </h1>
-            </div>
-         </div>
-      </section>
+      <PageHero
+        tag="Tools & Utilities"
+        title="Resource"
+        subtitle="Hub."
+        className="print:hidden"
+      />
 
       {/* MAIN CONTENT AREA */}
       <div className="py-12 px-4 md:px-6 print:py-0 print:px-0">

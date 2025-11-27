@@ -1,3 +1,10 @@
+/**
+ * @deprecated Not currently used in the site.
+ * This was an experimental accordion list for services.
+ * Keeping for potential future use or reference.
+ * Last reviewed: 2025-05-20
+ */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';

@@ -3,6 +3,7 @@ import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Lo
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';
 import { useFormValidation } from '../../hooks/useFormValidation';
+import { useToast } from '../../hooks/useToast';
 
 interface CareerFormProps {
   initialPosition?: string;
@@ -27,6 +28,7 @@ const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years'];
 const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSuccess }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const { addToast } = useToast();
   
   // Submission States
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -104,6 +106,8 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
         const formHeader = document.getElementById('form-header');
         formHeader?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+    } else {
+        addToast("Please fill in all required fields correctly.", "error");
     }
   };
 
@@ -142,15 +146,20 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
         if (res.ok) {
             setSubmitStatus('success');
+            addToast("Application submitted successfully!", "success");
             if (onFormSubmitSuccess) onFormSubmitSuccess();
         } else {
             setSubmitStatus('error');
+            addToast("Failed to submit application. Please try again.", "error");
         }
       } catch(e) {
         setSubmitStatus('error');
+        addToast("Network error. Please try again later.", "error");
       } finally {
         setIsSubmitting(false);
       }
+    } else {
+        addToast("Please fill in all required fields correctly.", "error");
     }
   };
 

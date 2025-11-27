@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
 import { ArrowUpRight, Calendar } from 'lucide-react';
 import SEO from '../components/SEO';
+import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../config/contact';
 
 const Insights: React.FC = () => {
@@ -35,23 +36,12 @@ const Insights: React.FC = () => {
       />
       
       {/* UNIFIED HERO SECTION */}
-      <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
-        <div className="container mx-auto max-w-7xl relative z-10">
-           <div className="max-w-5xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
-                <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
-                Knowledge Base
-              </div>
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                Strategic <br/>
-                <span className="font-serif italic font-normal text-brand-stone opacity-60">Insights.</span>
-              </h1>
-              <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                 Analysis, regulatory updates, and strategic commentary from our research desk to help you stay ahead.
-              </p>
-           </div>
-        </div>
-      </section>
+      <PageHero
+        tag="Knowledge Base"
+        title="Strategic"
+        subtitle="Insights."
+        description="Analysis, regulatory updates, and strategic commentary from our research desk to help you stay ahead."
+      />
 
       {/* Insights Grid */}
       <section className="py-20 px-4 md:px-6">

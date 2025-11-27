@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Linkedin, ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../config/contact';
 
-const Footer: React.FC = () => {
+const Footer: React.FC = React.memo(() => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -126,6 +126,6 @@ const Footer: React.FC = () => {
       </div>
     </footer>
   );
-};
+});
 
 export default Footer;

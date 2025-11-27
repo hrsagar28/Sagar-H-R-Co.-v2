@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
 import OptimizedImage from '../components/OptimizedImage';
 import SEO from '../components/SEO';
+import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../config/contact';
 
 const About: React.FC = () => {
@@ -37,46 +38,37 @@ const About: React.FC = () => {
       />
       
       {/* UNIFIED HERO SECTION */}
-      <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
-        <div className="container mx-auto max-w-7xl relative z-10">
-           <div className="max-w-5xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-brand-surface/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
-                <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
-                The Firm
+      <PageHero
+        tag="The Firm"
+        title="More Than"
+        subtitle="Numbers."
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+           <div className="lg:col-span-7">
+              <div className="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden border border-brand-border bg-brand-surface shadow-2xl group">
+                 <div className="absolute inset-0 bg-brand-moss/5 transition-colors group-hover:bg-brand-moss/10"></div>
+                 <div className="absolute top-0 right-0 w-full h-full opacity-30">
+                     <div className="absolute top-10 right-10 w-32 h-32 border-4 border-brand-dark/10 rounded-full"></div>
+                     <div className="absolute bottom-10 left-10 w-64 h-64 bg-brand-moss/10 rounded-full mix-blend-multiply filter blur-2xl animate-blob"></div>
+                 </div>
+                 <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-8">
+                     <span className="font-heading font-bold text-4xl md:text-6xl text-brand-dark mb-2">Est. 2023</span>
+                     <span className="font-serif italic text-xl text-brand-stone">Mysuru, Karnataka</span>
+                 </div>
               </div>
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                More Than <br/>
-                <span className="font-serif italic font-normal text-brand-stone opacity-60">Numbers.</span>
-              </h1>
            </div>
-           
-           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <div className="lg:col-span-7">
-                 <div className="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden border border-brand-border bg-brand-surface shadow-2xl group">
-                    <div className="absolute inset-0 bg-brand-moss/5 transition-colors group-hover:bg-brand-moss/10"></div>
-                    <div className="absolute top-0 right-0 w-full h-full opacity-30">
-                        <div className="absolute top-10 right-10 w-32 h-32 border-4 border-brand-dark/10 rounded-full"></div>
-                        <div className="absolute bottom-10 left-10 w-64 h-64 bg-brand-moss/10 rounded-full mix-blend-multiply filter blur-2xl animate-blob"></div>
-                    </div>
-                    <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-8">
-                        <span className="font-heading font-bold text-4xl md:text-6xl text-brand-dark mb-2">Est. 2023</span>
-                        <span className="font-serif italic text-xl text-brand-stone">Mysuru, Karnataka</span>
-                    </div>
-                 </div>
-              </div>
-              <div className="lg:col-span-5 pb-4">
-                 <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed mb-8">
-                   {CONTACT_INFO.name} bridges the gap between regulatory complexity and strategic business growth.
+           <div className="lg:col-span-5 pb-4">
+              <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed mb-8">
+                {CONTACT_INFO.name} bridges the gap between regulatory complexity and strategic business growth.
+              </p>
+              <div className="flex flex-col gap-4 border-l border-brand-border pl-6">
+                 <p className="text-brand-stone/80 text-lg">
+                    Founded with a singular ambition: to disrupt the traditional "compliance-only" model of accountancy. We are custodians of financial stability.
                  </p>
-                 <div className="flex flex-col gap-4 border-l border-brand-border pl-6">
-                    <p className="text-brand-stone/80 text-lg">
-                       Founded with a singular ambition: to disrupt the traditional "compliance-only" model of accountancy. We are custodians of financial stability.
-                    </p>
-                 </div>
               </div>
            </div>
         </div>
-      </section>
+      </PageHero>
 
       {/* Mission Statement */}
       <section className="py-24 px-4 md:px-6 bg-brand-dark text-brand-surface relative overflow-hidden">

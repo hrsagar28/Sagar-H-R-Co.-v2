@@ -1,9 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import ServiceBento from '../components/ServiceBento';
-import { INDUSTRIES, SERVICES } from '../constants';
-import { ArrowUpRight } from 'lucide-react';
+import IndustrySpotlight from '../components/IndustrySpotlight';
+import { SERVICES } from '../constants';
 import SEO from '../components/SEO';
+import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../config/contact';
 
 const Services: React.FC = () => {
@@ -39,24 +39,13 @@ const Services: React.FC = () => {
         schema={schema}
       />
       
-      {/* 1. HERO SECTION - Standard Clean Grid */}
-      <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
-         <div className="container mx-auto max-w-7xl relative z-10">
-            <div className="max-w-5xl">
-               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
-                 <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
-                 Our Expertise
-               </div>
-               <h1 className="text-6xl md:text-8xl lg:text-9xl font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                 Comprehensive <br/>
-                 <span className="font-serif italic font-normal text-brand-stone opacity-60">Solutions.</span>
-               </h1>
-               <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                  Explore our specialized services tailored to optimize your personal and business requirements.
-               </p>
-            </div>
-         </div>
-      </section>
+      {/* 1. HERO SECTION */}
+      <PageHero
+        tag="Our Expertise"
+        title="Comprehensive"
+        subtitle="Solutions."
+        description="Explore our specialized services tailored to optimize your personal and business requirements."
+      />
 
       {/* 2. SERVICES LIST - BENTO GRID */}
       <section className="bg-brand-bg pt-20 pb-32">
@@ -76,41 +65,8 @@ const Services: React.FC = () => {
          </div>
       </section>
 
-      {/* 3. INDUSTRIES - Dark Theme with Rounded Corners & High Contrast Green */}
-      <div className="px-2 md:px-4 pb-4 bg-brand-bg">
-        <section className="py-24 px-4 md:px-10 bg-[#0A0A0A] text-white rounded-[2.5rem] md:rounded-[3rem] relative overflow-hidden">
-          <div className="container mx-auto max-w-7xl relative z-10">
-            
-            <div className="flex flex-col md:flex-row md:items-start justify-between mb-16 gap-8 border-b border-white/10 pb-12">
-               <div className="max-w-2xl">
-                  <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">SECTORS</span>
-                  <h2 className="text-4xl md:text-6xl font-heading font-bold text-white mb-0">Industries We Serve</h2>
-               </div>
-               <p className="text-white/60 font-medium text-lg max-w-xs text-right md:text-left leading-relaxed">
-                  Specialized knowledge across diverse verticals ensures relevant and impactful advice.
-               </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {INDUSTRIES.map((ind, i) => (
-                <div key={i} className="p-8 rounded-3xl bg-[#111111] hover:bg-[#161616] border border-white/5 transition-all duration-300 group flex flex-col items-start h-full hover:-translate-y-1">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-[#4ADE80] mb-6 bg-[#4ADE80]/10 border border-[#4ADE80]/20 group-hover:scale-105 transition-transform">
-                    {React.cloneElement(ind.icon as React.ReactElement<any>, { size: 24 })}
-                  </div>
-                  <h3 className="text-xl font-heading font-bold text-white mb-3">{ind.title}</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed font-medium">{ind.description}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-20 flex justify-center">
-               <Link to="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/20 text-white font-bold text-sm hover:bg-white hover:text-black transition-all duration-300 group">
-                  Industry not listed? Contact Us <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform text-[#4ADE80] group-hover:text-black"/>
-               </Link>
-            </div>
-          </div>
-        </section>
-      </div>
+      {/* 3. INDUSTRIES - Consolidated Component */}
+      <IndustrySpotlight />
 
     </div>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
-const Marquee: React.FC = () => {
+const Marquee: React.FC = React.memo(() => {
   const shouldReduceMotion = useReducedMotion();
 
   const content = [
@@ -49,6 +49,6 @@ const Marquee: React.FC = () => {
        </div>
     </div>
   );
-};
+});
 
 export default Marquee;

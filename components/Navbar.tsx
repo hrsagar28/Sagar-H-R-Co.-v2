@@ -8,7 +8,7 @@ interface NavbarProps {
   className?: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
+const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -236,6 +236,6 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       />
     </nav>
   );
-};
+});
 
 export default Navbar;

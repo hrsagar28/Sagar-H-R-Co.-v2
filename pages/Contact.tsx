@@ -4,6 +4,7 @@ import { SERVICES } from '../constants';
 import { CONTACT_INFO } from '../config/contact';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
+import PageHero from '../components/PageHero';
 
 const Contact: React.FC = () => {
   const [subject, setSubject] = useState('');
@@ -149,31 +150,12 @@ const Contact: React.FC = () => {
       />
       
       {/* UNIFIED HERO SECTION */}
-      <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
-        <div className="container mx-auto max-w-7xl relative z-10">
-           <div className="max-w-5xl">
-              <Reveal delay={0}>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8">
-                    <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
-                    Get In Touch
-                </div>
-              </Reveal>
-              <h1 className="font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-10 text-6xl md:text-8xl lg:text-9xl">
-                <Reveal variant="reveal-mask" delay={0.1}>
-                   <span className="block">Let's</span>
-                </Reveal>
-                <Reveal variant="reveal-mask" delay={0.25}>
-                   <span className="block font-serif italic font-normal text-brand-stone opacity-60">Connect.</span>
-                </Reveal>
-              </h1>
-              <Reveal delay={0.4}>
-                <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-2xl">
-                    Ready to optimize your financial strategy? Reach out to us for a consultation.
-                </p>
-              </Reveal>
-           </div>
-        </div>
-      </section>
+      <PageHero
+        tag="Get In Touch"
+        title="Let's"
+        subtitle="Connect."
+        description="Ready to optimize your financial strategy? Reach out to us for a consultation."
+      />
 
       {/* Main Content Area */}
       <div className="py-24 px-4 md:px-8">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FAQS } from '../constants';
 import { Plus, Minus } from 'lucide-react';
 import SEO from '../components/SEO';
+import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../config/contact';
 
 const FAQ: React.FC = () => {
@@ -36,23 +37,12 @@ const FAQ: React.FC = () => {
       />
       
       {/* UNIFIED HERO SECTION */}
-      <section className="pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60">
-        <div className="container mx-auto max-w-7xl relative z-10">
-           <div className="max-w-5xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-border bg-white/50 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-brand-stone mb-8 animate-fade-in-up">
-                <span className="w-1.5 h-1.5 bg-brand-moss rounded-full"></span>
-                FAQs
-              </div>
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-heading font-bold text-brand-dark tracking-tighter leading-[0.9] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                Common <br/>
-                <span className="font-serif italic font-normal text-brand-stone opacity-60">Queries.</span>
-              </h1>
-              <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                 Clear answers to your financial queries. From tax planning to compliance, we have got you covered.
-              </p>
-           </div>
-        </div>
-      </section>
+      <PageHero
+        tag="FAQs"
+        title="Common"
+        subtitle="Queries."
+        description="Clear answers to your financial queries. From tax planning to compliance, we have got you covered."
+      />
 
       <div className="py-20 px-4 md:px-6">
         <div className="container mx-auto px-4 max-w-4xl">

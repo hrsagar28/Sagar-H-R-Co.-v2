@@ -1,3 +1,10 @@
+/**
+ * @deprecated Not currently used in the site.
+ * This was an experimental horizontal scroll process showcase.
+ * Keeping for potential future use on About or Services page.
+ * Last reviewed: 2025-05-20
+ */
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Search, Layout, Rocket } from 'lucide-react';
 
