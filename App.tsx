@@ -9,6 +9,7 @@ import WhatsAppWidget from './components/WhatsAppWidget';
 import PageLoader from './components/PageLoader';
 import { ToastProvider } from './context/ToastContext';
 import ToastContainer from './components/ToastContainer';
+import NetworkStatus from './components/NetworkStatus';
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));
@@ -58,6 +59,7 @@ const App: React.FC = () => {
         </a>
         <RouteHandler />
         <div className="print:hidden">
+          <NetworkStatus />
           <Preloader />
           <CustomCursor />
         </div>
