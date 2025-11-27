@@ -147,10 +147,9 @@ const InsightDetail: React.FC = () => {
         schema={schema}
       />
       
-      {/* Decorative Background Elements */}
+      {/* Decorative Background Elements - Cleaned up */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-moss/5 rounded-full blur-[120px] -z-10"></div>
-        <div className="absolute inset-0 bg-noise opacity-[0.4] mix-blend-soft-light z-0"></div>
       </div>
 
       <div className="relative z-base pt-32 md:pt-48 pb-24 px-4 md:px-8 max-w-[1200px] mx-auto">
