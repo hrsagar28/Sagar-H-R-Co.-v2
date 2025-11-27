@@ -42,7 +42,7 @@ const Reveal: React.FC<RevealProps> = ({
     }
 
     return () => {
-      if (ref.current) observer.disconnect();
+      observer.disconnect();
     };
   }, []);
 
