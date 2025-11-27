@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 export type ToastVariant = 'success' | 'error' | 'info' | 'warning';
 
@@ -13,6 +14,7 @@ export interface ToastProps {
 
 const Toast: React.FC<ToastProps> = ({ id, message, variant, duration = 5000, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     // Trigger entry animation
@@ -51,12 +53,16 @@ const Toast: React.FC<ToastProps> = ({ id, message, variant, duration = 5000, on
     }
   };
 
+  const animationClass = shouldReduceMotion 
+    ? (isVisible ? 'opacity-100' : 'opacity-0')
+    : (isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0');
+
   return (
     <div 
       className={`
         pointer-events-auto flex items-start gap-3 p-4 rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-sm w-full
         ${getStyles()}
-        ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
+        ${animationClass}
       `}
       role="alert"
     >

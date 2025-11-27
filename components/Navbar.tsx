@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
 import { CONTACT_INFO } from '../config/contact';
 import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
+import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useReturnFocus } from '../hooks/useReturnFocus';
 
 interface NavbarProps {
   className?: string;
@@ -18,6 +20,10 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
   // Touch tracking refs for swipe-to-close
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+
+  // Focus Management Hooks
+  useReturnFocus(isOpen);
+  useFocusTrap(isOpen, menuRef, () => setIsOpen(false));
 
   // Scroll detection
   useEffect(() => {
@@ -36,51 +42,15 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
     setIsOpen(false);
   }, [location]);
 
-  // Body Scroll Lock & Focus Trap Logic
+  // Body Scroll Lock Only
   useEffect(() => {
     if (isOpen) {
-      // Lock scroll
       document.body.style.overflow = 'hidden';
-      
-      // Focus Trap
-      const focusableElements = menuRef.current?.querySelectorAll(
-        'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
-      );
-      const firstElement = focusableElements ? focusableElements[0] as HTMLElement : null;
-      const lastElement = focusableElements ? focusableElements[focusableElements.length - 1] as HTMLElement : null;
-
-      const handleTabKey = (e: KeyboardEvent) => {
-        if (e.key === 'Tab') {
-          if (e.shiftKey) { // Shift + Tab
-            if (document.activeElement === firstElement) {
-              e.preventDefault();
-              lastElement?.focus();
-            }
-          } else { // Tab
-            if (document.activeElement === lastElement) {
-              e.preventDefault();
-              firstElement?.focus();
-            }
-          }
-        } else if (e.key === 'Escape') {
-          setIsOpen(false);
-          buttonRef.current?.focus();
-        }
-      };
-
-      document.addEventListener('keydown', handleTabKey);
-      
-      // Initial focus
-      setTimeout(() => {
-        firstElement?.focus();
-      }, 100);
-
-      return () => {
-        document.body.style.overflow = '';
-        document.removeEventListener('keydown', handleTabKey);
-      };
     } else {
-        document.body.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
     }
   }, [isOpen]);
 

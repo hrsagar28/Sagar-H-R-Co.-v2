@@ -1,5 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 interface MagneticButtonProps {
   children: React.ReactNode;
@@ -17,9 +18,10 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
   const btnRef = useRef<HTMLButtonElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!btnRef.current) return;
+    if (shouldReduceMotion || !btnRef.current) return;
 
     const { left, top, width, height } = btnRef.current.getBoundingClientRect();
     const x = e.clientX - (left + width / 2);
@@ -45,7 +47,7 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
       onMouseLeave={handleMouseLeave}
       onMouseEnter={handleMouseEnter}
       style={{
-        transform: `translate(${position.x}px, ${position.y}px)`,
+        transform: shouldReduceMotion ? 'none' : `translate(${position.x}px, ${position.y}px)`,
         transition: isHovered ? 'transform 0.1s linear' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
       }}
       className={`
@@ -60,6 +62,7 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
       <div className={`
         absolute inset-0 bg-brand-moss rounded-full translate-y-full group-hover:translate-y-0
         transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] -z-0
+        ${shouldReduceMotion ? 'duration-0' : ''}
       `}></div>
       
       {/* Content */}
@@ -72,7 +75,7 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
         relative z-10 w-8 h-8 rounded-full bg-brand-dark text-white flex items-center justify-center
         group-hover:bg-white group-hover:text-brand-dark transition-colors duration-300
       `}>
-        <ArrowRight size={14} className="group-hover:-rotate-45 transition-transform duration-500" />
+        <ArrowRight size={14} className={`transition-transform duration-500 ${shouldReduceMotion ? '' : 'group-hover:-rotate-45'}`} />
       </div>
 
     </button>
