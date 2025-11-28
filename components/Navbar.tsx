@@ -1,10 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { NAV_LINKS } from '../constants';
-import { CONTACT_INFO } from '../config/contact';
+import { NAV_LINKS, CONTACT_INFO } from '../constants';
 import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
-import { useFocusTrap } from '../hooks/useFocusTrap';
-import { useReturnFocus } from '../hooks/useReturnFocus';
+import { useFocusTrap, useReturnFocus } from '../hooks';
 
 interface NavbarProps {
   className?: string;

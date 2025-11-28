@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { CONTACT_INFO } from '../config/contact';
-import { useReducedMotion } from '../hooks/useReducedMotion';
+import { CONTACT_INFO } from '../constants';
+import { useReducedMotion } from '../hooks';
 
 const WhatsAppWidget: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);

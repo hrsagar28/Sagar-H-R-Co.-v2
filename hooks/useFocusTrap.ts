@@ -1,5 +1,14 @@
+
 import { useEffect, RefObject } from 'react';
 
+/**
+ * Hook to trap focus within a container when active (e.g., for modals/menus).
+ * Handles Tab and Shift+Tab navigation to cycle through focusable elements.
+ * 
+ * @param {boolean} isActive - Whether the trap is currently active.
+ * @param {RefObject<HTMLElement>} containerRef - Ref to the container element.
+ * @param {() => void} [onEscape] - Optional callback when Escape key is pressed.
+ */
 export const useFocusTrap = (isActive: boolean, containerRef: RefObject<HTMLElement>, onEscape?: () => void) => {
   useEffect(() => {
     if (!isActive || !containerRef.current) return;

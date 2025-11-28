@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { logger } from '../utils/logger';
 
@@ -15,6 +16,13 @@ interface UseRateLimitReturn {
   timeUntilReset: number;
 }
 
+/**
+ * Hook to enforce client-side rate limiting on actions (e.g., form submissions).
+ * Persists attempts to localStorage to survive page reloads.
+ * 
+ * @param {UseRateLimitOptions} options - Configuration for rate limiting.
+ * @returns {UseRateLimitReturn} Rate limit state and methods.
+ */
 export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimitOptions): UseRateLimitReturn => {
   const [attempts, setAttempts] = useState<number[]>([]);
   const [now, setNow] = useState(Date.now());

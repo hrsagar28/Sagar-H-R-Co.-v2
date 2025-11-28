@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, RefObject, useMemo } from 'react';
 
 interface UseInViewOptions {
@@ -6,6 +7,12 @@ interface UseInViewOptions {
   triggerOnce?: boolean;
 }
 
+/**
+ * Hook to track whether an element is currently in the viewport.
+ * 
+ * @param {UseInViewOptions} [options] - IntersectionObserver options.
+ * @returns {[RefObject<HTMLElement | null>, boolean]} A ref to attach to the element and a boolean visibility state.
+ */
 export function useInView(options: UseInViewOptions = {}): [RefObject<HTMLElement | null>, boolean] {
   const { threshold = 0.1, rootMargin = '0px', triggerOnce = false } = options;
   const ref = useRef<HTMLElement>(null);

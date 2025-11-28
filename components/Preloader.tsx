@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { useReducedMotion } from '../hooks/useReducedMotion';
-import { CONTACT_INFO } from '../config/contact';
+import { useReducedMotion } from '../hooks';
+import { CONTACT_INFO } from '../constants';
 
 const Preloader: React.FC = () => {
   const [animateOut, setAnimateOut] = useState(false);

@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Linkedin, ArrowUp } from 'lucide-react';
-import { CONTACT_INFO } from '../config/contact';
+import { CONTACT_INFO } from '../constants';
 
 const Footer: React.FC = React.memo(() => {
   const scrollToTop = () => {
@@ -28,8 +29,8 @@ const Footer: React.FC = React.memo(() => {
                     {CONTACT_INFO.address.state}, {CONTACT_INFO.address.country}
                  </address>
                  <div className="flex gap-4">
-                    <a href={CONTACT_INFO.social.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-brand-dark transition-all">
-                       <Linkedin size={18} />
+                    <a href={CONTACT_INFO.social.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-brand-dark transition-all" aria-label="LinkedIn Profile">
+                       <Linkedin size={20} />
                     </a>
                  </div>
               </div>

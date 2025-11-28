@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 
 type ValidationRule<T> = (values: T) => string | undefined;
@@ -17,6 +18,14 @@ interface UseFormValidationOptions<T> {
   validationSchema?: ValidationSchema<T>;
 }
 
+/**
+ * Hook for managing form validation state and logic.
+ * 
+ * @template T
+ * @param {T} initialState - Initial values for the form fields.
+ * @param {UseFormValidationOptions<T>} [options] - Validation configuration options.
+ * @returns {object} Form state and validation methods.
+ */
 export const useFormValidation = <T extends Record<string, any>>(
   initialState: T,
   options: UseFormValidationOptions<T> = {}

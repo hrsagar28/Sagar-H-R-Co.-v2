@@ -1,5 +1,11 @@
+
 import { useState, useEffect } from 'react';
 
+/**
+ * Hook to detect if the user has requested reduced motion in their OS preferences.
+ * 
+ * @returns {boolean} True if 'prefers-reduced-motion: reduce' matches.
+ */
 export const useReducedMotion = (): boolean => {
   const [matches, setMatches] = useState<boolean>(false);
 

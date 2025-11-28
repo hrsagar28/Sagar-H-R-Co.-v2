@@ -1,12 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';
-import { useFormValidation } from '../../hooks/useFormValidation';
-import { useToast } from '../../hooks/useToast';
-import { useRateLimit } from '../../hooks/useRateLimit';
-import { useFormDraft } from '../../hooks/useFormDraft';
-import { CONTACT_INFO } from '../../config/contact';
+import { useFormValidation, useToast, useRateLimit, useFormDraft } from '../../hooks';
+import { CONTACT_INFO } from '../../constants';
 import { sanitizeInput } from '../../utils/sanitize';
 import { logger } from '../../utils/logger';
 import { validateEmail, validatePhone } from '../../utils/validation';
@@ -43,7 +41,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
   const [showDraftBanner, setShowDraftBanner] = useState(false);
 
   // Rate Limiter
-  const { canSubmit, recordAttempt, timeUntilReset, attemptsRemaining } = useRateLimit({
+  const { canSubmit, recordAttempt, timeUntilReset } = useRateLimit({
     maxAttempts: 3,
     windowMs: 60 * 1000, // 1 Minute
     storageKey: 'career_submission_limit'
@@ -63,7 +61,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
   });
 
   // Draft Hook
-  const { hasDraft, loadDraft, clearDraft, lastSaved } = useFormDraft('career_form_draft', values);
+  const { loadDraft, clearDraft, lastSaved } = useFormDraft('career_form_draft', values);
 
   // Check for draft on mount
   useEffect(() => {

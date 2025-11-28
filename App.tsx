@@ -1,23 +1,14 @@
+
 import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import CustomCursor from './components/CustomCursor';
-import SmoothScroll from './components/SmoothScroll';
-import Preloader from './components/Preloader';
-import WhatsAppWidget from './components/WhatsAppWidget';
-import PageLoader from './components/PageLoader';
+import { 
+  Navbar, Footer, CustomCursor, SmoothScroll, Preloader, WhatsAppWidget, 
+  PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
+  ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton
+} from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
-import ToastContainer from './components/ToastContainer';
-import NetworkStatus from './components/NetworkStatus';
-import RouteErrorBoundary from './components/RouteErrorBoundary';
-import TopProgressBar from './components/TopProgressBar';
-
-// Skeletons
-import ServiceDetailSkeleton from './components/skeletons/ServiceDetailSkeleton';
-import InsightDetailSkeleton from './components/skeletons/InsightDetailSkeleton';
-import ContactSkeleton from './components/skeletons/ContactSkeleton';
+import { useAnnounce } from './hooks';
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));
@@ -38,6 +29,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 const RouteHandler = () => {
   const { pathname } = useLocation();
+  const { announce } = useAnnounce();
   
   useLayoutEffect(() => {
     // Force instant scroll to top on route change, ignoring smooth scroll preferences
@@ -54,6 +46,30 @@ const RouteHandler = () => {
       mainContent.focus();
     }
   }, [pathname]);
+
+  // Accessibility Announcement for Route Change
+  useEffect(() => {
+    let pageName = 'Home';
+    if (pathname !== '/') {
+      // Improve page name extraction
+      const parts = pathname.substring(1).split('/');
+      
+      // Handle known routes
+      if (pathname.startsWith('/services/')) {
+        pageName = `Service: ${parts[1].split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}`;
+      } else if (pathname.startsWith('/insights/')) {
+        pageName = `Insight Article`;
+      } else if (pathname.startsWith('/resources/checklist/')) {
+        pageName = `Checklist Resource`;
+      } else {
+        // Generic fallback: Capitalize words
+        pageName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+        if (pageName === 'Faqs') pageName = 'FAQ';
+      }
+    }
+    
+    announce(`Navigated to ${pageName}`);
+  }, [pathname, announce]);
   
   return null;
 };

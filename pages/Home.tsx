@@ -1,12 +1,9 @@
+
 import React, { useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Shield, TrendingUp, CheckCircle2, BarChart3, Calculator, ArrowRight } from 'lucide-react';
-import Marquee from '../components/Marquee';
-import Reveal from '../components/Reveal';
-import MagneticButton from '../components/MagneticButton';
-import OptimizedImage from '../components/OptimizedImage';
-import SEO from '../components/SEO';
-import { CONTACT_INFO } from '../config/contact';
+import { Marquee, Reveal, MagneticButton, OptimizedImage, SEO } from '../components';
+import { CONTACT_INFO } from '../constants';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -90,8 +87,7 @@ const Home: React.FC = () => {
             src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
             alt="Corporate Architecture" 
             priority={true}
-            className="w-full h-full opacity-50 scale-105 animate-spin-slow origin-center" 
-            style={{ animationDuration: '90s', animationDirection: 'alternate' }}
+            className="w-full h-full opacity-60" 
            />
            {/* Dark Black Vignette & Overlays */}
            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.95)_100%)]"></div>

@@ -1,5 +1,15 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+/**
+ * Hook to auto-save form progress to localStorage.
+ * 
+ * @template T
+ * @param {string} key - Unique storage key for the form.
+ * @param {T} currentValues - Current form values to observe.
+ * @param {number} [debounceMs=1000] - Debounce time in ms before saving.
+ * @returns {object} Draft management methods and state.
+ */
 export function useFormDraft<T>(
   key: string,
   currentValues: T,

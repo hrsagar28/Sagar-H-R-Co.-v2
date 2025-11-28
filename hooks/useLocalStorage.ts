@@ -1,13 +1,14 @@
+
 import { useState } from 'react';
 import { logger } from '../utils/logger';
 
 /**
- * useLocalStorage Hook
+ * Hook that syncs state to local storage so that it persists through page refreshes.
  * 
- * A hook that syncs state to local storage so that it persists through a page refresh.
- * 
- * @param key The key to use in localStorage
- * @param initialValue The initial value to use if no value is found in localStorage
+ * @template T
+ * @param {string} key - The key to use in localStorage.
+ * @param {T} initialValue - The initial value to use if no value is found in localStorage.
+ * @returns {[T, (value: T | ((prev: T) => T)) => void]} Stored value and setter function.
  */
 function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
   // State to store our value
