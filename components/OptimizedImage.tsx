@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Source URL of the image */
@@ -57,12 +57,21 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(src);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     setCurrentSrc(src);
     setIsLoaded(false);
     setHasError(false);
   }, [src]);
+
+  // Check if image is already loaded (e.g. from cache)
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      setIsLoaded(true);
+      if (onLoad) onLoad();
+    }
+  }, []);
 
   // Automatically generate srcSet for Unsplash images if requested
   const calculatedSrcSet = useMemo(() => {
@@ -119,6 +128,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
       
       {/* Actual Image */}
       <img
+        ref={imgRef}
         src={currentSrc}
         srcSet={calculatedSrcSet}
         sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}

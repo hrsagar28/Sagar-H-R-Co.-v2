@@ -87,7 +87,7 @@ const Home: React.FC = () => {
             src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
             alt="Corporate Architecture" 
             priority={true}
-            className="w-full h-full opacity-60" 
+            className="w-full h-full opacity-80" 
            />
            {/* Dark Black Vignette & Overlays */}
            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.95)_100%)]"></div>
