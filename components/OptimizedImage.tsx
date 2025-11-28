@@ -13,6 +13,10 @@ interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
   fallbackSrc?: string;
   /** CSS aspect-ratio property (e.g., "16/9") */
   aspectRatio?: string;
+  /** Responsive image sources */
+  srcSet?: string;
+  /** Responsive image sizes */
+  sizes?: string;
   /** Callback when image loads successfully */
   onLoad?: () => void;
   /** Callback when image fails to load */
@@ -41,6 +45,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   priority = false,
   fallbackSrc,
   aspectRatio,
+  srcSet,
+  sizes,
   onLoad,
   onError,
   ...props 
@@ -84,6 +90,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
       {/* Actual Image */}
       <img
         src={currentSrc}
+        srcSet={srcSet}
+        sizes={sizes}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}

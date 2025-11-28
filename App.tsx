@@ -12,6 +12,7 @@ import { AnnounceProvider } from './context/AnnounceContext';
 import ToastContainer from './components/ToastContainer';
 import NetworkStatus from './components/NetworkStatus';
 import RouteErrorBoundary from './components/RouteErrorBoundary';
+import TopProgressBar from './components/TopProgressBar';
 
 // Skeletons
 import ServiceDetailSkeleton from './components/skeletons/ServiceDetailSkeleton';
@@ -62,6 +63,7 @@ const App: React.FC = () => {
     <AnnounceProvider>
       <ToastProvider>
         <HashRouter>
+          <TopProgressBar />
           <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white print:hidden">
             Skip to content
           </a>

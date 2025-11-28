@@ -38,7 +38,7 @@ export const IMPORTANT_LINKS = [
  * 2. Review CBIC notifications for GST due dates
  * 3. Check MCA for ROC filing deadlines
  * 4. Verify PF/ESI payment dates
- * 5. Update month keys (e.g., "April 2026")
+ * 5. Update month keys (YYYY-MM format)
  * 6. Run generate-sitemap.js after updates
  * 
  * Sources:
@@ -47,18 +47,18 @@ export const IMPORTANT_LINKS = [
  * - mca.gov.in
  */
 export const COMPLIANCE_CALENDAR = {
-  "April 2025": [ { day: 7, desc: "TDS/TCS Payment for March", cat: "tds" }, { day: 10, desc: "GSTR-7 & GSTR-8 (Mar)", cat: "gst" }, { day: 11, desc: "GSTR-1 (Monthly, Mar)", cat: "gst" }, { day: 13, desc: "GSTR-1 (QRMP, Jan-Mar)", cat: "gst" }, { day: 15, desc: "PF & ESI Payment (Mar)", cat: "payroll" }, { day: 18, desc: "CMP-08 (Jan-Mar)", cat: "gst" }, { day: 20, desc: "GSTR-3B (Monthly, Mar)", cat: "gst" }, { day: 22, desc: "GSTR-3B (QRMP, Jan-Mar)", cat: "gst" }, { day: 30, desc: "GSTR-4 (Annual, FY 24-25)", cat: "gst" }, { day: 30, desc: "Form 11 (LLP Annual Return)", cat: "roc" } ],
-  "May 2025": [ { day: 7, desc: "TDS/TCS Payment (Apr)", cat: "tds" }, { day: 11, desc: "GSTR-1 (Monthly, Apr)", cat: "gst" }, { day: 15, desc: "TDS Quarterly Return (Q4, FY 24-25)", cat: "tds" }, { day: 15, desc: "PF & ESI Payment (Apr)", cat: "payroll" }, { day: 20, desc: "GSTR-3B (Monthly, Apr)", cat: "gst" } ],
-  "June 2025": [ { day: 7, desc: "TDS/TCS Payment (May)", cat: "tds" }, { day: 15, desc: "Advance Tax (1st Installment)", cat: "it" }, { day: 30, desc: "DPT-3 (Return of Deposits)", cat: "roc" } ],
-  "July 2025": [ { day: 15, desc: "TCS Quarterly Return (Q1)", cat: "tds" }, { day: 31, desc: "TDS Quarterly Return (Q1)", cat: "tds" } ],
-  "August 2025": [ { day: 7, desc: "TDS/TCS Payment (Jul)", cat: "tds" }, { day: 11, desc: "GSTR-1 (Monthly, Jul)", cat: "gst" }, { day: 14, desc: "Form 16/16A (Q1)", cat: "tds" }, { day: 20, desc: "GSTR-3B (Monthly, Jul)", cat: "gst" } ],
-  "September 2025": [ { day: 15, desc: "Advance Tax (2nd Installment)", cat: "it" }, { day: 30, desc: "ITR Filing (Non-Audit)", cat: "it" }, { day: 30, desc: "Tax Audit Report Filing", cat: "it" } ],
-  "October 2025": [ { day: 31, desc: "ITR Filing (Audit Cases)", cat: "it" }, { day: 31, desc: "Form 8 (LLP)", cat: "roc" } ],
-  "November 2025": [ { day: 14, desc: "Form 16/16A (Q2)", cat: "tds" }, { day: 15, desc: "TDS Quarterly Return (Q2)", cat: "tds" }, { day: 29, desc: "Form AOC-4 (Company)", cat: "roc" } ],
-  "December 2025": [ { day: 15, desc: "Advance Tax (3rd Installment)", cat: "it" }, { day: 31, desc: "Belated/Revised ITR (FY 24-25)", cat: "it" }, { day: 31, desc: "GSTR-9 & 9C (Annual)", cat: "gst" } ],
-  "January 2026": [ { day: 15, desc: "TCS Quarterly Return (Q3)", cat: "tds" }, { day: 31, desc: "TDS Quarterly Return (Q3)", cat: "tds" } ],
-  "February 2026": [ { day: 14, desc: "Form 16/16A (Q3)", cat: "tds" } ],
-  "March 2026": [ { day: 15, desc: "Advance Tax (Final Installment)", cat: "it" }, { day: 31, desc: "Updated Return (ITR-U) for FY 22-23", cat: "it" } ]
+  "2025-04": [ { day: 7, desc: "TDS/TCS Payment for March", cat: "tds" }, { day: 10, desc: "GSTR-7 & GSTR-8 (Mar)", cat: "gst" }, { day: 11, desc: "GSTR-1 (Monthly, Mar)", cat: "gst" }, { day: 13, desc: "GSTR-1 (QRMP, Jan-Mar)", cat: "gst" }, { day: 15, desc: "PF & ESI Payment (Mar)", cat: "payroll" }, { day: 18, desc: "CMP-08 (Jan-Mar)", cat: "gst" }, { day: 20, desc: "GSTR-3B (Monthly, Mar)", cat: "gst" }, { day: 22, desc: "GSTR-3B (QRMP, Jan-Mar)", cat: "gst" }, { day: 30, desc: "GSTR-4 (Annual, FY 24-25)", cat: "gst" }, { day: 30, desc: "Form 11 (LLP Annual Return)", cat: "roc" } ],
+  "2025-05": [ { day: 7, desc: "TDS/TCS Payment (Apr)", cat: "tds" }, { day: 11, desc: "GSTR-1 (Monthly, Apr)", cat: "gst" }, { day: 15, desc: "TDS Quarterly Return (Q4, FY 24-25)", cat: "tds" }, { day: 15, desc: "PF & ESI Payment (Apr)", cat: "payroll" }, { day: 20, desc: "GSTR-3B (Monthly, Apr)", cat: "gst" } ],
+  "2025-06": [ { day: 7, desc: "TDS/TCS Payment (May)", cat: "tds" }, { day: 15, desc: "Advance Tax (1st Installment)", cat: "it" }, { day: 30, desc: "DPT-3 (Return of Deposits)", cat: "roc" } ],
+  "2025-07": [ { day: 15, desc: "TCS Quarterly Return (Q1)", cat: "tds" }, { day: 31, desc: "TDS Quarterly Return (Q1)", cat: "tds" } ],
+  "2025-08": [ { day: 7, desc: "TDS/TCS Payment (Jul)", cat: "tds" }, { day: 11, desc: "GSTR-1 (Monthly, Jul)", cat: "gst" }, { day: 14, desc: "Form 16/16A (Q1)", cat: "tds" }, { day: 20, desc: "GSTR-3B (Monthly, Jul)", cat: "gst" } ],
+  "2025-09": [ { day: 15, desc: "Advance Tax (2nd Installment)", cat: "it" }, { day: 30, desc: "ITR Filing (Non-Audit)", cat: "it" }, { day: 30, desc: "Tax Audit Report Filing", cat: "it" } ],
+  "2025-10": [ { day: 31, desc: "ITR Filing (Audit Cases)", cat: "it" }, { day: 31, desc: "Form 8 (LLP)", cat: "roc" } ],
+  "2025-11": [ { day: 14, desc: "Form 16/16A (Q2)", cat: "tds" }, { day: 15, desc: "TDS Quarterly Return (Q2)", cat: "tds" }, { day: 29, desc: "Form AOC-4 (Company)", cat: "roc" } ],
+  "2025-12": [ { day: 15, desc: "Advance Tax (3rd Installment)", cat: "it" }, { day: 31, desc: "Belated/Revised ITR (FY 24-25)", cat: "it" }, { day: 31, desc: "GSTR-9 & 9C (Annual)", cat: "gst" } ],
+  "2026-01": [ { day: 15, desc: "TCS Quarterly Return (Q3)", cat: "tds" }, { day: 31, desc: "TDS Quarterly Return (Q3)", cat: "tds" } ],
+  "2026-02": [ { day: 14, desc: "Form 16/16A (Q3)", cat: "tds" } ],
+  "2026-03": [ { day: 15, desc: "Advance Tax (Final Installment)", cat: "it" }, { day: 31, desc: "Updated Return (ITR-U) for FY 22-23", cat: "it" } ]
 };
 
 export const CHECKLIST_DATA: Record<string, { title: string, subtitle: string, sections: { title: string, items: string[] }[] }> = {

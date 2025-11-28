@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Mail, Phone, ChevronDown, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { SERVICES } from '../constants';
@@ -10,6 +9,7 @@ import { useRateLimit } from '../hooks/useRateLimit';
 import { useToast } from '../hooks/useToast';
 import { sanitizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
+import { validateEmail, validatePhone } from '../utils/validation';
 
 const Contact: React.FC = () => {
   const [subject, setSubject] = useState('');
@@ -104,6 +104,28 @@ const Contact: React.FC = () => {
     if (!canSubmit) {
        addToast(`Rate limit exceeded. Please wait ${timeUntilReset} seconds.`, "error");
        return;
+    }
+
+    // Validation
+    if (!formData.name.trim()) {
+      addToast("Name is required.", "error");
+      return;
+    }
+    if (!validatePhone(formData.phone)) {
+      addToast("Please enter a valid Indian mobile number.", "error");
+      return;
+    }
+    if (formData.email && !validateEmail(formData.email)) {
+      addToast("Please enter a valid email address.", "error");
+      return;
+    }
+    if (!subject) {
+      addToast("Please select a subject.", "error");
+      return;
+    }
+    if (!formData.message.trim()) {
+      addToast("Message cannot be empty.", "error");
+      return;
     }
 
     setIsSubmitting(true);

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Printer } from 'lucide-react';
 import { CONTACT_INFO } from '../../config/contact';
 import { COMPLIANCE_CALENDAR } from '../../constants';
+import { formatCalendarMonth, getMonthAbbreviation } from '../../utils/dateUtils';
 
 const ComplianceCalendar: React.FC = () => {
   const [calFilter, setCalFilter] = useState('all');
@@ -20,6 +21,9 @@ const ComplianceCalendar: React.FC = () => {
   };
 
   const categoryMap: Record<string, string> = { gst: 'GST', it: 'Income Tax', tds: 'TDS/TCS', roc: 'ROC', payroll: 'Payroll' };
+
+  // Sort months chronologically
+  const sortedMonths = Object.keys(COMPLIANCE_CALENDAR).sort();
 
   return (
     <div className="bg-brand-surface rounded-[2.5rem] p-8 md:p-12 border border-brand-border shadow-sm print:shadow-none print:border-0 print:p-0 animate-fade-in-up">
@@ -46,7 +50,11 @@ const ComplianceCalendar: React.FC = () => {
     </div>
 
     <div className="space-y-8">
-        {Object.entries(COMPLIANCE_CALENDAR).map(([month, events], idx) => {
+        {sortedMonths.map((monthKey, idx) => {
+            const events = COMPLIANCE_CALENDAR[monthKey as keyof typeof COMPLIANCE_CALENDAR];
+            const displayMonth = formatCalendarMonth(monthKey);
+            const monthAbbr = getMonthAbbreviation(monthKey);
+
             const filteredEvents = events.filter(e => 
                 (calFilter === 'all' || e.cat === calFilter) && 
                 (e.desc.toLowerCase().includes(calSearch.toLowerCase()))
@@ -56,12 +64,12 @@ const ComplianceCalendar: React.FC = () => {
 
             return (
                 <div key={idx} className="break-inside-avoid">
-                <h3 className="text-xl font-bold text-brand-dark mb-4 sticky top-0 bg-brand-surface py-2 border-b border-brand-border/50 print:static print:bg-white print:border-black">{month}</h3>
+                <h3 className="text-xl font-bold text-brand-dark mb-4 sticky top-0 bg-brand-surface py-2 border-b border-brand-border/50 print:static print:bg-white print:border-black">{displayMonth}</h3>
                 <div className="grid gap-3">
                     {filteredEvents.map((event, i) => (
                         <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-brand-bg border border-brand-border/50 hover:border-brand-moss/30 transition-colors print:bg-white print:border-gray-200">
                             <div className="w-12 h-12 flex flex-col items-center justify-center bg-white rounded-lg border border-brand-border shadow-sm shrink-0 print:border-black">
-                            <span className="text-xs font-bold text-brand-moss uppercase leading-none print:text-black">{month.slice(0,3)}</span>
+                            <span className="text-xs font-bold text-brand-moss uppercase leading-none print:text-black">{monthAbbr}</span>
                             <span className="text-lg font-bold text-brand-dark leading-none mt-1">{event.day}</span>
                             </div>
                             <div className="flex-grow">

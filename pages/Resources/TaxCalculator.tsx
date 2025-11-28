@@ -1,10 +1,206 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ArrowRight, RotateCcw, Calculator, Printer, Info, HelpCircle, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import CustomDropdown from '../../components/forms/CustomDropdown';
 import { CONTACT_INFO } from '../../config/contact';
 
+// Define types outside component
+interface TaxResult {
+  grossIncome: number;
+  stdDeduction: number;
+  chapterVIA: number;
+  totalDeductions: number;
+  taxableIncome: number;
+  taxOnIncome: number;
+  rebate: number;
+  surcharge: number;
+  marginalRelief: number;
+  cess: number;
+  totalTax: number;
+}
+
+interface IncomeHeads {
+  salary: number;
+  houseProperty: number;
+  business: number;
+  capitalGains: number;
+  otherSources: number;
+}
+
+interface Deductions {
+  d80c: number;
+  d80d: number;
+  hra: number;
+  d80e: number;
+  d80g: number;
+  d80tta: number;
+  d80ttb: number;
+  nps: number;
+  other: number;
+}
+
+// Pure calculation function extracted for performance and memoization
+const calculateRegimeTax = (
+  r: 'new' | 'old', 
+  incomes: IncomeHeads, 
+  deds: Deductions, 
+  age: string
+): TaxResult => {
+  
+  // 1. Gross Total Income
+  const grossIncome = Object.values(incomes).reduce((a, b) => a + Number(b), 0);
+
+  // 2. Standard Deduction (Salary)
+  const stdDedLimit = r === 'new' ? 75000 : 50000;
+  const stdDeduction = Math.min(Number(incomes.salary), stdDedLimit);
+
+  // 3. Chapter VI-A Deductions
+  let chapterVIA = 0;
+
+  if (r === 'old') {
+    const d80c = Math.min(Number(deds.d80c), 150000); 
+    const d80d = Number(deds.d80d);
+    const d80e = Number(deds.d80e);
+    const d80g = Number(deds.d80g);
+    const nps = Math.min(Number(deds.nps), 50000); 
+    
+    let interestDed = 0;
+    if (age === 'below60') {
+      interestDed = Math.min(Number(deds.d80tta), 10000);
+    } else {
+      interestDed = Math.min(Number(deds.d80ttb), 50000);
+    }
+
+    chapterVIA = d80c + d80d + Number(deds.hra) + d80e + d80g + nps + interestDed + Number(deds.other);
+  } else {
+    chapterVIA = 0; 
+  }
+
+  const totalDeductions = stdDeduction + chapterVIA;
+  const taxableIncome = Math.max(0, grossIncome - totalDeductions);
+
+  // 4. Tax Slab Calculation
+  let tax = 0;
+
+  if (r === 'new') {
+    if (taxableIncome > 2400000) tax += (taxableIncome - 2400000) * 0.30;
+    if (taxableIncome > 2000000) tax += Math.min(Math.max(0, taxableIncome - 2000000), 400000) * 0.25;
+    if (taxableIncome > 1600000) tax += Math.min(Math.max(0, taxableIncome - 1600000), 400000) * 0.20;
+    if (taxableIncome > 1200000) tax += Math.min(Math.max(0, taxableIncome - 1200000), 400000) * 0.15;
+    if (taxableIncome > 800000)  tax += Math.min(Math.max(0, taxableIncome - 800000), 400000) * 0.10;
+    if (taxableIncome > 400000)  tax += Math.min(Math.max(0, taxableIncome - 400000), 400000) * 0.05;
+  } else {
+    let slab1 = 250000;
+    let slab2 = 500000;
+    
+    if (age === '60to80') slab1 = 300000;
+    if (age === 'above80') { slab1 = 500000; slab2 = 500000; } 
+
+    if (taxableIncome > 1000000) tax += (taxableIncome - 1000000) * 0.30;
+    if (taxableIncome > 500000)  tax += Math.min(Math.max(0, taxableIncome - 500000), 500000) * 0.20;
+    if (taxableIncome > slab1)   tax += Math.min(Math.max(0, taxableIncome - slab1), slab2 - slab1) * 0.05;
+  }
+
+  // 5. Rebate u/s 87A
+  let rebate = 0;
+  let marginalRelief87A = 0;
+
+  if (r === 'new') {
+     if (taxableIncome <= 1200000) {
+       rebate = tax;
+     } else {
+       if (taxableIncome <= 1275000) { 
+           const excessIncome = taxableIncome - 1200000;
+           if (tax > excessIncome) {
+               marginalRelief87A = tax - excessIncome;
+           }
+       }
+     }
+  } else {
+     if (taxableIncome <= 500000) {
+       rebate = Math.min(tax, 12500);
+     }
+  }
+
+  let taxAfterRebate = Math.max(0, tax - rebate - marginalRelief87A);
+
+  // 6. Surcharge
+  let surcharge = 0;
+  let surchargeRate = 0;
+
+  if (taxableIncome > 5000000) {
+      if (taxableIncome <= 10000000) surchargeRate = 0.10;
+      else if (taxableIncome <= 20000000) surchargeRate = 0.15;
+      else if (taxableIncome <= 50000000) surchargeRate = 0.25;
+      else surchargeRate = r === 'new' ? 0.25 : 0.37; 
+  }
+
+  let basicSurcharge = taxAfterRebate * surchargeRate;
+  let taxWithSurcharge = taxAfterRebate + basicSurcharge;
+  let surchargeMarginalRelief = 0;
+
+  if (surchargeRate > 0) {
+      let threshold = 0;
+      if (taxableIncome > 50000000) threshold = 50000000;
+      else if (taxableIncome > 20000000) threshold = 20000000;
+      else if (taxableIncome > 10000000) threshold = 10000000;
+      else if (taxableIncome > 5000000) threshold = 5000000;
+
+      let tTax = 0;
+      let tVal = threshold;
+      if (r === 'new') {
+          if (tVal > 2400000) tTax += (tVal - 2400000) * 0.30;
+          if (tVal > 2000000) tTax += 400000 * 0.25;
+          if (tVal > 1600000) tTax += 400000 * 0.20;
+          if (tVal > 1200000) tTax += 400000 * 0.15;
+          if (tVal > 800000) tTax += 400000 * 0.10;
+          if (tVal > 400000) tTax += 400000 * 0.05;
+      } else {
+           let s1 = age === '60to80' ? 300000 : (age === 'above80' ? 500000 : 250000);
+           if (tVal > 1000000) tTax += (tVal - 1000000) * 0.30;
+           if (tVal > 500000) tTax += 500000 * 0.20;
+           if (tVal > s1 && age !== 'above80') tTax += (500000 - s1) * 0.05;
+      }
+      
+      let tSurchargeRate = 0;
+      if (threshold === 10000000) tSurchargeRate = 0.10;
+      if (threshold === 20000000) tSurchargeRate = 0.15;
+      if (threshold === 50000000) tSurchargeRate = 0.25;
+      
+      let tTotal = tTax + (tTax * tSurchargeRate);
+      let maxPayable = tTotal + (taxableIncome - threshold);
+      
+      if (taxWithSurcharge > maxPayable) {
+          surchargeMarginalRelief = taxWithSurcharge - maxPayable;
+          surcharge = basicSurcharge - surchargeMarginalRelief;
+      } else {
+          surcharge = basicSurcharge;
+      }
+  } else {
+      surcharge = basicSurcharge;
+  }
+
+  const totalMarginalRelief = marginalRelief87A + surchargeMarginalRelief;
+  const finalTaxBeforeCess = Math.max(0, tax + surcharge - rebate - totalMarginalRelief);
+  const cess = finalTaxBeforeCess * 0.04;
+  const totalTax = finalTaxBeforeCess + cess;
+
+  return {
+      grossIncome,
+      stdDeduction,
+      chapterVIA,
+      totalDeductions,
+      taxableIncome,
+      taxOnIncome: tax,
+      rebate,
+      surcharge,
+      marginalRelief: totalMarginalRelief,
+      cess,
+      totalTax
+  };
+};
+
 const TaxCalculator: React.FC = () => {
-  const [incomeHeads, setIncomeHeads] = useState({
+  const [incomeHeads, setIncomeHeads] = useState<IncomeHeads>({
     salary: 0,
     houseProperty: 0,
     business: 0,
@@ -14,8 +210,9 @@ const TaxCalculator: React.FC = () => {
 
   const [ageGroup, setAgeGroup] = useState('below60');
   const [regime, setRegime] = useState<'new' | 'old'>('new');
+  const [showResults, setShowResults] = useState(false);
   
-  const [deductions, setDeductions] = useState({
+  const [deductions, setDeductions] = useState<Deductions>({
     d80c: 0,
     d80d: 0,
     hra: 0,
@@ -29,27 +226,6 @@ const TaxCalculator: React.FC = () => {
 
   const [showDeductions, setShowDeductions] = useState(false);
   
-  interface TaxResult {
-    grossIncome: number;
-    stdDeduction: number;
-    chapterVIA: number;
-    totalDeductions: number;
-    taxableIncome: number;
-    taxOnIncome: number;
-    rebate: number;
-    surcharge: number;
-    marginalRelief: number;
-    cess: number;
-    totalTax: number;
-  }
-
-  const [comparison, setComparison] = useState<{
-    new: TaxResult,
-    old: TaxResult,
-    recommendation: 'new' | 'old' | 'equal',
-    savings: number
-  } | null>(null);
-
   const handlePrint = () => {
     window.print();
   };
@@ -60,167 +236,8 @@ const TaxCalculator: React.FC = () => {
     'above80': 'Super Senior (80+)'
   };
 
-  const calculateRegimeTax = (
-    r: 'new' | 'old', 
-    incomes: typeof incomeHeads, 
-    deds: typeof deductions, 
-    age: string
-  ): TaxResult => {
-    
-    // 1. Gross Total Income
-    const grossIncome = Object.values(incomes).reduce((a, b) => a + Number(b), 0);
-
-    // 2. Standard Deduction (Salary)
-    const stdDedLimit = r === 'new' ? 75000 : 50000;
-    const stdDeduction = Math.min(Number(incomes.salary), stdDedLimit);
-
-    // 3. Chapter VI-A Deductions
-    let chapterVIA = 0;
-
-    if (r === 'old') {
-      const d80c = Math.min(Number(deds.d80c), 150000); 
-      const d80d = Number(deds.d80d);
-      const d80e = Number(deds.d80e);
-      const d80g = Number(deds.d80g);
-      const nps = Math.min(Number(deds.nps), 50000); 
-      
-      let interestDed = 0;
-      if (age === 'below60') {
-        interestDed = Math.min(Number(deds.d80tta), 10000);
-      } else {
-        interestDed = Math.min(Number(deds.d80ttb), 50000);
-      }
-
-      chapterVIA = d80c + d80d + Number(deds.hra) + d80e + d80g + nps + interestDed + Number(deds.other);
-    } else {
-      chapterVIA = 0; 
-    }
-
-    const totalDeductions = stdDeduction + chapterVIA;
-    const taxableIncome = Math.max(0, grossIncome - totalDeductions);
-
-    // 4. Tax Slab Calculation
-    let tax = 0;
-
-    if (r === 'new') {
-      if (taxableIncome > 2400000) tax += (taxableIncome - 2400000) * 0.30;
-      if (taxableIncome > 2000000) tax += Math.min(Math.max(0, taxableIncome - 2000000), 400000) * 0.25;
-      if (taxableIncome > 1600000) tax += Math.min(Math.max(0, taxableIncome - 1600000), 400000) * 0.20;
-      if (taxableIncome > 1200000) tax += Math.min(Math.max(0, taxableIncome - 1200000), 400000) * 0.15;
-      if (taxableIncome > 800000)  tax += Math.min(Math.max(0, taxableIncome - 800000), 400000) * 0.10;
-      if (taxableIncome > 400000)  tax += Math.min(Math.max(0, taxableIncome - 400000), 400000) * 0.05;
-    } else {
-      let slab1 = 250000;
-      let slab2 = 500000;
-      
-      if (age === '60to80') slab1 = 300000;
-      if (age === 'above80') { slab1 = 500000; slab2 = 500000; } 
-
-      if (taxableIncome > 1000000) tax += (taxableIncome - 1000000) * 0.30;
-      if (taxableIncome > 500000)  tax += Math.min(Math.max(0, taxableIncome - 500000), 500000) * 0.20;
-      if (taxableIncome > slab1)   tax += Math.min(Math.max(0, taxableIncome - slab1), slab2 - slab1) * 0.05;
-    }
-
-    // 5. Rebate u/s 87A
-    let rebate = 0;
-    let marginalRelief87A = 0;
-
-    if (r === 'new') {
-       if (taxableIncome <= 1200000) {
-         rebate = tax;
-       } else {
-         if (taxableIncome <= 1275000) { 
-             const excessIncome = taxableIncome - 1200000;
-             if (tax > excessIncome) {
-                 marginalRelief87A = tax - excessIncome;
-             }
-         }
-       }
-    } else {
-       if (taxableIncome <= 500000) {
-         rebate = Math.min(tax, 12500);
-       }
-    }
-
-    let taxAfterRebate = Math.max(0, tax - rebate - marginalRelief87A);
-
-    // 6. Surcharge
-    let surcharge = 0;
-    let surchargeRate = 0;
-
-    if (taxableIncome > 5000000) {
-        if (taxableIncome <= 10000000) surchargeRate = 0.10;
-        else if (taxableIncome <= 20000000) surchargeRate = 0.15;
-        else if (taxableIncome <= 50000000) surchargeRate = 0.25;
-        else surchargeRate = r === 'new' ? 0.25 : 0.37; 
-    }
-
-    let basicSurcharge = taxAfterRebate * surchargeRate;
-    let taxWithSurcharge = taxAfterRebate + basicSurcharge;
-    let surchargeMarginalRelief = 0;
-
-    if (surchargeRate > 0) {
-        let threshold = 0;
-        if (taxableIncome > 50000000) threshold = 50000000;
-        else if (taxableIncome > 20000000) threshold = 20000000;
-        else if (taxableIncome > 10000000) threshold = 10000000;
-        else if (taxableIncome > 5000000) threshold = 5000000;
-
-        let tTax = 0;
-        let tVal = threshold;
-        if (r === 'new') {
-            if (tVal > 2400000) tTax += (tVal - 2400000) * 0.30;
-            if (tVal > 2000000) tTax += 400000 * 0.25;
-            if (tVal > 1600000) tTax += 400000 * 0.20;
-            if (tVal > 1200000) tTax += 400000 * 0.15;
-            if (tVal > 800000) tTax += 400000 * 0.10;
-            if (tVal > 400000) tTax += 400000 * 0.05;
-        } else {
-             let s1 = age === '60to80' ? 300000 : (age === 'above80' ? 500000 : 250000);
-             if (tVal > 1000000) tTax += (tVal - 1000000) * 0.30;
-             if (tVal > 500000) tTax += 500000 * 0.20;
-             if (tVal > s1 && age !== 'above80') tTax += (500000 - s1) * 0.05;
-        }
-        
-        let tSurchargeRate = 0;
-        if (threshold === 10000000) tSurchargeRate = 0.10;
-        if (threshold === 20000000) tSurchargeRate = 0.15;
-        if (threshold === 50000000) tSurchargeRate = 0.25;
-        
-        let tTotal = tTax + (tTax * tSurchargeRate);
-        let maxPayable = tTotal + (taxableIncome - threshold);
-        
-        if (taxWithSurcharge > maxPayable) {
-            surchargeMarginalRelief = taxWithSurcharge - maxPayable;
-            surcharge = basicSurcharge - surchargeMarginalRelief;
-        } else {
-            surcharge = basicSurcharge;
-        }
-    } else {
-        surcharge = basicSurcharge;
-    }
-
-    const totalMarginalRelief = marginalRelief87A + surchargeMarginalRelief;
-    const finalTaxBeforeCess = Math.max(0, tax + surcharge - rebate - totalMarginalRelief);
-    const cess = finalTaxBeforeCess * 0.04;
-    const totalTax = finalTaxBeforeCess + cess;
-
-    return {
-        grossIncome,
-        stdDeduction,
-        chapterVIA,
-        totalDeductions,
-        taxableIncome,
-        taxOnIncome: tax,
-        rebate,
-        surcharge,
-        marginalRelief: totalMarginalRelief,
-        cess,
-        totalTax
-    };
-  };
-
-  const calculateAndCompare = () => {
+  // Memoized comparison results
+  const comparison = useMemo(() => {
     const newRegimeTax = calculateRegimeTax('new', incomeHeads, deductions, ageGroup);
     const oldRegimeTax = calculateRegimeTax('old', incomeHeads, deductions, ageGroup);
     
@@ -235,18 +252,23 @@ const TaxCalculator: React.FC = () => {
         savings = newRegimeTax.totalTax - oldRegimeTax.totalTax;
     }
 
-    setComparison({
+    return {
         new: newRegimeTax,
         old: oldRegimeTax,
         recommendation,
         savings
-    });
+    };
+  }, [incomeHeads, deductions, ageGroup]);
+
+  const handleCalculate = () => {
+    setShowResults(true);
+    // Optional: scroll to results could go here
   };
 
   const handleClear = () => {
     setIncomeHeads({ salary: 0, houseProperty: 0, business: 0, capitalGains: 0, otherSources: 0 });
     setDeductions({ d80c: 0, d80d: 0, hra: 0, d80e: 0, d80g: 0, d80tta: 0, d80ttb: 0, nps: 0, other: 0 });
-    setComparison(null);
+    setShowResults(false);
   };
 
   return (
@@ -464,7 +486,7 @@ const TaxCalculator: React.FC = () => {
 
                 <div className="flex gap-3 pt-2">
                     <button 
-                    onClick={calculateAndCompare} 
+                    onClick={handleCalculate} 
                     className="flex-1 py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-brand-moss transition-all shadow-lg flex items-center justify-center gap-2 group"
                     >
                     Compare & Calculate <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
@@ -480,7 +502,7 @@ const TaxCalculator: React.FC = () => {
             </div>
 
             {/* RECOMMENDATION BANNER */}
-            {comparison && (
+            {showResults && (
             <div className={`p-4 rounded-xl border flex items-start gap-3 animate-fade-in-up ${comparison.recommendation === 'new' ? 'bg-green-50 border-green-200 text-green-900' : comparison.recommendation === 'old' ? 'bg-blue-50 border-blue-200 text-blue-900' : 'bg-gray-50 border-gray-200 text-gray-800'}`}>
                 <div className="mt-0.5 shrink-0">
                     {comparison.recommendation === 'equal' ? <Info size={20}/> : <Check size={20} className="font-bold"/>}
@@ -497,7 +519,7 @@ const TaxCalculator: React.FC = () => {
             )}
 
             {/* RESULTS PANEL */}
-            {comparison && (
+            {showResults && (
                 <div className="bg-white border border-brand-border rounded-2xl p-6 md:p-8 animate-scale-in print:border-black print:border-2">
                 <div className="flex items-center justify-between mb-6 border-b border-brand-border pb-4 print:border-black">
                     <div className="flex items-center gap-2">

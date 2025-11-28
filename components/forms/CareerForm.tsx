@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
@@ -10,6 +9,7 @@ import { useFormDraft } from '../../hooks/useFormDraft';
 import { CONTACT_INFO } from '../../config/contact';
 import { sanitizeInput } from '../../utils/sanitize';
 import { logger } from '../../utils/logger';
+import { validateEmail, validatePhone } from '../../utils/validation';
 
 interface CareerFormProps {
   initialPosition?: string;
@@ -119,8 +119,8 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     }
     if (step === 2) {
       return validate({
-        mobile: (val) => !val.mobile.trim() ? "Mobile number is required" : !/^\+?[\d\s-]{10,}$/.test(val.mobile) ? "Invalid mobile number" : undefined,
-        email: (val) => !val.email.trim() ? "Email is required" : !/\S+@\S+\.\S+/.test(val.email) ? "Invalid email address" : undefined,
+        mobile: (val) => !val.mobile.trim() ? "Mobile number is required" : !validatePhone(val.mobile) ? "Invalid Indian mobile number" : undefined,
+        email: (val) => !val.email.trim() ? "Email is required" : !validateEmail(val.email) ? "Invalid email address" : undefined,
       });
     }
     if (step === 3) {
