@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Calculator, Calendar, FileText } from 'lucide-react';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
-import { CONTACT_INFO } from '../config/contact';
-import TaxCalculator from './Resources/TaxCalculator';
+import { CONTACT_INFO } from '../constants';
+import TaxCalculator from '../components/TaxCalculator';
 import ComplianceCalendar from './Resources/ComplianceCalendar';
 import ChecklistGrid from './Resources/ChecklistGrid';
 

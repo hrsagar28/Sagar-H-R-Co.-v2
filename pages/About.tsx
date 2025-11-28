@@ -4,7 +4,7 @@ import { Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
 import OptimizedImage from '../components/OptimizedImage';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
-import { CONTACT_INFO } from '../config/contact';
+import { CONTACT_INFO } from '../constants';
 
 const About: React.FC = () => {
   const schema = {

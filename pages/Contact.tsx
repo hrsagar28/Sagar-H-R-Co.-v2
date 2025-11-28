@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Mail, Phone, ChevronDown, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { SERVICES } from '../constants';
-import { CONTACT_INFO } from '../config/contact';
+import { CONTACT_INFO } from '../constants';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
@@ -302,6 +302,7 @@ const Contact: React.FC = () => {
                             name="name" 
                             type="text" 
                             required 
+                            maxLength={100}
                             value={formData.name}
                             onChange={handleChange}
                             className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
@@ -318,6 +319,7 @@ const Contact: React.FC = () => {
                             id="company"
                             name="company" 
                             type="text" 
+                            maxLength={100}
                             value={formData.company}
                             onChange={handleChange}
                             className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
@@ -337,6 +339,7 @@ const Contact: React.FC = () => {
                             name="phone"
                             type="tel" 
                             required
+                            maxLength={15}
                             value={formData.phone}
                             onChange={handleChange}
                             className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
@@ -353,6 +356,7 @@ const Contact: React.FC = () => {
                             id="email" 
                             name="email"
                             type="email" 
+                            maxLength={100}
                             value={formData.email}
                             onChange={handleChange}
                             className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
@@ -414,6 +418,7 @@ const Contact: React.FC = () => {
                           name="message"
                           rows={5} 
                           required
+                          maxLength={2000}
                           value={formData.message}
                           onChange={handleChange}
                           className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all resize-none placeholder:text-brand-stone/40"

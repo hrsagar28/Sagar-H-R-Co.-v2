@@ -3,7 +3,7 @@ import { FAQS } from '../constants';
 import { Plus, Minus } from 'lucide-react';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
-import { CONTACT_INFO } from '../config/contact';
+import { CONTACT_INFO } from '../constants';
 
 const FAQ: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);

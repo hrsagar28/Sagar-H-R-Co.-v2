@@ -4,7 +4,7 @@ import { SERVICE_DETAILS } from '../constants';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { CONTACT_INFO } from '../config/contact';
+import { CONTACT_INFO } from '../constants';
 
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

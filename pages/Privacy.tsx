@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { CONTACT_INFO } from '../config/contact';
+import { CONTACT_INFO } from '../constants';
 
 const Privacy: React.FC = () => {
   return (

@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
 import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin, ArrowUp, Link as LinkIcon, ArrowUpRight } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { CONTACT_INFO } from '../config/contact';
+import { CONTACT_INFO } from '../constants';
 import { logger } from '../utils/logger';
 import { sanitizeHTML } from '../utils/sanitize';
 

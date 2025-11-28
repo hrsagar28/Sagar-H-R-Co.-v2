@@ -1,10 +1,9 @@
 import React from 'react';
 import ServiceBento from '../components/ServiceBento';
 import IndustrySpotlight from '../components/IndustrySpotlight';
-import { SERVICES } from '../constants';
+import { SERVICES, CONTACT_INFO } from '../constants';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
-import { CONTACT_INFO } from '../config/contact';
 
 const Services: React.FC = () => {
   const schema = {

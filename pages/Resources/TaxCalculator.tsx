@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ArrowRight, RotateCcw, Calculator, Printer, Info, HelpCircle, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import CustomDropdown from '../../components/forms/CustomDropdown';
-import { CONTACT_INFO } from '../../config/contact';
+import { CONTACT_INFO } from '../../constants';
 
 // Define types outside component
 interface TaxResult {

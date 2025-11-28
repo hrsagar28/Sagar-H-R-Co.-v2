@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Printer } from 'lucide-react';
-import { CONTACT_INFO } from '../../config/contact';
+import { CONTACT_INFO } from '../../constants';
 import { COMPLIANCE_CALENDAR } from '../../constants';
 import { formatCalendarMonth, getMonthAbbreviation } from '../../utils/dateUtils';
 

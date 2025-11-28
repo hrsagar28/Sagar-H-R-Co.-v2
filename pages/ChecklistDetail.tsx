@@ -4,6 +4,7 @@ import { CHECKLIST_DATA } from '../constants';
 import { Printer, CheckSquare } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { sanitizeHTML } from '../utils/sanitize';
 
 const ChecklistDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -67,7 +68,7 @@ const ChecklistDetail: React.FC = () => {
                          <CheckSquare size={20} className="print:hidden" />
                          <span className="hidden print:inline-block w-4 h-4 border-2 border-black mr-2"></span>
                        </div>
-                       <span className="text-brand-stone font-medium text-lg leading-relaxed print:text-black print:text-base" dangerouslySetInnerHTML={{ __html: item }}></span>
+                       <span className="text-brand-stone font-medium text-lg leading-relaxed print:text-black print:text-base" dangerouslySetInnerHTML={{ __html: sanitizeHTML(item) }}></span>
                      </li>
                    ))}
                  </ul>

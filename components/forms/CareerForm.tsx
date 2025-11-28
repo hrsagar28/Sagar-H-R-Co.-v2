@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
@@ -355,6 +354,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.fullName}
                   onChange={onInputChange}
                   placeholder="John Doe"
+                  maxLength={100}
                   className={`w-full bg-brand-bg border ${errors.fullName ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
                 {errors.fullName && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.fullName}</p>}
@@ -371,6 +371,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.fatherName}
                   onChange={onInputChange}
                   placeholder="Father's Full Name"
+                  maxLength={100}
                   className={`w-full bg-brand-bg border ${errors.fatherName ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
                 {errors.fatherName && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.fatherName}</p>}
@@ -404,6 +405,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.mobile}
                   onChange={onInputChange}
                   placeholder="+91 98765 43210"
+                  maxLength={15}
                   className={`w-full bg-brand-bg border ${errors.mobile ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
                 {errors.mobile && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.mobile}</p>}
@@ -420,6 +422,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.email}
                   onChange={onInputChange}
                   placeholder="john@example.com"
+                  maxLength={100}
                   className={`w-full bg-brand-bg border ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
                 {errors.email && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.email}</p>}
@@ -454,6 +457,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.qualification}
                   onChange={onInputChange}
                   placeholder="e.g. B.Com, CA Inter, MBA"
+                  maxLength={200}
                   className={`w-full bg-brand-bg border ${errors.qualification ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
                 {errors.qualification && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.qualification}</p>}
@@ -482,6 +486,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.previousCompanies}
                   onChange={onInputChange}
                   rows={3}
+                  maxLength={500}
                   placeholder="List your previous employers..."
                   className="w-full bg-brand-bg border border-brand-border py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all resize-none"
                 ></textarea>
