@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { logger } from '../utils/logger';
 
 /**
  * Hook to auto-save form progress to localStorage.
@@ -43,9 +44,16 @@ export function useFormDraft<T>(
         values: currentValues,
         timestamp: Date.now()
       };
-      localStorage.setItem(key, JSON.stringify(payload));
-      setLastSaved(new Date());
-      setHasDraft(true);
+      
+      try {
+        localStorage.setItem(key, JSON.stringify(payload));
+        setLastSaved(new Date());
+        setHasDraft(true);
+      } catch (e) {
+        if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+           logger.warn('Failed to save draft: localStorage quota exceeded');
+        }
+      }
     }, debounceMs);
 
     return () => clearTimeout(handler);

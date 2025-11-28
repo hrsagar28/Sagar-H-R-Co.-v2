@@ -29,6 +29,8 @@ export { default as WhatsAppWidget } from './WhatsAppWidget';
 export { default as ContactSkeleton } from './skeletons/ContactSkeleton';
 export { default as InsightDetailSkeleton } from './skeletons/InsightDetailSkeleton';
 export { default as ServiceDetailSkeleton } from './skeletons/ServiceDetailSkeleton';
+export { default as FAQSkeleton } from './skeletons/FAQSkeleton';
+export { default as ResourcesSkeleton } from './skeletons/ResourcesSkeleton';
 
 // Forms
 export { default as CareerForm } from './forms/CareerForm';

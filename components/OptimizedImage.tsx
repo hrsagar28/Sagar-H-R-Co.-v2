@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Source URL of the image */
@@ -17,6 +17,8 @@ interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
   srcSet?: string;
   /** Responsive image sizes */
   sizes?: string;
+  /** If true, automatically generates srcSet for Unsplash images */
+  generateSrcSet?: boolean;
   /** Callback when image loads successfully */
   onLoad?: () => void;
   /** Callback when image fails to load */
@@ -27,13 +29,13 @@ interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
  * OptimizedImage Component
  * 
  * Handles progressive loading with a blur-up effect.
- * Provides fallback support and custom aspect ratio handling.
+ * Provides fallback support, custom aspect ratio handling, and automatic srcSet generation.
  * 
  * @example
  * <OptimizedImage 
- *   src="/path/to/image.jpg" 
+ *   src="https://images.unsplash.com/photo-..." 
  *   alt="Description" 
- *   aspectRatio="16/9" 
+ *   generateSrcSet={true}
  *   className="rounded-xl" 
  * />
  */
@@ -47,6 +49,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   aspectRatio,
   srcSet,
   sizes,
+  generateSrcSet = false,
   onLoad,
   onError,
   ...props 
@@ -60,6 +63,33 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     setIsLoaded(false);
     setHasError(false);
   }, [src]);
+
+  // Automatically generate srcSet for Unsplash images if requested
+  const calculatedSrcSet = useMemo(() => {
+    if (srcSet) return srcSet;
+    if (!generateSrcSet) return undefined;
+    
+    // Check if it's an Unsplash URL
+    if (src.includes('images.unsplash.com')) {
+      try {
+        const urlObj = new URL(src);
+        const widths = [640, 1024, 1536, 2048];
+        return widths.map(w => {
+          // Clone the URL for each width
+          const newUrl = new URL(urlObj.toString());
+          newUrl.searchParams.set('w', w.toString());
+          // Ensure quality and format are optimized
+          if (!newUrl.searchParams.has('q')) newUrl.searchParams.set('q', '80');
+          if (!newUrl.searchParams.has('auto')) newUrl.searchParams.set('auto', 'format');
+          
+          return `${newUrl.toString()} ${w}w`;
+        }).join(', ');
+      } catch (e) {
+        return undefined;
+      }
+    }
+    return undefined;
+  }, [src, srcSet, generateSrcSet]);
 
   const handleLoad = () => {
     setIsLoaded(true);
@@ -90,8 +120,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
       {/* Actual Image */}
       <img
         src={currentSrc}
-        srcSet={srcSet}
-        sizes={sizes}
+        srcSet={calculatedSrcSet}
+        sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}

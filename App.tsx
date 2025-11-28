@@ -4,7 +4,7 @@ import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { 
   Navbar, Footer, CustomCursor, SmoothScroll, Preloader, WhatsAppWidget, 
   PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
-  ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton
+  ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton
 } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
@@ -127,8 +127,20 @@ const App: React.FC = () => {
                         </Suspense>
                       </RouteErrorBoundary>
                     } />
-                    <Route path="/faqs" element={<RouteErrorBoundary><FAQ /></RouteErrorBoundary>} />
-                    <Route path="/resources" element={<RouteErrorBoundary><Resources /></RouteErrorBoundary>} />
+                    <Route path="/faqs" element={
+                      <RouteErrorBoundary>
+                        <Suspense fallback={<FAQSkeleton />}>
+                          <FAQ />
+                        </Suspense>
+                      </RouteErrorBoundary>
+                    } />
+                    <Route path="/resources" element={
+                      <RouteErrorBoundary>
+                        <Suspense fallback={<ResourcesSkeleton />}>
+                          <Resources />
+                        </Suspense>
+                      </RouteErrorBoundary>
+                    } />
                     <Route path="/resources/checklist/:slug" element={<RouteErrorBoundary><ChecklistDetail /></RouteErrorBoundary>} />
                     <Route path="/careers" element={<RouteErrorBoundary><Careers /></RouteErrorBoundary>} />
                     <Route path="/contact" element={

@@ -41,7 +41,16 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((pre
       
       // Save to local storage
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        try {
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        } catch (e) {
+          if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+            logger.warn('localStorage quota exceeded. Clearing non-essential data recommended.');
+            // Optional: Implement a cleanup strategy here if needed
+          } else {
+            throw e;
+          }
+        }
       }
     } catch (error) {
       logger.warn(`Error setting localStorage key "${key}":`, error);

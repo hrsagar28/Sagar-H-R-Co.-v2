@@ -60,7 +60,15 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
     const currentValid = attempts.filter(ts => Date.now() - ts < windowMs);
     const newAttempts = [...currentValid, newTimestamp];
     setAttempts(newAttempts);
-    localStorage.setItem(storageKey, JSON.stringify(newAttempts));
+    
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(newAttempts));
+    } catch (e) {
+      if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+        logger.warn('Failed to update rate limit: localStorage quota exceeded');
+        // In case of quota error, we just proceed in memory, risk is low for rate limiting persistence
+      }
+    }
   }, [attempts, windowMs, storageKey]);
 
   return { canSubmit, attemptsRemaining, resetTime, recordAttempt, timeUntilReset };
