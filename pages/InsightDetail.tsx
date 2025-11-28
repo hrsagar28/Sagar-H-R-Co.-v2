@@ -1,28 +1,38 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { INSIGHTS_MOCK } from '../constants';
 import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin, ArrowUp, Link as LinkIcon, ArrowUpRight } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CONTACT_INFO } from '../constants';
 import { logger } from '../utils/logger';
 import { sanitizeHTML } from '../utils/sanitize';
+import { useInsights } from '../hooks';
+import InsightDetailSkeleton from '../components/skeletons/InsightDetailSkeleton';
 
 const InsightDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const insight = INSIGHTS_MOCK.find(i => i.slug === slug);
+  const { insights, loading, getInsightBySlug } = useInsights();
   
   const [scrollProgress, setScrollProgress] = useState(0);
   const [shareCopied, setShareCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
+  const insight = useMemo(() => {
+    if (!slug) return undefined;
+    return getInsightBySlug(slug);
+  }, [slug, getInsightBySlug, insights]); // Recalculate when insights load
+
+  // Redirect if not found after loading
   useEffect(() => {
-    if (!insight) {
+    if (!loading && !insight && slug) {
       navigate('/insights');
     }
+  }, [loading, insight, slug, navigate]);
+
+  useEffect(() => {
     window.scrollTo(0, 0);
-  }, [slug, insight, navigate]);
+  }, [slug]);
 
   // Reading progress logic
   useEffect(() => {
@@ -39,42 +49,45 @@ const InsightDetail: React.FC = () => {
 
   // Inject Copy Code Buttons
   useEffect(() => {
-    const article = document.querySelector('.article-content');
-    if (!article) return;
+    if (!insight) return;
+    
+    // Add small delay to ensure DOM is rendered
+    const timer = setTimeout(() => {
+      const article = document.querySelector('.article-content');
+      if (!article) return;
 
-    const preTags = article.querySelectorAll('pre');
-    preTags.forEach(pre => {
-      // Avoid duplicate injection
-      if (pre.parentNode && (pre.parentNode as HTMLElement).classList.contains('code-wrapper')) return;
+      const preTags = article.querySelectorAll('pre');
+      preTags.forEach(pre => {
+        if (pre.parentNode && (pre.parentNode as HTMLElement).classList.contains('code-wrapper')) return;
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'code-wrapper relative group mb-8 rounded-xl overflow-hidden bg-[#1e1e1e] border border-white/10 shadow-xl';
-      
-      pre.parentNode?.insertBefore(wrapper, pre);
-      wrapper.appendChild(pre);
-      
-      // Style the pre tag itself to reset margin/rounding
-      pre.style.margin = '0';
-      pre.style.borderRadius = '0';
-      pre.style.padding = '1.5rem';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper relative group mb-8 rounded-xl overflow-hidden bg-[#1e1e1e] border border-white/10 shadow-xl';
+        
+        pre.parentNode?.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        
+        pre.style.margin = '0';
+        pre.style.borderRadius = '0';
+        pre.style.padding = '1.5rem';
 
-      const btn = document.createElement('button');
-      btn.className = 'absolute top-3 right-3 p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 z-10';
-      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-      btn.setAttribute('aria-label', 'Copy code');
-      
-      btn.addEventListener('click', () => {
-           navigator.clipboard.writeText(pre.innerText);
-           // Change icon to check
-           btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-           setTimeout(() => {
-               // Revert icon
-               btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-           }, 2000);
+        const btn = document.createElement('button');
+        btn.className = 'absolute top-3 right-3 p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 z-10';
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+        btn.setAttribute('aria-label', 'Copy code');
+        
+        btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(pre.innerText);
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+            setTimeout(() => {
+                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+            }, 2000);
+        });
+
+        wrapper.appendChild(btn);
       });
+    }, 100);
 
-      wrapper.appendChild(btn);
-    });
+    return () => clearTimeout(timer);
   }, [insight]);
 
   const handleShare = async () => {
@@ -88,11 +101,9 @@ const InsightDetail: React.FC = () => {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        // Share cancelled or rejected
         logger.log("Share cancelled or failed", err);
       }
     } else {
-      // Fallback to clipboard
       try {
         await navigator.clipboard.writeText(window.location.href);
         setShareCopied(true);
@@ -114,34 +125,31 @@ const InsightDetail: React.FC = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const handlePrint = () => window.print();
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Get related insights
   const relatedInsights = useMemo(() => {
-    if (!insight) return [];
+    if (!insight || insights.length === 0) return [];
     
     // Get insights in same category excluding current
-    const sameCategory = INSIGHTS_MOCK
+    const sameCategory = insights
       .filter(i => i.category === insight.category && i.id !== insight.id)
       .slice(0, 3);
     
     // If not enough, fill with recent others
     if (sameCategory.length < 3) {
-      const additional = INSIGHTS_MOCK
+      const additional = insights
         .filter(i => i.id !== insight.id && i.category !== insight.category)
         .slice(0, 3 - sameCategory.length);
       return [...sameCategory, ...additional];
     }
     
     return sameCategory;
-  }, [insight]);
+  }, [insight, insights]);
 
+  // Render Logic
+  if (loading) return <InsightDetailSkeleton />;
   if (!insight) return null;
 
   const schema = {
@@ -168,8 +176,7 @@ const InsightDetail: React.FC = () => {
     }
   };
 
-  // Circular Progress Calculation
-  const radius = 24; // r of circle
+  const radius = 24; 
   const circumference = 2 * Math.PI * radius;
   const dashoffset = circumference - scrollProgress * circumference;
 
@@ -234,13 +241,11 @@ const InsightDetail: React.FC = () => {
                     >
                       {shareCopied ? <Check size={20} className="text-green-600" /> : <Share2 size={20} />}
                       
-                      {/* Tooltip */}
                       <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-tooltip">
                         {shareCopied ? 'Copied Link' : 'Share'}
                       </span>
                     </button>
 
-                    {/* Explicit Copy Link Button */}
                     <button 
                       onClick={handleCopyLink}
                       aria-label="Copy Link"
@@ -248,7 +253,6 @@ const InsightDetail: React.FC = () => {
                     >
                       {linkCopied ? <Check size={20} className="text-green-600" /> : <LinkIcon size={20} />}
                       
-                      {/* Tooltip */}
                       <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-tooltip">
                         {linkCopied ? 'Link Copied!' : 'Copy Link'}
                       </span>
@@ -286,16 +290,12 @@ const InsightDetail: React.FC = () => {
                       <Linkedin size={20} />
                     </a>
                  </div>
-                 <div className="text-[10px] uppercase tracking-widest text-brand-stone/50 font-bold rotate-180 [writing-mode:vertical-lr]">
-                    Share Article
-                 </div>
               </div>
             </aside>
 
             {/* Main Content */}
             <main className="lg:col-span-8">
               <article className="prose prose-lg md:prose-xl max-w-none animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  {/* Sanitized HTML Injection */}
                   <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(insight.content) }} className="article-content" />
               </article>
 
@@ -357,9 +357,7 @@ const InsightDetail: React.FC = () => {
               )}
             </main>
 
-            {/* Right Sidebar - Empty for now */}
-            <div className="hidden lg:block lg:col-span-2">
-            </div>
+            <div className="hidden lg:block lg:col-span-2"></div>
         </div>
       </div>
 
@@ -388,12 +386,7 @@ const InsightDetail: React.FC = () => {
            title={`${Math.round(scrollProgress * 100)}% Read`}
          >
            <svg className="w-full h-full -rotate-90" viewBox="0 0 60 60">
-              <circle 
-                cx="30" cy="30" r={radius} 
-                fill="none" 
-                stroke="#e5e7eb" 
-                strokeWidth="3" 
-              />
+              <circle cx="30" cy="30" r={radius} fill="none" stroke="#e5e7eb" strokeWidth="3" />
               <circle 
                 cx="30" cy="30" r={radius} 
                 fill="none" 

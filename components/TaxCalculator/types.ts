@@ -38,3 +38,29 @@ export interface ComparisonResult {
   recommendation: 'new' | 'old' | 'equal';
   savings: number;
 }
+
+export interface TaxConfig {
+  financialYear: string;
+  assessmentYear: string;
+  stdDeduction: {
+    new: number;
+    old: number;
+  };
+  deductionLimits: {
+    d80c: number;
+    d80tta: number;
+    d80ttb: number;
+    nps: number;
+  };
+  rebate: {
+    new: { limit: number; amount: string | number };
+    old: { limit: number; amount: number };
+  };
+  surchargeSlabs: {
+    [key: string]: number;
+  };
+  newRegimeSlabs: {
+    upto: number | null;
+    rate: number;
+  }[];
+}

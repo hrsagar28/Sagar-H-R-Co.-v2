@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Printer, ArrowRight, RotateCcw } from 'lucide-react';
+import { Printer, ArrowRight, RotateCcw, Loader2 } from 'lucide-react';
 import { CONTACT_INFO } from '../../constants';
 import CustomDropdown from '../forms/CustomDropdown';
 
@@ -9,8 +9,11 @@ import ResultsDisplay from './ResultsDisplay';
 import { useTaxCalculation } from './useTaxCalculation';
 import { IncomeHeads, Deductions } from './types';
 import { AGE_MAP } from './taxSlabs';
+import { useTaxConfig } from '../../hooks';
 
 const TaxCalculator: React.FC = () => {
+  const { config, loading } = useTaxConfig();
+
   const [incomeHeads, setIncomeHeads] = useState<IncomeHeads>({
     salary: 0,
     houseProperty: 0,
@@ -36,7 +39,7 @@ const TaxCalculator: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [showDeductions, setShowDeductions] = useState(false);
   
-  const comparison = useTaxCalculation(incomeHeads, deductions, ageGroup);
+  const comparison = useTaxCalculation(incomeHeads, deductions, ageGroup, config);
 
   const handleCalculate = () => setShowResults(true);
 
@@ -49,11 +52,23 @@ const TaxCalculator: React.FC = () => {
   const handlePrint = () => window.print();
 
   return (
-    <div className="bg-brand-surface rounded-[2.5rem] p-8 md:p-12 border border-brand-border shadow-sm print:border-0 print:shadow-none print:p-0 animate-fade-in-up">
+    <div className="bg-brand-surface rounded-[2.5rem] p-8 md:p-12 border border-brand-border shadow-sm print:border-0 print:shadow-none print:p-0 animate-fade-in-up relative overflow-hidden">
+      
+      {loading && (
+        <div className="absolute top-0 left-0 w-full h-1 bg-brand-bg overflow-hidden z-20">
+           <div className="h-full bg-brand-moss w-1/3 animate-[marquee_1s_linear_infinite]"></div>
+        </div>
+      )}
+
       <div className="flex justify-between items-start mb-8 print:mb-4">
           <div>
-              <h2 className="text-3xl font-heading font-bold text-brand-dark">Income Tax Calculator</h2>
-              <p className="text-brand-stone mt-2 font-medium">{CONTACT_INFO.assessmentYear} ({CONTACT_INFO.financialYear}) • Updated as per Budget 2025</p>
+              <div className="flex items-center gap-3">
+                <h2 className="text-3xl font-heading font-bold text-brand-dark">Income Tax Calculator</h2>
+                {loading && <span className="text-xs font-bold text-brand-stone bg-brand-bg px-2 py-1 rounded-full flex items-center gap-1"><Loader2 size={10} className="animate-spin"/> Loading rules...</span>}
+              </div>
+              <p className="text-brand-stone mt-2 font-medium">
+                {config ? `${config.assessmentYear} (${config.financialYear})` : CONTACT_INFO.assessmentYear} • Updated per latest Budget
+              </p>
           </div>
           <button onClick={handlePrint} className="p-3 rounded-full bg-brand-bg text-brand-dark hover:bg-brand-moss hover:text-white transition-colors print:hidden" title="Print Calculation">
               <Printer size={20} />
@@ -92,9 +107,10 @@ const TaxCalculator: React.FC = () => {
                   <div className="flex gap-3 pt-2">
                       <button 
                         onClick={handleCalculate} 
-                        className="flex-1 py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-brand-moss transition-all shadow-lg flex items-center justify-center gap-2 group"
+                        disabled={loading}
+                        className="flex-1 py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-brand-moss transition-all shadow-lg flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
                       >
-                        Compare & Calculate <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
+                        {loading ? 'Loading...' : 'Compare & Calculate'} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
                       </button>
                       <button 
                         onClick={handleClear} 
@@ -117,7 +133,7 @@ const TaxCalculator: React.FC = () => {
 
       <div className="mt-10 text-center print:text-left">
           <p className="text-xs text-brand-stone/60 max-w-2xl mx-auto print:text-black">
-              <strong>Disclaimer:</strong> This calculator provides estimates based on Finance Bill 2025 proposals ({CONTACT_INFO.assessmentYear}). Actual tax liability may vary. Please consult a Chartered Accountant for filing.
+              <strong>Disclaimer:</strong> This calculator provides estimates based on Finance Bill proposals. Actual tax liability may vary. Please consult a Chartered Accountant for filing.
           </p>
       </div>
     </div>

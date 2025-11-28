@@ -1,0 +1,33 @@
+{
+  "financialYear": "FY 2025-26",
+  "assessmentYear": "AY 2026-27",
+  "stdDeduction": {
+    "new": 75000,
+    "old": 50000
+  },
+  "deductionLimits": {
+    "d80c": 150000,
+    "d80tta": 10000,
+    "d80ttb": 50000,
+    "nps": 50000
+  },
+  "rebate": {
+    "new": { "limit": 1200000, "amount": "full" },
+    "old": { "limit": 500000, "amount": 12500 }
+  },
+  "surchargeSlabs": {
+    "1": 5000000,
+    "2": 10000000,
+    "3": 20000000,
+    "4": 50000000
+  },
+  "newRegimeSlabs": [
+    { "upto": 400000, "rate": 0 },
+    { "upto": 800000, "rate": 0.05 },
+    { "upto": 1200000, "rate": 0.10 },
+    { "upto": 1600000, "rate": 0.15 },
+    { "upto": 2000000, "rate": 0.20 },
+    { "upto": 2400000, "rate": 0.25 },
+    { "upto": null, "rate": 0.30 }
+  ]
+}
