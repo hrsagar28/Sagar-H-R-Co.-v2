@@ -9,6 +9,7 @@ import PageHero from '../components/PageHero';
 import { useRateLimit } from '../hooks/useRateLimit';
 import { useToast } from '../hooks/useToast';
 import { sanitizeInput } from '../utils/sanitize';
+import { logger } from '../utils/logger';
 
 const Contact: React.FC = () => {
   const [subject, setSubject] = useState('');
@@ -133,8 +134,10 @@ const Contact: React.FC = () => {
             recordAttempt();
         } else {
             setSubmitStatus('error');
+            logger.error('Contact form submission failed', response.status, response.statusText);
         }
     } catch (error) {
+        logger.error('Form submission network error:', error);
         setSubmitStatus('error');
     } finally {
         setIsSubmitting(false);

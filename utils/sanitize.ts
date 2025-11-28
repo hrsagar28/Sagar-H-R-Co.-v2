@@ -1,15 +1,29 @@
+import DOMPurify from 'dompurify';
+
 /**
- * Basic HTML sanitizer for static content.
- * For user-generated content, use DOMPurify library instead.
+ * Robust HTML sanitizer for preventing XSS.
+ * Uses DOMPurify to clean HTML content before rendering.
  */
-export const sanitizeStaticHTML = (html: string): string => {
-  // For static content from our own codebase, we trust it
-  // This function exists as a placeholder for future API-fetched content
-  return html;
+export const sanitizeHTML = (html: string): string => {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
+      'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+      'strong', 'em', 'b', 'i', 'u', 's', 'strike',
+      'a', 'img', 'div', 'span', 'br', 'hr',
+      'blockquote', 'code', 'pre',
+      'table', 'thead', 'tbody', 'tr', 'th', 'td'
+    ],
+    ALLOWED_ATTR: [
+      'href', 'class', 'target', 'rel', 'style', 'src', 'alt', 'width', 'height', 'title'
+    ],
+    FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'object', 'embed', 'link', 'meta'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover']
+  });
 };
 
 /**
- * Sanitize user input (form fields)
+ * Basic input sanitizer for form fields
  */
 export const sanitizeInput = (input: string): string => {
   if (typeof input !== 'string') return input;

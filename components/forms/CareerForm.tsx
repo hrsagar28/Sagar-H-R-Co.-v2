@@ -9,6 +9,7 @@ import { useRateLimit } from '../../hooks/useRateLimit';
 import { useFormDraft } from '../../hooks/useFormDraft';
 import { CONTACT_INFO } from '../../config/contact';
 import { sanitizeInput } from '../../utils/sanitize';
+import { logger } from '../../utils/logger';
 
 interface CareerFormProps {
   initialPosition?: string;
@@ -206,8 +207,10 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
         } else {
             setSubmitStatus('error');
             addToast("Failed to submit application. Please try again.", "error");
+            logger.error('Career form submission failed', res.status, res.statusText);
         }
       } catch(e) {
+        logger.error('Career form submission failed:', e);
         setSubmitStatus('error');
         addToast("Network error. Please try again later.", "error");
       } finally {

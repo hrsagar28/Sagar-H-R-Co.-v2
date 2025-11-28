@@ -11,6 +11,7 @@ import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
 import ToastContainer from './components/ToastContainer';
 import NetworkStatus from './components/NetworkStatus';
+import RouteErrorBoundary from './components/RouteErrorBoundary';
 
 // Skeletons
 import ServiceDetailSkeleton from './components/skeletons/ServiceDetailSkeleton';
@@ -90,33 +91,39 @@ const App: React.FC = () => {
               <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/services" element={<Services />} />
+                    <Route path="/" element={<RouteErrorBoundary><Home /></RouteErrorBoundary>} />
+                    <Route path="/about" element={<RouteErrorBoundary><About /></RouteErrorBoundary>} />
+                    <Route path="/services" element={<RouteErrorBoundary><Services /></RouteErrorBoundary>} />
                     <Route path="/services/:slug" element={
-                      <Suspense fallback={<ServiceDetailSkeleton />}>
-                        <ServiceDetail />
-                      </Suspense>
+                      <RouteErrorBoundary>
+                        <Suspense fallback={<ServiceDetailSkeleton />}>
+                          <ServiceDetail />
+                        </Suspense>
+                      </RouteErrorBoundary>
                     } />
-                    <Route path="/insights" element={<Insights />} />
+                    <Route path="/insights" element={<RouteErrorBoundary><Insights /></RouteErrorBoundary>} />
                     <Route path="/insights/:slug" element={
-                      <Suspense fallback={<InsightDetailSkeleton />}>
-                        <InsightDetail />
-                      </Suspense>
+                      <RouteErrorBoundary>
+                        <Suspense fallback={<InsightDetailSkeleton />}>
+                          <InsightDetail />
+                        </Suspense>
+                      </RouteErrorBoundary>
                     } />
-                    <Route path="/faqs" element={<FAQ />} />
-                    <Route path="/resources" element={<Resources />} />
-                    <Route path="/resources/checklist/:slug" element={<ChecklistDetail />} />
-                    <Route path="/careers" element={<Careers />} />
+                    <Route path="/faqs" element={<RouteErrorBoundary><FAQ /></RouteErrorBoundary>} />
+                    <Route path="/resources" element={<RouteErrorBoundary><Resources /></RouteErrorBoundary>} />
+                    <Route path="/resources/checklist/:slug" element={<RouteErrorBoundary><ChecklistDetail /></RouteErrorBoundary>} />
+                    <Route path="/careers" element={<RouteErrorBoundary><Careers /></RouteErrorBoundary>} />
                     <Route path="/contact" element={
-                      <Suspense fallback={<ContactSkeleton />}>
-                        <Contact />
-                      </Suspense>
+                      <RouteErrorBoundary>
+                        <Suspense fallback={<ContactSkeleton />}>
+                          <Contact />
+                        </Suspense>
+                      </RouteErrorBoundary>
                     } />
-                    <Route path="/disclaimer" element={<Disclaimer />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="*" element={<NotFound />} />
+                    <Route path="/disclaimer" element={<RouteErrorBoundary><Disclaimer /></RouteErrorBoundary>} />
+                    <Route path="/privacy" element={<RouteErrorBoundary><Privacy /></RouteErrorBoundary>} />
+                    <Route path="/terms" element={<RouteErrorBoundary><Terms /></RouteErrorBoundary>} />
+                    <Route path="*" element={<RouteErrorBoundary><NotFound /></RouteErrorBoundary>} />
                   </Routes>
                 </Suspense>
               </main>

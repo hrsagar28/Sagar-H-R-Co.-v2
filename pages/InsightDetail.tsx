@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { INSIGHTS_MOCK } from '../constants';
@@ -6,6 +7,7 @@ import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CONTACT_INFO } from '../config/contact';
 import { logger } from '../utils/logger';
+import { sanitizeHTML } from '../utils/sanitize';
 
 const InsightDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -87,7 +89,8 @@ const InsightDetail: React.FC = () => {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        // Share cancelled
+        // Share cancelled or rejected
+        logger.log("Share cancelled or failed", err);
       }
     } else {
       // Fallback to clipboard
@@ -96,6 +99,7 @@ const InsightDetail: React.FC = () => {
         setShareCopied(true);
         setTimeout(() => setShareCopied(false), 2500);
       } catch (err) {
+        logger.error("Clipboard write failed", err);
         alert('Unable to copy link to clipboard.');
       }
     }
@@ -292,7 +296,8 @@ const InsightDetail: React.FC = () => {
             {/* Main Content */}
             <main className="lg:col-span-8">
               <article className="prose prose-lg md:prose-xl max-w-none animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <div dangerouslySetInnerHTML={{ __html: insight.content }} className="article-content" />
+                  {/* Sanitized HTML Injection */}
+                  <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(insight.content) }} className="article-content" />
               </article>
 
               {/* Footer Author Card */}

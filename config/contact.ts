@@ -1,4 +1,23 @@
 
+// Helper to safely get environment variables
+const getEnv = (key: string, required = false): string => {
+  let val = '';
+  
+  // Try import.meta.env (Vite)
+  if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
+    val = (import.meta as any).env[key];
+  } 
+  // Try process.env (Node/Webpack/Polyfill)
+  else if (typeof process !== 'undefined' && process.env) {
+    val = process.env[key] as string;
+  }
+
+  if (required && !val) {
+     console.warn(`Missing required environment variable: ${key}`);
+  }
+  return val || '';
+};
+
 export const CONTACT_INFO = {
   name: "Sagar H R & Co.",
   phone: {
@@ -26,5 +45,7 @@ export const CONTACT_INFO = {
   tagline: "Chartered Accountants",
   assessmentYear: "AY 2026-27",
   financialYear: "FY 2025-26",
-  formEndpoint: "https://formsubmit.co/ajax/mail@casagar.co.in"
+  // In production, this MUST be set via VITE_FORM_ENDPOINT.
+  // Fallback provided for development safety if env not set immediately.
+  formEndpoint: getEnv('VITE_FORM_ENDPOINT') || "https://formsubmit.co/ajax/mail@casagar.co.in"
 };
