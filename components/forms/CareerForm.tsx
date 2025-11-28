@@ -231,13 +231,16 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
   if (submitStatus === 'success') {
     return (
-      <div id="form-header" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative overflow-hidden flex flex-col items-center justify-center text-center min-h-[400px] animate-fade-in-up">
-        <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
-        <div className="w-24 h-24 bg-brand-moss text-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-brand-moss/30">
+      <div id="form-header" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative flex flex-col items-center justify-center text-center min-h-[400px] animate-fade-in-up">
+        <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden pointer-events-none">
+           <div className="absolute inset-0 bg-grid opacity-30"></div>
+        </div>
+        
+        <div className="w-24 h-24 bg-brand-moss text-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-brand-moss/30 relative z-10">
           <Check size={48} />
         </div>
-        <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4">Application Submitted!</h2>
-        <p className="text-xl text-brand-stone font-medium max-w-md mx-auto mb-8">
+        <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4 relative z-10">Application Submitted!</h2>
+        <p className="text-xl text-brand-stone font-medium max-w-md mx-auto mb-8 relative z-10">
           Thank you for applying. Our HR team will review your profile and contact you if your qualifications match our requirements.
         </p>
         <button 
@@ -256,7 +259,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                 position: initialPosition || ''
             });
           }}
-          className="px-8 py-4 bg-brand-bg border border-brand-border text-brand-dark font-bold rounded-full hover:bg-brand-moss hover:text-white transition-all duration-300"
+          className="px-8 py-4 bg-brand-bg border border-brand-border text-brand-dark font-bold rounded-full hover:bg-brand-moss hover:text-white transition-all duration-300 relative z-10"
         >
           Submit Another Application
         </button>
@@ -265,8 +268,11 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
   }
 
   return (
-    <div id="form-header" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative overflow-hidden">
-      <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
+    <div id="form-header" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative">
+      <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden pointer-events-none">
+         <div className="absolute inset-0 bg-grid opacity-30"></div>
+      </div>
+      
       <div className="relative z-10">
         
         {/* Draft Banner */}
@@ -325,7 +331,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
         {/* Form */}
         <form 
-          className="space-y-8"
+          className="space-y-8 relative z-20"
           onSubmit={handleSubmit}
           onKeyDown={handleKeyDown}
         >

@@ -32,7 +32,5 @@ export { default as ServiceDetailSkeleton } from './skeletons/ServiceDetailSkele
 export { default as FAQSkeleton } from './skeletons/FAQSkeleton';
 export { default as ResourcesSkeleton } from './skeletons/ResourcesSkeleton';
 
-// Forms
-export { default as CareerForm } from './forms/CareerForm';
-export { default as CustomDatePicker } from './forms/CustomDatePicker';
-export { default as CustomDropdown } from './forms/CustomDropdown';
+// Forms are no longer exported here to enable better code splitting
+// Import them directly in pages where needed

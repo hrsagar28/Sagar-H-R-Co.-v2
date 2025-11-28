@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { TaxResult, IncomeHeads, Deductions, ComparisonResult, TaxConfig } from './types';
 
 // Fallback defaults if config fails to load
-const DEFAULT_CONFIG: TaxConfig = {
+export const DEFAULT_CONFIG: TaxConfig = {
   financialYear: "FY 2025-26",
   assessmentYear: "AY 2026-27",
   stdDeduction: { new: 75000, old: 50000 },
@@ -23,7 +23,7 @@ const DEFAULT_CONFIG: TaxConfig = {
   ]
 };
 
-const calculateRegimeTax = (
+export const calculateRegimeTax = (
   r: 'new' | 'old', 
   incomes: IncomeHeads, 
   deds: Deductions, 
@@ -75,18 +75,16 @@ const calculateRegimeTax = (
         if (remainingIncome <= 0) break;
 
         const currentLimit = slab.upto === null ? Infinity : slab.upto;
-        const slabRange = currentLimit - prevLimit;
+        // Calculate income falling within this specific slab range
+        // Limit logic: The slab ends at currentLimit. It started at prevLimit.
         
-        // Income in this slab is the lesser of remaining income vs size of this slab
-        // But for the logic: if we are at this step, we need to tax the chunk of income falling in this bracket
+        const slabCeiling = currentLimit;
+        const slabFloor = prevLimit;
         
-        // Simplified Logic: 
-        // We accumulate tax by looking at chunks.
-        // Or simpler: Iterate slabs.
-        // For slab 1: 0 to 4L. Amount = Min(Taxable, 4L) - 0. Tax = Amount * Rate.
-        // For slab 2: 4L to 8L. Amount = Min(Taxable, 8L) - 4L. Tax = Amount * Rate.
+        // Income in this slab is Min(Taxable, Ceiling) - Floor
+        // If Taxable < Floor, it's 0.
         
-        const incomeInSlab = Math.max(0, Math.min(taxableIncome, currentLimit) - prevLimit);
+        const incomeInSlab = Math.max(0, Math.min(taxableIncome, slabCeiling) - slabFloor);
         tax += incomeInSlab * slab.rate;
         
         prevLimit = currentLimit;
@@ -115,8 +113,6 @@ const calculateRegimeTax = (
        rebate = tax;
      } else {
        // Marginal relief for New Regime
-       // Usually allowed if income slightly exceeds limit
-       // Check if income is within margin (e.g. 25000 over limit?? The law varies)
        // Standard 2025 Budget logic: Relief if Tax > (Income - Limit)
        const excessIncome = taxableIncome - limit;
        if (tax > excessIncome) {
@@ -158,8 +154,6 @@ const calculateRegimeTax = (
       else if (taxableIncome > slabs["1"]) threshold = slabs["1"];
 
       // Recalculate tax at threshold (Simplified for robustness)
-      // For accurate calc we'd need to run full tax calc at threshold. 
-      // Approximation:
       const taxAtThreshold = calculateRegimeTax(r, { ...incomes, salary: threshold, houseProperty:0, business:0, capitalGains:0, otherSources:0 }, { ...deds, d80c:0, d80d:0, hra:0, d80e:0, d80g:0, d80tta:0, d80ttb:0, nps:0, other:0 }, age, config).taxOnIncome;
       
       // Determine lower surcharge rate at threshold

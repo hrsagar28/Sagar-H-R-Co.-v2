@@ -2,7 +2,7 @@
 import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { 
-  Navbar, Footer, CustomCursor, SmoothScroll, Preloader, WhatsAppWidget, 
+  Navbar, Footer, CustomCursor, Preloader, WhatsAppWidget, 
   PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
   ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton
 } from './components';
@@ -90,7 +90,7 @@ const App: React.FC = () => {
             <CustomCursor />
           </div>
           
-          {/* Fixed Elements must be OUTSIDE the SmoothScroll wrapper to avoid transform context issues */}
+          {/* Fixed Elements */}
           <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none print:hidden">
             <Navbar className="animate-content-reveal delay-2000 pointer-events-auto" />
           </div>
@@ -103,66 +103,64 @@ const App: React.FC = () => {
           {/* Global Background Noise */}
           <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply print:hidden" />
 
-          <SmoothScroll>
-            {/* Added overflow-x-hidden to prevent horizontal scroll on mobile */}
-            <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg w-full overflow-x-hidden print:bg-white">
-              <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path="/" element={<RouteErrorBoundary><Home /></RouteErrorBoundary>} />
-                    <Route path="/about" element={<RouteErrorBoundary><About /></RouteErrorBoundary>} />
-                    <Route path="/services" element={<RouteErrorBoundary><Services /></RouteErrorBoundary>} />
-                    <Route path="/services/:slug" element={
-                      <RouteErrorBoundary>
-                        <Suspense fallback={<ServiceDetailSkeleton />}>
-                          <ServiceDetail />
-                        </Suspense>
-                      </RouteErrorBoundary>
-                    } />
-                    <Route path="/insights" element={<RouteErrorBoundary><Insights /></RouteErrorBoundary>} />
-                    <Route path="/insights/:slug" element={
-                      <RouteErrorBoundary>
-                        <Suspense fallback={<InsightDetailSkeleton />}>
-                          <InsightDetail />
-                        </Suspense>
-                      </RouteErrorBoundary>
-                    } />
-                    <Route path="/faqs" element={
-                      <RouteErrorBoundary>
-                        <Suspense fallback={<FAQSkeleton />}>
-                          <FAQ />
-                        </Suspense>
-                      </RouteErrorBoundary>
-                    } />
-                    <Route path="/resources" element={
-                      <RouteErrorBoundary>
-                        <Suspense fallback={<ResourcesSkeleton />}>
-                          <Resources />
-                        </Suspense>
-                      </RouteErrorBoundary>
-                    } />
-                    <Route path="/resources/checklist/:slug" element={<RouteErrorBoundary><ChecklistDetail /></RouteErrorBoundary>} />
-                    <Route path="/careers" element={<RouteErrorBoundary><Careers /></RouteErrorBoundary>} />
-                    <Route path="/contact" element={
-                      <RouteErrorBoundary>
-                        <Suspense fallback={<ContactSkeleton />}>
-                          <Contact />
-                        </Suspense>
-                      </RouteErrorBoundary>
-                    } />
-                    <Route path="/disclaimer" element={<RouteErrorBoundary><Disclaimer /></RouteErrorBoundary>} />
-                    <Route path="/privacy" element={<RouteErrorBoundary><Privacy /></RouteErrorBoundary>} />
-                    <Route path="/terms" element={<RouteErrorBoundary><Terms /></RouteErrorBoundary>} />
-                    <Route path="*" element={<RouteErrorBoundary><NotFound /></RouteErrorBoundary>} />
-                  </Routes>
-                </Suspense>
-              </main>
-              
-              <div className="print:hidden">
-                <Footer />
-              </div>
+          {/* Main Layout - Removed overflow-x-hidden from here to allow sticky pos to work better with body scroll */}
+          <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg w-full print:bg-white">
+            <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<RouteErrorBoundary><Home /></RouteErrorBoundary>} />
+                  <Route path="/about" element={<RouteErrorBoundary><About /></RouteErrorBoundary>} />
+                  <Route path="/services" element={<RouteErrorBoundary><Services /></RouteErrorBoundary>} />
+                  <Route path="/services/:slug" element={
+                    <RouteErrorBoundary>
+                      <Suspense fallback={<ServiceDetailSkeleton />}>
+                        <ServiceDetail />
+                      </Suspense>
+                    </RouteErrorBoundary>
+                  } />
+                  <Route path="/insights" element={<RouteErrorBoundary><Insights /></RouteErrorBoundary>} />
+                  <Route path="/insights/:slug" element={
+                    <RouteErrorBoundary>
+                      <Suspense fallback={<InsightDetailSkeleton />}>
+                        <InsightDetail />
+                      </Suspense>
+                    </RouteErrorBoundary>
+                  } />
+                  <Route path="/faqs" element={
+                    <RouteErrorBoundary>
+                      <Suspense fallback={<FAQSkeleton />}>
+                        <FAQ />
+                      </Suspense>
+                    </RouteErrorBoundary>
+                  } />
+                  <Route path="/resources" element={
+                    <RouteErrorBoundary>
+                      <Suspense fallback={<ResourcesSkeleton />}>
+                        <Resources />
+                      </Suspense>
+                    </RouteErrorBoundary>
+                  } />
+                  <Route path="/resources/checklist/:slug" element={<RouteErrorBoundary><ChecklistDetail /></RouteErrorBoundary>} />
+                  <Route path="/careers" element={<RouteErrorBoundary><Careers /></RouteErrorBoundary>} />
+                  <Route path="/contact" element={
+                    <RouteErrorBoundary>
+                      <Suspense fallback={<ContactSkeleton />}>
+                        <Contact />
+                      </Suspense>
+                    </RouteErrorBoundary>
+                  } />
+                  <Route path="/disclaimer" element={<RouteErrorBoundary><Disclaimer /></RouteErrorBoundary>} />
+                  <Route path="/privacy" element={<RouteErrorBoundary><Privacy /></RouteErrorBoundary>} />
+                  <Route path="/terms" element={<RouteErrorBoundary><Terms /></RouteErrorBoundary>} />
+                  <Route path="*" element={<RouteErrorBoundary><NotFound /></RouteErrorBoundary>} />
+                </Routes>
+              </Suspense>
+            </main>
+            
+            <div className="print:hidden">
+              <Footer />
             </div>
-          </SmoothScroll>
+          </div>
         </HashRouter>
       </ToastProvider>
     </AnnounceProvider>
