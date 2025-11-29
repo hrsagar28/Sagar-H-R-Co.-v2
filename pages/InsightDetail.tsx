@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin, ArrowUp, Link as LinkIcon, ArrowUpRight } from 'lucide-react';
@@ -5,23 +6,25 @@ import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CONTACT_INFO } from '../constants';
 import { logger } from '../utils/logger';
-import { sanitizeHTML } from '../utils/sanitize';
-import { useInsights } from '../hooks';
+import { useInsights, useScrollPosition } from '../hooks';
 import InsightDetailSkeleton from '../components/skeletons/InsightDetailSkeleton';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 const InsightDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { insights, loading, getInsightBySlug } = useInsights();
   
-  const [scrollProgress, setScrollProgress] = useState(0);
+  // Replaced manual scroll listener with hook
+  const { scrollY } = useScrollPosition(50);
+  
   const [shareCopied, setShareCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
   const insight = useMemo(() => {
     if (!slug) return undefined;
     return getInsightBySlug(slug);
-  }, [slug, getInsightBySlug, insights]); // Recalculate when insights load
+  }, [slug, getInsightBySlug, insights]);
 
   // Redirect if not found after loading
   useEffect(() => {
@@ -34,26 +37,22 @@ const InsightDetail: React.FC = () => {
     window.scrollTo(0, 0);
   }, [slug]);
 
-  // Reading progress logic
-  useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollTop;
-      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      if (windowHeight === 0) return;
-      const scroll = totalScroll / windowHeight;
-      setScrollProgress(Number(scroll));
-    }
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Calculate Reading progress based on scrollY from hook
+  const scrollProgress = useMemo(() => {
+    if (typeof document === 'undefined') return 0;
+    const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    if (windowHeight === 0) return 0;
+    return Math.min(1, Math.max(0, scrollY / windowHeight));
+  }, [scrollY]);
 
-  // Inject Copy Code Buttons
+  // Inject Copy Code Buttons (Logic kept as it modifies DOM post-render, useful for markdown code blocks)
   useEffect(() => {
     if (!insight) return;
     
     // Add small delay to ensure DOM is rendered
     const timer = setTimeout(() => {
-      const article = document.querySelector('.article-content');
+      // Target the wrapper created by MarkdownRenderer
+      const article = document.querySelector('.article-wrapper');
       if (!article) return;
 
       const preTags = article.querySelectorAll('pre');
@@ -61,14 +60,12 @@ const InsightDetail: React.FC = () => {
         if (pre.parentNode && (pre.parentNode as HTMLElement).classList.contains('code-wrapper')) return;
 
         const wrapper = document.createElement('div');
-        wrapper.className = 'code-wrapper relative group mb-8 rounded-xl overflow-hidden bg-[#1e1e1e] border border-white/10 shadow-xl';
+        wrapper.className = 'code-wrapper relative group mb-8 rounded-2xl overflow-hidden shadow-xl';
         
         pre.parentNode?.insertBefore(wrapper, pre);
         wrapper.appendChild(pre);
         
         pre.style.margin = '0';
-        pre.style.borderRadius = '0';
-        pre.style.padding = '1.5rem';
 
         const btn = document.createElement('button');
         btn.className = 'absolute top-3 right-3 p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 z-10';
@@ -295,8 +292,9 @@ const InsightDetail: React.FC = () => {
 
             {/* Main Content */}
             <main className="lg:col-span-8">
-              <article className="prose prose-lg md:prose-xl max-w-none animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(insight.content) }} className="article-content" />
+              <article className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                  {/* Using New Markdown Renderer */}
+                  <MarkdownRenderer content={insight.content} />
               </article>
 
               {/* Footer Author Card */}

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
@@ -25,7 +26,7 @@ const ServiceBento: React.FC = React.memo(() => {
         } 
         // Income Tax (Accent - Deep Green Gradient)
         else if (index === 1) {
-            containerClasses = "bg-gradient-to-br from-[#1A4D2E] to-[#0f2e1b] border-transparent";
+            containerClasses = "bg-gradient-to-br from-brand-moss to-[#0f2e1b] border-transparent";
             textTitle = "text-white";
             textDesc = "text-white/80";
             arrowBtn = "border-white/20 text-white group-hover:bg-white group-hover:text-brand-moss group-hover:border-white bg-white/10";
@@ -37,7 +38,7 @@ const ServiceBento: React.FC = React.memo(() => {
         // Litigation (Premium - Dark Zinc Gradient)
         else if (index === 3) {
             colSpanClass = "md:col-span-2 lg:col-span-2";
-            containerClasses = "bg-gradient-to-br from-zinc-800 via-zinc-900 to-black border-zinc-700 hover:border-zinc-600";
+            containerClasses = "bg-gradient-to-br from-zinc-800 via-zinc-900 to-brand-black border-zinc-700 hover:border-zinc-600";
             textTitle = "text-white";
             textDesc = "text-zinc-400";
             arrowBtn = "border-white/20 text-white group-hover:bg-white group-hover:text-black group-hover:border-white bg-white/5";
@@ -55,7 +56,7 @@ const ServiceBento: React.FC = React.memo(() => {
         // Payroll (Premium Dark - Midnight Gradient)
         else if (index === 7) {
             colSpanClass = "md:col-span-2 lg:col-span-2";
-            containerClasses = "bg-gradient-to-br from-neutral-900 to-black border-neutral-800 hover:border-neutral-700";
+            containerClasses = "bg-gradient-to-br from-neutral-900 to-brand-black border-neutral-800 hover:border-neutral-700";
             textTitle = "text-white";
             textDesc = "text-zinc-500";
             arrowBtn = "border-white/20 text-white group-hover:bg-[#4ADE80] group-hover:text-black group-hover:border-[#4ADE80] bg-white/5";
@@ -125,7 +126,7 @@ const ServiceBento: React.FC = React.memo(() => {
       >
         <Link 
           to="/contact" 
-          className="group relative flex flex-col justify-between p-6 md:p-8 h-full min-h-[220px] md:min-h-[260px] rounded-[2rem] border border-transparent bg-gradient-to-br from-[#1A4D2E] to-[#15803d] overflow-hidden hover:shadow-2xl hover:shadow-brand-moss/30 transition-all duration-500"
+          className="group relative flex flex-col justify-between p-6 md:p-8 h-full min-h-[220px] md:min-h-[260px] rounded-[2rem] border border-transparent bg-gradient-to-br from-brand-moss to-[#15803d] overflow-hidden hover:shadow-2xl hover:shadow-brand-moss/30 transition-all duration-500"
         >
           {/* Decorative Glows */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-[40px] pointer-events-none translate-x-10 -translate-y-10 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700"></div>

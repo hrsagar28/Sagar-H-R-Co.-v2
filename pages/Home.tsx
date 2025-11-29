@@ -1,27 +1,22 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Shield, TrendingUp, CheckCircle2, BarChart3, Calculator, ArrowRight } from 'lucide-react';
 import { Marquee, Reveal, MagneticButton, OptimizedImage, SEO } from '../components';
 import { CONTACT_INFO } from '../constants';
+import { useScrollPosition } from '../hooks';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  // Parallax effect for Hero text
+  // Parallax effect for Hero text using shared scroll hook
   const heroTextRef = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScrollPosition(20); // Throttle slightly faster for smooth visual update
   
-  useEffect(() => {
-    const handleScroll = () => {
-      if (heroTextRef.current) {
-        const scrolled = window.scrollY;
-        // Subtle parallax, not too aggressive
-        heroTextRef.current.style.transform = `translateY(${scrolled * 0.2}px)`;
-        heroTextRef.current.style.opacity = `${1 - scrolled / 700}`;
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Apply parallax style directly based on scrollY from hook
+  const heroStyle = {
+    transform: `translateY(${scrollY * 0.2}px)`,
+    opacity: Math.max(0, 1 - scrollY / 700)
+  };
 
   const schema = {
     "@context": "https://schema.org",
@@ -95,7 +90,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div ref={heroTextRef} className="container mx-auto max-w-7xl relative z-10 will-change-transform mt-12 md:mt-0">
+        <div ref={heroTextRef} style={heroStyle} className="container mx-auto max-w-7xl relative z-10 will-change-transform mt-12 md:mt-0">
            <div className="max-w-6xl">
               
               {/* Animated Badge */}
@@ -232,7 +227,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* 3. IMMERSIVE SERVICES - DARK MODE */}
-      <section className="py-32 px-4 md:px-6 bg-[#0A0A0A] text-white rounded-t-[4rem] relative overflow-hidden">
+      <section className="py-32 px-4 md:px-6 bg-brand-black text-white rounded-t-[4rem] relative overflow-hidden">
          <div className="container mx-auto max-w-7xl relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-6 border-b border-white/10 pb-10">
                <Reveal>
@@ -255,7 +250,7 @@ const Home: React.FC = () => {
                     { title: 'Audit & Assurance', icon: <Shield className="text-[#4ADE80]" />, desc: "Statutory, Tax, and Internal audits." }
                 ].map((s, i) => (
                     <Reveal key={i} delay={i * 0.1} variant="slide-up">
-                        <div className="p-10 rounded-[2.5rem] bg-[#111111] border border-white/5 hover:bg-[#161616] hover:border-[#4ADE80]/30 transition-all duration-500 group h-full flex flex-col justify-between hover:-translate-y-2">
+                        <div className="p-10 rounded-[2.5rem] bg-brand-dark border border-white/5 hover:bg-brand-surface-dark-hover hover:border-[#4ADE80]/30 transition-all duration-500 group h-full flex flex-col justify-between hover:-translate-y-2">
                             <div>
                                 <div className="w-14 h-14 rounded-2xl bg-[#4ADE80]/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
                                     {React.cloneElement(s.icon as React.ReactElement<{size?: number}>, { size: 28 })}

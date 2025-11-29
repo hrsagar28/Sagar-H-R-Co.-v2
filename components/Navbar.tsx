@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS, CONTACT_INFO } from '../constants';
 import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
-import { useFocusTrap, useReturnFocus } from '../hooks';
+import { useFocusTrap, useReturnFocus, useScrollPosition } from '../hooks';
 
 interface NavbarProps {
   className?: string;
@@ -11,10 +11,13 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  
+  // Use consolidated scroll hook
+  const { scrollY } = useScrollPosition();
+  const scrolled = scrollY > 20;
   
   // Touch tracking refs for swipe-to-close
   const touchStartX = useRef<number>(0);
@@ -24,17 +27,12 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
   useReturnFocus(isOpen);
   useFocusTrap(isOpen, menuRef, () => setIsOpen(false));
 
-  // Scroll detection
+  // Close on scroll behavior is now handled via state derived from hook
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-      if (isOpen) {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isOpen]);
+    if (isOpen && scrolled) {
+      setIsOpen(false);
+    }
+  }, [scrolled, isOpen]);
 
   // Close on route change
   useEffect(() => {

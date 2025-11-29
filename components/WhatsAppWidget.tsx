@@ -1,29 +1,14 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { CONTACT_INFO } from '../constants';
-import { useReducedMotion } from '../hooks';
+import { useReducedMotion, useScrollPosition } from '../hooks';
 
 const WhatsAppWidget: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(true);
-  const lastScrollY = useRef(0);
+  const { direction, scrollY } = useScrollPosition();
   const shouldReduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Hide when scrolling down (more than 200px), show when scrolling up
-      if (currentScrollY > lastScrollY.current && currentScrollY > 200) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Hide when scrolling down significantly (more than 200px), show when scrolling up
+  const isVisible = !(direction === 'down' && scrollY > 200);
 
   const animationClass = shouldReduceMotion 
     ? (isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')

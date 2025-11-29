@@ -10,3 +10,4 @@ export * from './useReturnFocus';
 export * from './useToast';
 export * from './useTaxConfig';
 export * from './useInsights';
+export * from './useScrollPosition';

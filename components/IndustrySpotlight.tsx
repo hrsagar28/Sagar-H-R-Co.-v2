@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
@@ -26,7 +27,7 @@ const IndustrySpotlight: React.FC = () => {
     container.addEventListener('mousemove', handleMouseMove);
     return () => {
       container.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(rafRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
@@ -34,7 +35,7 @@ const IndustrySpotlight: React.FC = () => {
     <div className="px-2 md:px-4 pb-4 bg-brand-bg">
       <section 
         ref={containerRef} 
-        className="relative py-24 px-4 md:px-10 bg-[#0A0A0A] text-white rounded-[2.5rem] md:rounded-[3rem] overflow-hidden group"
+        className="relative py-24 px-4 md:px-10 bg-brand-black text-white rounded-[2.5rem] md:rounded-[3rem] overflow-hidden group"
         style={{ '--mouse-x': '-500px', '--mouse-y': '-500px' } as React.CSSProperties}
       >
         {/* 
@@ -64,7 +65,7 @@ const IndustrySpotlight: React.FC = () => {
             {INDUSTRIES.map((ind, i) => (
               <div 
                 key={i} 
-                className="relative p-8 rounded-3xl bg-[#111111] hover:bg-[#161616] border border-white/5 transition-all duration-300 group/card flex flex-col items-start h-full hover:-translate-y-1 overflow-hidden"
+                className="relative p-8 rounded-3xl bg-brand-dark hover:bg-brand-surface-dark-hover border border-white/5 transition-all duration-300 group/card flex flex-col items-start h-full hover:-translate-y-1 overflow-hidden"
               >
                 {/* Card-specific hover glow */}
                 <div className="absolute inset-0 bg-brand-moss/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
