@@ -1,0 +1,122 @@
+
+.bg-grid {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+}
+.custom-cursor-active, 
+.custom-cursor-active a, 
+.custom-cursor-active button {
+  cursor: none;
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Roll Text Effect for Navbar */
+.roll-text-group {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  height: 1.2em; /* Adjust based on line-height */
+  vertical-align: bottom;
+}
+
+.roll-text-group .original-text,
+.roll-text-group .hover-text {
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.roll-text-group .hover-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(100%);
+  font-weight: 700; /* Optional bold on hover */
+  color: #1A4D2E;
+}
+
+.group:hover .roll-text-group .original-text {
+  transform: translateY(-100%);
+}
+
+.group:hover .roll-text-group .hover-text {
+  transform: translateY(0);
+}
+
+/* ACCESSIBILITY FOCUS STYLES */
+:focus-visible {
+  outline: 3px solid #1A4D2E;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px rgba(26, 77, 46, 0.2);
+  z-index: 999;
+}
+
+/* Remove default outline for mouse users if desired, but keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Programmatic focus on main container shouldn't show ring */
+#main-content:focus {
+  outline: none;
+}
+
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+  body {
+    background-color: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .no-print, nav, footer, iframe, .print-hidden {
+    display: none !important;
+  }
+  /* Ensure readable text */
+  p, h1, h2, h3, h4, h5, h6, li, span {
+    color: black !important;
+    text-shadow: none !important;
+  }
+  /* Remove shadows and backgrounds for cleaner print */
+  .shadow-xl, .shadow-2xl, .shadow-lg, .shadow-md, .shadow-sm {
+    box-shadow: none !important;
+  }
+  /* Expand containers to full width */
+  .container, .max-w-7xl, .max-w-5xl, .max-w-4xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 !important;
+  }
+  /* Force background images/colors to print if specifically needed */
+  .print-bg-force {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Reset heights */
+  .min-h-screen {
+    min-height: auto !important;
+  }
+  /* Hide fixed elements */
+  .fixed, .sticky {
+    position: static !important;
+  }
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+}

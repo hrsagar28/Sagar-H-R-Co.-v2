@@ -60,7 +60,7 @@ const DeductionsPanel: React.FC<DeductionsPanelProps> = ({
 
   // Handle overflow transition to prevent tooltips from being clipped
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
     if (showDeductions) {
         // Wait for the slide-down animation (500ms) to finish before allowing overflow
         timer = setTimeout(() => {

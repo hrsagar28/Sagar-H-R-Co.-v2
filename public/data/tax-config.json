@@ -1,3 +1,4 @@
+
 {
   "financialYear": "FY 2025-26",
   "assessmentYear": "AY 2026-27",
@@ -29,5 +30,17 @@
     { "upto": 2000000, "rate": 0.20 },
     { "upto": 2400000, "rate": 0.25 },
     { "upto": null, "rate": 0.30 }
-  ]
+  ],
+  "oldRegimeConfig": {
+    "exemptions": {
+      "below60": 250000,
+      "60to80": 300000,
+      "above80": 500000
+    },
+    "slabs": [
+      { "upto": 500000, "rate": 0.05 },
+      { "upto": 1000000, "rate": 0.20 },
+      { "upto": null, "rate": 0.30 }
+    ]
+  }
 }

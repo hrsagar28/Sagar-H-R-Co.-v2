@@ -1,3 +1,4 @@
+
 export interface TaxResult {
   grossIncome: number;
   stdDeduction: number;
@@ -63,4 +64,15 @@ export interface TaxConfig {
     upto: number | null;
     rate: number;
   }[];
+  oldRegimeConfig: {
+    exemptions: {
+      below60: number;
+      "60to80": number;
+      above80: number;
+    };
+    slabs: {
+      upto: number | null;
+      rate: number;
+    }[];
+  };
 }
