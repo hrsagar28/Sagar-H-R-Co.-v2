@@ -1,5 +1,5 @@
 {
-  "name": "sagar-h-r-&-co.---premium-ca-firm",
+  "name": "sagar-h-r-and-co-premium-ca-firm",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,7 +14,8 @@
     "react-dom": "^18.3.1",
     "lucide-react": "^0.379.0",
     "react-router-dom": "^6.23.1",
-    "dompurify": "^3.1.5"
+    "dompurify": "^3.1.5",
+    "react-markdown": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.2",
