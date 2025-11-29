@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CHECKLIST_DATA } from '../constants';
+import { CHECKLIST_DATA, CONTACT_INFO } from '../constants';
 import { Printer, CheckSquare } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -49,16 +49,26 @@ const ChecklistDetail: React.FC = () => {
         </div>
 
         <div className="bg-white p-12 md:p-16 rounded-[2rem] border border-brand-border shadow-xl print:shadow-none print:border-0 print:p-0 print:rounded-none">
-          {/* Print Header */}
+          
+          {/* Print Only Header (Letterhead Style) */}
+          <div className="hidden print:flex flex-col items-center mb-8 border-b-2 border-black pb-4 text-center">
+             <h1 className="text-3xl font-serif font-bold uppercase tracking-widest text-black mb-1">{CONTACT_INFO.name}</h1>
+             <p className="text-sm font-bold uppercase tracking-wider text-black mb-2">Chartered Accountants</p>
+             <p className="text-xs text-black">
+                {CONTACT_INFO.address.city} | {CONTACT_INFO.phone.display} | {CONTACT_INFO.email}
+             </p>
+          </div>
+
+          {/* Checklist Header */}
           <div className="text-center border-b-2 border-brand-bg pb-8 mb-10 print:border-black print:mb-6 print:pb-4">
-             <h1 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4 print:text-2xl print:mb-2">{checklist.title}</h1>
+             <h1 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4 print:text-2xl print:mb-2 print:text-black">{checklist.title}</h1>
              <p className="text-brand-stone font-medium text-lg print:text-black print:text-sm">{checklist.subtitle}</p>
           </div>
 
           <div className="space-y-10 print:space-y-6">
              {checklist.sections.map((section, idx) => (
                <div key={idx} className="break-inside-avoid">
-                 <h3 className="text-xl font-heading font-bold text-brand-dark mb-6 pb-2 border-b border-brand-border/50 print:text-lg print:mb-3 print:border-black print:pb-1">
+                 <h3 className="text-xl font-heading font-bold text-brand-dark mb-6 pb-2 border-b border-brand-border/50 print:text-lg print:mb-3 print:border-black print:pb-1 print:text-black">
                    {section.title}
                  </h3>
                  <ul className="space-y-4 print:space-y-2">
@@ -77,7 +87,7 @@ const ChecklistDetail: React.FC = () => {
           </div>
 
           <div className="mt-16 pt-8 border-t border-brand-border text-center text-brand-stone text-sm font-bold uppercase tracking-widest print:mt-8 print:pt-4 print:border-black print:text-black">
-             Sagar H R & Co. • Chartered Accountants • Mysuru
+             {CONTACT_INFO.name} • Chartered Accountants • {CONTACT_INFO.address.city}
           </div>
         </div>
 

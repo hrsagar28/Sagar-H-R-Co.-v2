@@ -8,23 +8,45 @@ export const useInsights = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchInsights = async () => {
-      try {
-        const response = await fetch('/data/insights.json');
-        if (!response.ok) {
-          throw new Error('Failed to load insights');
+      const retries = 3;
+      const baseDelay = 1000;
+
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await fetch('/data/insights.json');
+          if (!response.ok) {
+            throw new Error(`Failed to load insights: ${response.statusText}`);
+          }
+          const data: InsightItem[] = await response.json();
+          
+          if (isMounted) {
+            setInsights(data);
+            setLoading(false);
+          }
+          return; // Success
+        } catch (err) {
+          if (i === retries - 1) {
+            logger.error('Error fetching insights after retries:', err);
+            if (isMounted) {
+              setError('Unable to load insights.');
+              setLoading(false);
+            }
+          } else {
+            const delay = baseDelay * Math.pow(2, i);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
         }
-        const data: InsightItem[] = await response.json();
-        setInsights(data);
-        setLoading(false);
-      } catch (err) {
-        logger.error('Error fetching insights:', err);
-        setError('Unable to load insights.');
-        setLoading(false);
       }
     };
 
     fetchInsights();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getInsightBySlug = useCallback((slug: string) => {

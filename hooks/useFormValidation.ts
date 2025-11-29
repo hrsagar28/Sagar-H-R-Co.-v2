@@ -26,15 +26,15 @@ interface UseFormValidationOptions<T> {
  * @param {UseFormValidationOptions<T>} [options] - Validation configuration options.
  * @returns {object} Form state and validation methods.
  */
-export const useFormValidation = <T extends Record<string, any>>(
+export const useFormValidation = <T extends {}>(
   initialState: T,
   options: UseFormValidationOptions<T> = {}
 ) => {
   const [values, setValues] = useState<T>(initialState);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [warnings, setWarnings] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
+  const [warnings, setWarnings] = useState<Partial<Record<keyof T, string>>>({});
 
-  const validateField = (name: keyof T, value: any, schema: ValidationSchema<T> = options.validationSchema || {}) => {
+  const validateField = (name: keyof T, value: T[keyof T], schema: ValidationSchema<T> = options.validationSchema || {}) => {
     const rule = schema[name];
     if (rule) {
       const tempValues = { ...values, [name]: value };
@@ -54,15 +54,15 @@ export const useFormValidation = <T extends Record<string, any>>(
 
       setErrors(prev => {
         const next = { ...prev };
-        if (error) next[name as string] = error;
-        else delete next[name as string];
+        if (error) next[name] = error;
+        else delete next[name];
         return next;
       });
 
       setWarnings(prev => {
         const next = { ...prev };
-        if (warning) next[name as string] = warning;
-        else delete next[name as string];
+        if (warning) next[name] = warning;
+        else delete next[name];
         return next;
       });
       
@@ -71,7 +71,7 @@ export const useFormValidation = <T extends Record<string, any>>(
     return true;
   };
 
-  const handleChange = (name: keyof T, value: any) => {
+  const handleChange = (name: keyof T, value: T[keyof T]) => {
     setValues(prev => ({ ...prev, [name]: value }));
     
     // If validation schema is provided and real-time validation is on
@@ -79,10 +79,10 @@ export const useFormValidation = <T extends Record<string, any>>(
         validateField(name, value);
     } else {
         // Default behavior: clear error when user types
-        if (errors[name as string]) {
+        if (errors[name]) {
             setErrors(prev => {
                 const newErrors = { ...prev };
-                delete newErrors[name as string];
+                delete newErrors[name];
                 return newErrors;
             });
         }
@@ -90,12 +90,12 @@ export const useFormValidation = <T extends Record<string, any>>(
   };
 
   const validate = useCallback((schema: ValidationSchema<T> = options.validationSchema || {}) => {
-    const newErrors: Record<string, string> = {};
-    const newWarnings: Record<string, string> = {};
+    const newErrors: Partial<Record<keyof T, string>> = {};
+    const newWarnings: Partial<Record<keyof T, string>> = {};
     let isValid = true;
     
-    Object.keys(schema).forEach((key) => {
-      const rule = schema[key as keyof T];
+    (Object.keys(schema) as Array<keyof T>).forEach((key) => {
+      const rule = schema[key];
       if (rule) {
          if (typeof rule === 'function') {
              const error = rule(values);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useReducer } from 'react';
 import { Printer, ArrowRight, RotateCcw, Loader2 } from 'lucide-react';
 import { CONTACT_INFO } from '../../constants';
 import CustomDropdown from '../forms/CustomDropdown';
@@ -11,130 +11,238 @@ import { IncomeHeads, Deductions } from './types';
 import { AGE_MAP } from './taxSlabs';
 import { useTaxConfig } from '../../hooks';
 
+// --- Reducer Types & Logic ---
+
+interface TaxState {
+  incomeHeads: IncomeHeads;
+  deductions: Deductions;
+  ageGroup: string;
+  regime: 'new' | 'old';
+  showResults: boolean;
+  showDeductions: boolean;
+}
+
+type TaxAction =
+  | { type: 'SET_INCOME'; field: keyof IncomeHeads; value: number }
+  | { type: 'SET_DEDUCTION'; field: keyof Deductions; value: number }
+  | { type: 'SET_DEDUCTIONS_OBJECT'; payload: Deductions } // For bulk updates if needed
+  | { type: 'SET_INCOME_OBJECT'; payload: IncomeHeads } // For bulk updates if needed
+  | { type: 'SET_AGE_GROUP'; value: string }
+  | { type: 'SET_REGIME'; value: 'new' | 'old' }
+  | { type: 'SHOW_RESULTS'; value: boolean }
+  | { type: 'TOGGLE_DEDUCTIONS' }
+  | { type: 'RESET' };
+
+const initialIncome: IncomeHeads = {
+  salary: 0, houseProperty: 0, business: 0, capitalGains: 0, otherSources: 0
+};
+
+const initialDeductions: Deductions = {
+  d80c: 0, d80d: 0, hra: 0, d80e: 0, d80g: 0, d80tta: 0, d80ttb: 0, nps: 0, other: 0
+};
+
+const initialState: TaxState = {
+  incomeHeads: initialIncome,
+  deductions: initialDeductions,
+  ageGroup: 'below60',
+  regime: 'new',
+  showResults: false,
+  showDeductions: false,
+};
+
+function taxReducer(state: TaxState, action: TaxAction): TaxState {
+  switch (action.type) {
+    case 'SET_INCOME':
+      return {
+        ...state,
+        incomeHeads: { ...state.incomeHeads, [action.field]: action.value }
+      };
+    case 'SET_INCOME_OBJECT':
+      return { ...state, incomeHeads: action.payload };
+    case 'SET_DEDUCTION':
+      return {
+        ...state,
+        deductions: { ...state.deductions, [action.field]: action.value }
+      };
+    case 'SET_DEDUCTIONS_OBJECT':
+      return { ...state, deductions: action.payload };
+    case 'SET_AGE_GROUP':
+      return { ...state, ageGroup: action.value };
+    case 'SET_REGIME':
+      return { ...state, regime: action.value };
+    case 'SHOW_RESULTS':
+      return { ...state, showResults: action.value };
+    case 'TOGGLE_DEDUCTIONS':
+      return { ...state, showDeductions: !state.showDeductions };
+    case 'RESET':
+      return {
+        ...state,
+        incomeHeads: initialIncome,
+        deductions: initialDeductions,
+        showResults: false
+      };
+    default:
+      return state;
+  }
+}
+
+// --- Component ---
+
 const TaxCalculator: React.FC = () => {
   const { config, loading } = useTaxConfig();
+  const [state, dispatch] = useReducer(taxReducer, initialState);
 
-  const [incomeHeads, setIncomeHeads] = useState<IncomeHeads>({
-    salary: 0,
-    houseProperty: 0,
-    business: 0,
-    capitalGains: 0,
-    otherSources: 0
-  });
+  const comparison = useTaxCalculation(state.incomeHeads, state.deductions, state.ageGroup, config);
 
-  const [deductions, setDeductions] = useState<Deductions>({
-    d80c: 0,
-    d80d: 0,
-    hra: 0,
-    d80e: 0,
-    d80g: 0,
-    d80tta: 0,
-    d80ttb: 0,
-    nps: 0,
-    other: 0
-  });
-
-  const [ageGroup, setAgeGroup] = useState('below60');
-  const [regime, setRegime] = useState<'new' | 'old'>('new');
-  const [showResults, setShowResults] = useState(false);
-  const [showDeductions, setShowDeductions] = useState(false);
-  
-  const comparison = useTaxCalculation(incomeHeads, deductions, ageGroup, config);
-
-  const handleCalculate = () => setShowResults(true);
-
-  const handleClear = () => {
-    setIncomeHeads({ salary: 0, houseProperty: 0, business: 0, capitalGains: 0, otherSources: 0 });
-    setDeductions({ d80c: 0, d80d: 0, hra: 0, d80e: 0, d80g: 0, d80tta: 0, d80ttb: 0, nps: 0, other: 0 });
-    setShowResults(false);
-  };
-  
+  const handleCalculate = () => dispatch({ type: 'SHOW_RESULTS', value: true });
+  const handleClear = () => dispatch({ type: 'RESET' });
   const handlePrint = () => window.print();
 
+  // Handler wrappers to maintain child component interface compatibility without major rewrite
+  const setIncomeHeadsWrapper = (heads: IncomeHeads) => {
+     dispatch({ type: 'SET_INCOME_OBJECT', payload: heads });
+  };
+
+  const setDeductionsWrapper = (deds: Deductions) => {
+     dispatch({ type: 'SET_DEDUCTIONS_OBJECT', payload: deds });
+  };
+
   return (
-    <div className="bg-brand-surface rounded-[2.5rem] p-8 md:p-12 border border-brand-border shadow-sm print:border-0 print:shadow-none print:p-0 animate-fade-in-up relative overflow-hidden">
+    <div className="bg-brand-surface rounded-[3rem] p-8 md:p-12 border border-brand-border shadow-2xl shadow-brand-dark/5 print:border-0 print:shadow-none print:p-0 animate-fade-in-up relative overflow-visible">
       
+      {/* Loading Indicator */}
       {loading && (
-        <div className="absolute top-0 left-0 w-full h-1 bg-brand-bg overflow-hidden z-20">
+        <div className="absolute top-0 left-0 w-full h-1 bg-brand-bg overflow-hidden z-20 rounded-t-[3rem]">
            <div className="h-full bg-brand-moss w-1/3 animate-[marquee_1s_linear_infinite]"></div>
         </div>
       )}
 
-      <div className="flex justify-between items-start mb-8 print:mb-4">
+      {/* Print Only Header (Letterhead Style) */}
+      <div className="hidden print:flex flex-col items-center mb-8 border-b-2 border-black pb-4 text-center">
+         <h1 className="text-3xl font-serif font-bold uppercase tracking-widest text-black mb-1">{CONTACT_INFO.name}</h1>
+         <p className="text-sm font-bold uppercase tracking-wider text-black mb-2">Chartered Accountants</p>
+         <p className="text-xs text-black">
+            {CONTACT_INFO.address.city} | {CONTACT_INFO.phone.display} | {CONTACT_INFO.email}
+         </p>
+      </div>
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 border-b border-brand-border/50 pb-8 print:mb-8 print:border-black">
           <div>
-              <div className="flex items-center gap-3">
-                <h2 className="text-3xl font-heading font-bold text-brand-dark">Income Tax Calculator</h2>
-                {loading && <span className="text-xs font-bold text-brand-stone bg-brand-bg px-2 py-1 rounded-full flex items-center gap-1"><Loader2 size={10} className="animate-spin"/> Loading rules...</span>}
+              <div className="mb-4">
+                   <span className="text-[10px] font-bold uppercase tracking-widest text-brand-stone block mb-0.5 print:text-black">Assessment Year</span>
+                   <span className="px-3 py-1 rounded-full bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-widest border border-brand-moss/20 print:border-black print:text-black print:bg-white">{config?.assessmentYear || 'AY 2026-27'}</span>
               </div>
-              <p className="text-brand-stone mt-2 font-medium">
-                {config ? `${config.assessmentYear} (${config.financialYear})` : CONTACT_INFO.assessmentYear} • Updated per latest Budget
+              <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-dark mb-2 print:text-black">Tax Estimator</h2>
+              <p className="text-brand-stone font-medium text-lg max-w-md print:text-black print:text-sm">
+                Simplified calculation for modern taxpayers. Compare Old vs New Regime instantly.
               </p>
           </div>
-          <button onClick={handlePrint} className="p-3 rounded-full bg-brand-bg text-brand-dark hover:bg-brand-moss hover:text-white transition-colors print:hidden" title="Print Calculation">
-              <Printer size={20} />
+          <button onClick={handlePrint} className="p-4 rounded-full bg-brand-bg text-brand-dark hover:bg-brand-moss hover:text-white transition-all shadow-sm hover:shadow-lg group print:hidden" aria-label="Print Calculation">
+              <Printer size={20} className="group-hover:scale-110 transition-transform" />
           </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
-          {/* LEFT COLUMN: INPUTS */}
-          <div className="md:col-span-7 space-y-8 print:col-span-12">
-              <IncomeInputs incomeHeads={incomeHeads} setIncomeHeads={setIncomeHeads} />
-              <DeductionsPanel 
-                deductions={deductions} 
-                setDeductions={setDeductions} 
-                showDeductions={showDeductions}
-                setShowDeductions={setShowDeductions}
-                ageGroup={ageGroup}
-              />
-          </div>
-
-          {/* RIGHT COLUMN: CONTROLS & SUMMARY */}
-          <div className="md:col-span-5 flex flex-col gap-6 print:col-span-12">
-              <div className="bg-brand-bg/50 p-6 rounded-2xl border border-brand-border space-y-6 print:hidden">
-                  <div className="mb-2">
-                      <CustomDropdown
-                        label="Age Category"
-                        name="ageGroup"
-                        value={AGE_MAP[ageGroup]}
-                        options={Object.values(AGE_MAP)}
-                        onChange={(_, val) => {
-                            const key = Object.keys(AGE_MAP).find(k => AGE_MAP[k] === val);
-                            if (key) setAgeGroup(key);
-                        }}
-                      />
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                      <button 
-                        onClick={handleCalculate} 
-                        disabled={loading}
-                        className="flex-1 py-4 bg-brand-dark text-white rounded-xl font-bold hover:bg-brand-moss transition-all shadow-lg flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
-                      >
-                        {loading ? 'Loading...' : 'Compare & Calculate'} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
-                      </button>
-                      <button 
-                        onClick={handleClear} 
-                        className="px-4 py-4 bg-white border border-brand-border text-brand-dark rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
-                        title="Clear All"
-                      >
-                        <RotateCcw size={20} />
-                      </button>
-                  </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          {/* LEFT COLUMN: INPUTS (Scrollable) */}
+          <div className="lg:col-span-7 space-y-10 print:col-span-12">
+              
+              {/* Age Selection */}
+              <div className="bg-brand-bg/30 p-6 rounded-[2rem] border border-brand-border/50 print:border-black print:bg-white">
+                  <CustomDropdown
+                    label="Tax Payer Category"
+                    name="ageGroup"
+                    value={AGE_MAP[state.ageGroup]}
+                    options={Object.values(AGE_MAP)}
+                    onChange={(_, val) => {
+                        const key = Object.keys(AGE_MAP).find(k => AGE_MAP[k] === val);
+                        if (key) dispatch({ type: 'SET_AGE_GROUP', value: key });
+                    }}
+                  />
               </div>
 
-              <ResultsDisplay 
-                comparison={comparison}
-                regime={regime}
-                setRegime={setRegime}
-                showResults={showResults}
-              />
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                   <div className="h-px bg-brand-border flex-grow print:bg-black"></div>
+                   <h3 className="text-xs font-bold text-brand-stone uppercase tracking-widest print:text-black">Income Sources</h3>
+                   <div className="h-px bg-brand-border flex-grow print:bg-black"></div>
+                </div>
+                <IncomeInputs incomeHeads={state.incomeHeads} setIncomeHeads={setIncomeHeadsWrapper} />
+              </div>
+              
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                   <div className="h-px bg-brand-border flex-grow print:bg-black"></div>
+                   <h3 className="text-xs font-bold text-brand-stone uppercase tracking-widest print:text-black">Exemptions</h3>
+                   <div className="h-px bg-brand-border flex-grow print:bg-black"></div>
+                </div>
+                <DeductionsPanel 
+                  deductions={state.deductions} 
+                  setDeductions={setDeductionsWrapper} 
+                  showDeductions={state.showDeductions}
+                  setShowDeductions={() => dispatch({ type: 'TOGGLE_DEDUCTIONS' })}
+                  ageGroup={state.ageGroup}
+                />
+              </div>
           </div>
-      </div>
 
-      <div className="mt-10 text-center print:text-left">
-          <p className="text-xs text-brand-stone/60 max-w-2xl mx-auto print:text-black">
-              <strong>Disclaimer:</strong> This calculator provides estimates based on Finance Bill proposals. Actual tax liability may vary. Please consult a Chartered Accountant for filing.
-          </p>
+          {/* RIGHT COLUMN: CONTROLS & SUMMARY (Sticky + Sticky Scroll) */}
+          <div className="lg:col-span-5 relative print:col-span-12 h-full">
+              {/* Sticky Container for scrolling alongside the left column */}
+              <div className="sticky top-32 space-y-6 print:static">
+                  
+                  {/* Actions Card */}
+                  <div className="bg-brand-dark p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden print:hidden">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-brand-moss opacity-20 rounded-full blur-[60px] pointer-events-none"></div>
+                      
+                      <div className="relative z-10 text-center space-y-6">
+                          <div>
+                              <h3 className="text-xl font-heading font-bold text-white mb-2">Ready to calculate?</h3>
+                              <p className="text-brand-stone/80 text-sm font-medium">We've applied the latest budget amendments.</p>
+                          </div>
+
+                          <div className="flex flex-col gap-3">
+                              <button 
+                                onClick={handleCalculate} 
+                                disabled={loading}
+                                className="w-full py-5 bg-white text-brand-dark rounded-2xl font-bold text-lg hover:bg-brand-moss hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 group disabled:opacity-70 disabled:cursor-not-allowed"
+                              >
+                                {loading ? (
+                                    <>
+                                        <Loader2 size={20} className="animate-spin" /> Calculating...
+                                    </>
+                                ) : (
+                                    <>
+                                        Calculate Tax <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform"/>
+                                    </>
+                                )}
+                              </button>
+                              <button 
+                                onClick={handleClear} 
+                                className="w-full py-4 text-white/60 font-bold text-sm hover:text-white transition-colors flex items-center justify-center gap-2"
+                              >
+                                <RotateCcw size={14} /> Clear Form
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Results */}
+                  <ResultsDisplay 
+                    comparison={comparison}
+                    regime={state.regime}
+                    setRegime={(r) => dispatch({ type: 'SET_REGIME', value: r })}
+                    showResults={state.showResults}
+                  />
+                  
+                  {/* Disclaimer */}
+                  <div className="text-center print:text-left pt-4">
+                      <p className="text-[10px] text-brand-stone/60 font-medium leading-relaxed print:text-black">
+                          <strong>Note:</strong> This tool provides an estimate based on {config?.financialYear} proposals. Actual liability may vary.
+                      </p>
+                  </div>
+              </div>
+          </div>
       </div>
     </div>
   );
