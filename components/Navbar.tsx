@@ -22,6 +22,8 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
   // Touch tracking refs for swipe-to-close
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
+  const touchEndY = useRef<number>(0);
 
   // Focus Management Hooks
   useReturnFocus(isOpen);
@@ -164,15 +166,21 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
           aria-label="Mobile Navigation"
           onTouchStart={(e) => {
             touchStartX.current = e.touches[0].clientX;
+            touchStartY.current = e.touches[0].clientY;
             touchEndX.current = e.touches[0].clientX; // Initialize to avoid false positives
+            touchEndY.current = e.touches[0].clientY;
           }}
           onTouchMove={(e) => {
             touchEndX.current = e.touches[0].clientX;
+            touchEndY.current = e.touches[0].clientY;
           }}
           onTouchEnd={() => {
-            const swipeDistance = touchEndX.current - touchStartX.current;
-            // If swiped right more than 100px, close menu
-            if (swipeDistance > 100) {
+            const xDiff = touchEndX.current - touchStartX.current;
+            const yDiff = Math.abs(touchEndY.current - touchStartY.current);
+            
+            // Close menu only if swipe is significantly horizontal (>100px) 
+            // and minimally vertical (<50px) to prevent closing while scrolling lists.
+            if (xDiff > 100 && yDiff < 50) {
               setIsOpen(false);
             }
           }}

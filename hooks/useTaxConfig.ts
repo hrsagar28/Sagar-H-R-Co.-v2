@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { TaxConfig } from '../components/TaxCalculator/types';
 import { logger } from '../utils/logger';
@@ -14,9 +15,13 @@ export const useTaxConfig = () => {
       const retries = 3;
       const baseDelay = 1000;
 
+      // Construct robust path using Vite's BASE_URL or fallback to relative
+      const baseUrl = (import.meta as any).env.BASE_URL || '/';
+      const url = `${baseUrl}data/tax-config.json`.replace('//', '/');
+
       for (let i = 0; i < retries; i++) {
         try {
-          const response = await fetch('/data/tax-config.json');
+          const response = await fetch(url);
           if (!response.ok) {
             throw new Error(`Failed to load tax configuration: ${response.statusText}`);
           }

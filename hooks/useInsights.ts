@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { InsightItem } from '../types';
 import { logger } from '../utils/logger';
@@ -14,9 +15,13 @@ export const useInsights = () => {
       const retries = 3;
       const baseDelay = 1000;
 
+      // Construct robust path using Vite's BASE_URL or fallback to relative
+      const baseUrl = (import.meta as any).env.BASE_URL || '/';
+      const url = `${baseUrl}data/insights.json`.replace('//', '/');
+
       for (let i = 0; i < retries; i++) {
         try {
-          const response = await fetch('/data/insights.json');
+          const response = await fetch(url);
           if (!response.ok) {
             throw new Error(`Failed to load insights: ${response.statusText}`);
           }

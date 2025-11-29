@@ -23,13 +23,13 @@ const STORAGE_KEY = 'app_error_logs';
 const MAX_LOGS = 50;
 
 export const logger = {
-  log: (...args: any[]) => {
+  log: (...args: unknown[]) => {
     if (isDevelopment) console.log(...args);
   },
-  warn: (...args: any[]) => {
+  warn: (...args: unknown[]) => {
     if (isDevelopment) console.warn(...args);
   },
-  error: (...args: any[]) => {
+  error: (...args: unknown[]) => {
     // Always log to console for browser telemetry/devtools
     console.error(...args);
 
@@ -38,11 +38,18 @@ export const logger = {
         const entry: LogEntry = {
             timestamp: new Date().toISOString(),
             level: 'error',
-            message: args[0]?.toString() || 'Unknown Error',
-            // Simple serialization of additional args
+            message: String(args[0]) || 'Unknown Error',
+            // Safe serialization of additional args
             data: args.slice(1).map(arg => {
                 try {
-                    return arg instanceof Error ? { message: arg.message, stack: arg.stack } : arg;
+                    if (arg instanceof Error) {
+                        return { message: arg.message, stack: arg.stack };
+                    }
+                    if (typeof arg === 'object' && arg !== null) {
+                        // Attempt to shallow clone readable props if possible, or just stringify
+                        return JSON.parse(JSON.stringify(arg));
+                    }
+                    return String(arg);
                 } catch {
                     return 'Unserializable data';
                 }

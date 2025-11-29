@@ -42,9 +42,14 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleReportIssue = () => {
-    const subject = encodeURIComponent(`Issue Report: ${this.state.error?.message?.slice(0, 50)}`);
-    const body = encodeURIComponent(`Please describe what you were doing when the error occurred:\n\n\n--- Technical Details ---\nError: ${this.state.error?.message}\nStack: ${this.state.errorInfo?.componentStack}`);
-    window.location.href = `mailto:mail@casagar.co.in?subject=${subject}&body=${body}`;
+    try {
+      const subject = encodeURIComponent(`Issue Report: ${this.state.error?.message?.slice(0, 50)}`);
+      const body = encodeURIComponent(`Please describe what you were doing when the error occurred:\n\n\n--- Technical Details ---\nError: ${this.state.error?.message}\nStack: ${this.state.errorInfo?.componentStack}`);
+      window.location.href = `mailto:mail@casagar.co.in?subject=${subject}&body=${body}`;
+    } catch (e) {
+      logger.warn('Failed to open mail client automatically', e);
+      alert('Could not open mail client. Please email us at mail@casagar.co.in');
+    }
   };
 
   public render() {
