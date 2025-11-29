@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 
 const CustomCursor: React.FC = () => {
@@ -9,6 +10,7 @@ const CustomCursor: React.FC = () => {
   const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isActive, setIsActive] = useState(false);
+  const [forceHide, setForceHide] = useState(false);
   
   // Use refs for coordinates to avoid re-renders on every frame
   const mouse = useRef({ x: -100, y: -100 }); // Start off-screen
@@ -39,6 +41,14 @@ const CustomCursor: React.FC = () => {
 
       // Show cursor when moving inside the window
       setIsVisible(true);
+
+      // Check for elements that should hide the cursor (like maps/iframes)
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-hide-cursor="true"]')) {
+        setForceHide(true);
+      } else {
+        setForceHide(false);
+      }
     };
 
     const handleMouseLeave = () => {
@@ -47,6 +57,7 @@ const CustomCursor: React.FC = () => {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      
       // Check for clickable elements
       if (
         target.tagName === 'A' || 
@@ -73,7 +84,7 @@ const CustomCursor: React.FC = () => {
     window.addEventListener('mouseover', handleMouseOver);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
-
+    
     // Animation Loop for the follower (Ring)
     const animate = () => {
       // Linear Interpolation (LERP) for smooth, organic movement
@@ -106,6 +117,16 @@ const CustomCursor: React.FC = () => {
   if (!isActive) return null;
 
   const blendModeClass = "mix-blend-difference";
+  
+  // Actually hide visual elements if forceHide is true
+  const visualStateClass = (isHovering || !isVisible || forceHide) ? 'opacity-0' : 'opacity-100';
+  const followerStateClass = !isVisible || forceHide
+             ? 'opacity-0 scale-50'
+             : isHovering 
+                ? 'scale-[2.5] bg-white border-0 opacity-100' // Hover: Becomes a large, solid "Lens"
+                : isClicking 
+                  ? 'scale-75 border border-white bg-transparent opacity-50' // Click: Sharp shrink
+                  : 'scale-100 border border-white bg-transparent opacity-100'; // Normal: Thin ring
 
   return (
     <>
@@ -116,7 +137,7 @@ const CustomCursor: React.FC = () => {
           fixed top-0 left-0 w-2.5 h-2.5 bg-white rounded-full pointer-events-none z-cursor 
           -mt-1.25 -ml-1.25 ${blendModeClass} will-change-transform
           transition-opacity duration-300 ease-out
-          ${(isHovering || !isVisible) ? 'opacity-0' : 'opacity-100'}
+          ${visualStateClass}
         `}
       />
       
@@ -128,14 +149,7 @@ const CustomCursor: React.FC = () => {
           -mt-5 -ml-5 w-10 h-10 will-change-transform
           ${blendModeClass}
           transition-all duration-500 ease-out
-          ${!isVisible
-             ? 'opacity-0 scale-50'
-             : isHovering 
-                ? 'scale-[2.5] bg-white border-0 opacity-100' // Hover: Becomes a large, solid "Lens"
-                : isClicking 
-                  ? 'scale-75 border border-white bg-transparent opacity-50' // Click: Sharp shrink
-                  : 'scale-100 border border-white bg-transparent opacity-100' // Normal: Thin ring
-          }
+          ${followerStateClass}
         `}
       />
     </>

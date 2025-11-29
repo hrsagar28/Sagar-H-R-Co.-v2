@@ -1,485 +1,332 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { MapPin, Mail, Phone, ChevronDown, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
-import { SERVICES } from '../constants';
-import { CONTACT_INFO } from '../constants';
-import Reveal from '../components/Reveal';
-import SEO from '../components/SEO';
+
+import React, { useState } from 'react';
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building } from 'lucide-react';
 import PageHero from '../components/PageHero';
-import { useRateLimit } from '../hooks/useRateLimit';
-import { useToast } from '../hooks/useToast';
+import SEO from '../components/SEO';
+import Reveal from '../components/Reveal';
+import { CONTACT_INFO, SERVICES } from '../constants';
+import { useFormValidation, useToast, useRateLimit } from '../hooks';
 import { sanitizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
 import { validateEmail, validatePhone } from '../utils/validation';
+import CustomDropdown from '../components/forms/CustomDropdown';
+
+interface ContactFormData {
+  name: string;
+  email: string;
+  phone: string;
+  companyName: string;
+  subject: string;
+  message: string;
+}
 
 const Contact: React.FC = () => {
-  const [subject, setSubject] = useState('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const { addToast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  // Rate Limiting
   const { canSubmit, recordAttempt, timeUntilReset } = useRateLimit({
     maxAttempts: 3,
-    windowMs: 60 * 1000, // 1 minute
-    storageKey: 'contact_submission_limit'
+    windowMs: 60 * 1000,
+    storageKey: 'contact_form_limit'
   });
 
-  // Form States
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [honeypot, setHoneypot] = useState('');
-
-  const [formData, setFormData] = useState({
+  const { values, handleChange, errors, validate, setValues } = useFormValidation<ContactFormData>({
     name: '',
-    company: '',
-    phone: '',
     email: '',
+    phone: '',
+    companyName: '',
+    subject: '',
     message: ''
   });
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const subjectOptions = [
-    ...SERVICES.map(s => s.title),
-    "Other Inquiry"
-  ];
-
-  const handleOptionClick = (option: string) => {
-    setSubject(option);
-    setIsDropdownOpen(false);
-    setHighlightedIndex(-1);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        if (isDropdownOpen && highlightedIndex >= 0) {
-          handleOptionClick(subjectOptions[highlightedIndex]);
-        } else {
-          setIsDropdownOpen(!isDropdownOpen);
-          if (!isDropdownOpen) setHighlightedIndex(0);
-        }
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (!isDropdownOpen) {
-          setIsDropdownOpen(true);
-          setHighlightedIndex(0);
-        } else {
-          setHighlightedIndex(prev => (prev < subjectOptions.length - 1 ? prev + 1 : prev));
-        }
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        if (isDropdownOpen) {
-          setHighlightedIndex(prev => (prev > 0 ? prev - 1 : 0));
-        }
-      } else if (e.key === 'Escape') {
-        setIsDropdownOpen(false);
-      } else if (e.key === 'Tab') {
-         if(isDropdownOpen) setIsDropdownOpen(false);
-      }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Honeypot check - if field is filled, it's a bot
-    if (honeypot) {
-        return; 
-    }
 
     if (!canSubmit) {
-       addToast(`Rate limit exceeded. Please wait ${timeUntilReset} seconds.`, "error");
-       return;
+      addToast(`Please wait ${timeUntilReset}s before retrying.`, 'error');
+      return;
     }
 
-    // Validation
-    if (!formData.name.trim()) {
-      addToast("Name is required.", "error");
-      return;
-    }
-    if (!validatePhone(formData.phone)) {
-      addToast("Please enter a valid Indian mobile number.", "error");
-      return;
-    }
-    if (formData.email && !validateEmail(formData.email)) {
-      addToast("Please enter a valid email address.", "error");
-      return;
-    }
-    if (!subject) {
-      addToast("Please select a subject.", "error");
-      return;
-    }
-    if (!formData.message.trim()) {
-      addToast("Message cannot be empty.", "error");
+    const isValid = validate({
+      name: (v) => !v.name.trim() ? 'Name is required' : undefined,
+      email: (v) => !v.email.trim() ? 'Email is required' : !validateEmail(v.email) ? 'Invalid email' : undefined,
+      phone: (v) => !v.phone.trim() ? 'Phone is required' : !validatePhone(v.phone) ? 'Invalid phone number' : undefined,
+      message: (v) => !v.message.trim() ? 'Message is required' : undefined
+    });
+
+    if (!isValid) {
+      addToast('Please correct the errors in the form.', 'error');
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitStatus('idle');
 
     try {
-        const response = await fetch(CONTACT_INFO.formEndpoint, {
-            method: "POST",
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                name: sanitizeInput(formData.name),
-                company: sanitizeInput(formData.company),
-                phone: sanitizeInput(formData.phone),
-                email: sanitizeInput(formData.email),
-                subject: sanitizeInput(subject),
-                message: sanitizeInput(formData.message),
-                _subject: `New Inquiry: ${sanitizeInput(subject) || 'General'}`
-            })
-        });
+      const res = await fetch(CONTACT_INFO.formEndpoint, {
+        method: "POST",
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            name: sanitizeInput(values.name),
+            email: sanitizeInput(values.email),
+            phone: sanitizeInput(values.phone),
+            company: sanitizeInput(values.companyName),
+            subject: sanitizeInput(values.subject) || 'Contact Form Inquiry',
+            message: sanitizeInput(values.message),
+            _subject: `New Inquiry: ${sanitizeInput(values.name)}`
+        })
+      });
 
-        if (response.ok) {
-            setSubmitStatus('success');
-            setFormData({ name: '', company: '', phone: '', email: '', message: '' });
-            setSubject('');
-            recordAttempt();
-        } else {
-            setSubmitStatus('error');
-            logger.error('Contact form submission failed', response.status, response.statusText);
-        }
-    } catch (error) {
-        logger.error('Form submission network error:', error);
-        setSubmitStatus('error');
-    } finally {
-        setIsSubmitting(false);
-    }
-  };
-
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "ContactPage",
-    "mainEntity": {
-      "@type": "AccountingService",
-      "name": CONTACT_INFO.name,
-      "telephone": CONTACT_INFO.phone.value,
-      "email": CONTACT_INFO.email,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": CONTACT_INFO.address.street,
-        "addressLocality": CONTACT_INFO.address.city,
-        "postalCode": CONTACT_INFO.address.zip,
-        "addressCountry": "IN"
+      if (res.ok) {
+        setIsSuccess(true);
+        recordAttempt();
+        setValues({ name: '', email: '', phone: '', companyName: '', subject: '', message: '' });
+        addToast('Message sent successfully!', 'success');
+      } else {
+        throw new Error('Submission failed');
       }
+    } catch (error) {
+      logger.error('Contact form error', error);
+      addToast('Failed to send message. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const serviceOptions = [
+    ...SERVICES.map(s => s.title),
+    "Other"
+  ];
 
   return (
-    <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
+    <div className="bg-brand-bg min-h-screen">
       <SEO 
-        title={`Contact ${CONTACT_INFO.name} | CA Firm in Mysuru`}
-        description={`Get in touch with ${CONTACT_INFO.name} for expert financial consultation. Located in Mysuru. Call or email us today for Audit, Tax, and Advisory services.`}
-        schema={schema}
+        title={`Contact Us | ${CONTACT_INFO.name}`}
+        description="Get in touch with us for expert financial advice. Visit our office in Mysuru or contact us via phone/email."
       />
       
-      {/* UNIFIED HERO SECTION */}
       <PageHero
-        tag="Get In Touch"
-        title="Let's"
-        subtitle="Connect."
-        description="Ready to optimize your financial strategy? Reach out to us for a consultation."
+        tag="Get in Touch"
+        title="Start the"
+        subtitle="Conversation."
+        description="Whether you have a specific question or need comprehensive advisory, we are here to help."
       />
 
-      {/* Main Content Area */}
-      <div className="py-24 px-4 md:px-8">
-        <div className="container mx-auto max-w-[1600px]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-24">
-            
-            {/* Left Column: Contact Info */}
-            <Reveal variant="fade-up">
-              <div className="h-full">
-                <div className="bg-brand-surface p-12 md:p-20 rounded-[3rem] border border-brand-border shadow-xl relative overflow-hidden group hover:border-brand-moss/50 transition-colors duration-500 h-full flex flex-col justify-center">
-                   <div className="absolute top-0 right-0 w-80 h-80 bg-brand-moss/5 rounded-full blur-[80px] pointer-events-none"></div>
-                   <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
-                   
-                   <div className="relative z-10 space-y-12">
-                      <div>
-                         <h3 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10 border-b border-brand-border pb-8">Contact Details</h3>
-                         
-                         <div className="space-y-10">
-                            <div className="flex items-start gap-6 group/item">
-                               <div className="w-16 h-16 rounded-2xl bg-brand-bg border border-brand-border flex items-center justify-center text-brand-moss shrink-0 group-hover/item:bg-brand-moss group-hover/item:text-white transition-colors duration-300 shadow-sm">
-                                  <MapPin size={28} />
-                               </div>
-                               <div>
-                                  <h4 className="text-brand-dark font-bold mb-2 text-xl md:text-2xl">Visit Us</h4>
-                                  <p className="text-brand-stone font-medium leading-relaxed text-lg">
-                                     {CONTACT_INFO.address.street},<br />
-                                     {CONTACT_INFO.address.city} - {CONTACT_INFO.address.zip}
-                                  </p>
-                               </div>
-                            </div>
+      <div className="container mx-auto max-w-7xl px-4 md:px-6 py-12 md:py-20">
+        
+        {/* Main Grid: Info Card & Form Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 mb-12 md:mb-20 items-start">
+          
+          {/* Left Column: Contact Info (Dark Theme) - Sticky */}
+          <div className="lg:col-span-4 lg:sticky lg:top-32">
+            <Reveal width="100%">
+               <div className="bg-brand-dark text-brand-surface p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl">
+                  {/* Decorative Elements */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-brand-moss opacity-20 rounded-full blur-[80px] pointer-events-none"></div>
+                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full blur-[60px] pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-noise opacity-[0.15] mix-blend-overlay pointer-events-none"></div>
 
-                            <div className="flex items-start gap-6 group/item">
-                               <div className="w-16 h-16 rounded-2xl bg-brand-bg border border-brand-border flex items-center justify-center text-brand-moss shrink-0 group-hover/item:bg-brand-moss group-hover/item:text-white transition-colors duration-300 shadow-sm">
-                                  <Mail size={28} />
-                               </div>
-                               <div>
-                                  <h4 className="text-brand-dark font-bold mb-2 text-xl md:text-2xl">Email</h4>
-                                  <a href={`mailto:${CONTACT_INFO.email}`} className="text-brand-stone font-medium hover:text-brand-moss transition-colors block break-all text-lg">{CONTACT_INFO.email}</a>
-                               </div>
-                            </div>
+                  <div className="relative z-10">
+                     <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
+                     <h2 className="text-2xl font-heading font-bold text-white mb-8">
+                       Let's discuss your <br/> <span className="text-white/60">financial future.</span>
+                     </h2>
 
-                            <div className="flex items-start gap-6 group/item">
-                               <div className="w-16 h-16 rounded-2xl bg-brand-bg border border-brand-border flex items-center justify-center text-brand-moss shrink-0 group-hover/item:bg-brand-moss group-hover/item:text-white transition-colors duration-300 shadow-sm">
-                                  <Phone size={28} />
-                               </div>
-                               <div>
-                                  <h4 className="text-brand-dark font-bold mb-2 text-xl md:text-2xl">Call</h4>
-                                  <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-brand-stone font-medium hover:text-brand-moss transition-colors text-lg">{CONTACT_INFO.phone.display}</a>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                   </div>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Right Column: Form */}
-            <Reveal variant="fade-up" delay={0.2}>
-              <div className="bg-brand-surface p-12 md:p-20 rounded-[3rem] border border-brand-border shadow-2xl shadow-brand-dark/5 min-h-[600px] flex flex-col justify-center">
-                {submitStatus === 'success' ? (
-                  <div className="text-center animate-fade-in-up">
-                    <div className="w-24 h-24 bg-brand-moss text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-brand-moss/30">
-                      <Check size={48} />
-                    </div>
-                    <h3 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4">Message Sent!</h3>
-                    <p className="text-xl text-brand-stone font-medium max-w-md mx-auto mb-10">
-                      Thank you for reaching out. We have received your inquiry and will get back to you shortly.
-                    </p>
-                    <button 
-                      onClick={() => setSubmitStatus('idle')}
-                      className="px-8 py-4 bg-brand-bg border border-brand-border text-brand-dark font-bold rounded-full hover:bg-brand-moss hover:text-white transition-all duration-300"
-                    >
-                      Send Another Message
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <h3 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">Send a message</h3>
-                    
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                      {/* Honeypot Field */}
-                      <input 
-                        type="text" 
-                        name="_honeypot" 
-                        style={{ display: 'none' }} 
-                        value={honeypot}
-                        onChange={(e) => setHoneypot(e.target.value)}
-                        tabIndex={-1}
-                        autoComplete="off"
-                      />
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Name */}
-                        <div className="group">
-                          <label htmlFor="name" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                            Name <span className="text-red-500">*</span>
-                          </label>
-                          <input 
-                            id="name"
-                            name="name" 
-                            type="text" 
-                            required 
-                            maxLength={100}
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
-                            placeholder="John Doe" 
-                          />
-                        </div>
-
-                        {/* Company */}
-                        <div className="group">
-                          <label htmlFor="company" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                            Company Name
-                          </label>
-                          <input 
-                            id="company"
-                            name="company" 
-                            type="text" 
-                            maxLength={100}
-                            value={formData.company}
-                            onChange={handleChange}
-                            className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
-                            placeholder="Acme Corp" 
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Phone */}
-                        <div className="group">
-                          <label htmlFor="phone" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                            Phone Number <span className="text-red-500">*</span>
-                          </label>
-                          <input 
-                            id="phone" 
-                            name="phone"
-                            type="tel" 
-                            required
-                            maxLength={15}
-                            value={formData.phone}
-                            onChange={handleChange}
-                            className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
-                            placeholder="+91..." 
-                          />
-                        </div>
-
-                        {/* Email */}
-                        <div className="group">
-                          <label htmlFor="email" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                            Email
-                          </label>
-                          <input 
-                            id="email" 
-                            name="email"
-                            type="email" 
-                            maxLength={100}
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all placeholder:text-brand-stone/40"
-                            placeholder="john@company.com" 
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Dropdown */}
-                      <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
-                        <label id="subject-label" className="block text-xs font-bold text-brand-dark uppercase tracking-widest ml-1 mb-1">Subject <span className="text-red-500">*</span></label>
-                        <input type="hidden" name="subject" value={subject} />
-
-                        <button 
-                          type="button"
-                          aria-haspopup="listbox"
-                          aria-expanded={isDropdownOpen}
-                          aria-labelledby="subject-label"
-                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                          onKeyDown={handleKeyDown}
-                          className={`w-full bg-brand-bg border ${isDropdownOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'} py-5 px-8 rounded-2xl text-brand-dark focus:outline-none transition-all flex justify-between items-center group hover:border-brand-moss/50 text-lg`}
-                        >
-                          <span className={subject ? "text-brand-dark font-medium" : "text-brand-stone/40"}>
-                            {subject || "Select a Topic"}
-                          </span>
-                          <ChevronDown size={20} className={`text-brand-stone transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} />
-                        </button>
-
-                        <div 
-                          className={`absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden transition-all duration-300 z-popover origin-top ${isDropdownOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
-                          role="listbox"
-                        >
-                          <div className="max-h-60 overflow-y-auto py-2">
-                            {subjectOptions.map((option, idx) => (
-                              <div 
-                                key={idx}
-                                role="option"
-                                aria-selected={subject === option}
-                                onClick={() => handleOptionClick(option)}
-                                className={`px-8 py-4 cursor-pointer flex justify-between items-center group transition-colors ${highlightedIndex === idx ? 'bg-brand-bg text-brand-moss' : 'hover:bg-brand-bg text-brand-dark'}`}
-                              >
-                                <span className={`text-base md:text-lg font-medium ${subject === option ? 'text-brand-moss font-bold' : 'group-hover:text-brand-moss'}`}>
-                                  {option}
-                                </span>
-                                {subject === option && <Check size={20} className="text-brand-moss" />}
-                              </div>
-                            ))}
+                     <div className="space-y-6">
+                       {/* Office */}
+                       <div className="flex items-start gap-5 group">
+                          <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
+                             <MapPin size={18} />
                           </div>
-                        </div>
-                      </div>
+                          <div>
+                             <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Our Office</h4>
+                             <address className="not-italic text-gray-300 font-medium leading-relaxed text-sm">
+                               {CONTACT_INFO.address.street},<br/>
+                               {CONTACT_INFO.address.city} - {CONTACT_INFO.address.zip}
+                             </address>
+                          </div>
+                       </div>
 
-                      {/* Textarea */}
-                      <div className="group pt-2">
-                        <label htmlFor="message" className="block text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                          Message <span className="text-red-500">*</span>
-                        </label>
-                        <textarea 
-                          id="message" 
-                          name="message"
-                          rows={5} 
-                          required
-                          maxLength={2000}
-                          value={formData.message}
-                          onChange={handleChange}
-                          className="w-full bg-brand-bg border border-brand-border py-5 px-8 rounded-2xl text-brand-dark text-lg focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all resize-none placeholder:text-brand-stone/40"
-                          placeholder="How can we help you?"
-                        ></textarea>
-                      </div>
+                       {/* Email */}
+                       <div className="flex items-start gap-5 group">
+                          <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
+                             <Mail size={18} />
+                          </div>
+                          <div>
+                             <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Email Us</h4>
+                             <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-white transition-colors font-medium break-all text-sm">
+                               {CONTACT_INFO.email}
+                             </a>
+                          </div>
+                       </div>
 
-                      {submitStatus === 'error' && (
-                        <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600" role="alert" aria-live="assertive">
-                          <AlertCircle size={20} aria-hidden="true" />
-                          <span className="text-sm font-medium">Something went wrong. Please try again later.</span>
-                        </div>
-                      )}
-
-                      <button 
-                        type="submit" 
-                        disabled={isSubmitting || !canSubmit}
-                        className={`
-                          mt-6 w-full relative overflow-hidden px-8 py-6 rounded-full font-bold text-xl tracking-wide 
-                          flex items-center justify-center gap-4 group shadow-xl 
-                          transition-all duration-300
-                          ${(isSubmitting || !canSubmit)
-                             ? 'bg-brand-stone text-brand-surface opacity-80 cursor-not-allowed'
-                             : 'bg-brand-dark text-white hover:shadow-2xl'
-                          }
-                        `}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 size={24} className="animate-spin" />
-                            <span>Sending...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="relative z-10 group-hover:translate-x-[-4px] transition-transform duration-300">Send Message</span>
-                            <ArrowRight size={24} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
-                            {/* Hover Fill Effect */}
-                            {canSubmit && <div className="absolute inset-0 bg-brand-moss translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-premium"></div>}
-                          </>
-                        )}
-                      </button>
-                      
-                    </form>
-                  </>
-                )}
-              </div>
+                       {/* Phone */}
+                       <div className="flex items-start gap-5 group">
+                          <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
+                             <Phone size={18} />
+                          </div>
+                          <div>
+                             <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Call Us</h4>
+                             <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
+                               {CONTACT_INFO.phone.display}
+                             </a>
+                          </div>
+                       </div>
+                     </div>
+                  </div>
+               </div>
             </Reveal>
           </div>
-        </div>
-      </div>
 
-      {/* Map Section */}
-      <section className="px-2 md:px-4 pb-4">
-          <Reveal variant="scale" delay={0.4}>
-            <div className="w-full rounded-[3rem] overflow-hidden border border-brand-border shadow-xl relative bg-brand-surface h-[500px] md:h-[700px] group">
-               <div className="absolute top-8 right-8 md:top-12 md:right-12 z-10 bg-brand-surface/90 backdrop-blur-md px-8 py-5 rounded-3xl border border-brand-border/50 shadow-lg pointer-events-none">
-                  <div className="flex items-center gap-3 mb-1">
-                     <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></div>
-                     <span className="text-xs font-bold uppercase tracking-widest text-brand-dark">Our Location</span>
+          {/* Right Column: Contact Form (Light Theme) */}
+          <Reveal className="lg:col-span-8" delay={0.1} width="100%">
+            <div className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border h-full shadow-lg flex flex-col justify-center">
+              {isSuccess ? (
+                <div className="text-center py-10 animate-fade-in-up">
+                  <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle size={40} />
                   </div>
-                  <h3 className="font-heading font-bold text-2xl text-brand-dark">{CONTACT_INFO.name}</h3>
+                  <h3 className="text-3xl font-heading font-bold text-brand-dark mb-4">Message Sent!</h3>
+                  <p className="text-brand-stone mb-8 text-lg font-medium">
+                    Thank you for reaching out. Our team will get back to you shortly.
+                  </p>
+                  <button 
+                    onClick={() => setIsSuccess(false)}
+                    className="text-brand-moss font-bold hover:underline underline-offset-4"
+                  >
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="mb-2">
+                     <h3 className="text-3xl font-heading font-bold text-brand-dark">Send a Message</h3>
+                     <p className="text-brand-stone font-medium mt-2">Fill out the form below and we will get back to you.</p>
+                  </div>
+                  
+                  {/* Row 1: Name & Phone */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="group">
+                      <label htmlFor="name" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Name <span className="text-red-500">*</span></label>
+                      <input 
+                        type="text" 
+                        id="name"
+                        name="name"
+                        value={values.name} 
+                        onChange={(e) => handleChange('name', e.target.value)}
+                        className={`w-full bg-brand-bg border ${errors.name ? 'border-red-500' : 'border-brand-border'} rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all`}
+                        placeholder="Your Name"
+                      />
+                      {errors.name && <p className="text-red-500 text-xs mt-1 ml-1">{errors.name}</p>}
+                    </div>
+                    <div className="group">
+                      <label htmlFor="phone" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Phone <span className="text-red-500">*</span></label>
+                      <input 
+                        type="tel"
+                        id="phone"
+                        name="phone" 
+                        value={values.phone}
+                        onChange={(e) => handleChange('phone', e.target.value)}
+                        className={`w-full bg-brand-bg border ${errors.phone ? 'border-red-500' : 'border-brand-border'} rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all`}
+                        placeholder="Mobile Number"
+                      />
+                      {errors.phone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.phone}</p>}
+                    </div>
+                  </div>
+
+                  {/* Row 2: Email & Company Name */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="group">
+                      <label htmlFor="email" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Email <span className="text-red-500">*</span></label>
+                      <input 
+                        type="email" 
+                        id="email"
+                        name="email"
+                        value={values.email}
+                        onChange={(e) => handleChange('email', e.target.value)}
+                        className={`w-full bg-brand-bg border ${errors.email ? 'border-red-500' : 'border-brand-border'} rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all`}
+                        placeholder="email@company.com"
+                      />
+                      {errors.email && <p className="text-red-500 text-xs mt-1 ml-1">{errors.email}</p>}
+                    </div>
+                    
+                    <div className="group">
+                      <label htmlFor="companyName" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Company Name</label>
+                      <input 
+                        type="text" 
+                        id="companyName"
+                        name="companyName"
+                        value={values.companyName}
+                        onChange={(e) => handleChange('companyName', e.target.value)}
+                        className="w-full bg-brand-bg border border-brand-border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
+                        placeholder="Company Name"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Row 3: Subject (Full Width) */}
+                  <div className="w-full">
+                    <CustomDropdown
+                      label="Subject"
+                      name="subject"
+                      value={values.subject}
+                      options={serviceOptions}
+                      onChange={(name, val) => handleChange(name as keyof ContactFormData, val)}
+                      placeholder="Select a topic"
+                    />
+                  </div>
+
+                  {/* Row 4: Message */}
+                  <div className="group">
+                    <label htmlFor="message" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Message <span className="text-red-500">*</span></label>
+                    <textarea 
+                      id="message"
+                      rows={4}
+                      name="message"
+                      value={values.message}
+                      onChange={(e) => handleChange('message', e.target.value)}
+                      className={`w-full bg-brand-bg border ${errors.message ? 'border-red-500' : 'border-brand-border'} rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all resize-none`}
+                      placeholder="How can we help you?"
+                    ></textarea>
+                    {errors.message && <p className="text-red-500 text-xs mt-1 ml-1">{errors.message}</p>}
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting || !canSubmit}
+                    className="w-full bg-brand-dark text-white font-bold py-5 rounded-2xl hover:bg-brand-moss transition-all shadow-xl shadow-brand-dark/10 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group text-lg mt-4"
+                  >
+                    {isSubmitting ? (
+                        <>
+                            <Loader2 className="animate-spin" size={20} /> Sending...
+                        </>
+                    ) : (
+                        <>
+                            Send Message <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </Reveal>
+        </div>
+
+        {/* Map Section - Reduced Height & Robust Cursor Handling */}
+        <Reveal variant="scale" delay={0.2} width="100%">
+            <div 
+              className="w-full h-[250px] md:h-[350px] rounded-[3rem] overflow-hidden shadow-2xl border border-brand-border grayscale group relative transition-all duration-700 hover:grayscale-0"
+              data-hide-cursor="true"
+            >
+               <div className="absolute top-6 right-6 md:top-10 md:right-10 z-10 bg-brand-surface/90 backdrop-blur-md px-6 py-4 rounded-2xl border border-brand-border/50 shadow-lg pointer-events-none">
+                  <div className="flex items-center gap-3 mb-1">
+                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                     <span className="text-[10px] font-bold uppercase tracking-widest text-brand-dark">Our Location</span>
+                  </div>
+                  <h3 className="font-heading font-bold text-xl text-brand-dark">{CONTACT_INFO.name}</h3>
                </div>
 
                <iframe 
@@ -491,13 +338,16 @@ const Contact: React.FC = () => {
                   marginHeight={0} 
                   marginWidth={0} 
                   src={CONTACT_INFO.geo.mapEmbedUrl}
-                  className="w-full h-full grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-700 ease-in-out"
+                  className="w-full h-full border-0"
                   loading="lazy"
                ></iframe>
+               
+               {/* Vignette Overlay for cinematic look */}
+               <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-brand-dark/20 to-transparent opacity-50"></div>
             </div>
-          </Reveal>
-      </section>
+        </Reveal>
 
+      </div>
     </div>
   );
 };

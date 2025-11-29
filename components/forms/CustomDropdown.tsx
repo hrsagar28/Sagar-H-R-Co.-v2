@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -172,36 +173,41 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
       
       {error && <p className="text-red-500 text-xs mt-1 font-bold" role="alert" aria-live="polite">{error}</p>}
 
-      {isOpen && (
-        <ul
-          id={`${name}-listbox`}
-          role="listbox"
-          ref={listboxRef}
-          aria-labelledby={`${name}-label`}
-          tabIndex={-1}
-          className="absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden transition-all duration-300 z-popover max-h-60 overflow-y-auto py-2 no-scrollbar outline-none"
-        >
-          {options.map((option, idx) => (
-            <li 
-              key={idx}
-              id={`${name}-option-${idx}`}
-              role="option"
-              aria-selected={activeIndex === idx}
-              onClick={() => handleSelect(option)}
-              onMouseEnter={() => setActiveIndex(idx)}
-              className={`
-                px-6 py-3 cursor-pointer flex justify-between items-center transition-colors
-                ${activeIndex === idx ? 'bg-brand-bg text-brand-moss' : 'text-brand-dark'}
-              `}
-            >
-              <span className={`text-base font-medium ${value === option ? 'font-bold' : ''}`}>
-                {option}
-              </span>
-              {value === option && <Check size={16} className="text-brand-moss" />}
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul
+        id={`${name}-listbox`}
+        role="listbox"
+        ref={listboxRef}
+        aria-labelledby={`${name}-label`}
+        tabIndex={-1}
+        className={`
+          absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl 
+          overflow-hidden max-h-60 overflow-y-auto py-2 no-scrollbar outline-none z-popover
+          transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top
+          ${isOpen 
+            ? 'opacity-100 scale-100 translate-y-0 visible pointer-events-auto' 
+            : 'opacity-0 scale-95 -translate-y-2 invisible pointer-events-none'}
+        `}
+      >
+        {options.map((option, idx) => (
+          <li 
+            key={idx}
+            id={`${name}-option-${idx}`}
+            role="option"
+            aria-selected={activeIndex === idx}
+            onClick={() => handleSelect(option)}
+            onMouseEnter={() => setActiveIndex(idx)}
+            className={`
+              px-6 py-3 cursor-pointer flex justify-between items-center transition-colors
+              ${activeIndex === idx ? 'bg-brand-bg text-brand-moss' : 'text-brand-dark'}
+            `}
+          >
+            <span className={`text-base font-medium ${value === option ? 'font-bold' : ''}`}>
+              {option}
+            </span>
+            {value === option && <Check size={16} className="text-brand-moss" />}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

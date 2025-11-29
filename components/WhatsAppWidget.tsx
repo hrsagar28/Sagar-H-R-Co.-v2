@@ -1,14 +1,17 @@
 
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { CONTACT_INFO } from '../constants';
 import { useReducedMotion, useScrollPosition } from '../hooks';
 
 const WhatsAppWidget: React.FC = () => {
   const { direction, scrollY } = useScrollPosition();
   const shouldReduceMotion = useReducedMotion();
+  const { pathname } = useLocation();
 
   // Hide when scrolling down significantly (more than 200px), show when scrolling up
-  const isVisible = !(direction === 'down' && scrollY > 200);
+  // Also hide completely on the Contact page
+  const isVisible = !(direction === 'down' && scrollY > 200) && pathname !== '/contact';
 
   const animationClass = shouldReduceMotion 
     ? (isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')

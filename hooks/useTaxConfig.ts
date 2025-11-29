@@ -16,7 +16,7 @@ export const useTaxConfig = () => {
       const baseDelay = 1000;
 
       // Construct robust path using Vite's BASE_URL or fallback to relative
-      const baseUrl = (import.meta as any).env.BASE_URL || '/';
+      const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
       const url = `${baseUrl}data/tax-config.json`.replace('//', '/');
 
       for (let i = 0; i < retries; i++) {
