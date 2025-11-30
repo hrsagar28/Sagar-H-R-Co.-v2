@@ -1,4 +1,5 @@
 
+
 // Helper to safely get environment variables
 const getEnv = (key: string, required = false): string => {
   let val = '';
@@ -32,6 +33,10 @@ export const CONTACT_INFO = {
     zip: "570004",
     country: "India",
     full: "1479, 2nd Floor, Thyagaraja Road, KR Mohalla, Mysuru - 570004"
+  },
+  hours: {
+    display: "Mon - Sat: 10:00 AM - 8:00 PM",
+    value: "Mo-Sa 10:00-20:00"
   },
   social: {
     linkedin: "https://www.linkedin.com/in/sagar-h-r-507495261/",

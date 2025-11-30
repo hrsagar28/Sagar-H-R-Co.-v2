@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Linkedin, ArrowUp } from 'lucide-react';
@@ -84,6 +85,10 @@ const Footer: React.FC = React.memo(() => {
                     <li>
                        <span className="block text-sm text-zinc-500 mb-1">Phone</span>
                        <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">{CONTACT_INFO.phone.display}</a>
+                    </li>
+                    <li>
+                       <span className="block text-sm text-zinc-500 mb-1">Office Hours</span>
+                       <p className="text-lg font-medium text-zinc-300">{CONTACT_INFO.hours.display}</p>
                     </li>
                  </ul>
               </div>

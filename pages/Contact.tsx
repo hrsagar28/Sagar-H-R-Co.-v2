@@ -1,6 +1,7 @@
 
+
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
@@ -173,6 +174,19 @@ const Contact: React.FC = () => {
                              <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
                                {CONTACT_INFO.phone.display}
                              </a>
+                          </div>
+                       </div>
+
+                       {/* Working Hours */}
+                       <div className="flex items-start gap-5 group">
+                          <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
+                             <Clock size={18} />
+                          </div>
+                          <div>
+                             <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Working Hours</h4>
+                             <p className="text-gray-300 font-medium text-sm">
+                               {CONTACT_INFO.hours.display}
+                             </p>
                           </div>
                        </div>
                      </div>
