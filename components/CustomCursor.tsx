@@ -88,7 +88,8 @@ const CustomCursor: React.FC = () => {
     // Animation Loop for the follower (Ring)
     const animate = () => {
       // Linear Interpolation (LERP) for smooth, organic movement
-      const lerpFactor = 0.15; 
+      // Increased from 0.15 to 0.35 for snappier response
+      const lerpFactor = 0.35; 
       
       follower.current.x += (mouse.current.x - follower.current.x) * lerpFactor;
       follower.current.y += (mouse.current.y - follower.current.y) * lerpFactor;

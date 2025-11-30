@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
@@ -175,21 +175,6 @@ const Contact: React.FC = () => {
                              </a>
                           </div>
                        </div>
-
-                       {/* Working Hours */}
-                       <div className="flex items-start gap-5 group">
-                          <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
-                             <Clock size={18} />
-                          </div>
-                          <div>
-                             <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Working Hours</h4>
-                             <p className="text-gray-300 font-medium text-sm leading-relaxed">
-                               Monday to Saturday<br/>
-                               10:00 AM - 2:00 PM<br/>
-                               4:00 PM - 8:00 PM
-                             </p>
-                          </div>
-                       </div>
                      </div>
                   </div>
                </div>
@@ -333,10 +318,10 @@ const Contact: React.FC = () => {
         {/* Map Section - Reduced Height & Robust Cursor Handling */}
         <Reveal variant="scale" delay={0.2} width="100%">
             <div 
-              className="w-full h-[250px] md:h-[350px] rounded-[3rem] overflow-hidden shadow-2xl border border-brand-border grayscale-0 md:grayscale group relative transition-all duration-700 md:hover:grayscale-0"
+              className="w-full h-[250px] md:h-[350px] rounded-[3rem] overflow-hidden shadow-2xl border border-brand-border grayscale group relative transition-all duration-700 hover:grayscale-0"
               data-hide-cursor="true"
             >
-               <div className="hidden md:block absolute top-10 right-10 z-10 bg-brand-surface/90 backdrop-blur-md px-6 py-4 rounded-2xl border border-brand-border/50 shadow-lg pointer-events-none">
+               <div className="absolute top-6 right-6 md:top-10 md:right-10 z-10 bg-brand-surface/90 backdrop-blur-md px-6 py-4 rounded-2xl border border-brand-border/50 shadow-lg pointer-events-none">
                   <div className="flex items-center gap-3 mb-1">
                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                      <span className="text-[10px] font-bold uppercase tracking-widest text-brand-dark">Our Location</span>

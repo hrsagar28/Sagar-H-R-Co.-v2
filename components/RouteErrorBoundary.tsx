@@ -13,6 +13,10 @@ interface State {
 class RouteErrorBoundary extends React.Component<Props, State> {
   public state: State = { hasError: false };
 
+  constructor(props: Props) {
+    super(props);
+  }
+
   static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
   }

@@ -20,6 +20,10 @@ class ErrorBoundary extends React.Component<Props, State> {
     errorInfo: null
   };
 
+  constructor(props: Props) {
+    super(props);
+  }
+
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error, errorInfo: null };
   }
