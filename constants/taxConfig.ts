@@ -1,12 +1,13 @@
 
+
 export const TAX_CONFIG = {
   meta: {
     financialYear: "FY 2025-26",
     assessmentYear: "AY 2026-27",
-    description: "Updated as per Finance Bill 2025"
+    description: "Updated as per Finance Act 2025"
   },
   stdDeduction: {
-    new: 75000,
+    new: 75000, // Increased to 75k in Finance Act 2025
     old: 50000
   },
   limits: {
@@ -17,7 +18,7 @@ export const TAX_CONFIG = {
     hra_house_loan: 200000, // Max interest on self-occupied property
   },
   rebate87A: {
-    new: { limit: 1200000, type: "marginal" }, // Marginal relief applies
+    new: { limit: 1200000, type: "marginal" }, // Limit increased to 12 Lakhs in Finance Act 2025
     old: { limit: 500000, amount: 12500, type: "fixed" }
   },
   surcharge: {
@@ -25,7 +26,7 @@ export const TAX_CONFIG = {
       { min: 5000000, rate: 0.10 },
       { min: 10000000, rate: 0.15 },
       { min: 20000000, rate: 0.25 },
-      { min: 50000000, rate: 0.25 } // Note: Capped at 25% for New Regime usually, adjusted in logic if needed
+      { min: 50000000, rate: 0.25 } // Capped at 25% for New Regime
     ],
     oldRegimeHighRate: 0.37 // 37% for income > 5Cr in Old Regime
   },

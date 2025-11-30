@@ -29,13 +29,6 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
   useReturnFocus(isOpen);
   useFocusTrap(isOpen, menuRef, () => setIsOpen(false));
 
-  // Close on scroll behavior is now handled via state derived from hook
-  useEffect(() => {
-    if (isOpen && scrolled) {
-      setIsOpen(false);
-    }
-  }, [scrolled, isOpen]);
-
   // Close on route change
   useEffect(() => {
     setIsOpen(false);
@@ -232,3 +225,4 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
 });
 
 export default Navbar;
+    

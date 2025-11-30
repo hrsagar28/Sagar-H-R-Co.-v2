@@ -92,7 +92,7 @@ const App: React.FC = () => {
           
           {/* Fixed Elements */}
           <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none print:hidden">
-            <Navbar className="animate-content-reveal delay-2000 pointer-events-auto" />
+            <Navbar className="animate-content-reveal delay-2000" />
           </div>
 
           <div className="print:hidden">
@@ -168,3 +168,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+    
