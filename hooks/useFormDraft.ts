@@ -52,6 +52,14 @@ export function useFormDraft<T>(
       } catch (e) {
         if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
            logger.warn('Failed to save draft: localStorage quota exceeded');
+           // Notify user once per session or throttle this to avoid spamming toasts
+           // Using simple dispatch here
+           window.dispatchEvent(new CustomEvent('app-toast', { 
+              detail: { 
+                message: 'Auto-save failed: Browser storage full.', 
+                variant: 'warning' 
+              } 
+           }));
         }
       }
     }, debounceMs);

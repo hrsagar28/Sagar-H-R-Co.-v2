@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 
 /**
  * Hook that syncs state to local storage so that it persists through page refreshes.
+ * Includes error handling for quota limits.
  * 
  * @template T
  * @param {string} key - The key to use in localStorage.
@@ -45,8 +46,14 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((pre
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
         } catch (e) {
           if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
-            logger.warn('localStorage quota exceeded. Clearing non-essential data recommended.');
-            // Optional: Implement a cleanup strategy here if needed
+            logger.warn('localStorage quota exceeded.');
+            // Dispatch global event to notify user via Toast
+            window.dispatchEvent(new CustomEvent('app-toast', { 
+              detail: { 
+                message: 'Failed to save progress. Storage is full. Please clear browser cache.', 
+                variant: 'warning' 
+              } 
+            }));
           } else {
             throw e;
           }

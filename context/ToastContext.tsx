@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { ToastVariant } from '../components/Toast';
 
 export interface ToastData {
@@ -27,6 +28,19 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  // Listen for global toast events dispatched from non-component code
+  useEffect(() => {
+    const handleGlobalToast = (event: Event) => {
+      const customEvent = event as CustomEvent<{ message: string; variant: ToastVariant }>;
+      if (customEvent.detail) {
+        addToast(customEvent.detail.message, customEvent.detail.variant);
+      }
+    };
+
+    window.addEventListener('app-toast', handleGlobalToast);
+    return () => window.removeEventListener('app-toast', handleGlobalToast);
+  }, [addToast]);
 
   return (
     <ToastContext.Provider value={{ addToast, removeToast, toasts }}>

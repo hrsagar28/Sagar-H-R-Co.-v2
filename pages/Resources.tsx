@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Calculator, Calendar, FileText, Globe } from 'lucide-react';
+import { Calculator, Calendar, FileText, Globe, Percent, BarChart3, TrendingUp, ChevronRight } from 'lucide-react';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../constants';
@@ -7,9 +8,15 @@ import TaxCalculator from '../components/TaxCalculator';
 import ComplianceCalendar from './Resources/ComplianceCalendar';
 import ChecklistGrid from './Resources/ChecklistGrid';
 import ImportantLinksGrid from './Resources/ImportantLinksGrid';
+import GSTCalculator from './Resources/GSTCalculator';
+import HRACalculator from './Resources/HRACalculator';
+import TDSRateChart from './Resources/TDSRateChart';
+import CIITable from './Resources/CIITable';
+
+type ResourceTab = 'income-tax' | 'gst-calc' | 'hra-calc' | 'calendar' | 'tds-rates' | 'cii-table' | 'checklist' | 'links';
 
 const Resources: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'calculator' | 'calendar' | 'checklist' | 'links'>('calculator');
+  const [activeTab, setActiveTab] = useState<ResourceTab>('income-tax');
 
   const schema = {
     "@context": "https://schema.org",
@@ -30,11 +37,24 @@ const Resources: React.FC = () => {
     ]
   };
 
+  const NavItem = ({ id, label, icon: Icon }: { id: ResourceTab, label: string, icon: any }) => (
+    <button 
+        onClick={() => setActiveTab(id)}
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold transition-all text-sm group ${activeTab === id ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
+    >
+        <div className="flex items-center gap-3">
+            <Icon size={18} className={activeTab === id ? 'text-white' : 'text-brand-stone/70 group-hover:text-brand-dark'} />
+            <span>{label}</span>
+        </div>
+        {activeTab === id && <ChevronRight size={14} />}
+    </button>
+  );
+
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO 
         title="Resources | Calculators, Calendar & Checklists"
-        description="Essential financial tools for businesses and individuals. Income Tax Calculator, Compliance Calendar, and Downloadable Checklists."
+        description="Essential financial tools for businesses and individuals. Income Tax Calculator, GST Calculator, Compliance Calendar, TDS Rates and more."
         schema={schema}
       />
       
@@ -53,58 +73,53 @@ const Resources: React.FC = () => {
                
                {/* SIDEBAR TABS - Hidden in Print */}
                <div className="lg:col-span-1 print:hidden">
-                  <div className="bg-brand-surface rounded-[2rem] border border-brand-border p-4 sticky top-32 shadow-sm">
-                     <nav className="flex flex-col gap-2">
-                        <button 
-                           onClick={() => setActiveTab('calculator')}
-                           className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all text-left ${activeTab === 'calculator' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
-                        >
-                           <Calculator size={20} /> Tax Calculator
-                        </button>
-                        <button 
-                           onClick={() => setActiveTab('calendar')}
-                           className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all text-left ${activeTab === 'calendar' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
-                        >
-                           <Calendar size={20} /> Compliance Calendar
-                        </button>
-                        <button 
-                           onClick={() => setActiveTab('checklist')}
-                           className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all text-left ${activeTab === 'checklist' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
-                        >
-                           <FileText size={20} /> Checklists
-                        </button>
-                        <button 
-                           onClick={() => setActiveTab('links')}
-                           className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all text-left ${activeTab === 'links' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
-                        >
-                           <Globe size={20} /> Important Links
-                        </button>
-                     </nav>
+                  <div className="bg-brand-surface rounded-[2rem] border border-brand-border p-4 sticky top-32 shadow-sm space-y-6">
+                     
+                     <div>
+                        <h3 className="px-4 text-xs font-bold text-brand-stone uppercase tracking-widest mb-3">Calculators</h3>
+                        <div className="space-y-1">
+                            <NavItem id="income-tax" label="Tax Estimator" icon={Calculator} />
+                            <NavItem id="gst-calc" label="GST Calculator" icon={Percent} />
+                            <NavItem id="hra-calc" label="HRA Calculator" icon={TrendingUp} />
+                        </div>
+                     </div>
+
+                     <div className="w-full h-px bg-brand-border/50"></div>
+
+                     <div>
+                        <h3 className="px-4 text-xs font-bold text-brand-stone uppercase tracking-widest mb-3">Reference Data</h3>
+                        <div className="space-y-1">
+                            <NavItem id="calendar" label="Compliance Calendar" icon={Calendar} />
+                            <NavItem id="tds-rates" label="TDS Rate Chart" icon={BarChart3} />
+                            <NavItem id="cii-table" label="CII Table" icon={TrendingUp} />
+                        </div>
+                     </div>
+
+                     <div className="w-full h-px bg-brand-border/50"></div>
+
+                     <div>
+                        <div className="space-y-1">
+                            <NavItem id="checklist" label="Checklists" icon={FileText} />
+                            <NavItem id="links" label="Important Links" icon={Globe} />
+                        </div>
+                     </div>
+
                   </div>
                </div>
 
                {/* CONTENT PANEL - Full Width in Print */}
                <div className="lg:col-span-3 print:w-full">
                   
-                  {/* CALCULATOR TAB */}
-                  {activeTab === 'calculator' && (
-                     <TaxCalculator />
-                  )}
+                  {activeTab === 'income-tax' && <TaxCalculator />}
+                  {activeTab === 'gst-calc' && <GSTCalculator />}
+                  {activeTab === 'hra-calc' && <HRACalculator />}
+                  
+                  {activeTab === 'calendar' && <ComplianceCalendar />}
+                  {activeTab === 'tds-rates' && <TDSRateChart />}
+                  {activeTab === 'cii-table' && <CIITable />}
 
-                  {/* CALENDAR TAB */}
-                  {activeTab === 'calendar' && (
-                     <ComplianceCalendar />
-                  )}
-
-                  {/* CHECKLISTS TAB */}
-                  {activeTab === 'checklist' && (
-                     <ChecklistGrid />
-                  )}
-
-                  {/* LINKS TAB */}
-                  {activeTab === 'links' && (
-                     <ImportantLinksGrid />
-                  )}
+                  {activeTab === 'checklist' && <ChecklistGrid />}
+                  {activeTab === 'links' && <ImportantLinksGrid />}
 
                </div>
             </div>

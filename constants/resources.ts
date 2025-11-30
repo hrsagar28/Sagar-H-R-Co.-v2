@@ -1,4 +1,5 @@
 
+
 // Resource Hub Data
 export const IMPORTANT_LINKS = [
   {
@@ -28,6 +29,52 @@ export const IMPORTANT_LINKS = [
       { name: 'ICAI UDIN', url: 'https://udin.icai.org/' }
     ]
   }
+];
+
+export const TDS_RATES = [
+  { section: '192', nature: 'Payment of Salary', threshold: 'Basic Exemption', rate: 'Slab Rate' },
+  { section: '192A', nature: 'Premature withdrawal from EPF', threshold: '50,000', rate: '10%' },
+  { section: '194', nature: 'Dividend', threshold: '5,000', rate: '10%' },
+  { section: '194A', nature: 'Interest other than interest on securities', threshold: '40,000 (Gen) / 50,000 (Sr)', rate: '10%' },
+  { section: '194C', nature: 'Payment to Contractors (Ind/HUF)', threshold: '30k Single / 1L Agg.', rate: '1%' },
+  { section: '194C', nature: 'Payment to Contractors (Others)', threshold: '30k Single / 1L Agg.', rate: '2%' },
+  { section: '194D', nature: 'Insurance Commission', threshold: '15,000', rate: '5%' },
+  { section: '194DA', nature: 'Life Insurance Maturity', threshold: '1,00,000', rate: '5%' },
+  { section: '194H', nature: 'Commission or Brokerage', threshold: '15,000', rate: '5%' },
+  { section: '194I(a)', nature: 'Rent of Plant & Machinery', threshold: '2,40,000', rate: '2%' },
+  { section: '194I(b)', nature: 'Rent of Land, Building or Furniture', threshold: '2,40,000', rate: '10%' },
+  { section: '194J(a)', nature: 'Professional Fees', threshold: '30,000', rate: '10%' },
+  { section: '194J(b)', nature: 'Technical Services / Call Center', threshold: '30,000', rate: '2%' },
+  { section: '194IA', nature: 'Transfer of Immovable Property', threshold: '50,00,000', rate: '1%' },
+  { section: '194IB', nature: 'Rent by Ind/HUF (Not under Audit)', threshold: '50,000 p.m.', rate: '5%' },
+  { section: '194Q', nature: 'Purchase of Goods (Buyer TO > 10Cr)', threshold: '50,00,000', rate: '0.1%' },
+];
+
+export const CII_DATA = [
+  { fy: '2024-25', index: '363' },
+  { fy: '2023-24', index: '348' },
+  { fy: '2022-23', index: '331' },
+  { fy: '2021-22', index: '317' },
+  { fy: '2020-21', index: '301' },
+  { fy: '2019-20', index: '289' },
+  { fy: '2018-19', index: '280' },
+  { fy: '2017-18', index: '272' },
+  { fy: '2016-17', index: '264' },
+  { fy: '2015-16', index: '254' },
+  { fy: '2014-15', index: '240' },
+  { fy: '2013-14', index: '220' },
+  { fy: '2012-13', index: '200' },
+  { fy: '2011-12', index: '184' },
+  { fy: '2010-11', index: '167' },
+  { fy: '2009-10', index: '148' },
+  { fy: '2008-09', index: '137' },
+  { fy: '2007-08', index: '129' },
+  { fy: '2006-07', index: '122' },
+  { fy: '2005-06', index: '117' },
+  { fy: '2004-05', index: '113' },
+  { fy: '2003-04', index: '109' },
+  { fy: '2002-03', index: '105' },
+  { fy: '2001-02', index: '100' },
 ];
 
 /**

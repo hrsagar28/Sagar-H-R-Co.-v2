@@ -1,6 +1,8 @@
+
 import React, { useReducer } from 'react';
 import { Printer, ArrowRight, RotateCcw, Loader2 } from 'lucide-react';
 import { CONTACT_INFO } from '../../constants';
+import { TAX_CONFIG } from '../../constants/taxConfig';
 import CustomDropdown from '../forms/CustomDropdown';
 
 import IncomeInputs from './IncomeInputs';
@@ -9,7 +11,6 @@ import ResultsDisplay from './ResultsDisplay';
 import { useTaxCalculation } from './useTaxCalculation';
 import { IncomeHeads, Deductions } from './types';
 import { AGE_MAP } from './taxSlabs';
-import { useTaxConfig } from '../../hooks';
 
 // --- Reducer Types & Logic ---
 
@@ -25,8 +26,8 @@ interface TaxState {
 type TaxAction =
   | { type: 'SET_INCOME'; field: keyof IncomeHeads; value: number }
   | { type: 'SET_DEDUCTION'; field: keyof Deductions; value: number }
-  | { type: 'SET_DEDUCTIONS_OBJECT'; payload: Deductions } // For bulk updates if needed
-  | { type: 'SET_INCOME_OBJECT'; payload: IncomeHeads } // For bulk updates if needed
+  | { type: 'SET_DEDUCTIONS_OBJECT'; payload: Deductions } 
+  | { type: 'SET_INCOME_OBJECT'; payload: IncomeHeads } 
   | { type: 'SET_AGE_GROUP'; value: string }
   | { type: 'SET_REGIME'; value: 'new' | 'old' }
   | { type: 'SHOW_RESULTS'; value: boolean }
@@ -89,16 +90,15 @@ function taxReducer(state: TaxState, action: TaxAction): TaxState {
 // --- Component ---
 
 const TaxCalculator: React.FC = () => {
-  const { config, loading } = useTaxConfig();
   const [state, dispatch] = useReducer(taxReducer, initialState);
 
-  const comparison = useTaxCalculation(state.incomeHeads, state.deductions, state.ageGroup, config);
+  // Note: We no longer fetch external JSON. We use robust internal constants.
+  const comparison = useTaxCalculation(state.incomeHeads, state.deductions, state.ageGroup);
 
   const handleCalculate = () => dispatch({ type: 'SHOW_RESULTS', value: true });
   const handleClear = () => dispatch({ type: 'RESET' });
   const handlePrint = () => window.print();
 
-  // Handler wrappers to maintain child component interface compatibility without major rewrite
   const setIncomeHeadsWrapper = (heads: IncomeHeads) => {
      dispatch({ type: 'SET_INCOME_OBJECT', payload: heads });
   };
@@ -110,13 +110,6 @@ const TaxCalculator: React.FC = () => {
   return (
     <div className="bg-brand-surface rounded-[3rem] p-8 md:p-12 border border-brand-border shadow-2xl shadow-brand-dark/5 print:border-0 print:shadow-none print:p-0 animate-fade-in-up relative overflow-visible">
       
-      {/* Loading Indicator */}
-      {loading && (
-        <div className="absolute top-0 left-0 w-full h-1 bg-brand-bg overflow-hidden z-20 rounded-t-[3rem]">
-           <div className="h-full bg-brand-moss w-1/3 animate-[marquee_1s_linear_infinite]"></div>
-        </div>
-      )}
-
       {/* Print Only Header (Letterhead Style) */}
       <div className="hidden print:flex flex-col items-center mb-8 border-b-2 border-black pb-4 text-center">
          <h1 className="text-3xl font-serif font-bold uppercase tracking-widest text-black mb-1">{CONTACT_INFO.name}</h1>
@@ -131,7 +124,7 @@ const TaxCalculator: React.FC = () => {
           <div>
               <div className="mb-4">
                    <span className="text-[10px] font-bold uppercase tracking-widest text-brand-stone block mb-0.5 print:text-black">Assessment Year</span>
-                   <span className="px-3 py-1 rounded-full bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-widest border border-brand-moss/20 print:border-black print:text-black print:bg-white">{config?.assessmentYear || 'AY 2026-27'}</span>
+                   <span className="px-3 py-1 rounded-full bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-widest border border-brand-moss/20 print:border-black print:text-black print:bg-white">{TAX_CONFIG.meta.assessmentYear}</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-dark mb-2 print:text-black">Tax Estimator</h2>
               <p className="text-brand-stone font-medium text-lg max-w-md print:text-black print:text-sm">
@@ -198,24 +191,15 @@ const TaxCalculator: React.FC = () => {
                       <div className="relative z-10 text-center space-y-6">
                           <div>
                               <h3 className="text-xl font-heading font-bold text-white mb-2">Ready to calculate?</h3>
-                              <p className="text-brand-stone/80 text-sm font-medium">We've applied the latest budget amendments.</p>
+                              <p className="text-brand-stone/80 text-sm font-medium">Updated with {TAX_CONFIG.meta.financialYear} rules.</p>
                           </div>
 
                           <div className="flex flex-col gap-3">
                               <button 
                                 onClick={handleCalculate} 
-                                disabled={loading}
-                                className="w-full py-5 bg-white text-brand-dark rounded-2xl font-bold text-lg hover:bg-brand-moss hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 group disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full py-5 bg-white text-brand-dark rounded-2xl font-bold text-lg hover:bg-brand-moss hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 group"
                               >
-                                {loading ? (
-                                    <>
-                                        <Loader2 size={20} className="animate-spin" /> Calculating...
-                                    </>
-                                ) : (
-                                    <>
-                                        Calculate Tax <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform"/>
-                                    </>
-                                )}
+                                Calculate Tax <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform"/>
                               </button>
                               <button 
                                 onClick={handleClear} 
@@ -238,7 +222,7 @@ const TaxCalculator: React.FC = () => {
                   {/* Disclaimer */}
                   <div className="text-center print:text-left pt-4">
                       <p className="text-[10px] text-brand-stone/60 font-medium leading-relaxed print:text-black">
-                          <strong>Note:</strong> This tool provides an estimate based on {config?.financialYear} proposals. Actual liability may vary.
+                          <strong>Note:</strong> This tool provides an estimate based on {TAX_CONFIG.meta.financialYear} proposals. Actual liability may vary.
                       </p>
                   </div>
               </div>
