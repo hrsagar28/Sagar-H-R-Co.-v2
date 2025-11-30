@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Calculator, Calendar, FileText } from 'lucide-react';
+import { Calculator, Calendar, FileText, Globe } from 'lucide-react';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../constants';
 import TaxCalculator from '../components/TaxCalculator';
 import ComplianceCalendar from './Resources/ComplianceCalendar';
 import ChecklistGrid from './Resources/ChecklistGrid';
+import ImportantLinksGrid from './Resources/ImportantLinksGrid';
 
 const Resources: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'calculator' | 'calendar' | 'checklist'>('calculator');
+  const [activeTab, setActiveTab] = useState<'calculator' | 'calendar' | 'checklist' | 'links'>('calculator');
 
   const schema = {
     "@context": "https://schema.org",
@@ -72,6 +73,12 @@ const Resources: React.FC = () => {
                         >
                            <FileText size={20} /> Checklists
                         </button>
+                        <button 
+                           onClick={() => setActiveTab('links')}
+                           className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all text-left ${activeTab === 'links' ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
+                        >
+                           <Globe size={20} /> Important Links
+                        </button>
                      </nav>
                   </div>
                </div>
@@ -92,6 +99,11 @@ const Resources: React.FC = () => {
                   {/* CHECKLISTS TAB */}
                   {activeTab === 'checklist' && (
                      <ChecklistGrid />
+                  )}
+
+                  {/* LINKS TAB */}
+                  {activeTab === 'links' && (
+                     <ImportantLinksGrid />
                   )}
 
                </div>

@@ -1,3 +1,4 @@
+
 // Resource Hub Data
 export const IMPORTANT_LINKS = [
   {
@@ -21,8 +22,10 @@ export const IMPORTANT_LINKS = [
     links: [
       { name: 'MCA Portal', url: 'https://www.mca.gov.in/' },
       { name: 'MSME (Udyam) Registration', url: 'https://udyamregistration.gov.in/' },
+      { name: 'NGO Darpan Registration', url: 'https://ngodarpan.gov.in/' },
       { name: 'EPFO Portal', url: 'https://unifiedportal-emp.epfindia.gov.in/' },
-      { name: 'ESIC Portal', url: 'https://www.esic.gov.in/' }
+      { name: 'ESIC Portal', url: 'https://www.esic.gov.in/' },
+      { name: 'ICAI UDIN', url: 'https://udin.icai.org/' }
     ]
   }
 ];
