@@ -1,6 +1,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { ChevronsRight } from 'lucide-react';
 
 interface HorizontalScrollProps {
   children: React.ReactNode;
@@ -16,9 +17,20 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
   
   // Disable sticky scroll on mobile for better UX
   const [isMobile, setIsMobile] = useState(false);
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      // Only show hint on mobile if we haven't scrolled yet
+      if (mobile && scrollContainerRef.current && scrollContainerRef.current.scrollLeft === 0) {
+        setShowSwipeHint(true);
+      } else {
+        setShowSwipeHint(false);
+      }
+    };
+    
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -48,7 +60,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
     };
   }, [children, isMobile, shouldReduceMotion]);
 
-  // Handle Scroll
+  // Handle Scroll (Desktop Sticky)
   useEffect(() => {
     if (isMobile || shouldReduceMotion) return;
 
@@ -57,7 +69,6 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
       
       const container = containerRef.current;
       const rect = container.getBoundingClientRect();
-      const viewportTop = 0; // Top of viewport
       
       // Calculate how far the container top is from the viewport top
       const offset = -rect.top;
@@ -66,11 +77,6 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
         const objectWidth = scrollContainerRef.current.scrollWidth;
         const viewportWidth = window.innerWidth;
         const maxTranslate = objectWidth - viewportWidth;
-        
-        // Map scroll distance to translation
-        // We stop translating when we reach the end of the scrollable height
-        // But we want the sticky effect to hold until then
-        // The container height is (maxTranslate + viewportHeight) essentially
         
         // Clamp translation between 0 and maxTranslate
         const translate = Math.max(0, Math.min(offset, maxTranslate));
@@ -82,6 +88,13 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMobile, shouldReduceMotion, dynamicHeight]);
 
+  // Handle Mobile Scroll to hide hint
+  const handleMobileScroll = () => {
+    if (showSwipeHint) {
+      setShowSwipeHint(false);
+    }
+  };
+
   const isDisabled = isMobile || shouldReduceMotion;
 
   return (
@@ -91,9 +104,31 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
       style={{ height: isDisabled ? 'auto' : dynamicHeight }}
     >
       <div className={`${isDisabled ? '' : 'sticky top-0 h-screen'} flex items-center overflow-hidden`}>
+        {/* Minimalistic Mobile Swipe Indicator */}
+        {isMobile && (
+          <div 
+            className={`
+              absolute right-2 top-1/2 -translate-y-1/2 z-20 pointer-events-none 
+              transition-opacity duration-700 ease-out
+              ${showSwipeHint ? 'opacity-100' : 'opacity-0'}
+            `}
+          >
+            <div className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg animate-bounce-x">
+                <ChevronsRight size={20} className="text-white/90" />
+            </div>
+          </div>
+        )}
+
         <div 
           ref={scrollContainerRef} 
-          className={`flex gap-8 px-4 md:px-20 ${isDisabled ? 'overflow-x-auto pb-12 flex-nowrap w-full snap-x snap-mandatory' : 'will-change-transform'}`}
+          onScroll={isMobile ? handleMobileScroll : undefined}
+          className={`
+            flex gap-8 px-4 md:px-20 
+            ${isDisabled 
+              ? 'overflow-x-auto pb-12 flex-nowrap w-full snap-x snap-mandatory no-scrollbar' 
+              : 'will-change-transform'
+            }
+          `}
           style={{ transform: isDisabled ? 'none' : `translate3d(-${translateX}px, 0, 0)` }}
         >
           {children}
