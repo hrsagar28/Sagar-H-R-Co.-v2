@@ -1,30 +1,14 @@
 
 import { useState, useCallback } from 'react';
-
-type ValidationRule<T> = (values: T) => string | undefined;
-
-type EnhancedValidationRule<T> = {
-  test: (values: T) => boolean;
-  message: string;
-  severity?: 'error' | 'warning';
-};
-
-type Rule<T> = ValidationRule<T> | EnhancedValidationRule<T>;
-
-type ValidationSchema<T> = Partial<Record<keyof T, Rule<T>>>;
+import { FormSchema, validateForm } from '../utils/formValidation';
 
 interface UseFormValidationOptions<T> {
   validateOnChange?: boolean;
-  validationSchema?: ValidationSchema<T>;
+  validationSchema?: FormSchema<T>;
 }
 
 /**
- * Hook for managing form validation state and logic.
- * 
- * @template T
- * @param {T} initialState - Initial values for the form fields.
- * @param {UseFormValidationOptions<T>} [options] - Validation configuration options.
- * @returns {object} Form state and validation methods.
+ * Hook for managing form validation state and logic using the new schema builder.
  */
 export const useFormValidation = <T extends {}>(
   initialState: T,
@@ -32,53 +16,31 @@ export const useFormValidation = <T extends {}>(
 ) => {
   const [values, setValues] = useState<T>(initialState);
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
-  const [warnings, setWarnings] = useState<Partial<Record<keyof T, string>>>({});
 
-  const validateField = (name: keyof T, value: T[keyof T], schema: ValidationSchema<T> = options.validationSchema || {}) => {
-    const rule = schema[name];
-    if (rule) {
-      const tempValues = { ...values, [name]: value };
-      
-      let error: string | undefined;
-      let warning: string | undefined;
+  const validateField = useCallback((name: keyof T, value: T[keyof T]) => {
+    if (!options.validationSchema) return;
+    
+    // Create a mini-schema for just this field to validate it in isolation
+    // We cast it to FormSchema<T> to satisfy type check even though it's partial
+    const fieldValidators = options.validationSchema[name];
+    if (!fieldValidators) return;
 
-      if (typeof rule === 'function') {
-        error = rule(tempValues);
-      } else {
-        const isValid = rule.test(tempValues);
-        if (!isValid) {
-          if (rule.severity === 'warning') warning = rule.message;
-          else error = rule.message;
-        }
-      }
-
-      setErrors(prev => {
-        const next = { ...prev };
-        if (error) next[name] = error;
-        else delete next[name];
-        return next;
-      });
-
-      setWarnings(prev => {
-        const next = { ...prev };
-        if (warning) next[name] = warning;
-        else delete next[name];
-        return next;
-      });
-      
-      return !error;
-    }
-    return true;
-  };
+    const miniSchema: any = { [name]: fieldValidators };
+    const fieldErrors = validateForm({ ...values, [name]: value }, miniSchema);
+    
+    setErrors(prev => ({
+      ...prev,
+      [name]: fieldErrors[name] || undefined
+    }));
+  }, [options.validationSchema, values]);
 
   const handleChange = (name: keyof T, value: T[keyof T]) => {
     setValues(prev => ({ ...prev, [name]: value }));
     
-    // If validation schema is provided and real-time validation is on
-    if (options.validateOnChange && options.validationSchema) {
-        validateField(name, value);
+    if (options.validateOnChange) {
+      validateField(name, value);
     } else {
-        // Default behavior: clear error when user types
+        // Clear specific error on change if not validating aggressively
         if (errors[name]) {
             setErrors(prev => {
                 const newErrors = { ...prev };
@@ -89,42 +51,21 @@ export const useFormValidation = <T extends {}>(
     }
   };
 
-  const validate = useCallback((schema: ValidationSchema<T> = options.validationSchema || {}) => {
-    const newErrors: Partial<Record<keyof T, string>> = {};
-    const newWarnings: Partial<Record<keyof T, string>> = {};
-    let isValid = true;
+  /**
+   * Run validation against the schema.
+   * Can accept an optional override schema for partial validation (e.g. multi-step forms).
+   */
+  const validate = useCallback((overrideSchema?: FormSchema<T>) => {
+    const schemaToUse = overrideSchema || options.validationSchema;
+    if (!schemaToUse) return true;
     
-    (Object.keys(schema) as Array<keyof T>).forEach((key) => {
-      const rule = schema[key];
-      if (rule) {
-         if (typeof rule === 'function') {
-             const error = rule(values);
-             if (error) {
-               newErrors[key] = error;
-               isValid = false;
-             }
-         } else {
-             if (!rule.test(values)) {
-                 if (rule.severity === 'warning') {
-                     newWarnings[key] = rule.message;
-                 } else {
-                     newErrors[key] = rule.message;
-                     isValid = false;
-                 }
-             }
-         }
-      }
-    });
-    
+    const newErrors = validateForm(values, schemaToUse);
     setErrors(newErrors);
-    setWarnings(newWarnings);
-    return isValid;
+    
+    return Object.keys(newErrors).length === 0;
   }, [values, options.validationSchema]);
 
-  const clearErrors = () => {
-      setErrors({});
-      setWarnings({});
-  };
+  const clearErrors = () => setErrors({});
 
-  return { values, setValues, errors, warnings, handleChange, validate, setErrors, clearErrors };
+  return { values, setValues, errors, handleChange, validate, setErrors, clearErrors };
 };

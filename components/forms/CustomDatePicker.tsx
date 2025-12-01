@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAnnounce } from '../../hooks/useAnnounce';
@@ -33,6 +34,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const daysOfWeek = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+  const fullDaysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
@@ -68,10 +70,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
       // Move focus to the calendar grid for keyboard nav
       setTimeout(() => {
           if (gridRef.current) {
-              const focusedBtn = gridRef.current.querySelector('button[tabindex="0"]') as HTMLElement;
-              // Prevent scroll on focus to avoid "heading disappears" / layout jumps
-              if (focusedBtn) focusedBtn.focus({ preventScroll: true });
-              else gridRef.current.focus({ preventScroll: true });
+              // Focus the grid container first
+              gridRef.current.focus({ preventScroll: true });
           }
       }, 50);
     }
@@ -105,7 +105,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     onChange(name, dateString);
     setIsOpen(false);
     triggerRef.current?.focus({ preventScroll: true });
-    announce(`Selected date ${selectedDate.toDateString()}`);
+    announce(`Selected date ${selectedDate.toLocaleDateString()}`);
   };
 
   const changeMonth = (offset: number) => {
@@ -128,6 +128,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     setCalendarView('days');
     setFocusedDate(newDate);
     announce(`${months[newDate.getMonth()]} ${year}`);
+    // Return focus to grid
+    setTimeout(() => gridRef.current?.focus(), 50);
   };
 
   const generateYearRange = () => {
@@ -187,14 +189,18 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         if (newFocus.getMonth() !== viewDate.getMonth()) {
             setViewDate(newFocus);
         }
+        announce(newFocus.toLocaleDateString());
       }
     }
   };
 
+  const labelId = `${name}-label`;
+  const errorId = `${name}-error`;
+
   return (
     <div className="group relative z-dropdown" ref={calendarRef}>
       <label 
-        id={`${name}-label`}
+        id={labelId}
         className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1"
       >
         <Calendar size={14} className="text-brand-moss"/> {label} {required && <span className="text-red-500">*</span>}
@@ -206,10 +212,12 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         ref={triggerRef}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        aria-labelledby={`${name}-label`}
+        aria-labelledby={labelId}
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : undefined}
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleTriggerKeyDown}
-        className={`w-full bg-brand-bg border py-4 px-6 rounded-2xl text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-moss/50 transition-all flex justify-between items-center group text-left ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'}`}
+        className={`w-full bg-brand-bg border py-4 px-6 rounded-2xl text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-moss focus:border-brand-moss transition-all flex justify-between items-center group text-left ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'}`}
       >
         <span className={value ? "text-brand-dark font-medium" : "text-brand-stone/40 font-medium"}>
           {formatDateDisplay(value)}
@@ -217,45 +225,47 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         <Calendar size={20} className="text-brand-stone group-hover:text-brand-moss transition-colors" />
       </button>
       
-      {error && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{error}</p>}
+      {error && <p id={errorId} className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{error}</p>}
 
       {/* Calendar Dialog */}
       <div 
         role="dialog"
         aria-modal="true"
-        aria-labelledby={`${name}-label`}
+        aria-labelledby={labelId}
         className={`
             absolute left-0 w-full md:w-80
             ${position === 'top' ? 'bottom-full mb-2 origin-bottom-left' : 'top-full mt-2 origin-top-left'}
             bg-white border border-brand-border rounded-2xl shadow-2xl overflow-hidden 
             transition-all duration-300 z-[1000]
-            ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}
+            ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none'}
         `}
       >
         <div className="p-4 flex justify-between items-center border-b border-brand-border/50 bg-brand-bg/50">
-          <button type="button" onClick={() => changeMonth(-1)} disabled={calendarView === 'years'} className={`p-2 hover:bg-brand-moss hover:text-white rounded-lg transition-colors ${calendarView === 'years' ? 'opacity-0 pointer-events-none' : ''}`} aria-label="Previous Month"><ChevronLeft size={20} /></button>
-          <button type="button" onClick={() => setCalendarView(calendarView === 'days' ? 'years' : 'days')} className="font-heading font-bold text-lg text-brand-dark hover:text-brand-moss transition-colors px-4 py-1 rounded-md">
+          <button type="button" onClick={() => changeMonth(-1)} disabled={calendarView === 'years'} className={`p-2 hover:bg-brand-moss hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-moss ${calendarView === 'years' ? 'opacity-0 pointer-events-none' : ''}`} aria-label="Previous Month"><ChevronLeft size={20} /></button>
+          <button type="button" onClick={() => setCalendarView(calendarView === 'days' ? 'years' : 'days')} className="font-heading font-bold text-lg text-brand-dark hover:text-brand-moss transition-colors px-4 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-moss">
             {calendarView === 'days' ? `${months[viewDate.getMonth()]} ${viewDate.getFullYear()}` : 'Select Year'}
           </button>
-          <button type="button" onClick={() => changeMonth(1)} disabled={calendarView === 'years'} className={`p-2 hover:bg-brand-moss hover:text-white rounded-lg transition-colors ${calendarView === 'years' ? 'opacity-0 pointer-events-none' : ''}`} aria-label="Next Month"><ChevronRight size={20} /></button>
+          <button type="button" onClick={() => changeMonth(1)} disabled={calendarView === 'years'} className={`p-2 hover:bg-brand-moss hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-moss ${calendarView === 'years' ? 'opacity-0 pointer-events-none' : ''}`} aria-label="Next Month"><ChevronRight size={20} /></button>
         </div>
 
         <div 
-            className="p-4 outline-none" 
+            className="p-4 outline-none focus:ring-2 focus:ring-inset focus:ring-brand-moss rounded-b-2xl" 
             ref={gridRef}
-            tabIndex={-1}
+            tabIndex={0}
+            role="grid"
+            aria-label="Calendar Date Grid"
             onKeyDown={handleGridKeyDown}
         >
           {calendarView === 'days' ? (
-            <div role="grid" aria-labelledby={`${name}-label`}>
+            <div role="rowgroup">
               <div className="grid grid-cols-7 mb-2" role="row">
-                {daysOfWeek.map(d => (
-                    <div key={d} className="text-center text-xs font-bold text-brand-stone uppercase tracking-wide py-1" role="columnheader" aria-label={d}>
+                {daysOfWeek.map((d, i) => (
+                    <div key={d} className="text-center text-xs font-bold text-brand-stone uppercase tracking-wide py-1" role="columnheader" aria-label={fullDaysOfWeek[i]}>
                         {d}
                     </div>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 gap-1" role="row">
                 {Array.from({ length: getFirstDayOfMonth(viewDate.getFullYear(), viewDate.getMonth()) }).map((_, i) => (
                     <div key={`empty-${i}`} role="presentation" />
                 ))}
@@ -274,7 +284,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                         key={day} 
                         type="button" 
                         role="gridcell"
-                        tabIndex={isFocused ? 0 : -1}
+                        tabIndex={-1} // Handled by container keyboard nav
                         aria-selected={isSelected}
                         aria-label={`${day} ${months[viewDate.getMonth()]} ${viewDate.getFullYear()}`}
                         aria-current={isToday ? 'date' : undefined}
@@ -299,7 +309,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                     key={year} 
                     type="button" 
                     onClick={() => selectYear(year)} 
-                    className={`py-3 px-1 rounded-xl text-base font-medium transition-colors ${viewDate.getFullYear() === year ? 'bg-brand-moss text-white' : 'hover:bg-brand-bg text-brand-dark'}`}
+                    className={`py-3 px-1 rounded-xl text-base font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-moss ${viewDate.getFullYear() === year ? 'bg-brand-moss text-white' : 'hover:bg-brand-bg text-brand-dark'}`}
                 >
                   {year}
                 </button>

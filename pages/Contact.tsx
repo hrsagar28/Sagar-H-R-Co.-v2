@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock } from 'lucide-react';
 import PageHero from '../components/PageHero';
@@ -7,9 +6,10 @@ import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useFormValidation, useToast, useRateLimit } from '../hooks';
+import { createFormSchema, required, email, indianPhone } from '../utils/formValidation';
+import { apiClient, ApiError } from '../utils/api';
 import { sanitizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
-import { validateEmail, validatePhone } from '../utils/validation';
 import CustomDropdown from '../components/forms/CustomDropdown';
 
 interface ContactFormData {
@@ -20,6 +20,13 @@ interface ContactFormData {
   subject: string;
   message: string;
 }
+
+const contactSchema = createFormSchema<ContactFormData>({
+  name: [required('Name is required')],
+  email: [required('Email is required'), email()],
+  phone: [required('Phone is required'), indianPhone()],
+  message: [required('Message is required')]
+});
 
 const Contact: React.FC = () => {
   const { addToast } = useToast();
@@ -39,6 +46,9 @@ const Contact: React.FC = () => {
     companyName: '',
     subject: '',
     message: ''
+  }, {
+    validationSchema: contactSchema,
+    validateOnChange: false
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,28 +59,11 @@ const Contact: React.FC = () => {
       return;
     }
 
-    const isValid = validate({
-      name: (v) => !v.name.trim() ? 'Name is required' : undefined,
-      email: (v) => !v.email.trim() ? 'Email is required' : !validateEmail(v.email) ? 'Invalid email' : undefined,
-      phone: (v) => !v.phone.trim() ? 'Phone is required' : !validatePhone(v.phone) ? 'Invalid phone number' : undefined,
-      message: (v) => !v.message.trim() ? 'Message is required' : undefined
-    });
+    if (validate()) {
+      setIsSubmitting(true);
 
-    if (!isValid) {
-      addToast('Please correct the errors in the form.', 'error');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch(CONTACT_INFO.formEndpoint, {
-        method: "POST",
-        headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
+      try {
+        await apiClient.post(CONTACT_INFO.formEndpoint, {
             name: sanitizeInput(values.name),
             email: sanitizeInput(values.email),
             phone: sanitizeInput(values.phone),
@@ -78,22 +71,26 @@ const Contact: React.FC = () => {
             subject: sanitizeInput(values.subject) || 'Contact Form Inquiry',
             message: sanitizeInput(values.message),
             _subject: `New Inquiry: ${sanitizeInput(values.name)}`
-        })
-      });
+        });
 
-      if (res.ok) {
         setIsSuccess(true);
         recordAttempt();
         setValues({ name: '', email: '', phone: '', companyName: '', subject: '', message: '' });
         addToast('Message sent successfully!', 'success');
-      } else {
-        throw new Error('Submission failed');
+
+      } catch (error) {
+        logger.error('Contact form error', error);
+        let msg = 'Failed to send message. Please try again.';
+        if (error instanceof ApiError) {
+            if (error.code === 'NETWORK_ERROR') msg = "Network unavailable. Please check your connection.";
+            else if (error.code === 'TIMEOUT') msg = "Request timed out.";
+        }
+        addToast(msg, 'error');
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (error) {
-      logger.error('Contact form error', error);
-      addToast('Failed to send message. Please try again.', 'error');
-    } finally {
-      setIsSubmitting(false);
+    } else {
+        addToast('Please correct the errors in the form.', 'error');
     }
   };
 
@@ -329,7 +326,7 @@ const Contact: React.FC = () => {
           </Reveal>
         </div>
 
-        {/* Map Section - Reduced Height & Robust Cursor Handling */}
+        {/* Map Section */}
         <Reveal variant="scale" delay={0.2} width="100%">
             <div 
               className="w-full h-[250px] md:h-[350px] rounded-[3rem] overflow-hidden shadow-2xl border border-brand-border grayscale group relative transition-all duration-700 hover:grayscale-0"
@@ -356,7 +353,6 @@ const Contact: React.FC = () => {
                   loading="lazy"
                ></iframe>
                
-               {/* Vignette Overlay for cinematic look */}
                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-brand-dark/20 to-transparent opacity-50"></div>
             </div>
         </Reveal>

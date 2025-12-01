@@ -87,9 +87,11 @@
   outline: none;
 }
 
+/* PRINT STYLES */
 @media print {
   @page {
-    margin: 1.5cm;
+    margin: 1cm;
+    size: auto;
   }
   body {
     background-color: white !important;
@@ -97,41 +99,66 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .no-print, nav, footer, iframe, .print-hidden {
+  
+  /* Hide unnecessary elements */
+  nav, footer, iframe, .no-print, .print-hidden, 
+  [role="dialog"], button, .sticky-sidebar {
     display: none !important;
   }
-  /* Ensure readable text */
-  p, h1, h2, h3, h4, h5, h6, li, span {
-    color: black !important;
-    text-shadow: none !important;
-  }
-  /* Remove shadows and backgrounds for cleaner print */
-  .shadow-xl, .shadow-2xl, .shadow-lg, .shadow-md, .shadow-sm {
-    box-shadow: none !important;
-  }
-  /* Expand containers to full width */
-  .container, .max-w-7xl, .max-w-5xl, .max-w-4xl {
+
+  /* Reset layout constraints */
+  .container, .max-w-7xl, .max-w-5xl, .max-w-4xl, .w-full {
     max-width: 100% !important;
     width: 100% !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding: 0 !important;
     margin: 0 !important;
   }
-  /* Force background images/colors to print if specifically needed */
+
+  /* Styling fixes for print readability */
+  p, h1, h2, h3, h4, h5, h6, li, span, div, label, input {
+    color: black !important;
+    text-shadow: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Restore background for specific elements if needed */
   .print-bg-force {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  /* Reset heights */
+
+  /* Borders */
+  .border, .border-b, .border-t {
+    border-color: #000 !important;
+  }
+
+  /* Layout resets */
+  .fixed, .sticky, .absolute {
+    position: static !important;
+  }
   .min-h-screen {
     min-height: auto !important;
   }
-  /* Hide fixed elements */
-  .fixed, .sticky {
-    position: static !important;
+  .grid {
+    display: block !important;
   }
-  a[href]:after {
-    content: " (" attr(href) ")";
-    font-size: 0.8em;
+  .col-span-1, .col-span-2, .lg\:col-span-7, .lg\:col-span-5 {
+    width: 100% !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Inputs */
+  input, select, textarea {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+
+  /* Expand hidden sections */
+  .overflow-hidden, .max-h-0 {
+    overflow: visible !important;
+    max-height: none !important;
+    opacity: 1 !important;
+    display: block !important;
   }
 }

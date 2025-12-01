@@ -6,18 +6,18 @@ interface Props {
   children?: ReactNode;
 }
 
-interface State {
+interface RouteErrorBoundaryState {
   hasError: boolean;
 }
 
-class RouteErrorBoundary extends Component<Props, State> {
-  public state: State = { hasError: false };
+class RouteErrorBoundary extends Component<Props, RouteErrorBoundaryState> {
+  public state: RouteErrorBoundaryState = { hasError: false };
 
   constructor(props: Props) {
     super(props);
   }
 
-  static getDerivedStateFromError(_: Error): State {
+  static getDerivedStateFromError(_: Error): RouteErrorBoundaryState {
     return { hasError: true };
   }
 

@@ -1,7 +1,55 @@
 
 import { describe, it, expect } from 'vitest';
 import { calculateRegimeTax } from './useTaxCalculation';
-import { IncomeHeads, Deductions } from './types';
+import { IncomeHeads, Deductions, TaxConfig } from './types';
+
+// Mock Config for testing
+const mockConfig: TaxConfig = {
+  financialYear: '2025-26',
+  assessmentYear: '2026-27',
+  stdDeduction: {
+    new: 75000,
+    old: 50000
+  },
+  deductionLimits: {
+    d80c: 150000,
+    d80tta: 10000,
+    d80ttb: 50000,
+    nps: 50000
+  },
+  rebate: {
+    new: { limit: 1200000, amount: 'marginal' },
+    old: { limit: 500000, amount: 12500 }
+  },
+  surchargeSlabs: {
+    "1": 5000000,
+    "2": 10000000,
+    "3": 20000000,
+    "4": 50000000
+  },
+  newRegimeSlabs: [
+    { upto: 400000, rate: 0 },
+    { upto: 800000, rate: 0.05 },
+    { upto: 1200000, rate: 0.10 },
+    { upto: 1600000, rate: 0.15 },
+    { upto: 2000000, rate: 0.20 },
+    { upto: 2400000, rate: 0.25 },
+    { upto: null, rate: 0.30 }
+  ],
+  oldRegimeConfig: {
+    exemptions: {
+      below60: 250000,
+      "60to80": 300000,
+      above80: 500000
+    },
+    slabs: [
+        { upto: 250000, rate: 0 },
+        { upto: 500000, rate: 0.05 },
+        { upto: 1000000, rate: 0.20 },
+        { upto: null, rate: 0.30 }
+    ]
+  }
+};
 
 // Helper to create empty inputs
 const createInputs = (salary = 0): { incomes: IncomeHeads, deds: Deductions } => ({
@@ -14,7 +62,7 @@ describe('Tax Calculation Logic', () => {
   describe('New Regime', () => {
     it('should apply Standard Deduction of 75k', () => {
       const { incomes, deds } = createInputs(800000);
-      const result = calculateRegimeTax('new', incomes, deds, 'below60');
+      const result = calculateRegimeTax('new', incomes, deds, 'below60', mockConfig);
       
       expect(result.stdDeduction).toBe(75000);
       expect(result.taxableIncome).toBe(725000); // 800k - 75k
@@ -22,7 +70,7 @@ describe('Tax Calculation Logic', () => {
 
     it('should apply 87A Rebate for income up to 12L', () => {
       const { incomes, deds } = createInputs(1275000); // 12.75L Gross -> 12L Taxable
-      const result = calculateRegimeTax('new', incomes, deds, 'below60');
+      const result = calculateRegimeTax('new', incomes, deds, 'below60', mockConfig);
       
       expect(result.taxableIncome).toBe(1200000);
       // Tax on 12L: 0-4 (0), 4-8 (20k), 8-12 (40k) = 60k
@@ -34,7 +82,7 @@ describe('Tax Calculation Logic', () => {
 
     it('should calculate tax correctly for high income (30% slab)', () => {
         const { incomes, deds } = createInputs(3075000); // 30.75L Gross -> 30L Taxable
-        const result = calculateRegimeTax('new', incomes, deds, 'below60');
+        const result = calculateRegimeTax('new', incomes, deds, 'below60', mockConfig);
         
         expect(result.taxableIncome).toBe(3000000);
         
@@ -61,7 +109,7 @@ describe('Tax Calculation Logic', () => {
         deds.d80c = 150000;
         deds.d80d = 25000;
         
-        const result = calculateRegimeTax('old', incomes, deds, 'below60');
+        const result = calculateRegimeTax('old', incomes, deds, 'below60', mockConfig);
         
         expect(result.stdDeduction).toBe(50000);
         expect(result.chapterVIA).toBe(175000); // 1.5L + 25k
@@ -73,13 +121,13 @@ describe('Tax Calculation Logic', () => {
         // 3.5L - 50k Std Ded = 3L Taxable
         
         // Case 1: Below 60 (Exemption 2.5L)
-        const resultNormal = calculateRegimeTax('old', incomes, deds, 'below60');
+        const resultNormal = calculateRegimeTax('old', incomes, deds, 'below60', mockConfig);
         // Taxable 3L. 2.5L exempt. 50k @ 5% = 2500. Rebate 87A covers it.
         expect(resultNormal.taxableIncome).toBe(300000);
         expect(resultNormal.taxOnIncome).toBe(2500);
 
         // Case 2: 60-80 (Exemption 3L)
-        const resultSenior = calculateRegimeTax('old', incomes, deds, '60to80');
+        const resultSenior = calculateRegimeTax('old', incomes, deds, '60to80', mockConfig);
         expect(resultSenior.taxableIncome).toBe(300000);
         expect(resultSenior.taxOnIncome).toBe(0); // Fully exempt
     });
@@ -94,7 +142,7 @@ describe('Tax Calculation Logic', () => {
               deds: { d80c: 0, d80d: 0, hra: 0, d80e: 0, d80g: 0, d80tta: 0, d80ttb: 0, nps: 0, other: 0 }
           };
           
-          const result = calculateRegimeTax('new', inputs.incomes, inputs.deds, 'below60');
+          const result = calculateRegimeTax('new', inputs.incomes, inputs.deds, 'below60', mockConfig);
           expect(result.taxableIncome).toBe(6000000);
           expect(result.surcharge).toBeGreaterThan(0);
           

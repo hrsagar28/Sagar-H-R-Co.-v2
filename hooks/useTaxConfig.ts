@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { TaxConfig } from '../components/TaxCalculator/types';
 import { logger } from '../utils/logger';
+import { apiClient, ApiError } from '../utils/api';
 
 export const useTaxConfig = () => {
   const [config, setConfig] = useState<TaxConfig | null>(null);
@@ -12,39 +13,24 @@ export const useTaxConfig = () => {
     let isMounted = true;
 
     const fetchConfig = async () => {
-      const retries = 3;
-      const baseDelay = 1000;
-
-      // Construct robust path using Vite's BASE_URL or fallback to relative
       const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
       const url = `${baseUrl}data/tax-config.json`.replace('//', '/');
 
-      for (let i = 0; i < retries; i++) {
-        try {
-          const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error(`Failed to load tax configuration: ${response.statusText}`);
+      try {
+        const data = await apiClient.get<TaxConfig>(url);
+        if (isMounted) {
+          setConfig(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          logger.error('Error fetching tax config:', err);
+          let msg = 'Failed to load latest tax rules. Using defaults.';
+          if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
+             msg = 'Offline: Using cached/default tax rules.';
           }
-          const data: TaxConfig = await response.json();
-          
-          if (isMounted) {
-            setConfig(data);
-            setLoading(false);
-          }
-          return; // Success, exit loop
-        } catch (err) {
-          // If this was the last attempt, log error and set state
-          if (i === retries - 1) {
-            logger.error('Error fetching tax config after retries:', err);
-            if (isMounted) {
-              setError('Failed to load latest tax rules. Using defaults.');
-              setLoading(false);
-            }
-          } else {
-            // Wait with exponential backoff before retrying
-            const delay = baseDelay * Math.pow(2, i);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          }
+          setError(msg);
+          setLoading(false);
         }
       }
     };

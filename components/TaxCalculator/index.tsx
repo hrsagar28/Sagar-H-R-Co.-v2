@@ -2,13 +2,14 @@
 import React, { useReducer } from 'react';
 import { Printer, ArrowRight, RotateCcw, Loader2 } from 'lucide-react';
 import { CONTACT_INFO } from '../../constants';
-import { TAX_CONFIG } from '../../constants/taxConfig';
 import CustomDropdown from '../forms/CustomDropdown';
+import Skeleton from '../Skeleton';
 
 import IncomeInputs from './IncomeInputs';
 import DeductionsPanel from './DeductionsPanel';
 import ResultsDisplay from './ResultsDisplay';
 import { useTaxCalculation } from './useTaxCalculation';
+import { useTaxConfig } from '../../hooks/useTaxConfig';
 import { IncomeHeads, Deductions } from './types';
 import { AGE_MAP } from './taxSlabs';
 
@@ -91,9 +92,9 @@ function taxReducer(state: TaxState, action: TaxAction): TaxState {
 
 const TaxCalculator: React.FC = () => {
   const [state, dispatch] = useReducer(taxReducer, initialState);
+  const { config, loading } = useTaxConfig();
 
-  // Note: We no longer fetch external JSON. We use robust internal constants.
-  const comparison = useTaxCalculation(state.incomeHeads, state.deductions, state.ageGroup);
+  const comparison = useTaxCalculation(state.incomeHeads, state.deductions, state.ageGroup, config);
 
   const handleCalculate = () => dispatch({ type: 'SHOW_RESULTS', value: true });
   const handleClear = () => dispatch({ type: 'RESET' });
@@ -107,11 +108,25 @@ const TaxCalculator: React.FC = () => {
      dispatch({ type: 'SET_DEDUCTIONS_OBJECT', payload: deds });
   };
 
+  if (loading || !config) {
+    return (
+      <div className="bg-brand-surface rounded-[3rem] p-8 md:p-12 border border-brand-border h-[600px] flex flex-col justify-center items-center gap-6 shadow-xl">
+         <Loader2 className="w-12 h-12 text-brand-moss animate-spin" />
+         <p className="text-brand-stone font-medium">Loading Tax Rules...</p>
+         <div className="w-full max-w-md space-y-4">
+            <Skeleton variant="text" height={40} className="w-full" />
+            <Skeleton variant="text" height={40} className="w-3/4" />
+            <Skeleton variant="text" height={40} className="w-full" />
+         </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-brand-surface rounded-[3rem] p-8 md:p-12 border border-brand-border shadow-2xl shadow-brand-dark/5 print:border-0 print:shadow-none print:p-0 animate-fade-in-up relative overflow-visible">
+    <div className="bg-brand-surface rounded-[3rem] p-8 md:p-12 border border-brand-border shadow-2xl shadow-brand-dark/5 print:border-0 print:shadow-none print:p-0 animate-fade-in-up relative overflow-visible print-container">
       
       {/* Print Only Header (Letterhead Style) */}
-      <div className="hidden print:flex flex-col items-center mb-8 border-b-2 border-black pb-4 text-center">
+      <div className="hidden print:flex flex-col items-center mb-8 border-b-2 border-black pb-4 text-center print-header">
          <h1 className="text-3xl font-serif font-bold uppercase tracking-widest text-black mb-1">{CONTACT_INFO.name}</h1>
          <p className="text-sm font-bold uppercase tracking-wider text-black mb-2">Chartered Accountants</p>
          <p className="text-xs text-black">
@@ -124,7 +139,7 @@ const TaxCalculator: React.FC = () => {
           <div>
               <div className="mb-4">
                    <span className="text-[10px] font-bold uppercase tracking-widest text-brand-stone block mb-0.5 print:text-black">Assessment Year</span>
-                   <span className="px-3 py-1 rounded-full bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-widest border border-brand-moss/20 print:border-black print:text-black print:bg-white">{TAX_CONFIG.meta.assessmentYear}</span>
+                   <span className="px-3 py-1 rounded-full bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-widest border border-brand-moss/20 print:border-black print:text-black print:bg-white">{config.assessmentYear}</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-dark mb-2 print:text-black">Tax Estimator</h2>
               <p className="text-brand-stone font-medium text-lg max-w-md print:text-black print:text-sm">
@@ -137,21 +152,28 @@ const TaxCalculator: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
-          {/* LEFT COLUMN: INPUTS (Scrollable) */}
+          {/* LEFT COLUMN: INPUTS */}
           <div className="lg:col-span-7 space-y-10 print:col-span-12">
               
               {/* Age Selection */}
-              <div className="bg-brand-bg/30 p-6 rounded-[2rem] border border-brand-border/50 print:border-black print:bg-white">
-                  <CustomDropdown
-                    label="Tax Payer Category"
-                    name="ageGroup"
-                    value={AGE_MAP[state.ageGroup]}
-                    options={Object.values(AGE_MAP)}
-                    onChange={(_, val) => {
-                        const key = Object.keys(AGE_MAP).find(k => AGE_MAP[k] === val);
-                        if (key) dispatch({ type: 'SET_AGE_GROUP', value: key });
-                    }}
-                  />
+              <div className="bg-brand-bg/30 p-6 rounded-[2rem] border border-brand-border/50 print:border-black print:bg-white print:p-0 print:border-0 print:mb-6">
+                  <div className="print:hidden">
+                    <CustomDropdown
+                        label="Tax Payer Category"
+                        name="ageGroup"
+                        value={AGE_MAP[state.ageGroup]}
+                        options={Object.values(AGE_MAP)}
+                        onChange={(_, val) => {
+                            const key = Object.keys(AGE_MAP).find(k => AGE_MAP[k] === val);
+                            if (key) dispatch({ type: 'SET_AGE_GROUP', value: key });
+                        }}
+                    />
+                  </div>
+                  {/* Print friendly static text */}
+                  <div className="hidden print:block border p-2 border-black">
+                      <span className="font-bold uppercase text-xs block mb-1">Category</span>
+                      <span className="text-lg font-bold">{AGE_MAP[state.ageGroup]}</span>
+                  </div>
               </div>
 
               <div className="space-y-6">
@@ -169,19 +191,21 @@ const TaxCalculator: React.FC = () => {
                    <h3 className="text-xs font-bold text-brand-stone uppercase tracking-widest print:text-black">Exemptions</h3>
                    <div className="h-px bg-brand-border flex-grow print:bg-black"></div>
                 </div>
-                <DeductionsPanel 
-                  deductions={state.deductions} 
-                  setDeductions={setDeductionsWrapper} 
-                  showDeductions={state.showDeductions}
-                  setShowDeductions={() => dispatch({ type: 'TOGGLE_DEDUCTIONS' })}
-                  ageGroup={state.ageGroup}
-                />
+                {/* Force show deductions in print mode if they exist */}
+                <div className={state.showDeductions ? '' : 'print:hidden'}>
+                    <DeductionsPanel 
+                    deductions={state.deductions} 
+                    setDeductions={setDeductionsWrapper} 
+                    showDeductions={state.showDeductions}
+                    setShowDeductions={() => dispatch({ type: 'TOGGLE_DEDUCTIONS' })}
+                    ageGroup={state.ageGroup}
+                    />
+                </div>
               </div>
           </div>
 
-          {/* RIGHT COLUMN: CONTROLS & SUMMARY (Sticky + Sticky Scroll) */}
-          <div className="lg:col-span-5 relative print:col-span-12 h-full">
-              {/* Sticky Container for scrolling alongside the left column */}
+          {/* RIGHT COLUMN: CONTROLS & SUMMARY */}
+          <div className="lg:col-span-5 relative print:col-span-12 h-full print:mt-8">
               <div className="sticky top-32 space-y-6 print:static">
                   
                   {/* Actions Card */}
@@ -191,7 +215,7 @@ const TaxCalculator: React.FC = () => {
                       <div className="relative z-10 text-center space-y-6">
                           <div>
                               <h3 className="text-xl font-heading font-bold text-white mb-2">Ready to calculate?</h3>
-                              <p className="text-brand-stone/80 text-sm font-medium">Updated with {TAX_CONFIG.meta.financialYear} rules.</p>
+                              <p className="text-brand-stone/80 text-sm font-medium">Updated with {config.financialYear} rules.</p>
                           </div>
 
                           <div className="flex flex-col gap-3">
@@ -212,17 +236,19 @@ const TaxCalculator: React.FC = () => {
                   </div>
 
                   {/* Results */}
-                  <ResultsDisplay 
-                    comparison={comparison}
-                    regime={state.regime}
-                    setRegime={(r) => dispatch({ type: 'SET_REGIME', value: r })}
-                    showResults={state.showResults}
-                  />
+                  {comparison && (
+                    <ResultsDisplay 
+                        comparison={comparison}
+                        regime={state.regime}
+                        setRegime={(r) => dispatch({ type: 'SET_REGIME', value: r })}
+                        showResults={state.showResults}
+                    />
+                  )}
                   
                   {/* Disclaimer */}
                   <div className="text-center print:text-left pt-4">
                       <p className="text-[10px] text-brand-stone/60 font-medium leading-relaxed print:text-black">
-                          <strong>Note:</strong> This tool provides an estimate based on {TAX_CONFIG.meta.financialYear} proposals. Actual liability may vary.
+                          <strong>Note:</strong> This tool provides an estimate based on {config.financialYear} proposals. Actual liability may vary.
                       </p>
                   </div>
               </div>

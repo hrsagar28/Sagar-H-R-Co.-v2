@@ -1,12 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';
 import { useFormValidation, useToast, useRateLimit, useFormDraft } from '../../hooks';
+import { createFormSchema, required, email, indianPhone, minLength, maxLength } from '../../utils/formValidation';
+import { apiClient, ApiError } from '../../utils/api';
 import { CONTACT_INFO } from '../../constants';
 import { sanitizeInput } from '../../utils/sanitize';
 import { logger } from '../../utils/logger';
-import { validateEmail, validatePhone } from '../../utils/validation';
 
 interface CareerFormProps {
   initialPosition?: string;
@@ -27,6 +29,19 @@ interface FormData {
 
 const positionOptions = ['Audit Associate', 'Articled Assistant', 'General Application'];
 const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years'];
+
+// Define Validation Schema
+const careerSchema = createFormSchema<FormData>({
+  fullName: [required('Full Name is required'), minLength(2), maxLength(100)],
+  fatherName: [required("Father's Name is required"), minLength(2)],
+  mobile: [required('Mobile number is required'), indianPhone()],
+  email: [required('Email is required'), email()],
+  dob: [required('Date of Birth is required')],
+  qualification: [required('Qualification is required')],
+  experience: [required('Please select your experience level')],
+  position: [required('Please select a position')],
+  // previousCompanies is optional
+});
 
 const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSuccess }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -57,6 +72,9 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     experience: '',
     previousCompanies: '',
     position: initialPosition || ''
+  }, {
+    validationSchema: careerSchema,
+    validateOnChange: false
   });
 
   // Draft Hook
@@ -65,7 +83,6 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
   // Check for draft on mount
   useEffect(() => {
     const saved = localStorage.getItem('career_form_draft');
-    // Only show banner if there is a draft and the form is currently "empty" (or user hasn't interacted much)
     if (saved && !values.fullName) {
       setShowDraftBanner(true);
     }
@@ -90,44 +107,32 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
   useEffect(() => {
     if (initialPosition) {
         setValues(prev => ({ ...prev, position: initialPosition }));
-        // Also jump to start if position is clicked
         if (currentStep !== 1) setCurrentStep(1);
     }
   }, [initialPosition, setValues]);
 
-  // Handle Input Changes wrapper
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     handleChange(e.target.name as keyof FormData, e.target.value);
   };
   
-  // Wrapper for custom components
   const onCustomChange = (name: string, value: string) => {
     handleChange(name as keyof FormData, value);
   };
 
-  // Step Validation Logic
+  // Partial validation for multi-step
   const validateStep = (step: number) => {
-    if (step === 1) {
-      return validate({
-        fullName: (val) => !val.fullName.trim() ? "Full Name is required" : undefined,
-        fatherName: (val) => !val.fatherName.trim() ? "Father's Name is required" : undefined,
-        dob: (val) => !val.dob ? "Date of Birth is required" : undefined,
-      });
-    }
-    if (step === 2) {
-      return validate({
-        mobile: (val) => !val.mobile.trim() ? "Mobile number is required" : !validatePhone(val.mobile) ? "Invalid Indian mobile number" : undefined,
-        email: (val) => !val.email.trim() ? "Email is required" : !validateEmail(val.email) ? "Invalid email address" : undefined,
-      });
-    }
-    if (step === 3) {
-      return validate({
-        position: (val) => !val.position ? "Please select a position" : undefined,
-        qualification: (val) => !val.qualification.trim() ? "Qualification is required" : undefined,
-        experience: (val) => !val.experience ? "Please select your experience level" : undefined,
-      });
-    }
-    return true;
+    let fieldsToValidate: Partial<FormData> = {};
+    if (step === 1) fieldsToValidate = { fullName: values.fullName, fatherName: values.fatherName, dob: values.dob };
+    if (step === 2) fieldsToValidate = { mobile: values.mobile, email: values.email };
+    if (step === 3) fieldsToValidate = { position: values.position, qualification: values.qualification, experience: values.experience };
+    
+    // Create subset schema for current step
+    const stepSchema: any = {};
+    Object.keys(fieldsToValidate).forEach(k => {
+        stepSchema[k] = careerSchema[k as keyof FormData];
+    });
+
+    return validate(stepSchema);
   };
 
   const handleNext = () => {
@@ -137,9 +142,8 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
       setTimeout(() => {
         setCurrentStep(prev => prev + 1);
         setIsTransitioning(false);
-      }, 300); // Small delay for animation
+      }, 300);
       
-      // Mobile scroll correction
       if (window.innerWidth < 768) {
         const formHeader = document.getElementById('form-header');
         formHeader?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -161,8 +165,6 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (currentStep !== 3) return;
-    
-    // Honeypot Check
     if (honeypot) return;
 
     if (!canSubmit) {
@@ -175,41 +177,35 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
       setSubmitStatus('idle');
 
       try {
-        const res = await fetch(CONTACT_INFO.formEndpoint, {
-            method: "POST",
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                fullName: sanitizeInput(values.fullName),
-                fatherName: sanitizeInput(values.fatherName),
-                mobile: sanitizeInput(values.mobile),
-                email: sanitizeInput(values.email),
-                dob: sanitizeInput(values.dob),
-                qualification: sanitizeInput(values.qualification),
-                experience: sanitizeInput(values.experience),
-                previousCompanies: sanitizeInput(values.previousCompanies),
-                position: sanitizeInput(values.position),
-                _subject: `Job Application: ${sanitizeInput(values.fullName)} - ${sanitizeInput(values.position) || 'General'}`
-            })
+        await apiClient.post(CONTACT_INFO.formEndpoint, {
+            fullName: sanitizeInput(values.fullName),
+            fatherName: sanitizeInput(values.fatherName),
+            mobile: sanitizeInput(values.mobile),
+            email: sanitizeInput(values.email),
+            dob: sanitizeInput(values.dob),
+            qualification: sanitizeInput(values.qualification),
+            experience: sanitizeInput(values.experience),
+            previousCompanies: sanitizeInput(values.previousCompanies),
+            position: sanitizeInput(values.position),
+            _subject: `Job Application: ${sanitizeInput(values.fullName)} - ${sanitizeInput(values.position) || 'General'}`
         });
 
-        if (res.ok) {
-            setSubmitStatus('success');
-            recordAttempt();
-            clearDraft();
-            addToast("Application submitted successfully!", "success");
-            if (onFormSubmitSuccess) onFormSubmitSuccess();
-        } else {
-            setSubmitStatus('error');
-            addToast("Failed to submit application. Please try again.", "error");
-            logger.error('Career form submission failed', res.status, res.statusText);
-        }
+        setSubmitStatus('success');
+        recordAttempt();
+        clearDraft();
+        addToast("Application submitted successfully!", "success");
+        if (onFormSubmitSuccess) onFormSubmitSuccess();
+
       } catch(e) {
-        logger.error('Career form submission failed:', e);
         setSubmitStatus('error');
-        addToast("Network error. Please try again later.", "error");
+        logger.error('Career form submission failed:', e);
+        
+        let msg = "Something went wrong. Please try again.";
+        if (e instanceof ApiError) {
+            if (e.code === 'NETWORK_ERROR') msg = "Network error. Please check your internet.";
+            else if (e.code === 'TIMEOUT') msg = "Request timed out. Please try again.";
+        }
+        addToast(msg, "error");
       } finally {
         setIsSubmitting(false);
       }
@@ -218,7 +214,6 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     }
   };
 
-  // Allow Enter key to navigate steps
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       const target = e.target as HTMLElement;
@@ -248,14 +243,8 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
             setSubmitStatus('idle');
             setCurrentStep(1);
             setValues({
-                fullName: '',
-                fatherName: '',
-                mobile: '',
-                email: '',
-                dob: '',
-                qualification: '',
-                experience: '',
-                previousCompanies: '',
+                fullName: '', fatherName: '', mobile: '', email: '', dob: '',
+                qualification: '', experience: '', previousCompanies: '',
                 position: initialPosition || ''
             });
           }}
@@ -318,7 +307,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
             const isCurrent = step === currentStep;
             return (
               <div key={step} className="flex flex-col items-center gap-2">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${isActive ? 'bg-brand-moss border-brand-moss text-white scale-110 shadow-lg shadow-brand-moss/30' : 'bg-brand-surface border-brand-border text-brand-stone'}`}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${isActive ? 'bg-brand-moss border-brand-moss text-white scale-110 shadow-lg shadow-brand-moss/30' : 'bg-brand-surface border-brand-border text-brand-stone'}">
                   {isActive ? <Check size={16} /> : step}
                 </div>
                 <span className={`text-[10px] uppercase font-bold tracking-wider transition-colors ${isCurrent ? 'text-brand-moss' : 'text-brand-stone/60'}`}>
@@ -360,10 +349,11 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.fullName}
                   onChange={onInputChange}
                   placeholder="John Doe"
-                  maxLength={100}
+                  aria-invalid={!!errors.fullName}
+                  aria-describedby={errors.fullName ? "fullName-error" : undefined}
                   className={`w-full bg-brand-bg border ${errors.fullName ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.fullName && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.fullName}</p>}
+                {errors.fullName && <p id="fullName-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.fullName}</p>}
               </div>
 
               <div className="group">
@@ -377,10 +367,11 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.fatherName}
                   onChange={onInputChange}
                   placeholder="Father's Full Name"
-                  maxLength={100}
+                  aria-invalid={!!errors.fatherName}
+                  aria-describedby={errors.fatherName ? "fatherName-error" : undefined}
                   className={`w-full bg-brand-bg border ${errors.fatherName ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.fatherName && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.fatherName}</p>}
+                {errors.fatherName && <p id="fatherName-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.fatherName}</p>}
               </div>
 
               {/* Date of Birth */}
@@ -411,10 +402,11 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.mobile}
                   onChange={onInputChange}
                   placeholder="+91 98765 43210"
-                  maxLength={15}
+                  aria-invalid={!!errors.mobile}
+                  aria-describedby={errors.mobile ? "mobile-error" : undefined}
                   className={`w-full bg-brand-bg border ${errors.mobile ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.mobile && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.mobile}</p>}
+                {errors.mobile && <p id="mobile-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.mobile}</p>}
               </div>
 
               <div className="group">
@@ -428,10 +420,11 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.email}
                   onChange={onInputChange}
                   placeholder="john@example.com"
-                  maxLength={100}
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? "email-error" : undefined}
                   className={`w-full bg-brand-bg border ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.email && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.email}</p>}
+                {errors.email && <p id="email-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.email}</p>}
               </div>
             </div>
           </div>
@@ -463,10 +456,11 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.qualification}
                   onChange={onInputChange}
                   placeholder="e.g. B.Com, CA Inter, MBA"
-                  maxLength={200}
+                  aria-invalid={!!errors.qualification}
+                  aria-describedby={errors.qualification ? "qualification-error" : undefined}
                   className={`w-full bg-brand-bg border ${errors.qualification ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
                 />
-                {errors.qualification && <p className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{errors.qualification}</p>}
+                {errors.qualification && <p id="qualification-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.qualification}</p>}
               </div>
 
               {/* Experience */}
@@ -492,7 +486,6 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                   value={values.previousCompanies}
                   onChange={onInputChange}
                   rows={3}
-                  maxLength={500}
                   placeholder="List your previous employers..."
                   className="w-full bg-brand-bg border border-brand-border py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all resize-none"
                 ></textarea>
@@ -503,7 +496,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           {submitStatus === 'error' && (
             <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600" role="alert" aria-live="assertive">
               <AlertCircle size={20} aria-hidden="true" />
-              <span className="text-sm font-medium">Something went wrong. Please try again later.</span>
+              <span className="text-sm font-medium">Something went wrong. Please check your connection and try again.</span>
             </div>
           )}
 

@@ -1,20 +1,19 @@
 
 import { useMemo } from 'react';
-import { TaxResult, IncomeHeads, Deductions, ComparisonResult } from './types';
-import { TAX_CONFIG } from '../../constants/taxConfig';
+import { TaxResult, IncomeHeads, Deductions, ComparisonResult, TaxConfig } from './types';
 
 /**
  * Calculates tax based on a set of iterative slabs (New Regime style).
  * Slabs must be ordered by limit.
  */
-const calculateSlabTax = (taxableIncome: number, slabs: typeof TAX_CONFIG.slabs.new) => {
+const calculateSlabTax = (taxableIncome: number, slabs: { upto: number | null, rate: number }[]) => {
   let tax = 0;
   let prevLimit = 0;
 
   for (const slab of slabs) {
     if (taxableIncome <= prevLimit) break;
 
-    const currentLimit = slab.upto;
+    const currentLimit = slab.upto === null ? Infinity : slab.upto;
     const taxableInThisSlab = Math.min(taxableIncome, currentLimit) - prevLimit;
     
     if (taxableInThisSlab > 0) {
@@ -29,35 +28,35 @@ const calculateSlabTax = (taxableIncome: number, slabs: typeof TAX_CONFIG.slabs.
 /**
  * Calculates tax for Old Regime style (Basic Exemption Limit + Fixed Slabs).
  */
-const calculateOldRegimeTax = (taxableIncome: number, age: string) => {
+const calculateOldRegimeTax = (taxableIncome: number, age: string, config: TaxConfig) => {
   let tax = 0;
   
   // Determine Exemption Limit
-  const exemptionLimit = TAX_CONFIG.slabs.old.exemptions[age as keyof typeof TAX_CONFIG.slabs.old.exemptions] || TAX_CONFIG.slabs.old.exemptions.below60;
+  const exemptionLimit = config.oldRegimeConfig.exemptions[age as keyof typeof config.oldRegimeConfig.exemptions] || config.oldRegimeConfig.exemptions.below60;
   
-  // Slabs: 0-Exempt, Exempt-5L, 5L-10L, 10L+
-  // We manually map the standard old regime structure based on config rates
-  // Rate 1: 5% (typically 2.5L to 5L)
-  if (taxableIncome > exemptionLimit) {
-    // Income between Exemption and 5L
-    const slab1Limit = 500000;
-    if (slab1Limit > exemptionLimit) {
-       const taxableInSlab1 = Math.min(taxableIncome, slab1Limit) - exemptionLimit;
-       if (taxableInSlab1 > 0) tax += taxableInSlab1 * 0.05;
-    }
-  }
+  // Dynamic calculation based on config slabs
+  // We assume the first slab starts after exemption limit
+  const slabs = config.oldRegimeConfig.slabs;
+  let prevLimit = exemptionLimit;
 
-  // Rate 2: 20% (5L to 10L)
-  if (taxableIncome > 500000) {
-    const slab2Limit = 1000000;
-    const taxableInSlab2 = Math.min(taxableIncome, slab2Limit) - 500000;
-    if (taxableInSlab2 > 0) tax += taxableInSlab2 * 0.20;
-  }
+  // Find the first slab that applies after exemption.
+  // Standard old regime: 0-2.5L Exempt, 2.5L-5L @ 5%, 5L-10L @ 20%, >10L @ 30%
+  // We'll iterate the config slabs.
+  
+  for (const slab of slabs) {
+      if (taxableIncome <= prevLimit) break;
+      
+      const currentLimit = slab.upto === null ? Infinity : slab.upto;
+      // Skip slabs below exemption limit
+      if (currentLimit <= exemptionLimit) continue;
 
-  // Rate 3: 30% (Above 10L)
-  if (taxableIncome > 1000000) {
-    const taxableInSlab3 = taxableIncome - 1000000;
-    tax += taxableInSlab3 * 0.30;
+      const effectiveLimit = Math.min(taxableIncome, currentLimit);
+      const taxableAmount = effectiveLimit - prevLimit;
+      
+      if (taxableAmount > 0) {
+          tax += taxableAmount * slab.rate;
+      }
+      prevLimit = currentLimit;
   }
 
   return tax;
@@ -67,31 +66,32 @@ export const calculateRegimeTax = (
   r: 'new' | 'old', 
   incomes: IncomeHeads, 
   deds: Deductions, 
-  age: string
+  age: string,
+  config: TaxConfig
 ): TaxResult => {
   
   // 1. Gross Total Income
   const grossIncome = Object.values(incomes).reduce((a, b) => a + Number(b), 0);
 
   // 2. Standard Deduction
-  const stdDedLimit = r === 'new' ? TAX_CONFIG.stdDeduction.new : TAX_CONFIG.stdDeduction.old;
+  const stdDedLimit = r === 'new' ? config.stdDeduction.new : config.stdDeduction.old;
   const stdDeduction = Math.min(Number(incomes.salary), stdDedLimit);
 
   // 3. Chapter VI-A Deductions
   let chapterVIA = 0;
 
   if (r === 'old') {
-    const d80c = Math.min(Number(deds.d80c), TAX_CONFIG.limits.d80c); 
+    const d80c = Math.min(Number(deds.d80c), config.deductionLimits.d80c); 
     const d80d = Number(deds.d80d);
     const d80e = Number(deds.d80e);
     const d80g = Number(deds.d80g);
-    const nps = Math.min(Number(deds.nps), TAX_CONFIG.limits.nps); 
+    const nps = Math.min(Number(deds.nps), config.deductionLimits.nps); 
     
     let interestDed = 0;
     if (age === 'below60') {
-      interestDed = Math.min(Number(deds.d80tta), TAX_CONFIG.limits.d80tta);
+      interestDed = Math.min(Number(deds.d80tta), config.deductionLimits.d80tta);
     } else {
-      interestDed = Math.min(Number(deds.d80ttb), TAX_CONFIG.limits.d80ttb);
+      interestDed = Math.min(Number(deds.d80ttb), config.deductionLimits.d80ttb);
     }
 
     chapterVIA = d80c + d80d + Number(deds.hra) + d80e + d80g + nps + interestDed + Number(deds.other);
@@ -107,9 +107,9 @@ export const calculateRegimeTax = (
   let tax = 0;
 
   if (r === 'new') {
-    tax = calculateSlabTax(taxableIncome, TAX_CONFIG.slabs.new);
+    tax = calculateSlabTax(taxableIncome, config.newRegimeSlabs);
   } else {
-    tax = calculateOldRegimeTax(taxableIncome, age);
+    tax = calculateOldRegimeTax(taxableIncome, age, config);
   }
 
   // 5. Rebate u/s 87A
@@ -117,23 +117,20 @@ export const calculateRegimeTax = (
   let marginalRelief87A = 0;
 
   if (r === 'new') {
-     const { limit } = TAX_CONFIG.rebate87A.new;
+     const { limit } = config.rebate.new;
      if (taxableIncome <= limit) {
        rebate = tax;
      } else {
        // Marginal relief for New Regime
-       // If Income exceeds limit slightly, Tax payable should not exceed (Income - Limit)
        const excessIncome = taxableIncome - limit;
-       // Valid range for check is roughly up to limit + potential tax
-       // Heuristic check: check if (Tax - Excess) > 0
        if (tax > excessIncome) {
            marginalRelief87A = tax - excessIncome;
        }
      }
   } else {
-     const { limit, amount } = TAX_CONFIG.rebate87A.old;
+     const { limit, amount } = config.rebate.old;
      if (taxableIncome <= limit) {
-       rebate = Math.min(tax, amount as number);
+       rebate = Math.min(tax, Number(amount));
      }
   }
 
@@ -143,56 +140,49 @@ export const calculateRegimeTax = (
   let surcharge = 0;
   let surchargeRate = 0;
   
-  // Find applicable surcharge slab
-  // Iterate slabs in ascending order to find highest applicable rate
-  // Slabs structure: { min: 50L, rate: 0.10 }
-  
-  // Default max surcharge for New Regime is usually capped at 25% for income > 5Cr
-  // For Old Regime it can go to 37%
-  const maxSurchargeRate = r === 'new' ? 0.25 : TAX_CONFIG.surcharge.oldRegimeHighRate;
+  // Sort surcharge slabs to iterate
+  const sortedSurchargeSlabs = Object.entries(config.surchargeSlabs)
+    .sort(([, a], [, b]) => a - b)
+    .map(([k, v]) => ({ id: k, min: v }));
 
-  for (const slab of TAX_CONFIG.surcharge.slabs) {
-      if (taxableIncome > slab.min) {
-          surchargeRate = Math.min(slab.rate, maxSurchargeRate);
-      }
-  }
+  // Define rates map (hardcoded based on typical tax rules if not in config, assuming standard structure)
+  // Standard: 50L: 10%, 1Cr: 15%, 2Cr: 25%, 5Cr: 37% (Old) or 25% (New)
+  const getSurchargeRate = (income: number, regime: 'new' | 'old') => {
+      if (income > 50000000) return regime === 'new' ? 0.25 : 0.37;
+      if (income > 20000000) return 0.25;
+      if (income > 10000000) return 0.15;
+      if (income > 5000000) return 0.10;
+      return 0;
+  };
 
+  surchargeRate = getSurchargeRate(taxableIncome, r);
   let basicSurcharge = taxAfterRebate * surchargeRate;
   let surchargeMarginalRelief = 0;
 
   if (surchargeRate > 0) {
       // Calculate Marginal Relief for Surcharge
-      // 1. Find the immediate lower threshold
+      // Find the immediate lower threshold
       let threshold = 0;
-      for (let i = TAX_CONFIG.surcharge.slabs.length - 1; i >= 0; i--) {
-          if (taxableIncome > TAX_CONFIG.surcharge.slabs[i].min) {
-              threshold = TAX_CONFIG.surcharge.slabs[i].min;
-              break;
-          }
-      }
+      // Reverse check
+      if (taxableIncome > 50000000) threshold = 50000000;
+      else if (taxableIncome > 20000000) threshold = 20000000;
+      else if (taxableIncome > 10000000) threshold = 10000000;
+      else if (taxableIncome > 5000000) threshold = 5000000;
 
-      // 2. Tax on Threshold Income
-      // We recursively call calculation for the exact threshold amount to get base tax
-      // (Optimization: Inlining simple calc to avoid deep recursion loop issues)
+      // Tax on Threshold Income
       let taxAtThreshold = 0;
-      if (r === 'new') taxAtThreshold = calculateSlabTax(threshold, TAX_CONFIG.slabs.new);
-      else taxAtThreshold = calculateOldRegimeTax(threshold, age);
+      if (r === 'new') taxAtThreshold = calculateSlabTax(threshold, config.newRegimeSlabs);
+      else taxAtThreshold = calculateOldRegimeTax(threshold, age, config);
       
-      // 3. Surcharge on Threshold Tax
-      // Find rate applicable AT the threshold (not above)
-      let thresholdSurchargeRate = 0;
-      // Look for the slab where min equals threshold? No, look for slab strictly below or equal
-      // Actually simpler: if threshold is 50L, rate is 0. If 1Cr, rate is 10%.
-      for (const slab of TAX_CONFIG.surcharge.slabs) {
-          if (threshold > slab.min) { 
-             thresholdSurchargeRate = Math.min(slab.rate, maxSurchargeRate);
-          }
-      }
-      // Edge case: if threshold is 50L, surcharge is 0. 
+      // Surcharge on Threshold Tax
+      let thresholdSurchargeRate = getSurchargeRate(threshold, r); 
+      // Edge case: Surcharge is applicable if income exceeds threshold. 
+      // At exactly 50L, rate is 0. At 1.01Cr, comparison is against 1Cr.
+      // We need rate AT threshold (which is the rate of the tier BELOW the current one)
       
       const taxOnThresholdWithSurcharge = taxAtThreshold + (taxAtThreshold * thresholdSurchargeRate);
       
-      // 4. Max Tax Payable = Tax on Threshold + (Income - Threshold)
+      // Max Tax Payable = Tax on Threshold + (Income - Threshold)
       const excessIncome = taxableIncome - threshold;
       const maxTaxPayable = taxOnThresholdWithSurcharge + excessIncome;
       
@@ -200,7 +190,6 @@ export const calculateRegimeTax = (
       
       if (totalTaxWithCurrentSurcharge > maxTaxPayable) {
           surchargeMarginalRelief = totalTaxWithCurrentSurcharge - maxTaxPayable;
-          // Surcharge is reduced by the relief amount
           surcharge = basicSurcharge - surchargeMarginalRelief;
       } else {
           surcharge = basicSurcharge;
@@ -211,7 +200,7 @@ export const calculateRegimeTax = (
 
   const totalMarginalRelief = marginalRelief87A + surchargeMarginalRelief;
   const finalTaxBeforeCess = Math.max(0, tax + surcharge - rebate - totalMarginalRelief);
-  const cess = finalTaxBeforeCess * TAX_CONFIG.cess;
+  const cess = finalTaxBeforeCess * 0.04; // 4% Cess
   const totalTax = finalTaxBeforeCess + cess;
 
   return {
@@ -232,11 +221,14 @@ export const calculateRegimeTax = (
 export const useTaxCalculation = (
   incomeHeads: IncomeHeads, 
   deductions: Deductions, 
-  ageGroup: string
-): ComparisonResult => {
+  ageGroup: string,
+  config: TaxConfig | null
+): ComparisonResult | null => {
   return useMemo(() => {
-    const newRegimeTax = calculateRegimeTax('new', incomeHeads, deductions, ageGroup);
-    const oldRegimeTax = calculateRegimeTax('old', incomeHeads, deductions, ageGroup);
+    if (!config) return null;
+
+    const newRegimeTax = calculateRegimeTax('new', incomeHeads, deductions, ageGroup, config);
+    const oldRegimeTax = calculateRegimeTax('old', incomeHeads, deductions, ageGroup, config);
     
     let recommendation: 'new' | 'old' | 'equal' = 'equal';
     let savings = 0;
@@ -255,5 +247,5 @@ export const useTaxCalculation = (
         recommendation,
         savings
     };
-  }, [incomeHeads, deductions, ageGroup]);
+  }, [incomeHeads, deductions, ageGroup, config]);
 };

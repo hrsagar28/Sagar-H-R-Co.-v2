@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { InsightItem } from '../types';
 import { logger } from '../utils/logger';
+import { apiClient, ApiError } from '../utils/api';
 
 export const useInsights = () => {
   const [insights, setInsights] = useState<InsightItem[]>([]);
@@ -12,37 +13,26 @@ export const useInsights = () => {
     let isMounted = true;
 
     const fetchInsights = async () => {
-      const retries = 3;
-      const baseDelay = 1000;
-
       // Construct robust path using Vite's BASE_URL or fallback to relative
       const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
       const url = `${baseUrl}data/insights.json`.replace('//', '/');
 
-      for (let i = 0; i < retries; i++) {
-        try {
-          const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error(`Failed to load insights: ${response.statusText}`);
+      try {
+        const data = await apiClient.get<InsightItem[]>(url);
+        if (isMounted) {
+          setInsights(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          logger.error('Error fetching insights:', err);
+          let msg = 'Unable to load insights.';
+          if (err instanceof ApiError) {
+             if (err.code === 'NETWORK_ERROR') msg = 'Network error. Please check your connection.';
+             else if (err.code === 'TIMEOUT') msg = 'Request timed out.';
           }
-          const data: InsightItem[] = await response.json();
-          
-          if (isMounted) {
-            setInsights(data);
-            setLoading(false);
-          }
-          return; // Success
-        } catch (err) {
-          if (i === retries - 1) {
-            logger.error('Error fetching insights after retries:', err);
-            if (isMounted) {
-              setError('Unable to load insights.');
-              setLoading(false);
-            }
-          } else {
-            const delay = baseDelay * Math.pow(2, i);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          }
+          setError(msg);
+          setLoading(false);
         }
       }
     };
