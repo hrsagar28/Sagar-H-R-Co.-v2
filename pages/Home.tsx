@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { 
   Shield, TrendingUp, CheckCircle2, ArrowRight, Check, 
   UserCheck, Monitor, MessageCircle, Receipt, MapPin, Zap, 
@@ -14,6 +14,8 @@ import {
 } from '../components';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useInsights } from '../hooks';
+
+const { useNavigate, Link } = ReactRouterDOM;
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ const Home: React.FC = () => {
           "url": "https://casagar.co.in/logo.png"
         },
         "description": "Premium Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.",
-        "foundingDate": "2018",
+        "foundingDate": CONTACT_INFO.stats.established,
         "founder": {
           "@type": "Person",
           "name": CONTACT_INFO.founder.name

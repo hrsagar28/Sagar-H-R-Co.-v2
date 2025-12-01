@@ -1,9 +1,11 @@
 
 import React, { useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { INDUSTRIES } from '../constants';
 import Reveal from './Reveal';
+
+const { Link } = ReactRouterDOM;
 
 interface IndustrySpotlightProps {
   variant?: 'default' | 'compact';

@@ -1,7 +1,10 @@
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { CHECKLIST_DATA } from '../../constants';
+
+const { Link } = ReactRouterDOM;
 
 const ChecklistGrid: React.FC = () => {
   return (

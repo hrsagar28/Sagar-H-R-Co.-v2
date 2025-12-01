@@ -1,9 +1,11 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { SERVICES } from '../constants';
 import Reveal from './Reveal';
+
+const { Link } = ReactRouterDOM;
 
 const ServiceBento: React.FC = React.memo(() => {
   return (

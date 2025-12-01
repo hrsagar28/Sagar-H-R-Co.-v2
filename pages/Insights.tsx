@@ -1,12 +1,14 @@
 
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { ArrowUpRight, Calendar, AlertCircle, Search, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../constants';
 import { useInsights } from '../hooks';
 import Skeleton from '../components/Skeleton';
+
+const { Link } = ReactRouterDOM;
 
 const Insights: React.FC = () => {
   const { insights, loading, error } = useInsights();

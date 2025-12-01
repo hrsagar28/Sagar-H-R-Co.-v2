@@ -1,6 +1,9 @@
+
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
+
+const { Link } = ReactRouterDOM;
 
 interface BreadcrumbItem {
   label: string;

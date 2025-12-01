@@ -1,9 +1,11 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { MessageSquare, Phone, ArrowRight } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import Reveal from './Reveal';
+
+const { Link } = ReactRouterDOM;
 
 const ConsultationBanner: React.FC = () => {
   return (

@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { NAV_LINKS, CONTACT_INFO } from '../constants';
 import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
 import { useFocusTrap, useReturnFocus, useScrollPosition } from '../hooks';
+
+const { Link, useLocation } = ReactRouterDOM;
 
 interface NavbarProps {
   className?: string;
@@ -225,4 +227,3 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
 });
 
 export default Navbar;
-    

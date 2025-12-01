@@ -1,9 +1,11 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { FAQS } from '../../constants/faq';
 import Reveal from '../Reveal';
+
+const { Link } = ReactRouterDOM;
 
 const FAQPreview: React.FC = () => {
   // Get top 3 General FAQs

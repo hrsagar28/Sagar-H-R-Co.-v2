@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { Calendar, Clock, Share2, Printer, Check, Twitter, Linkedin, ArrowUp, Link as LinkIcon, ArrowUpRight } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -9,6 +9,8 @@ import { logger } from '../utils/logger';
 import { useInsights, useScrollPosition } from '../hooks';
 import InsightDetailSkeleton from '../components/skeletons/InsightDetailSkeleton';
 import MarkdownRenderer from '../components/MarkdownRenderer';
+
+const { useParams, Link, useNavigate } = ReactRouterDOM;
 
 const InsightDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -188,7 +190,7 @@ const InsightDetail: React.FC = () => {
       
       {/* Decorative Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-moss/5 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute top-0 left-1/4 -translate-x-1/2 w-[800px] h-[800px] bg-brand-moss/5 rounded-full blur-[120px] -z-10"></div>
       </div>
 
       <div className="relative z-base pt-32 md:pt-48 pb-24 px-4 md:px-8 max-w-[1200px] mx-auto">

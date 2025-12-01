@@ -1,10 +1,13 @@
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
 import OptimizedImage from '../components/OptimizedImage';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../constants';
+
+const { Link } = ReactRouterDOM;
 
 const About: React.FC = () => {
   const schema = {
@@ -52,7 +55,7 @@ const About: React.FC = () => {
                      <div className="absolute bottom-10 left-10 w-64 h-64 bg-brand-moss/10 rounded-full mix-blend-multiply filter blur-2xl animate-blob"></div>
                  </div>
                  <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-8">
-                     <span className="font-heading font-bold text-4xl md:text-6xl text-brand-dark mb-2">Est. 2023</span>
+                     <span className="font-heading font-bold text-4xl md:text-6xl text-brand-dark mb-2">Est. {CONTACT_INFO.stats.established}</span>
                      <span className="font-serif italic text-xl text-brand-stone">Mysuru, Karnataka</span>
                  </div>
               </div>
@@ -137,7 +140,7 @@ const About: React.FC = () => {
                <div className="lg:w-3/5 p-10 md:p-16 flex flex-col justify-center">
                   <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Principal Partner</span>
                   <h2 className="text-4xl md:text-6xl font-heading font-bold text-brand-dark mb-2">CA Sagar H R</h2>
-                  <p className="text-brand-stone font-bold text-sm uppercase tracking-widest mb-8">B.Com, ACA</p>
+                  <p className="text-brand-stone font-bold text-sm uppercase tracking-widest mb-8">ACA</p>
                   
                   <div className="space-y-6 text-lg text-brand-stone font-medium leading-relaxed">
                      <p>

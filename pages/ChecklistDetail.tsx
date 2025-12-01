@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { CHECKLIST_DATA, CONTACT_INFO } from '../constants';
 import { Printer, CheckSquare, RotateCcw, Copy, Check, Download } from 'lucide-react';
 import SEO from '../components/SEO';
@@ -8,6 +8,8 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import ReactMarkdown from 'react-markdown';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { useToast } from '../hooks/useToast';
+
+const { useParams, useNavigate } = ReactRouterDOM;
 
 const ChecklistDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

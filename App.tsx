@@ -1,6 +1,6 @@
 
 import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { 
   Navbar, Footer, CustomCursor, Preloader, WhatsAppWidget, 
   PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
@@ -9,6 +9,8 @@ import {
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
 import { useAnnounce } from './hooks';
+
+const { HashRouter, Routes, Route, useLocation } = ReactRouterDOM;
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));

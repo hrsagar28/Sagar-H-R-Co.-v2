@@ -1,5 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
+
+const { useLocation } = ReactRouterDOM;
 
 const TopProgressBar: React.FC = () => {
   const { pathname } = useLocation();

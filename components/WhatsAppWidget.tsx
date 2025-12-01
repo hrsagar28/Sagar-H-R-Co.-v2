@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { CONTACT_INFO } from '../constants';
 import { useReducedMotion, useScrollPosition } from '../hooks';
+
+const { useLocation } = ReactRouterDOM;
 
 const WhatsAppWidget: React.FC = () => {
   const { direction, scrollY } = useScrollPosition();
