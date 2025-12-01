@@ -56,5 +56,19 @@ export const CONTACT_INFO = {
   tagline: "Chartered Accountants",
   assessmentYear: CURRENT_AY,
   financialYear: CURRENT_FY,
-  formEndpoint: getEnv('VITE_FORM_ENDPOINT') || "https://formsubmit.co/ajax/mail@casagar.co.in"
+  formEndpoint: getEnv('VITE_FORM_ENDPOINT') || "https://formsubmit.co/ajax/mail@casagar.co.in",
+  stats: {
+    established: "2018",
+    clientsServed: "500+",
+    filingsDone: "2000+",
+    satisfactionRate: "98%"
+  },
+  founder: {
+    name: "CA Sagar H R",
+    title: "Founder & Principal",
+    qualifications: ["B.Com", "Chartered Accountant"],
+    icaiMembershipNo: "Member of ICAI", 
+    specializations: ["Direct Tax", "GST", "Audit", "Business Advisory"],
+    bio: "With a passion for simplifying complex financial matters, CA Sagar H R founded the firm with a vision to provide personalized, technology-driven accounting services to businesses in Mysuru and beyond."
+  }
 };

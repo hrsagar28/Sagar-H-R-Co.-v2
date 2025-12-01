@@ -87,6 +87,22 @@
   outline: none;
 }
 
+/* Animation Delays */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Grid Rows Transition Utilities */
+.grid-rows-\[0fr\] {
+  grid-template-rows: 0fr;
+}
+.grid-rows-\[1fr\] {
+  grid-template-rows: 1fr;
+}
+
 /* PRINT STYLES */
 @media print {
   @page {

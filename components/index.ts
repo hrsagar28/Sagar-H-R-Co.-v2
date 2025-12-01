@@ -27,6 +27,14 @@ export { default as ToastContainer } from './ToastContainer';
 export { default as TopProgressBar } from './TopProgressBar';
 export { default as VisuallyHidden } from './VisuallyHidden';
 export { default as WhatsAppWidget } from './WhatsAppWidget';
+export { default as ConsultationBanner } from './ConsultationBanner';
+
+// Home Specific Components
+export { default as TrustBar } from './home/TrustBar';
+export { default as FounderSection } from './home/FounderSection';
+export { default as TestimonialCarousel } from './home/TestimonialCarousel';
+export { default as FAQPreview } from './home/FAQPreview';
+export { default as LocationStrip } from './home/LocationStrip';
 
 // Skeletons
 export { default as ContactSkeleton } from './skeletons/ContactSkeleton';

@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { Search, Calendar, FileText, Clock, AlertCircle, Loader2 } from 'lucide-react';
+import { Search, Calendar, FileText, Clock, AlertCircle, Copy, Check } from 'lucide-react';
 import { TDS_DUE_DATES_SUMMARY } from '../../constants';
 import { useResourceData } from '../../hooks/useResourceData';
+import { useToast } from '../../hooks/useToast';
 import Skeleton from '../../components/Skeleton';
 
 type TabType = 'resident' | 'non-resident' | 'tcs';
@@ -23,6 +24,7 @@ interface TDSRatesData {
 const TDSRateChart: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('resident');
   const [searchTerm, setSearchTerm] = useState('');
+  const { addToast } = useToast();
   
   const { data: tdsData, loading, error } = useResourceData<TDSRatesData>('tds-rates.json');
 
@@ -44,6 +46,12 @@ const TDSRateChart: React.FC = () => {
 
   const currentData = getCurrentData();
 
+  const handleCopyRow = (item: RateItem) => {
+      const text = `Sec ${item.section}: ${item.nature}\nThreshold: ${item.threshold} | Rate: ${item.rate}`;
+      navigator.clipboard.writeText(text);
+      addToast(`Copied rate for Sec ${item.section}`, "success");
+  };
+
   const RateList = ({ data }: { data: RateItem[] }) => (
     <div className="space-y-4">
       {/* Desktop Table View */}
@@ -51,10 +59,11 @@ const TDSRateChart: React.FC = () => {
         <table className="w-full text-left border-collapse">
           <thead className="bg-brand-bg/80 text-brand-dark border-b border-brand-border">
             <tr>
-              <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider w-[15%]">Section</th>
-              <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider w-[45%]">Nature of Payment</th>
+              <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider w-[12%]">Section</th>
+              <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider w-[43%]">Nature of Payment</th>
               <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider w-[25%]">Threshold (₹)</th>
               <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider w-[15%] text-right">Rate</th>
+              <th className="py-5 px-6 w-[5%]"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-border/50">
@@ -65,11 +74,20 @@ const TDSRateChart: React.FC = () => {
                   <td className="py-4 px-6 text-sm font-medium text-brand-dark leading-relaxed">{item.nature}</td>
                   <td className="py-4 px-6 text-sm text-brand-stone font-medium">{item.threshold}</td>
                   <td className="py-4 px-6 text-sm font-bold text-brand-dark text-right">{item.rate}</td>
+                  <td className="py-4 px-6 text-center">
+                      <button 
+                        onClick={() => handleCopyRow(item)} 
+                        className="p-2 rounded-lg text-brand-stone hover:bg-brand-moss hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                        title="Copy details"
+                      >
+                          <Copy size={14} />
+                      </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={4} className="py-12 text-center text-brand-stone font-medium">
+                <td colSpan={5} className="py-12 text-center text-brand-stone font-medium">
                   No rates found matching "{searchTerm}".
                 </td>
               </tr>
@@ -89,9 +107,17 @@ const TDSRateChart: React.FC = () => {
                 <span className="px-3 py-1.5 bg-brand-bg border border-brand-border text-brand-dark text-xs font-bold rounded-lg font-mono tracking-tight">
                   Sec {item.section}
                 </span>
-                <span className="text-lg font-bold text-brand-moss bg-brand-moss/5 px-3 py-1 rounded-lg border border-brand-moss/10">
-                  {item.rate}
-                </span>
+                <div className="flex gap-2">
+                    <span className="text-lg font-bold text-brand-moss bg-brand-moss/5 px-3 py-1 rounded-lg border border-brand-moss/10">
+                    {item.rate}
+                    </span>
+                    <button 
+                        onClick={() => handleCopyRow(item)}
+                        className="p-2 rounded-lg bg-brand-bg text-brand-stone hover:bg-brand-moss hover:text-white transition-colors"
+                    >
+                        <Copy size={16} />
+                    </button>
+                </div>
               </div>
               
               <p className="text-brand-dark font-bold text-sm leading-relaxed pr-2">

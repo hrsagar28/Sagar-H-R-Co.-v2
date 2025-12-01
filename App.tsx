@@ -92,7 +92,7 @@ const App: React.FC = () => {
           
           {/* Fixed Elements */}
           <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none print:hidden">
-            <Navbar className="animate-content-reveal delay-2000" />
+            <Navbar className="animate-fade-in-up delay-200" />
           </div>
 
           <div className="print:hidden">
@@ -103,8 +103,9 @@ const App: React.FC = () => {
           {/* Global Background Noise */}
           <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply print:hidden" />
 
-          {/* Main Layout - Removed overflow-x-hidden from here to allow sticky pos to work better with body scroll */}
-          <div className="animate-content-reveal delay-2000 relative z-base flex flex-col min-h-screen bg-brand-bg w-full print:bg-white">
+          {/* Main Layout */}
+          {/* Removed animate-content-reveal to prevent transform stacking context issues with sticky elements */}
+          <div className="relative z-base flex flex-col min-h-screen bg-brand-bg w-full print:bg-white">
             <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -168,4 +169,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-    

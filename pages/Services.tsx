@@ -1,9 +1,11 @@
+
 import React from 'react';
 import ServiceBento from '../components/ServiceBento';
 import IndustrySpotlight from '../components/IndustrySpotlight';
 import { SERVICES, CONTACT_INFO } from '../constants';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
+import ConsultationBanner from '../components/ConsultationBanner';
 
 const Services: React.FC = () => {
   const schema = {
@@ -66,6 +68,9 @@ const Services: React.FC = () => {
 
       {/* 3. INDUSTRIES - Consolidated Component */}
       <IndustrySpotlight />
+
+      {/* 4. CTA */}
+      <ConsultationBanner />
 
     </div>
   );

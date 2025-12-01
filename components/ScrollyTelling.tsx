@@ -22,7 +22,7 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
 
   useEffect(() => {
     // Only run scroll logic on desktop to save resources
-    if (window.innerWidth < 768) return;
+    if (window.innerWidth < 768 || shouldReduceMotion) return;
 
     const handleScroll = () => {
       if (!containerRef.current) return;
@@ -32,9 +32,17 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
       
       // Calculate scroll progress relative to the container
       const offsetTop = rect.top;
-      const totalScrollableDistance = rect.height - viewportHeight;
+      const height = rect.height;
+      const totalScrollableDistance = height - viewportHeight;
+      
+      // Safety check to prevent division by zero
+      if (totalScrollableDistance <= 0) {
+        setScrollPos(0);
+        return;
+      }
       
       // Calculate progress (0 to 1) through the container
+      // offsetTop becomes negative as we scroll down
       let rawProgress = -offsetTop / totalScrollableDistance;
       rawProgress = Math.max(0, Math.min(1, rawProgress));
 
@@ -47,16 +55,16 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll); // Recalculate on resize
-    handleScroll();
+    handleScroll(); // Initial calc
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  }, [items.length]);
+  }, [items.length, shouldReduceMotion]);
 
   return (
-    <div className={`w-full bg-brand-black text-white ${className}`}>
+    <div className={`w-full bg-brand-black text-white relative z-20 ${className}`}>
       
       {/* --- MOBILE LAYOUT (Vertical Stack) --- */}
       <div className="md:hidden flex flex-col gap-20 py-20 px-4">
@@ -95,10 +103,10 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
       <div 
         ref={containerRef} 
         className="hidden md:block relative w-full"
-        // Height multiplier: slightly increased to give more "breathing room"
-        style={{ height: `${items.length * 110 + 20}vh` }} 
+        // Height multiplier: 150vh per item for comfortable scroll speed
+        style={{ height: `${items.length * 150}vh` }} 
       >
-        <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-row">
+        <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-row bg-brand-black">
           
           {/* PROGRESS BAR (Left Edge) */}
           <div className="absolute left-10 top-1/2 -translate-y-1/2 h-64 w-[2px] bg-white/10 z-30 rounded-full">
@@ -118,9 +126,7 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
                 const distance = scrollPos - i;
                 const absDistance = Math.abs(distance);
                 
-                // --- NEW MATH FOR WIDER WINDOW ---
                 // We introduce a "safe zone" of 0.3 units where the item is fully visible.
-                // Decay starts only after distance > 0.3
                 const safeZone = 0.3;
                 const decayRate = 2.5; // How fast it fades after the safe zone
                 

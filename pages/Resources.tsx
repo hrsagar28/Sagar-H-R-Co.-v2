@@ -12,8 +12,9 @@ import GSTCalculator from './Resources/GSTCalculator';
 import HRACalculator from './Resources/HRACalculator';
 import TDSRateChart from './Resources/TDSRateChart';
 import CIITable from './Resources/CIITable';
+import CIICalculator from './Resources/CIICalculator';
 
-type ResourceTab = 'income-tax' | 'gst-calc' | 'hra-calc' | 'calendar' | 'tds-rates' | 'cii-table' | 'checklist' | 'links';
+type ResourceTab = 'income-tax' | 'gst-calc' | 'hra-calc' | 'calendar' | 'tds-rates' | 'cii-table' | 'cii-calc' | 'checklist' | 'links';
 
 const Resources: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ResourceTab>('income-tax');
@@ -81,6 +82,7 @@ const Resources: React.FC = () => {
                             <NavItem id="income-tax" label="Tax Estimator" icon={Calculator} />
                             <NavItem id="gst-calc" label="GST Calculator" icon={Percent} />
                             <NavItem id="hra-calc" label="HRA Calculator" icon={TrendingUp} />
+                            <NavItem id="cii-calc" label="CII Calculator" icon={BarChart3} />
                         </div>
                      </div>
 
@@ -113,6 +115,7 @@ const Resources: React.FC = () => {
                   {activeTab === 'income-tax' && <TaxCalculator />}
                   {activeTab === 'gst-calc' && <GSTCalculator />}
                   {activeTab === 'hra-calc' && <HRACalculator />}
+                  {activeTab === 'cii-calc' && <CIICalculator />}
                   
                   {activeTab === 'calendar' && <ComplianceCalendar />}
                   {activeTab === 'tds-rates' && <TDSRateChart />}

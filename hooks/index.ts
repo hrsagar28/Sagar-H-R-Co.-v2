@@ -1,3 +1,4 @@
+
 export * from './useAnnounce';
 export * from './useFocusTrap';
 export * from './useFormDraft';
@@ -11,3 +12,4 @@ export * from './useToast';
 export * from './useTaxConfig';
 export * from './useInsights';
 export * from './useScrollPosition';
+export * from './useCountUp';

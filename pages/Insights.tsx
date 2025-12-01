@@ -1,6 +1,7 @@
-import React from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Calendar, AlertCircle } from 'lucide-react';
+import { ArrowUpRight, Calendar, AlertCircle, Search, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
 import { CONTACT_INFO } from '../constants';
@@ -9,6 +10,22 @@ import Skeleton from '../components/Skeleton';
 
 const Insights: React.FC = () => {
   const { insights, loading, error } = useInsights();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const categories = useMemo(() => {
+    const cats = new Set(insights.map(i => i.category));
+    return ['All', ...Array.from(cats)];
+  }, [insights]);
+
+  const filteredInsights = useMemo(() => {
+    return insights.filter(item => {
+      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            item.summary.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [insights, searchTerm, selectedCategory]);
 
   const schema = {
     "@context": "https://schema.org",
@@ -21,7 +38,7 @@ const Insights: React.FC = () => {
     },
     "mainEntity": {
       "@type": "ItemList",
-      "itemListElement": insights.map((insight, index) => ({
+      "itemListElement": filteredInsights.map((insight, index) => ({
         "@type": "ListItem",
         "position": index + 1,
         "url": `https://casagar.co.in/insights/${insight.slug}`,
@@ -50,6 +67,48 @@ const Insights: React.FC = () => {
       <section className="py-20 px-4 md:px-6">
         <div className="container mx-auto max-w-7xl">
           
+          {/* Controls */}
+          {!loading && !error && (
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 animate-fade-in-up">
+               {/* Category Filter */}
+               <div className="flex flex-wrap gap-2">
+                  {categories.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                        selectedCategory === cat 
+                        ? 'bg-brand-moss text-white shadow-md' 
+                        : 'bg-white border border-brand-border text-brand-stone hover:border-brand-moss'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+               </div>
+
+               {/* Search */}
+               <div className="relative w-full md:w-80">
+                  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-stone" />
+                  <input 
+                    type="text" 
+                    placeholder="Search articles..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-11 pr-10 py-3 bg-white border border-brand-border rounded-full text-sm font-medium focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
+                  />
+                  {searchTerm && (
+                    <button 
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-brand-stone hover:text-brand-dark"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+               </div>
+            </div>
+          )}
+
           {loading && (
              <div className="grid gap-6">
                {[1, 2, 3].map(i => (
@@ -71,34 +130,48 @@ const Insights: React.FC = () => {
           )}
 
           {!loading && !error && (
-            <div className="grid gap-6">
-              {insights.map((insight) => (
-                <Link to={`/insights/${insight.slug}`} key={insight.id} className="group bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border hover:border-brand-moss hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col md:flex-row gap-8 md:gap-12 items-start relative overflow-hidden">
-                  <div className="absolute inset-0 bg-brand-moss/0 group-hover:bg-brand-moss/[0.02] transition-colors"></div>
-                  
-                  <div className="md:w-1/4 relative z-10">
-                    <span className="inline-block px-4 py-1 rounded-full bg-brand-bg border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">{insight.category}</span>
-                    <div className="flex items-center gap-2 text-brand-stone text-sm font-bold">
-                      <Calendar size={14} />
-                      {insight.date}
-                    </div>
-                  </div>
-                  <div className="md:w-2/4 relative z-10">
-                    <h2 className="text-2xl md:text-3xl text-brand-dark font-heading font-bold mb-4 group-hover:text-brand-moss transition-colors leading-tight">
-                      {insight.title}
-                    </h2>
-                    <p className="text-brand-stone leading-relaxed font-medium">
-                      {insight.summary}
-                    </p>
-                  </div>
-                  <div className="md:w-1/4 flex justify-start md:justify-end w-full relative z-10">
-                    <div className="w-14 h-14 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center text-brand-dark group-hover:bg-brand-moss group-hover:text-brand-inverse group-hover:scale-110 transition-all duration-300">
-                      <ArrowUpRight size={20} />
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <>
+              {filteredInsights.length > 0 ? (
+                <div className="grid gap-6">
+                  {filteredInsights.map((insight) => (
+                    <Link to={`/insights/${insight.slug}`} key={insight.id} className="group bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border hover:border-brand-moss hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col md:flex-row gap-8 md:gap-12 items-start relative overflow-hidden">
+                      <div className="absolute inset-0 bg-brand-moss/0 group-hover:bg-brand-moss/[0.02] transition-colors"></div>
+                      
+                      <div className="md:w-1/4 relative z-10">
+                        <span className="inline-block px-4 py-1 rounded-full bg-brand-bg border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">{insight.category}</span>
+                        <div className="flex items-center gap-2 text-brand-stone text-sm font-bold">
+                          <Calendar size={14} />
+                          {insight.date}
+                        </div>
+                      </div>
+                      <div className="md:w-2/4 relative z-10">
+                        <h2 className="text-2xl md:text-3xl text-brand-dark font-heading font-bold mb-4 group-hover:text-brand-moss transition-colors leading-tight">
+                          {insight.title}
+                        </h2>
+                        <p className="text-brand-stone leading-relaxed font-medium">
+                          {insight.summary}
+                        </p>
+                      </div>
+                      <div className="md:w-1/4 flex justify-start md:justify-end w-full relative z-10">
+                        <div className="w-14 h-14 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center text-brand-dark group-hover:bg-brand-moss group-hover:text-brand-inverse group-hover:scale-110 transition-all duration-300">
+                          <ArrowUpRight size={20} />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20 bg-white rounded-[2rem] border border-brand-border">
+                   <p className="text-xl text-brand-stone font-medium">No articles found matching your criteria.</p>
+                   <button 
+                     onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}
+                     className="mt-4 text-brand-moss font-bold hover:underline"
+                   >
+                     Clear Filters
+                   </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
