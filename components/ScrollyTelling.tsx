@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import Reveal from './Reveal';
 
 interface ScrollyItem {
   id: string;
@@ -20,6 +21,9 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    // Only run scroll logic on desktop to save resources
+    if (window.innerWidth < 768) return;
+
     const handleScroll = () => {
       if (!containerRef.current) return;
 
@@ -27,7 +31,6 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
       const viewportHeight = window.innerHeight;
       
       // Calculate scroll progress relative to the container
-      // Container height is set to multiple viewports to allow scrolling time
       const offsetTop = rect.top;
       const totalScrollableDistance = rect.height - viewportHeight;
       
@@ -35,8 +38,7 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
       let rawProgress = -offsetTop / totalScrollableDistance;
       rawProgress = Math.max(0, Math.min(1, rawProgress));
 
-      // Map progress to the index range (e.g., 0.0 to 2.0 for 3 items)
-      // We add a little buffer at the end to ensure the last item stays fully visible for a bit
+      // Map progress to the index range
       const totalIndices = items.length - 1;
       const mappedPos = rawProgress * totalIndices;
 
@@ -44,152 +46,220 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll); // Recalculate on resize
     handleScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, [items.length]);
 
   return (
-    <div 
-      ref={containerRef} 
-      className={`relative w-full bg-brand-black text-white ${className}`}
-      // Height multiplier: more height = slower animation speed
-      style={{ height: `${items.length * 100 + 50}vh` }} 
-    >
-      <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col md:flex-row">
-        
-        {/* PROGRESS BAR (Left Edge) */}
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 h-48 w-[2px] bg-white/10 hidden md:block z-30 rounded-full">
-           <div 
-             className="w-full bg-[#4ADE80] rounded-full transition-all duration-100 ease-linear shadow-[0_0_10px_#4ADE80]"
-             style={{ 
-               height: `${Math.min(100, Math.max(0, (scrollPos / (items.length - 1)) * 100))}%` 
-             }}
-           ></div>
-        </div>
-
-        {/* LEFT: Text Content */}
-        <div className="w-full md:w-1/2 h-1/2 md:h-full flex items-center justify-center p-8 md:p-20 relative z-20">
-          <div className="relative w-full max-w-lg">
-            {items.map((item, i) => {
-              // Calculate distance from current scroll position
-              const distance = scrollPos - i;
-              
-              // Only active if we are roughly within range [-0.5, 0.5] of this index
-              // But for smoothness, we interpolate opacity
-              // 0 means active. 
-              
-              // Opacity logic: 
-              // 1 when distance is 0. 
-              // 0 when distance is > 0.6 or < -0.6
-              const opacity = Math.max(0, 1 - Math.abs(distance) * 2);
-              
-              // Blur logic
-              const blur = Math.abs(distance) * 20;
-              
-              // Translation: Text slides up slightly as it leaves
-              const translateY = distance * -50;
-
-              // Pointer events
-              const isActive = opacity > 0.5;
-
-              return (
-                <div 
-                  key={item.id}
-                  className="absolute top-1/2 left-0 w-full transform -translate-y-1/2 will-change-transform"
-                  style={{
-                    opacity: opacity,
-                    filter: `blur(${blur}px)`,
-                    transform: `translateY(calc(-50% + ${translateY}px))`,
-                    zIndex: isActive ? 10 : 0,
-                    pointerEvents: isActive ? 'auto' : 'none'
-                  }}
-                >
-                  {/* Big Background Number */}
-                  <span className="absolute -top-20 -left-10 text-[10rem] font-heading font-bold text-white/5 select-none -z-10 leading-none">
+    <div className={`w-full bg-brand-black text-white ${className}`}>
+      
+      {/* --- MOBILE LAYOUT (Vertical Stack) --- */}
+      <div className="md:hidden flex flex-col gap-20 py-20 px-4">
+        {items.map((item, i) => (
+          <div key={item.id} className="flex flex-col gap-8">
+            <Reveal variant="scale" width="100%">
+              <div className="w-full aspect-square rounded-[2rem] overflow-hidden bg-brand-dark/50 border border-white/10 shadow-2xl relative">
+                 {/* Visual Wrapper */}
+                 <div className="absolute inset-0 flex items-center justify-center p-4">
+                    <div className="scale-75 origin-center w-full h-full flex items-center justify-center">
+                      {item.visual}
+                    </div>
+                 </div>
+                 {/* Number Watermark */}
+                 <span className="absolute top-4 right-6 text-6xl font-heading font-bold text-white/5 select-none leading-none">
                     0{i + 1}
-                  </span>
-
-                  <h2 className="text-4xl md:text-7xl font-heading font-bold mb-6 tracking-tight leading-none text-white drop-shadow-xl">
-                    {item.title}
-                  </h2>
-                  <p className="text-lg md:text-2xl text-zinc-300 font-medium leading-relaxed max-w-md">
-                    {item.description}
-                  </p>
-                </div>
-              );
-            })}
+                 </span>
+              </div>
+            </Reveal>
+            
+            <Reveal variant="fade-up">
+              <div className="px-2">
+                <h2 className="text-3xl font-heading font-bold mb-4 text-white">
+                  {item.title}
+                </h2>
+                <p className="text-lg text-zinc-400 font-medium leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+            </Reveal>
           </div>
-        </div>
+        ))}
+      </div>
 
-        {/* RIGHT: Visual Morphing Area (3D Stack) */}
-        <div className="w-full md:w-1/2 h-1/2 md:h-full relative flex items-center justify-center bg-[#0a0a0a] overflow-hidden perspective-[1000px]">
-           
-           {/* Dynamic Ambient Background Light */}
-           <div 
-             className="absolute w-[800px] h-[800px] rounded-full blur-[120px] transition-all duration-700 ease-out opacity-20 pointer-events-none"
-             style={{ 
-               background: `radial-gradient(circle, ${scrollPos < 0.5 ? '#4ADE80' : scrollPos < 1.5 ? '#3b82f6' : '#a855f7'} 0%, transparent 70%)`,
-               transform: `translate(${Math.sin(scrollPos) * 100}px, ${Math.cos(scrollPos) * 100}px)`
-             }} 
-           />
-           
-           {/* Grid Pattern Overlay */}
-           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+      {/* --- DESKTOP LAYOUT (Sticky ScrollyTelling) --- */}
+      <div 
+        ref={containerRef} 
+        className="hidden md:block relative w-full"
+        // Height multiplier: slightly increased to give more "breathing room"
+        style={{ height: `${items.length * 110 + 20}vh` }} 
+      >
+        <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-row">
+          
+          {/* PROGRESS BAR (Left Edge) */}
+          <div className="absolute left-10 top-1/2 -translate-y-1/2 h-64 w-[2px] bg-white/10 z-30 rounded-full">
+             <div 
+               className="w-full bg-[#4ADE80] rounded-full transition-all duration-100 ease-linear shadow-[0_0_15px_#4ADE80]"
+               style={{ 
+                 height: `${Math.min(100, Math.max(0, (scrollPos / (items.length - 1)) * 100))}%` 
+               }}
+             ></div>
+          </div>
 
-           <div className="relative w-full max-w-md aspect-square md:aspect-[4/5] flex items-center justify-center">
+          {/* LEFT: Text Content */}
+          <div className="w-1/2 h-full flex items-center justify-center p-20 relative z-20 pl-32">
+            <div className="relative w-full max-w-lg">
               {items.map((item, i) => {
-                // Stack Logic
-                const offset = i - scrollPos; // Postive = Future item, Negative = Past item
+                // Calculate distance from current scroll position
+                const distance = scrollPos - i;
+                const absDistance = Math.abs(distance);
                 
-                // Style calculation
-                let scale = 1;
-                let y = 0;
-                let rotateX = 0;
+                // --- NEW MATH FOR WIDER WINDOW ---
+                // We introduce a "safe zone" of 0.3 units where the item is fully visible.
+                // Decay starts only after distance > 0.3
+                const safeZone = 0.3;
+                const decayRate = 2.5; // How fast it fades after the safe zone
+                
                 let opacity = 1;
-                let zIndex = items.length - i; // Natural stack order
-
-                if (offset > 0) {
-                    // FUTURE ITEM (Coming from bottom)
-                    // Scale down slightly, pushed down, faded out
-                    // It enters 'stage' as offset approaches 0
-                    scale = 0.8 + (0.2 * (1 - Math.min(1, offset))); // 0.8 -> 1
-                    y = offset * 100; // 100% -> 0% (relative to container really, but using px for simplicity)
-                    rotateX = offset * -10; // Tilted back
-                    opacity = 1 - offset; // Fade in as it arrives
-                    zIndex = items.length - i;
-                } else {
-                    // PAST ITEM (Leaving to top)
-                    // Scale up slightly and fade out quickly
-                    scale = 1 + Math.abs(offset) * 0.1;
-                    y = offset * 100; // Moves up (negative y)
-                    rotateX = offset * 10; // Tilted forward
-                    opacity = 1 - Math.abs(offset) * 1.5; // Fade out faster
-                    zIndex = i; // Lower z-index so next item covers it? No, previous item should fade away *behind* or *above*?
-                    // Let's make it fade away 'into the camera' (blur)
+                if (absDistance > safeZone) {
+                    opacity = Math.max(0, 1 - (absDistance - safeZone) * decayRate);
                 }
+                
+                // Blur text slightly as it leaves
+                const blur = absDistance > safeZone ? (absDistance - safeZone) * 10 : 0;
+                
+                // Translation: Text slides up slightly as it leaves
+                const translateY = distance * -30;
 
-                // Clamp opacity
-                opacity = Math.max(0, Math.min(1, opacity));
+                // Pointer events
+                const isActive = opacity > 0.1;
 
                 return (
                   <div 
                     key={item.id}
-                    className="absolute inset-0 flex items-center justify-center will-change-transform"
+                    className="absolute top-1/2 left-0 w-full transform -translate-y-1/2 will-change-transform transition-opacity duration-100"
                     style={{
                       opacity: opacity,
-                      transform: `translateY(${y}%) scale(${scale}) perspective(1000px) rotateX(${rotateX}deg)`,
-                      zIndex: zIndex,
-                      filter: offset < 0 ? `blur(${Math.abs(offset) * 10}px)` : 'none'
+                      filter: `blur(${blur}px)`,
+                      transform: `translateY(calc(-50% + ${translateY}px))`,
+                      zIndex: isActive ? 10 : 0,
+                      pointerEvents: isActive ? 'auto' : 'none',
+                      visibility: opacity <= 0 ? 'hidden' : 'visible'
                     }}
                   >
-                    {item.visual}
+                    {/* Big Background Number */}
+                    <span className="absolute -top-24 -left-16 text-[12rem] font-heading font-bold text-white/5 select-none -z-10 leading-none">
+                      0{i + 1}
+                    </span>
+
+                    <h2 className="text-5xl lg:text-7xl font-heading font-bold mb-8 tracking-tight leading-none text-white drop-shadow-xl">
+                      {item.title}
+                    </h2>
+                    <p className="text-xl text-zinc-300 font-medium leading-relaxed max-w-md border-l-2 border-[#4ADE80] pl-6">
+                      {item.description}
+                    </p>
                   </div>
                 );
               })}
-           </div>
-        </div>
+            </div>
+          </div>
 
+          {/* RIGHT: Visual Morphing Area (3D Stack) */}
+          <div className="w-1/2 h-full relative flex items-center justify-center bg-[#0a0a0a] overflow-hidden perspective-[1000px]">
+             
+             {/* Dynamic Ambient Background Light */}
+             <div 
+               className="absolute w-[800px] h-[800px] rounded-full blur-[120px] transition-all duration-700 ease-out opacity-20 pointer-events-none"
+               style={{ 
+                 background: `radial-gradient(circle, ${scrollPos < 0.5 ? '#4ADE80' : scrollPos < 1.5 ? '#3b82f6' : '#a855f7'} 0%, transparent 70%)`,
+                 transform: `translate(${Math.sin(scrollPos) * 50}px, ${Math.cos(scrollPos) * 50}px)`
+               }} 
+             />
+             
+             {/* Grid Pattern Overlay */}
+             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+
+             <div className="relative w-full max-w-md aspect-square md:aspect-[4/5] flex items-center justify-center">
+                {items.map((item, i) => {
+                  // Stack Logic
+                  const offset = i - scrollPos; // Postive = Future item, Negative = Past item
+                  const absOffset = Math.abs(offset);
+                  
+                  // Style calculation
+                  let scale = 1;
+                  let y = 0;
+                  let rotateX = 0;
+                  let opacity = 1;
+                  let blur = 0;
+                  let zIndex = items.length - i;
+
+                  const safeZone = 0.25; // Wider safe zone for visuals
+
+                  if (offset > 0) {
+                      // FUTURE ITEM (Coming from bottom)
+                      // It stays mostly hidden/scaled down until it enters the safe zone
+                      if (offset > safeZone) {
+                          scale = 0.8 + (0.2 * (1 - Math.min(1, offset)));
+                          y = offset * 80;
+                          rotateX = offset * -15;
+                          opacity = 1 - offset * 0.8;
+                      } else {
+                          // Within safe zone (approaching 0), it snaps to 1
+                          scale = 1;
+                          y = 0;
+                          rotateX = 0;
+                          opacity = 1;
+                      }
+                      zIndex = items.length - i;
+                  } else {
+                      // PAST ITEM (Leaving to top)
+                      // It stays clear for a bit (safe zone) then flies away
+                      if (absOffset > safeZone) {
+                          const decayOffset = absOffset - safeZone;
+                          scale = 1 + decayOffset * 0.1;
+                          y = decayOffset * -100; // Moves up
+                          rotateX = decayOffset * 10;
+                          opacity = 1 - decayOffset * 2;
+                          blur = decayOffset * 15;
+                      } else {
+                          // Within safe zone
+                          scale = 1;
+                          y = 0;
+                          rotateX = 0;
+                          opacity = 1;
+                          blur = 0;
+                      }
+                      zIndex = i; 
+                  }
+
+                  // Clamp opacity
+                  opacity = Math.max(0, Math.min(1, opacity));
+
+                  return (
+                    <div 
+                      key={item.id}
+                      className="absolute inset-0 flex items-center justify-center will-change-transform"
+                      style={{
+                        opacity: opacity,
+                        transform: `translateY(${y}%) scale(${scale}) perspective(1000px) rotateX(${rotateX}deg)`,
+                        zIndex: zIndex,
+                        filter: blur > 0 ? `blur(${blur}px)` : 'none',
+                        // Add transition for smoother slight movements
+                        transition: 'transform 0.1s linear, opacity 0.1s linear, filter 0.1s linear'
+                      }}
+                    >
+                      {item.visual}
+                    </div>
+                  );
+                })}
+             </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );

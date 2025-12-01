@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, TrendingUp, CheckCircle2, BarChart3, Calculator, ArrowRight, Check } from 'lucide-react';
-import { Marquee, Reveal, MagneticButton, OptimizedImage, SEO, Parallax, ScrollyTelling } from '../components';
-import { CONTACT_INFO } from '../constants';
+import { Shield, TrendingUp, CheckCircle2, ArrowRight, Check } from 'lucide-react';
+import { Marquee, Reveal, MagneticButton, OptimizedImage, SEO, Parallax, ScrollyTelling, HorizontalScroll } from '../components';
+import { CONTACT_INFO, SERVICES } from '../constants';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -239,13 +239,13 @@ const Home: React.FC = () => {
         </Parallax>
       </section>
 
-      {/* 2. PHILOSOPHY - SCROLLYTELLING SECTION (IMPROVED) */}
+      {/* 2. PHILOSOPHY - SCROLLYTELLING SECTION */}
       <ScrollyTelling items={ethosItems} />
 
-      {/* 3. IMMERSIVE SERVICES - DARK MODE */}
-      <section className="py-32 px-4 md:px-6 bg-brand-black text-white rounded-t-[4rem] relative overflow-hidden -mt-24 z-30">
-         <div className="container mx-auto max-w-7xl relative z-10">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-6 border-b border-white/10 pb-10">
+      {/* 3. IMMERSIVE SERVICES - DARK MODE - HORIZONTAL SCROLL */}
+      <section className="bg-brand-black text-white relative z-30 pt-32 pb-20">
+         <div className="container mx-auto max-w-7xl relative z-10 px-4 mb-20">
+            <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-10">
                <Reveal>
                   <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">Expertise</span>
                   <h2 className="text-5xl md:text-7xl font-heading font-bold text-white">
@@ -254,43 +254,60 @@ const Home: React.FC = () => {
                </Reveal>
                <Reveal delay={0.2} className="md:w-1/3">
                  <p className="text-white/60 font-medium text-lg leading-relaxed text-right md:text-left">
-                    Comprehensive financial architecture for businesses that demand excellence.
+                    Comprehensive financial architecture. Scroll to explore our full capabilities.
                  </p>
                </Reveal>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[
-                    { title: 'GST Filing & Registration', icon: <BarChart3 className="text-[#4ADE80]" />, desc: "End-to-end GST compliance and planning." },
-                    { title: 'Income Tax Advisory', icon: <Calculator className="text-[#4ADE80]" />, desc: "Strategic tax planning to maximize savings." },
-                    { title: 'Audit & Assurance', icon: <Shield className="text-[#4ADE80]" />, desc: "Statutory, Tax, and Internal audits." }
-                ].map((s, i) => (
-                    <Reveal key={i} delay={i * 0.1} variant="slide-up">
-                        <div className="p-10 rounded-[2.5rem] bg-brand-dark border border-white/5 hover:bg-brand-surface-dark-hover hover:border-[#4ADE80]/30 transition-all duration-500 group h-full flex flex-col justify-between hover:-translate-y-2">
-                            <div>
-                                <div className="w-14 h-14 rounded-2xl bg-[#4ADE80]/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
-                                    {React.cloneElement(s.icon as React.ReactElement<{size?: number}>, { size: 28 })}
-                                </div>
-                                <h3 className="text-2xl font-heading font-bold mb-4">{s.title}</h3>
-                                <p className="text-white/50 font-medium leading-relaxed">{s.desc}</p>
-                            </div>
-                            <div className="mt-8 flex justify-end">
-                                <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#4ADE80] group-hover:text-black group-hover:border-[#4ADE80] transition-all duration-300">
-                                    <ArrowRight size={16} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
-                                </div>
+         </div>
+
+         {/* Horizontal Scroll Component */}
+         <HorizontalScroll>
+            {SERVICES.map((service, index) => (
+                <Link 
+                  key={service.id}
+                  to={service.link}
+                  className="shrink-0 w-[300px] md:w-[400px] aspect-[3/4] bg-brand-dark border border-white/5 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between hover:border-[#4ADE80]/50 hover:bg-brand-surface-dark-hover transition-all duration-500 group snap-center relative overflow-hidden"
+                >
+                    {/* Hover Gradient Background */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                    
+                    <div className="relative z-10 flex flex-col h-full">
+                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-[#4ADE80] group-hover:scale-110 transition-transform duration-500 mb-8 border border-white/5 shadow-lg shadow-black/20">
+                            {React.cloneElement(service.icon as React.ReactElement<{size?: number}>, { size: 32 })}
+                        </div>
+                        
+                        <div className="mb-auto">
+                            <h3 className="text-2xl md:text-3xl font-heading font-bold leading-tight text-white group-hover:text-[#4ADE80] transition-colors mb-4">
+                                {service.title}
+                            </h3>
+                            {/* Short subtext included here */}
+                            <p className="text-white/50 text-base font-medium leading-relaxed line-clamp-3 group-hover:text-white/70 transition-colors">
+                                {service.description}
+                            </p>
+                        </div>
+                        
+                        <div className="flex items-center justify-between border-t border-white/10 pt-8 mt-8">
+                            <span className="text-xs font-bold uppercase tracking-widest text-white/40 group-hover:text-white transition-colors">Explore</span>
+                            <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#4ADE80] group-hover:text-black group-hover:border-[#4ADE80] transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0)] group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
+                                <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
                             </div>
                         </div>
-                    </Reveal>
-                ))}
-            </div>
-            
-            <Reveal className="mt-20 text-center" delay={0.4}>
-                <Link to="/services" className="inline-block relative group">
-                    <span className="text-2xl font-heading font-bold text-white group-hover:text-[#4ADE80] transition-colors">View All Services</span>
-                    <div className="h-[2px] w-full bg-[#4ADE80] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left mt-2"></div>
+                    </div>
                 </Link>
-            </Reveal>
-         </div>
+            ))}
+            
+            {/* End Card - View All */}
+            <div className="shrink-0 w-[300px] md:w-[400px] aspect-[3/4] flex items-center justify-center snap-center">
+               <Link to="/services" className="text-center group">
+                  <div className="w-24 h-24 rounded-full border border-white/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-white group-hover:text-black transition-all duration-500">
+                     <ArrowRight size={32} />
+                  </div>
+                  <h3 className="text-3xl font-heading font-bold text-white group-hover:text-[#4ADE80] transition-colors">
+                     View All Services
+                  </h3>
+               </Link>
+            </div>
+         </HorizontalScroll>
       </section>
       
       <Marquee />
