@@ -1,9 +1,9 @@
 
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Linkedin, ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
+import { getCopyrightYear } from '../config/financial-year';
 
 const Footer: React.FC = React.memo(() => {
   const scrollToTop = () => {
@@ -100,7 +100,7 @@ const Footer: React.FC = React.memo(() => {
         <div className="px-6 md:px-20 pb-10">
            <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
               <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-500">
-                 <span>&copy; {new Date().getFullYear()} {CONTACT_INFO.name}</span>
+                 <span>&copy; {getCopyrightYear()} {CONTACT_INFO.name}</span>
                  <Link to="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
                  <Link to="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
                  <Link to="/disclaimer" className="hover:text-zinc-300 transition-colors">Disclaimer</Link>

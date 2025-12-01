@@ -1,10 +1,11 @@
+
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CHECKLIST_DATA, CONTACT_INFO } from '../constants';
 import { Printer, CheckSquare } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { sanitizeHTML } from '../utils/sanitize';
+import ReactMarkdown from 'react-markdown';
 
 const ChecklistDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -78,7 +79,18 @@ const ChecklistDetail: React.FC = () => {
                          <CheckSquare size={20} className="print:hidden" />
                          <span className="hidden print:inline-block w-4 h-4 border-2 border-black mr-2"></span>
                        </div>
-                       <span className="text-brand-stone font-medium text-lg leading-relaxed print:text-black print:text-base" dangerouslySetInnerHTML={{ __html: sanitizeHTML(item) }}></span>
+                       <div className="text-brand-stone font-medium text-lg leading-relaxed print:text-black print:text-base">
+                         {/* Use ReactMarkdown to render the content, replacing dangerouslySetInnerHTML */}
+                         <ReactMarkdown
+                            components={{
+                                // Override paragraph to render as span to fit inside div without extra margins
+                                p: ({node, ...props}) => <span {...props} />,
+                                strong: ({node, ...props}) => <strong className="font-bold text-brand-dark print:text-black" {...props} />
+                            }}
+                         >
+                            {item}
+                         </ReactMarkdown>
+                       </div>
                      </li>
                    ))}
                  </ul>

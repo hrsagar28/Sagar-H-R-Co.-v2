@@ -12,6 +12,7 @@ import { useTaxCalculation } from './useTaxCalculation';
 import { useTaxConfig } from '../../hooks/useTaxConfig';
 import { IncomeHeads, Deductions } from './types';
 import { AGE_MAP } from './taxSlabs';
+import { CURRENT_AY, CURRENT_FY } from '../../config/financial-year';
 
 // --- Reducer Types & Logic ---
 
@@ -139,7 +140,7 @@ const TaxCalculator: React.FC = () => {
           <div>
               <div className="mb-4">
                    <span className="text-[10px] font-bold uppercase tracking-widest text-brand-stone block mb-0.5 print:text-black">Assessment Year</span>
-                   <span className="px-3 py-1 rounded-full bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-widest border border-brand-moss/20 print:border-black print:text-black print:bg-white">{config.assessmentYear}</span>
+                   <span className="px-3 py-1 rounded-full bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-widest border border-brand-moss/20 print:border-black print:text-black print:bg-white">{CURRENT_AY || config.assessmentYear}</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-dark mb-2 print:text-black">Tax Estimator</h2>
               <p className="text-brand-stone font-medium text-lg max-w-md print:text-black print:text-sm">
@@ -215,7 +216,7 @@ const TaxCalculator: React.FC = () => {
                       <div className="relative z-10 text-center space-y-6">
                           <div>
                               <h3 className="text-xl font-heading font-bold text-white mb-2">Ready to calculate?</h3>
-                              <p className="text-brand-stone/80 text-sm font-medium">Updated with {config.financialYear} rules.</p>
+                              <p className="text-brand-stone/80 text-sm font-medium">Updated with {CURRENT_FY || config.financialYear} rules.</p>
                           </div>
 
                           <div className="flex flex-col gap-3">
@@ -248,7 +249,7 @@ const TaxCalculator: React.FC = () => {
                   {/* Disclaimer */}
                   <div className="text-center print:text-left pt-4">
                       <p className="text-[10px] text-brand-stone/60 font-medium leading-relaxed print:text-black">
-                          <strong>Note:</strong> This tool provides an estimate based on {config.financialYear} proposals. Actual liability may vary.
+                          <strong>Note:</strong> This tool provides an estimate based on {CURRENT_FY || config.financialYear} proposals. Actual liability may vary.
                       </p>
                   </div>
               </div>

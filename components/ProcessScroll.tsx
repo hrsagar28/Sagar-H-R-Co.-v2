@@ -1,2 +1,1 @@
-// This file is deprecated and has been removed from the application logic.
-export {};
+// This file is deprecated and intentionally left empty.

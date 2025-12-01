@@ -1,37 +1,50 @@
 
 import React, { useState } from 'react';
-import { Search, Calendar, FileText, Clock, AlertCircle } from 'lucide-react';
-import { 
-  TDS_RATES_RESIDENT, 
-  TDS_RATES_NON_RESIDENT, 
-  TCS_RATES, 
-  TDS_DUE_DATES_SUMMARY 
-} from '../../constants';
+import { Search, Calendar, FileText, Clock, AlertCircle, Loader2 } from 'lucide-react';
+import { TDS_DUE_DATES_SUMMARY } from '../../constants';
+import { useResourceData } from '../../hooks/useResourceData';
+import Skeleton from '../../components/Skeleton';
 
 type TabType = 'resident' | 'non-resident' | 'tcs';
+
+interface RateItem {
+  section: string;
+  nature: string;
+  threshold: string;
+  rate: string;
+}
+
+interface TDSRatesData {
+  resident: RateItem[];
+  nonResident: RateItem[];
+  tcs: RateItem[];
+}
 
 const TDSRateChart: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('resident');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const { data: tdsData, loading, error } = useResourceData<TDSRatesData>('tds-rates.json');
 
-  const filterRates = (rates: { section: string, nature: string, threshold: string, rate: string }[]) => 
+  const filterRates = (rates: RateItem[] = []) => 
     rates.filter(item => 
       item.section.toLowerCase().includes(searchTerm.toLowerCase()) || 
       item.nature.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   const getCurrentData = () => {
+    if (!tdsData) return [];
     switch (activeTab) {
-      case 'resident': return filterRates(TDS_RATES_RESIDENT);
-      case 'non-resident': return filterRates(TDS_RATES_NON_RESIDENT);
-      case 'tcs': return filterRates(TCS_RATES);
+      case 'resident': return filterRates(tdsData.resident);
+      case 'non-resident': return filterRates(tdsData.nonResident);
+      case 'tcs': return filterRates(tdsData.tcs);
       default: return [];
     }
   };
 
   const currentData = getCurrentData();
 
-  const RateList = ({ data }: { data: typeof TDS_RATES_RESIDENT }) => (
+  const RateList = ({ data }: { data: RateItem[] }) => (
     <div className="space-y-4">
       {/* Desktop Table View */}
       <div className="hidden md:block overflow-hidden rounded-2xl border border-brand-border bg-white shadow-sm">
@@ -144,7 +157,20 @@ const TDSRateChart: React.FC = () => {
       </div>
 
       {/* Responsive Content Table/List */}
-      <RateList data={currentData} />
+      {loading ? (
+        <div className="space-y-4">
+           {[1,2,3,4,5].map(i => (
+             <Skeleton key={i} variant="rectangular" height={60} className="w-full rounded-xl" />
+           ))}
+        </div>
+      ) : error ? (
+        <div className="p-8 text-center bg-red-50 border border-red-100 rounded-2xl text-red-600">
+           <AlertCircle className="mx-auto mb-2" size={24} />
+           <p>{error}</p>
+        </div>
+      ) : (
+        <RateList data={currentData} />
+      )}
 
       <p className="mt-6 text-[11px] text-brand-stone/70 text-right italic font-medium">
         * Rates listed are base rates. Surcharge and Health & Education Cess (4%) may apply depending on the deductee category and amount.

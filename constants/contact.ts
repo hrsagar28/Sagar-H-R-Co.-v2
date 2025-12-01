@@ -1,4 +1,5 @@
 
+import { CURRENT_FY, CURRENT_AY } from '../config/financial-year';
 
 // Helper to safely get environment variables
 const getEnv = (key: string, required = false): string => {
@@ -18,6 +19,11 @@ const getEnv = (key: string, required = false): string => {
   }
   return val || '';
 };
+
+// Check for critical form endpoint in production like environments
+if ((import.meta as any).env && (import.meta as any).env.PROD && !(import.meta as any).env.VITE_FORM_ENDPOINT) {
+  console.warn("Security Warning: VITE_FORM_ENDPOINT is not defined. Contact forms may fallback to public gateway.");
+}
 
 export const CONTACT_INFO = {
   name: "Sagar H R & Co.",
@@ -48,7 +54,7 @@ export const CONTACT_INFO = {
     mapEmbedUrl: "https://maps.google.com/maps?q=12.300430367886586,76.65174852128196&t=&z=15&ie=UTF8&iwloc=&output=embed"
   },
   tagline: "Chartered Accountants",
-  assessmentYear: "AY 2026-27",
-  financialYear: "FY 2025-26",
+  assessmentYear: CURRENT_AY,
+  financialYear: CURRENT_FY,
   formEndpoint: getEnv('VITE_FORM_ENDPOINT') || "https://formsubmit.co/ajax/mail@casagar.co.in"
 };
