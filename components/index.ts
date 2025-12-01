@@ -12,9 +12,11 @@ export { default as NetworkStatus } from './NetworkStatus';
 export { default as OptimizedImage } from './OptimizedImage';
 export { default as PageHero } from './PageHero';
 export { default as PageLoader } from './PageLoader';
+export { default as Parallax } from './Parallax';
 export { default as Preloader } from './Preloader';
 export { default as Reveal } from './Reveal';
 export { default as RouteErrorBoundary } from './RouteErrorBoundary';
+export { default as ScrollyTelling } from './ScrollyTelling';
 export { default as SEO } from './SEO';
 export { default as ServiceBento } from './ServiceBento';
 export { default as Skeleton } from './Skeleton';
@@ -31,6 +33,3 @@ export { default as InsightDetailSkeleton } from './skeletons/InsightDetailSkele
 export { default as ServiceDetailSkeleton } from './skeletons/ServiceDetailSkeleton';
 export { default as FAQSkeleton } from './skeletons/FAQSkeleton';
 export { default as ResourcesSkeleton } from './skeletons/ResourcesSkeleton';
-
-// Forms are no longer exported here to enable better code splitting
-// Import them directly in pages where needed
