@@ -19,6 +19,13 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
   const [isMobile, setIsMobile] = useState(false);
   const [showSwipeHint, setShowSwipeHint] = useState(false);
 
+  // Cached layout metrics
+  const metrics = useRef({
+    top: 0,
+    maxTranslate: 0,
+    ready: false
+  });
+
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024;
@@ -36,26 +43,38 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Calculate required height for the sticky scroll effect
+  // Calculate layout dimensions
   useEffect(() => {
     if (isMobile || shouldReduceMotion) return;
 
-    const calcHeight = () => {
-      if (scrollContainerRef.current) {
+    const measure = () => {
+      if (scrollContainerRef.current && containerRef.current) {
         const objectWidth = scrollContainerRef.current.scrollWidth;
         const viewportWidth = window.innerWidth;
         const scrollDist = objectWidth - viewportWidth;
+        
         // We add viewport height to allow full scroll through + padding
         setDynamicHeight(`${scrollDist + viewportWidth * 0.5}px`);
+
+        // Cache absolute position and max translation
+        const rect = containerRef.current.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        
+        metrics.current = {
+          top: rect.top + scrollTop,
+          maxTranslate: scrollDist,
+          ready: true
+        };
       }
     };
 
-    calcHeight();
-    const timer = setTimeout(calcHeight, 200); // Debounce for content load
-    window.addEventListener('resize', calcHeight);
+    measure();
+    // Re-measure after a slight delay to ensure children content (like images) might have loaded/shifted
+    const timer = setTimeout(measure, 500);
+    window.addEventListener('resize', measure);
     
     return () => {
-      window.removeEventListener('resize', calcHeight);
+      window.removeEventListener('resize', measure);
       clearTimeout(timer);
     };
   }, [children, isMobile, shouldReduceMotion]);
@@ -65,28 +84,22 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
     if (isMobile || shouldReduceMotion) return;
 
     const handleScroll = () => {
-      if (!containerRef.current) return;
+      if (!metrics.current.ready) return;
       
-      const container = containerRef.current;
-      const rect = container.getBoundingClientRect();
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
       
-      // Calculate how far the container top is from the viewport top
-      const offset = -rect.top;
+      // Calculate offset based on absolute positions rather than querying DOM
+      // The container is sticky, so we check how far the wrapper has scrolled
+      const offset = scrollTop - metrics.current.top;
       
-      if (scrollContainerRef.current) {
-        const objectWidth = scrollContainerRef.current.scrollWidth;
-        const viewportWidth = window.innerWidth;
-        const maxTranslate = objectWidth - viewportWidth;
-        
-        // Clamp translation between 0 and maxTranslate
-        const translate = Math.max(0, Math.min(offset, maxTranslate));
-        setTranslateX(translate);
-      }
+      // Clamp translation between 0 and maxTranslate
+      const translate = Math.max(0, Math.min(offset, metrics.current.maxTranslate));
+      setTranslateX(translate);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMobile, shouldReduceMotion, dynamicHeight]);
+  }, [isMobile, shouldReduceMotion]);
 
   // Handle Mobile Scroll to hide hint
   const handleMobileScroll = () => {

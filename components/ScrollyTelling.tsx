@@ -19,31 +19,46 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollPos, setScrollPos] = useState(0); // Float value: 0.0 to (items.length - 1)
   const shouldReduceMotion = useReducedMotion();
+  
+  // Cache layout metrics to avoid getBoundingClientRect in scroll loop
+  const metrics = useRef({
+    top: 0,
+    height: 0,
+    viewportHeight: 0
+  });
 
   useEffect(() => {
     // Only run scroll logic on desktop to save resources
     if (window.innerWidth < 768 || shouldReduceMotion) return;
 
-    const handleScroll = () => {
+    // 1. Measure dimensions once (or on resize)
+    const measure = () => {
       if (!containerRef.current) return;
-
       const rect = containerRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
       
-      // Calculate scroll progress relative to the container
-      const offsetTop = rect.top;
-      const height = rect.height;
+      metrics.current = {
+        top: rect.top + scrollTop, // Absolute position in document
+        height: rect.height,
+        viewportHeight: window.innerHeight
+      };
+    };
+
+    // 2. Pure math scroll handler
+    const handleScroll = () => {
+      const { top, height, viewportHeight } = metrics.current;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      
+      // Calculate how far into the container we are
+      // We want the effect to start when the container hits the top (or slightly before)
+      const relativeScroll = scrollTop - top;
+      
       const totalScrollableDistance = height - viewportHeight;
       
-      // Safety check to prevent division by zero
-      if (totalScrollableDistance <= 0) {
-        setScrollPos(0);
-        return;
-      }
-      
-      // Calculate progress (0 to 1) through the container
-      // offsetTop becomes negative as we scroll down
-      let rawProgress = -offsetTop / totalScrollableDistance;
+      if (totalScrollableDistance <= 0) return;
+
+      // Calculate progress (0 to 1)
+      let rawProgress = relativeScroll / totalScrollableDistance;
       rawProgress = Math.max(0, Math.min(1, rawProgress));
 
       // Map progress to the index range
@@ -53,13 +68,15 @@ const ScrollyTelling: React.FC<ScrollyTellingProps> = ({ items, className = '' }
       setScrollPos(mappedPos);
     };
 
+    measure(); // Initial measurement
+    handleScroll(); // Initial position
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll); // Recalculate on resize
-    handleScroll(); // Initial calc
+    window.addEventListener('resize', measure); 
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('resize', measure);
     };
   }, [items.length, shouldReduceMotion]);
 

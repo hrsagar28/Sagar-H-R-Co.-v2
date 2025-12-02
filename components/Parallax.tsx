@@ -1,6 +1,6 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { useInView } from '../hooks/useInView';
 
 interface ParallaxProps {
   speed?: number;
@@ -13,9 +13,7 @@ interface ParallaxProps {
  * Parallax Component
  * 
  * Moves its children vertically at a different speed relative to the scrolling content.
- * 
- * @param speed - The speed factor. Negative values move slower/reverse (backgrounds), positive values move faster (foregrounds). 
- *                Example: -0.5 means it moves at half speed in reverse direction (standard parallax bg).
+ * Optimized to pause calculations when off-screen.
  */
 const Parallax: React.FC<ParallaxProps> = ({ 
   speed = 0.5, 
@@ -23,43 +21,40 @@ const Parallax: React.FC<ParallaxProps> = ({
   className = "",
   disabled = false
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
+  // Use useInView to detect visibility. We pass the ref to the hook.
+  const [ref, isInView] = useInView({ threshold: 0, rootMargin: '100px' });
   const shouldReduceMotion = useReducedMotion();
-  const [offset, setOffset] = useState(0);
-
+  
   useEffect(() => {
-    if (shouldReduceMotion || disabled) return;
+    if (shouldReduceMotion || disabled || !isInView) return;
 
     let rAFId: number;
+    const target = ref.current as HTMLElement;
 
-    const handleScroll = () => {
-      // Calculate offset based on scroll position
-      // We use simple window.scrollY for global parallax feel
+    const updatePosition = () => {
+      // We calculate offset based on global scroll Y.
+      // Ideally, we only want to calculate relative to when it entered the view,
+      // but standard parallax usually maps directly to scrollY.
       const scrollY = window.scrollY;
       const newOffset = scrollY * speed;
       
-      // Update DOM directly for performance (bypass React render cycle for 60fps)
-      if (ref.current) {
-        ref.current.style.transform = `translate3d(0, ${newOffset}px, 0)`;
+      if (target) {
+        target.style.transform = `translate3d(0, ${newOffset}px, 0)`;
       }
+      
+      rAFId = requestAnimationFrame(updatePosition);
     };
 
-    const loop = () => {
-      handleScroll();
-      rAFId = requestAnimationFrame(loop);
-    };
-
-    // Start loop
-    loop();
+    rAFId = requestAnimationFrame(updatePosition);
 
     return () => {
       cancelAnimationFrame(rAFId);
     };
-  }, [speed, shouldReduceMotion, disabled]);
+  }, [speed, shouldReduceMotion, disabled, isInView]);
 
   return (
     <div 
-      ref={ref} 
+      ref={ref as React.RefObject<HTMLDivElement>} 
       className={`will-change-transform ${className}`}
       style={{ transform: shouldReduceMotion || disabled ? 'none' : undefined }}
     >
