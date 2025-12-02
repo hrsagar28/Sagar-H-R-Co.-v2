@@ -56,7 +56,7 @@ const Privacy: React.FC = () => {
               <p className="mb-4">We limit collection to what is necessary. Categories include:</p>
               <ul className="list-disc pl-5 space-y-2">
                 <li><strong>Data you provide:</strong> name; e-mail address; telephone number; company/organisation; communications and any other data you submit via contact forms, e-mail or recruitment applications.</li>
-                <li><strong>Technical/usage data:</strong> IP address; browser and device information; operating system; pages visited and timestamps; server logs.</li>
+                <li><strong>Technical/usage data:</strong> IP address; browser and device information; operating system; pages visited and timestamps; server logs; and data collected via analytics tools.</li>
                 <li><strong>Sensitive data:</strong> We do not intentionally collect sensitive personal data (e.g., financial account credentials, health data) via the Site except where voluntarily provided pursuant to a formal engagement and only to the extent necessary for that engagement.</li>
               </ul>
             </section>
@@ -96,19 +96,22 @@ const Privacy: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-heading font-bold text-brand-dark mb-4">7. Cookies and similar technologies</h2>
+              <h2 className="text-2xl font-heading font-bold text-brand-dark mb-4">7. Cookies and Analytics</h2>
               <p className="mb-4">
-                <strong>Status:</strong> We do not presently use third-party analytics or marketing cookies on the Site. The Site may use strictly necessary, first-party cookies to enable technical functionality and to remember your consent choice.
+                <strong>Google Analytics:</strong> We use Google Analytics to understand how visitors interact with our Site. This service uses third-party cookies to collect information such as your IP address, browser type, referring pages, and time spent on the Site. This data is aggregated and anonymized to help us improve user experience and site performance.
               </p>
               <p className="mb-4">
-                Examples of first-party cookies: cookie_terms_accepted, cookie_warning_dismissed. If we introduce non-essential tracking, we will implement a granular consent mechanism.
+                <strong>First-party cookies:</strong> The Site uses strictly necessary first-party cookies to enable technical functionality (e.g., remembering your session state or consent choices).
+              </p>
+              <p className="mb-4">
+                You can opt-out of Google Analytics tracking across all websites by installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-brand-moss hover:underline font-bold">Google Analytics Opt-out Browser Add-on</a>.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-heading font-bold text-brand-dark mb-4">8. Data Processors, transfers and safeguards</h2>
               <p>
-                We engage Data Processors (hosting providers, email providers, cloud vendors) under written Data Processing Agreements. We will transfer Personal Data outside India only to jurisdictions not notified as restricted under s 16 DPDP Act, or pursuant to an exemption or lawful mechanism.
+                We engage Data Processors including Google LLC (for Analytics), hosting providers, email providers, and cloud vendors under written Data Processing Agreements or standard contractual clauses. We will transfer Personal Data outside India only to jurisdictions not notified as restricted under s 16 DPDP Act, or pursuant to an exemption or lawful mechanism. Please note that Google Analytics data may be processed on servers located in the United States.
               </p>
             </section>
 
