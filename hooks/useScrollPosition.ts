@@ -8,38 +8,43 @@ interface ScrollState {
 
 /**
  * Hook to track window scroll position and direction.
- * Uses throttling to improve performance.
+ * Uses requestAnimationFrame to optimize performance while ensuring 
+ * the final scroll state (like 0 when hitting top) is captured accurately.
  * 
- * @param throttleMs - Throttle delay in milliseconds (default: 100ms)
+ * @param _throttleMs - Deprecated: rAF handles throttling naturally to refresh rate.
  */
-export const useScrollPosition = (throttleMs: number = 100): ScrollState => {
+export const useScrollPosition = (_throttleMs: number = 100): ScrollState => {
   const [scrollData, setScrollData] = useState<ScrollState>({
     scrollY: 0,
     direction: null,
   });
 
   const lastScrollY = useRef(0);
-  const lastRun = useRef(0);
+  const ticking = useRef(false);
 
   useEffect(() => {
-    // Initial value
-    lastScrollY.current = window.scrollY;
-    setScrollData({ scrollY: window.scrollY, direction: null });
+    // Initial value synchronization on mount
+    const initialY = window.scrollY;
+    lastScrollY.current = initialY;
+    setScrollData({ scrollY: initialY, direction: null });
+
+    const updateScroll = () => {
+      const currentScrollY = window.scrollY;
+      const direction = currentScrollY > lastScrollY.current ? 'down' : 'up';
+      
+      setScrollData({
+        scrollY: currentScrollY,
+        direction: currentScrollY === lastScrollY.current ? null : direction
+      });
+
+      lastScrollY.current = currentScrollY;
+      ticking.current = false;
+    };
 
     const handleScroll = () => {
-      const now = Date.now();
-      
-      if (now - lastRun.current >= throttleMs) {
-        const currentScrollY = window.scrollY;
-        const direction = currentScrollY > lastScrollY.current ? 'down' : 'up';
-        
-        setScrollData({
-          scrollY: currentScrollY,
-          direction: currentScrollY === lastScrollY.current ? null : direction
-        });
-
-        lastScrollY.current = currentScrollY;
-        lastRun.current = now;
+      if (!ticking.current) {
+        window.requestAnimationFrame(updateScroll);
+        ticking.current = true;
       }
     };
 
@@ -48,7 +53,7 @@ export const useScrollPosition = (throttleMs: number = 100): ScrollState => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [throttleMs]);
+  }, []);
 
   return scrollData;
 };
