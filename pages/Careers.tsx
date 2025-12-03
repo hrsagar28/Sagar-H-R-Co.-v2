@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Briefcase, ArrowRight } from 'lucide-react';
 import CareerForm from '../components/forms/CareerForm';
@@ -66,15 +67,15 @@ const Careers: React.FC = () => {
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO 
         title="Careers | Join Sagar H R & Co."
-        description="Build a career in financial excellence. Explore job openings for Chartered Accountants, Articles, and Audit Associates in Mysuru."
+        description="Career opportunities for Chartered Accountants, Articles, and Audit Associates in Mysuru."
       />
 
       {/* UNIFIED HERO SECTION */}
       <PageHero
         tag="Careers"
-        title="Join The"
-        subtitle="Elite."
-        description="We are always looking for sharp minds. If you are passionate about finance and solving complex problems, this is your arena."
+        title="Work With"
+        subtitle="Us."
+        description="We are looking for dedicated professionals passionate about finance and accounting."
         className="z-base"
       />
 
@@ -126,10 +127,9 @@ const Careers: React.FC = () => {
                   <div className="relative z-10">
                     <h3 className="text-2xl font-heading font-bold mb-8">Why Join Us?</h3>
                     <ul className="space-y-6 text-brand-surface/80 text-lg font-medium">
-                       <li className="flex gap-4 items-center"><span className="w-2 h-2 bg-brand-moss rounded-full shadow-glow"></span>Direct Expert Mentorship</li>
-                       <li className="flex gap-4 items-center"><span className="w-2 h-2 bg-brand-moss rounded-full shadow-glow"></span>Diverse Corporate Exposure</li>
-                       <li className="flex gap-4 items-center"><span className="w-2 h-2 bg-brand-moss rounded-full shadow-glow"></span>Continuous Learning Culture</li>
-                       <li className="flex gap-4 items-center"><span className="w-2 h-2 bg-brand-moss rounded-full shadow-glow"></span>Competitive Compensation</li>
+                       <li className="flex gap-4 items-center"><span className="w-2 h-2 bg-brand-moss rounded-full shadow-glow"></span>Mentorship</li>
+                       <li className="flex gap-4 items-center"><span className="w-2 h-2 bg-brand-moss rounded-full shadow-glow"></span>Corporate Exposure</li>
+                       <li className="flex gap-4 items-center"><span className="w-2 h-2 bg-brand-moss rounded-full shadow-glow"></span>Continuous Learning</li>
                     </ul>
                   </div>
                 </div>

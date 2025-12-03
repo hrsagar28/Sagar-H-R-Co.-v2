@@ -17,10 +17,10 @@ const ConsultationBanner: React.FC = () => {
       <div className="container mx-auto max-w-5xl relative z-10 text-center">
         <Reveal variant="scale">
           <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6 tracking-tight">
-            Navigate Complexity with Confidence.
+            Professional Assistance.
           </h2>
           <p className="text-white/80 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
-            Whether it's a tax audit, GST compliance, or strategic business expansion, our experts are ready to guide you.
+            Contact us for expert advice on tax, audit, and business compliance matters.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -28,7 +28,7 @@ const ConsultationBanner: React.FC = () => {
               to="/contact" 
               className="w-full sm:w-auto px-8 py-4 bg-white text-brand-moss rounded-full font-bold text-base hover:bg-brand-bg transition-all shadow-xl shadow-black/10 flex items-center justify-center gap-2 group"
             >
-              Book Free Consultation <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              Book Consultation <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             
             <a 

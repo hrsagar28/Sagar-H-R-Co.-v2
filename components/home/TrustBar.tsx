@@ -15,7 +15,6 @@ const Counter = ({ value, suffix = '' }: { value: number; suffix?: string }) => 
 
 const TrustBar: React.FC = () => {
   // Parse stats from constants
-  // Founder Experience is 3+ years, independent of the firm's establishment year (2023)
   const yearsExp = 3;
   const clients = parseInt(CONTACT_INFO.stats.clientsServed.replace(/\D/g, ''));
   const industries = parseInt(CONTACT_INFO.stats.industriesServed.replace(/\D/g, ''));
@@ -23,7 +22,7 @@ const TrustBar: React.FC = () => {
 
   const stats = [
     { value: yearsExp, suffix: '+', label: 'Years Experience' },
-    { value: clients, suffix: '+', label: 'Happy Clients' },
+    { value: clients, suffix: '+', label: 'Clients Served' },
     { value: industries, suffix: '+', label: 'Industries Served' },
     { value: consultations, suffix: '+', label: 'Consultations' },
   ];

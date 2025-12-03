@@ -17,14 +17,14 @@ const Footer: React.FC = React.memo(() => {
       {/* Main Footer Container */}
       <div className="bg-[#0f0f0f] text-white rounded-t-[3rem] relative overflow-hidden">
         
-        {/* Navigation Grid - Moved to top of footer content since CTA is removed */}
-        <div className="px-6 md:px-20 py-20">
+        {/* Navigation Grid */}
+        <div className="px-6 md:px-20 py-20 relative z-10">
            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8">
               
-              {/* Column 1: Brand & Address */}
+              {/* Column 1: Address & Brand */}
               <div className="md:col-span-4 lg:col-span-5 space-y-8">
-                 <Link to="/" className="inline-block">
-                    <div className="w-12 h-12 bg-white text-brand-dark rounded-xl flex items-center justify-center font-heading font-bold text-2xl">S</div>
+                 <Link to="/" className="inline-block group">
+                    <div className="font-heading font-bold text-3xl">Sagar H R & Co.</div>
                  </Link>
                  <address className="not-italic text-zinc-400 text-lg leading-relaxed max-w-sm font-medium">
                     {CONTACT_INFO.address.street},<br/>
@@ -45,7 +45,7 @@ const Footer: React.FC = React.memo(() => {
                     {[
                        { name: "Home", path: "/" },
                        { name: "About Firm", path: "/about" },
-                       { name: "Our Services", path: "/services" },
+                       { name: "Services", path: "/services" },
                        { name: "Insights", path: "/insights" },
                     ].map(link => (
                        <li key={link.name}>
@@ -78,7 +78,7 @@ const Footer: React.FC = React.memo(() => {
 
               {/* Column 4: Quick Contact */}
               <div className="md:col-span-3 lg:col-span-3">
-                 <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Get in touch</h3>
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Contact</h3>
                  <ul className="space-y-6">
                     <li>
                        <span className="block text-sm text-zinc-500 mb-1">Email</span>
@@ -98,8 +98,8 @@ const Footer: React.FC = React.memo(() => {
            </div>
         </div>
 
-        {/* Bottom Section: Huge Typography & Legal */}
-        <div className="px-6 md:px-20 pb-10">
+        {/* Bottom Section: Legal */}
+        <div className="px-6 md:px-20 pb-10 relative z-10">
            <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
               <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-500">
                  <span>&copy; {getCopyrightYear()} {CONTACT_INFO.name}</span>
@@ -116,19 +116,19 @@ const Footer: React.FC = React.memo(() => {
                  <ArrowUp size={16} className="group-hover:-translate-y-1 transition-transform" />
               </button>
            </div>
+        </div>
 
-           {/* Watermark Text - Outline Style for Premium Look */}
-           <div className="relative overflow-hidden select-none pb-4">
-              <h1 
-                className="text-[12vw] leading-[0.8] font-heading font-bold text-center tracking-tighter opacity-20"
-                style={{ 
-                   WebkitTextStroke: '1px rgba(255, 255, 255, 0.5)', 
-                   color: 'transparent' 
-                }}
-              >
-                 SAGAR H R & CO.
-              </h1>
-           </div>
+        {/* Large Watermark Text */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden pointer-events-none opacity-[0.03] select-none leading-none">
+            {/* Mobile View: Stacked */}
+            <div className="md:hidden flex flex-col items-center justify-end pb-10 w-full">
+                <span className="text-[18vw] font-heading font-bold tracking-tighter block text-center">SAGAR H R</span>
+                <span className="text-[18vw] font-heading font-bold tracking-tighter block text-center -mt-[2vw]">& CO.</span>
+            </div>
+            {/* Desktop View: Single Line */}
+            <span className="hidden md:block text-[15vw] font-heading font-bold whitespace-nowrap -ml-10 tracking-tighter text-white">
+                SAGAR H R & CO.
+            </span>
         </div>
 
       </div>

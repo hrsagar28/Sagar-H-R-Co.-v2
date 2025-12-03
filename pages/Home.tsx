@@ -9,7 +9,7 @@ import {
 import { 
   Marquee, Reveal, MagneticButton, OptimizedImage, SEO, 
   Parallax, ScrollyTelling, HorizontalScroll,
-  TrustBar, FounderSection, IndustrySpotlight, TestimonialCarousel, 
+  TrustBar, FounderSection, IndustrySpotlight, 
   FAQPreview, LocationStrip, ConsultationBanner 
 } from '../components';
 import { CONTACT_INFO, SERVICES } from '../constants';
@@ -34,7 +34,7 @@ const Home: React.FC = () => {
           "@type": "ImageObject",
           "url": "https://casagar.co.in/logo.png"
         },
-        "description": "Premium Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.",
+        "description": "Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.",
         "foundingDate": CONTACT_INFO.stats.established,
         "founder": {
           "@type": "Person",
@@ -61,12 +61,7 @@ const Home: React.FC = () => {
             "closes": "20:00"
           }
         ],
-        "priceRange": "$$",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.9",
-          "reviewCount": "120"
-        }
+        "priceRange": "$$"
       },
       {
         "@type": "WebSite",
@@ -82,8 +77,8 @@ const Home: React.FC = () => {
   const ethosItems = [
     {
       id: 'integrity',
-      title: 'Uncompromising Integrity',
-      description: "We don't cut corners. We build fortresses. Adhering to the highest standards of the ICAI to protect your reputation and ours.",
+      title: 'Professional Integrity',
+      description: "Adhering to the ethical standards of the ICAI. We maintain objectivity and independence in all our professional engagements.",
       visual: (
         <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-brand-moss/80 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(26,77,46,0.3)] flex flex-col items-center justify-center p-8 relative overflow-hidden group backdrop-blur-xl">
            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
@@ -106,8 +101,8 @@ const Home: React.FC = () => {
     },
     {
       id: 'compliance',
-      title: 'Precision Compliance',
-      description: "In our line of work, details aren't just details. They are the difference between a clean slate and a costly penalty.",
+      title: 'Statutory Compliance',
+      description: "Ensuring adherence to relevant laws and regulations. We assist in accurate reporting and timely filings.",
       visual: (
         <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-blue-900/40 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(59,130,246,0.2)] flex flex-col items-center justify-center p-8 relative overflow-hidden backdrop-blur-xl">
            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
@@ -130,9 +125,9 @@ const Home: React.FC = () => {
       )
     },
     {
-      id: 'growth',
-      title: 'Strategic Growth',
-      description: "We structure finances to fuel expansion. Your business goals become our professional mission.",
+      id: 'advisory',
+      title: 'Business Advisory',
+      description: "Providing professional guidance for business structuring and financial management based on factual data.",
       visual: (
         <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-purple-900/40 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.2)] flex flex-col justify-end p-8 relative overflow-hidden backdrop-blur-xl">
            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
@@ -148,8 +143,7 @@ const Home: React.FC = () => {
                  <TrendingUp size={24} />
               </div>
               <div>
-                 <span className="block text-xs text-purple-200/60 uppercase tracking-wider">Growth Rate</span>
-                 <span className="text-xl font-bold text-white">+124%</span>
+                 <span className="block text-xs text-purple-200/60 uppercase tracking-wider">Analysis</span>
               </div>
            </div>
         </div>
@@ -157,21 +151,11 @@ const Home: React.FC = () => {
     }
   ];
 
-  // Differentiators for "Why Choose Us"
-  const differentiators = [
-    { icon: <UserCheck size={24} />, title: "Personalized Attention", desc: "You're never just a file number. We understand your unique context." },
-    { icon: <Monitor size={24} />, title: "Tech-Enabled", desc: "Digital-first workflows for efficiency and transparency." },
-    { icon: <MessageCircle size={24} />, title: "Proactive Comms", desc: "Regular updates. No nasty surprises at year-end." },
-    { icon: <Receipt size={24} />, title: "Transparent Pricing", desc: "Fixed fees quoted upfront. No hidden charges." },
-    { icon: <MapPin size={24} />, title: "Local Expertise", desc: "Deep understanding of Karnataka's business landscape." },
-    { icon: <Zap size={24} />, title: "Quick Turnaround", desc: "Responsive support when you need it most." }
-  ];
-
   return (
     <div className="w-full bg-brand-bg">
       <SEO 
-        title={`${CONTACT_INFO.name} | Premium Chartered Accountants | Mysuru`}
-        description={`${CONTACT_INFO.name} - Trusted financial advisors in Mysuru. Expert services in Audit, Taxation, GST, and Business Advisory for modern businesses.`}
+        title={`${CONTACT_INFO.name} | Chartered Accountants | Mysuru`}
+        description={`${CONTACT_INFO.name} - Chartered Accountants in Mysuru. Services in Audit, Taxation, GST, and Business Advisory.`}
         schema={schema}
       />
       
@@ -193,36 +177,47 @@ const Home: React.FC = () => {
         <Parallax speed={-0.1} className="container mx-auto max-w-7xl relative z-20 mt-12 md:mt-0">
            <div className="max-w-6xl">
               <Reveal delay={0.1} variant="fade-up">
-                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl text-xs font-bold uppercase tracking-[0.2em] text-white/90 mb-8">
-                  <div className="w-2 h-2 bg-[#4ADE80] rounded-full animate-pulse shadow-[0_0_12px_#4ADE80]"></div>
-                  <span>Chartered Accountants</span>
+                <div className="flex flex-col gap-2 mb-8">
+                  <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl text-xs font-bold uppercase tracking-[0.2em] text-white/90 w-fit">
+                    <div className="w-2 h-2 bg-[#4ADE80] rounded-full animate-pulse shadow-[0_0_12px_#4ADE80]"></div>
+                    <span>Mysuru</span>
+                  </div>
+                  <h2 className="text-xl md:text-2xl font-bold text-white/80 tracking-wide font-heading">
+                    Sagar H R & Co.
+                  </h2>
                 </div>
               </Reveal>
               
-              <h1 className="font-heading font-bold text-white tracking-tighter leading-[0.85] mb-8 drop-shadow-2xl overflow-hidden max-w-full">
+              {/* Dynamic Service-Based Headline - Compliant & Professional */}
+              <div className="mb-10">
                 <Reveal variant="reveal-mask" delay={0.2} duration={1}>
-                  <span className="block text-[13vw] md:text-[8rem] lg:text-[10rem]">
-                    Trusted
-                  </span>
+                  <h1 className="font-heading font-bold text-white tracking-tighter leading-[0.9] drop-shadow-2xl overflow-hidden max-w-full">
+                    <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Audit.</span>
+                  </h1>
                 </Reveal>
-                <Reveal variant="reveal-mask" delay={0.35} duration={1}>
-                  <span className="block text-[13vw] md:text-[8rem] lg:text-[10rem] text-[#E8F5E9] italic font-serif -mt-2 md:-mt-6">
-                    Advisors.
-                  </span>
+                <Reveal variant="reveal-mask" delay={0.3} duration={1}>
+                  <h1 className="font-heading font-bold text-white tracking-tighter leading-[0.9] drop-shadow-2xl overflow-hidden max-w-full">
+                    <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Taxation.</span>
+                  </h1>
                 </Reveal>
-              </h1>
+                <Reveal variant="reveal-mask" delay={0.4} duration={1}>
+                  <h1 className="font-serif italic font-normal text-[#E8F5E9] tracking-tighter leading-[0.9] drop-shadow-2xl overflow-hidden max-w-full">
+                    <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Advisory.</span>
+                  </h1>
+                </Reveal>
+              </div>
               
               <div className="flex flex-col items-start gap-8">
                  <Reveal delay={0.6}>
-                   <p className="text-xl md:text-2xl text-white/90 font-medium leading-relaxed max-w-xl border-l-2 border-[#4ADE80] pl-6 drop-shadow-md">
-                      Expert Tax Planning, Audit, and Compliance for Mysuru’s Modern Businesses.
-                   </p>
+                   <div className="flex items-center gap-4 text-white/80 text-lg md:text-xl font-medium border-l-2 border-[#4ADE80] pl-6">
+                      <span className="uppercase tracking-widest text-sm font-bold">Chartered Accountants</span>
+                   </div>
                  </Reveal>
 
                  <div className="flex flex-col md:flex-row items-start md:items-center gap-8 w-full mt-4">
                     <Reveal delay={0.8}>
                       <MagneticButton onClick={() => navigate('/contact')}>
-                        Let's Talk
+                        Contact Us
                       </MagneticButton>
                     </Reveal>
 
@@ -233,7 +228,7 @@ const Home: React.FC = () => {
                             <span className="text-white/30">•</span>
                             <span className="text-white/90 text-sm font-bold uppercase tracking-wider">Income Tax</span>
                             <span className="text-white/30">•</span>
-                            <span className="text-white/90 text-sm font-bold uppercase tracking-wider">Audit</span>
+                            <span className="text-white/90 text-sm font-bold uppercase tracking-wider">Company Law</span>
                         </div>
                       </div>
                     </Reveal>
@@ -257,14 +252,14 @@ const Home: React.FC = () => {
          <div className="container mx-auto max-w-7xl relative z-10 px-4 mb-20">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-10">
                <Reveal>
-                  <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">Expertise</span>
+                  <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">Practice Areas</span>
                   <h2 className="text-5xl md:text-7xl font-heading font-bold text-white">
-                     Service Matrix
+                     Services
                   </h2>
                </Reveal>
                <Reveal delay={0.2} className="md:w-1/3">
                  <p className="text-white/60 font-medium text-lg leading-relaxed text-right md:text-left">
-                    Comprehensive financial architecture. Scroll to explore our full capabilities.
+                    Scroll to view our professional services.
                  </p>
                </Reveal>
             </div>
@@ -294,7 +289,7 @@ const Home: React.FC = () => {
                         </div>
                         
                         <div className="flex items-center justify-between border-t border-white/10 pt-8 mt-8">
-                            <span className="text-xs font-bold uppercase tracking-widest text-white/40 group-hover:text-white transition-colors">Explore</span>
+                            <span className="text-xs font-bold uppercase tracking-widest text-white/40 group-hover:text-white transition-colors">View Details</span>
                             <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#4ADE80] group-hover:text-black group-hover:border-[#4ADE80] transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0)] group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
                                 <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
                             </div>
@@ -315,88 +310,10 @@ const Home: React.FC = () => {
          </HorizontalScroll>
       </section>
 
-      {/* 6. WHY CHOOSE US (Redesigned Bento Grid) */}
-      <section className="py-32 px-4 md:px-6 bg-white relative overflow-hidden">
-        <div className="container mx-auto max-w-7xl">
-          
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
-            <div>
-              <Reveal>
-                <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Why Us</span>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <h2 className="text-5xl md:text-7xl font-heading font-bold text-brand-dark">
-                  Built <span className="font-serif italic font-normal text-brand-stone">different.</span>
-                </h2>
-              </Reveal>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-            
-            {/* Large featured card */}
-            <Reveal className="md:col-span-2 lg:col-span-2 md:row-span-2" width="100%">
-              <div className="h-full bg-gradient-to-br from-brand-moss via-brand-moss to-[#0f2e1b] rounded-[2.5rem] p-10 md:p-14 text-white relative overflow-hidden group">
-                <div className="absolute inset-0 opacity-30 pointer-events-none">
-                  <div className="absolute top-0 left-0 w-96 h-96 bg-[#4ADE80] rounded-full blur-[100px] animate-blob" />
-                  <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] animate-blob animation-delay-2000" />
-                </div>
-                
-                <div className="relative z-10 h-full flex flex-col justify-between">
-                  <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-8">
-                    <Users size={32} className="text-[#4ADE80]" />
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-4xl md:text-5xl font-heading font-bold mb-6 leading-tight">
-                      Personalized<br/>Attention
-                    </h3>
-                    <p className="text-white/70 text-lg font-medium max-w-md leading-relaxed">
-                      You're never just a file number. We take time to understand your unique business challenges and goals.
-                    </p>
-                  </div>
-                  
-                  <div className="absolute bottom-0 right-0 w-48 h-48 border border-white/10 rounded-tl-[4rem] pointer-events-none" />
-                </div>
-              </div>
-            </Reveal>
-            
-            {/* Standard cards */}
-            {differentiators.slice(1).map((item, i) => (
-              <Reveal key={i} delay={0.1 * (i + 1)} width="100%">
-                <div className="h-full bg-brand-bg border border-brand-border rounded-[2rem] p-8 relative overflow-hidden group hover:border-brand-moss/30 hover:shadow-xl hover:shadow-brand-moss/5 transition-all duration-500 hover:-translate-y-1">
-                  
-                  <div className="absolute inset-0 bg-gradient-to-br from-brand-moss/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <div className="absolute top-0 left-0 w-0 h-1 bg-brand-moss group-hover:w-full transition-all duration-700 ease-out" />
-                  
-                  <div className="relative z-10">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-brand-border flex items-center justify-center mb-6 text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:border-brand-moss transition-all duration-300">
-                      {item.icon}
-                    </div>
-                    
-                    <h3 className="text-2xl font-heading font-bold text-brand-dark mb-3 group-hover:text-brand-moss transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-brand-stone font-medium leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-            
-          </div>
-        </div>
-      </section>
-
-      {/* 7. INDUSTRY SPOTLIGHT (COMPACT VARIANT) */}
+      {/* 6. INDUSTRY SPOTLIGHT (COMPACT VARIANT) */}
       <IndustrySpotlight variant="compact" />
 
-      {/* 8. TESTIMONIALS */}
-      <TestimonialCarousel />
-
-      {/* 9. RECENT INSIGHTS (Redesigned Editorial Cards) */}
+      {/* 7. RECENT INSIGHTS (Redesigned Editorial Cards) */}
       {recentInsights.length > 0 && (
         <section className="py-32 px-4 md:px-6 bg-white relative overflow-hidden border-t border-brand-border/60">
           <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
@@ -406,11 +323,11 @@ const Home: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
               <div>
                 <Reveal>
-                  <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Insights</span>
+                  <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Knowledge Base</span>
                 </Reveal>
                 <Reveal delay={0.1}>
                   <h2 className="text-5xl md:text-7xl font-heading font-bold text-brand-dark">
-                    Latest <span className="font-serif italic font-normal text-brand-stone">thinking.</span>
+                    Latest <span className="font-serif italic font-normal text-brand-stone">Updates.</span>
                   </h2>
                 </Reveal>
               </div>
@@ -475,16 +392,16 @@ const Home: React.FC = () => {
         </section>
       )}
 
-      {/* 10. FAQ PREVIEW */}
+      {/* 8. FAQ PREVIEW */}
       <FAQPreview />
       
-      {/* 11. MARQUEE */}
+      {/* 9. MARQUEE */}
       <Marquee />
 
-      {/* 12. LOCATION STRIP */}
+      {/* 10. LOCATION STRIP */}
       <LocationStrip />
 
-      {/* 13. CONSULTATION BANNER */}
+      {/* 11. CONSULTATION BANNER */}
       <ConsultationBanner />
     </div>
   );
