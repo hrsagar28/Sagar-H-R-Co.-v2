@@ -1,6 +1,6 @@
 
-import React, { useState, useMemo } from 'react';
-import { Search, Printer, AlertCircle, Clock, Calendar as CalendarIcon } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Search, Printer, AlertCircle, Clock, Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import { CONTACT_INFO } from '../../constants';
 import { formatCalendarMonth, getMonthAbbreviation } from '../../utils/dateUtils';
 import { useResourceData } from '../../hooks/useResourceData';
@@ -17,6 +17,8 @@ type ComplianceCalendarData = Record<string, CalendarEvent[]>;
 const ComplianceCalendar: React.FC = () => {
   const [calFilter, setCalFilter] = useState('all');
   const [calSearch, setCalSearch] = useState('');
+  const [activeMonth, setActiveMonth] = useState<string | null>(null);
+  const hasInitialized = useRef(false);
   
   const { data: calendarData, loading, error } = useResourceData<ComplianceCalendarData>('compliance-calendar.json');
 
@@ -38,6 +40,23 @@ const ComplianceCalendar: React.FC = () => {
   const sortedMonths = useMemo(() => {
     return calendarData ? Object.keys(calendarData).sort() : [];
   }, [calendarData]);
+
+  // Set default active month to current or next month only once
+  useEffect(() => {
+    if (sortedMonths.length > 0 && !hasInitialized.current) {
+      const now = new Date();
+      const currentMonth = now.toISOString().slice(0, 7); // YYYY-MM
+      
+      if (sortedMonths.includes(currentMonth)) {
+        setActiveMonth(currentMonth);
+      } else {
+        // Find the next available month
+        const next = sortedMonths.find(m => m > currentMonth);
+        setActiveMonth(next || sortedMonths[0]);
+      }
+      hasInitialized.current = true;
+    }
+  }, [sortedMonths]);
 
   // Calculate Next Deadline and Urgency
   const nextDeadline = useMemo(() => {
@@ -82,6 +101,10 @@ const ComplianceCalendar: React.FC = () => {
       if (diffDays <= 14) return 'border-l-4 border-l-orange-400 bg-orange-50/30'; // Warning
       if (diffDays <= 30) return 'border-l-4 border-l-yellow-400'; // Upcoming
       return 'border-l-4 border-l-brand-border'; // Far out
+  };
+
+  const toggleMonth = (monthKey: string) => {
+    setActiveMonth(prev => prev === monthKey ? null : monthKey);
   };
 
   return (
@@ -150,11 +173,12 @@ const ComplianceCalendar: React.FC = () => {
       </div>
     ) : (
       <>
-        <div className="space-y-8">
+        <div className="space-y-4">
             {sortedMonths.map((monthKey, idx) => {
                 const events = calendarData![monthKey];
                 const displayMonth = formatCalendarMonth(monthKey);
                 const monthAbbr = getMonthAbbreviation(monthKey);
+                const isExpanded = activeMonth === monthKey;
 
                 const filteredEvents = events.filter(e => 
                     (calFilter === 'all' || e.cat === calFilter) && 
@@ -164,32 +188,47 @@ const ComplianceCalendar: React.FC = () => {
                 if (filteredEvents.length === 0) return null;
 
                 return (
-                    <div key={idx} className="break-inside-avoid">
-                    <div className="sticky top-0 bg-brand-surface py-2 border-b border-brand-border/50 z-10 print:static print:bg-white print:border-black flex items-center gap-2 mb-4">
-                        <CalendarIcon size={18} className="text-brand-moss" />
-                        <h3 className="text-xl font-bold text-brand-dark">{displayMonth}</h3>
-                    </div>
+                    <div key={idx} className={`break-inside-avoid border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 ${isExpanded ? 'border-brand-moss/30 bg-white ring-4 ring-brand-moss/5' : 'border-brand-border bg-white hover:shadow-md'}`}>
+                        <button 
+                            onClick={() => toggleMonth(monthKey)}
+                            className={`w-full flex items-center justify-between p-5 text-left transition-colors cursor-pointer ${isExpanded ? 'bg-brand-moss/5' : 'hover:bg-brand-bg/50'}`}
+                            aria-expanded={isExpanded}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={`p-2 rounded-lg transition-colors ${isExpanded ? 'bg-brand-moss text-white' : 'bg-brand-bg text-brand-moss'}`}>
+                                    <CalendarIcon size={20} />
+                                </div>
+                                <h3 className={`text-xl font-heading font-bold transition-colors ${isExpanded ? 'text-brand-moss' : 'text-brand-dark'}`}>{displayMonth}</h3>
+                            </div>
+                            <div className={`p-2 rounded-full border transition-all duration-300 ${isExpanded ? 'bg-brand-moss border-brand-moss text-white rotate-180' : 'bg-white border-brand-border text-brand-stone'}`}>
+                                <ChevronDown size={20} />
+                            </div>
+                        </button>
                     
-                    <div className="grid gap-3">
-                        {filteredEvents.map((event, i) => (
-                            <div 
-                                key={i} 
-                                className={`flex items-center gap-4 p-4 rounded-xl border border-brand-border/50 hover:shadow-md transition-all print:bg-white print:border-gray-200 ${getUrgencyClass(monthKey, event.day)}`}
-                            >
-                                <div className="w-12 h-12 flex flex-col items-center justify-center bg-white rounded-lg border border-brand-border shadow-sm shrink-0 print:border-black">
-                                <span className="text-xs font-bold text-brand-moss uppercase leading-none print:text-black">{monthAbbr}</span>
-                                <span className="text-lg font-bold text-brand-dark leading-none mt-1">{event.day}</span>
-                                </div>
-                                <div className="flex-grow">
-                                <div className="font-bold text-brand-dark">{event.desc}</div>
-                                <div className="text-xs text-brand-stone font-medium mt-1">{categoryMap[event.cat]}</div>
-                                </div>
-                                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${badgeColors[event.cat]} print:border-black print:text-black print:bg-white whitespace-nowrap`}>
-                                {event.cat}
+                        <div className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                            <div className="p-5 pt-0 border-t border-brand-border/30">
+                                <div className="mt-4 grid gap-3">
+                                    {filteredEvents.map((event, i) => (
+                                        <div 
+                                            key={i} 
+                                            className={`flex items-center gap-4 p-4 rounded-xl border border-brand-border/50 bg-white hover:shadow-sm transition-all ${getUrgencyClass(monthKey, event.day)}`}
+                                        >
+                                            <div className="w-12 h-12 flex flex-col items-center justify-center bg-brand-bg rounded-lg border border-brand-border shadow-sm shrink-0">
+                                            <span className="text-xs font-bold text-brand-moss uppercase leading-none">{monthAbbr}</span>
+                                            <span className="text-lg font-bold text-brand-dark leading-none mt-1">{event.day}</span>
+                                            </div>
+                                            <div className="flex-grow">
+                                            <div className="font-bold text-brand-dark text-sm md:text-base">{event.desc}</div>
+                                            <div className="text-xs text-brand-stone font-medium mt-1">{categoryMap[event.cat]}</div>
+                                            </div>
+                                            <div className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider border ${badgeColors[event.cat]} whitespace-nowrap`}>
+                                            {event.cat}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
                     </div>
                 );
             })}
