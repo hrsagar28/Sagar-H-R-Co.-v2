@@ -1,3 +1,4 @@
+
 import React, { ErrorInfo, ReactNode } from 'react';
 import { RefreshCcw, Home, Copy, Mail } from 'lucide-react';
 import { logger } from '../utils/logger';
