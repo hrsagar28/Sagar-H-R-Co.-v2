@@ -84,10 +84,24 @@ const ServiceDetail: React.FC = () => {
           <div className="lg:col-span-5 order-2 lg:order-1 print:mb-8">
              <div className="sticky top-32 space-y-10 print:static print:space-y-6">
                 <div className="bg-brand-surface p-10 rounded-[2rem] border border-brand-border shadow-lg print:shadow-none print:border-0 print:p-0 print:rounded-none">
-                  <h3 className="text-2xl font-heading font-bold text-brand-dark mb-6 print:text-xl print:mb-3">Overview</h3>
+                  <h3 className="text-2xl font-heading font-bold text-brand-dark mb-6 print:text-xl print:mb-3">The Approach</h3>
                   <p className="text-lg text-brand-stone leading-relaxed font-medium print:text-black print:text-base">
                     {service.longDescription}
                   </p>
+                </div>
+
+                {/* CTA Card - Hidden in Print */}
+                <div className="bg-brand-dark text-brand-surface p-10 rounded-[2rem] relative overflow-hidden print:hidden">
+                   <div className="absolute -top-20 -right-20 w-64 h-64 bg-brand-moss opacity-20 rounded-full blur-[60px]"></div>
+                   <div className="relative z-10">
+                     <h3 className="text-2xl font-heading font-bold mb-6">Ready to engage?</h3>
+                     <p className="mb-8 opacity-90 font-medium">
+                       Book a consultation to discuss your specific requirements.
+                     </p>
+                     <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 bg-brand-moss text-white font-bold rounded-full hover:bg-white hover:text-brand-dark transition-colors w-full justify-center">
+                       Start Conversation <ArrowRight size={16} />
+                     </Link>
+                   </div>
                 </div>
              </div>
           </div>

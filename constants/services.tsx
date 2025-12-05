@@ -9,57 +9,57 @@ import {
 export const SERVICES: ServiceItem[] = [
   {
     id: 'gst',
-    title: 'GST Services',
-    description: 'Services for Goods and Services Tax registration and return filing.',
+    title: 'GST Registration & Filing',
+    description: 'Complete GST compliance solution from registration to return filing. We ensure accurate and timely submissions.',
     icon: <FileText className="w-6 h-6" />,
     link: '/services/gst'
   },
   {
     id: 'income-tax',
-    title: 'Income Tax',
-    description: 'Filing of Income Tax Returns and tax compliance services.',
+    title: 'Income Tax Compliance',
+    description: 'Expert ITR filing for individuals and businesses with strategic tax planning. Compliance with latest tax laws.',
     icon: <Calculator className="w-6 h-6" />,
     link: '/services/income-tax'
   },
   {
     id: 'company-law',
-    title: 'Company Law',
-    description: 'Company law compliance services including incorporation and annual filings.',
+    title: 'Company Law & ROC',
+    description: 'Comprehensive company law compliance including incorporation, annual filings, and board resolutions.',
     icon: <Building2 className="w-6 h-6" />,
     link: '/services/company-law'
   },
   {
     id: 'litigation',
     title: 'Litigation Support',
-    description: 'Representation in tax scrutiny, appeals, and proceedings.',
+    description: 'Expert representation in tax scrutiny, appeals, and proceedings. We represent your case before authorities.',
     icon: <Gavel className="w-6 h-6" />,
     link: '/services/litigation'
   },
   {
     id: 'advisory',
-    title: 'Business Advisory',
-    description: 'Guidance on business setup and financial reporting.',
+    title: 'Advisory & Consulting',
+    description: 'Business guidance from setup to expansion. Insights on financial forecasting and risk management.',
     icon: <Briefcase className="w-6 h-6" />,
     link: '/services/advisory'
   },
   {
     id: 'audit',
     title: 'Audit & Assurance',
-    description: 'Statutory and tax audits as per regulatory requirements.',
+    description: 'Thorough statutory, tax, and internal audits ensuring financial accuracy and compliance for your organization.',
     icon: <ShieldCheck className="w-6 h-6" />,
     link: '/services/audit'
   },
   {
     id: 'bookkeeping',
-    title: 'Bookkeeping',
-    description: 'Bookkeeping and accounting services.',
+    title: 'Bookkeeping & Accounting',
+    description: 'Meticulous bookkeeping services with cloud-based solutions. Maintain accurate financial records.',
     icon: <BookOpen className="w-6 h-6" />,
     link: '/services/bookkeeping'
   },
   {
     id: 'payroll',
-    title: 'Payroll',
-    description: 'Payroll processing and compliance management.',
+    title: 'Payroll Management',
+    description: 'End-to-end payroll processing with compliance management. Ensure timely salary disbursement and deductions.',
     icon: <Users className="w-6 h-6" />,
     link: '/services/payroll'
   }
@@ -69,97 +69,97 @@ export const SERVICE_DETAILS: Record<string, ServiceDetailContent> = {
   'gst': {
     id: 'gst',
     title: 'GST Registration & Filing',
-    shortDescription: 'Services regarding Goods and Services Tax registration and compliance.',
-    longDescription: "We provide services for GST registration and filing of returns. We assist in the preparation and submission of necessary documents to the GST authorities.",
+    shortDescription: 'Complete and reliable solutions for all your Goods and Services Tax needs, ensuring you remain compliant.',
+    longDescription: "We handle the entire GST lifecycle for your business. Our process begins with understanding your business activities, followed by seamless execution of all registration and filing requirements, ensuring you meet every deadline with accuracy.",
     features: [
-      { title: 'GST Registration', description: 'Assistance with obtaining GST Identification Number (GSTIN).' },
-      { title: 'Return Filing', description: 'Filing of GSTR-1, GSTR-3B, and other periodic returns.' },
-      { title: 'Annual Compliance', description: 'Filing of Annual Return (GSTR-9) and Reconciliation Statements (GSTR-9C).' },
-      { title: 'Representation', description: 'Representation before tax authorities regarding notices.' }
+      { title: 'GST Registration', description: 'Application and procurement of your GST Identification Number (GSTIN).' },
+      { title: 'Return Filing', description: 'Timely filing of GSTR-1, GSTR-3B, and other relevant monthly, quarterly, and annual returns.' },
+      { title: 'Annual Compliance', description: 'Preparation and filing of the Annual Return (GSTR-9) and Reconciliation Statements (GSTR-9C).' },
+      { title: 'Representation', description: 'Representing clients before tax authorities regarding queries and notices.' }
     ]
   },
   'income-tax': {
     id: 'income-tax',
     title: 'Income Tax Services',
-    shortDescription: 'Tax filing services for individuals and businesses.',
-    longDescription: "We assist in the filing of Income Tax Returns and compliance with applicable tax provisions for various entities.",
+    shortDescription: 'Tax planning and filing services for individuals and businesses, designed to ensure full compliance.',
+    longDescription: "We provide end-to-end income tax services, ensuring you are fully compliant. Our approach involves understanding your complete financial profile to offer professional advice and planning.",
     features: [
-      { title: 'ITR Filing', description: 'Filing of returns for Individuals, HUFs, and Companies.' },
-      { title: 'Tax Compliance', description: 'Assistance with calculation of tax liability.' },
-      { title: 'TDS/TCS', description: 'Filing of TDS and TCS returns.' },
-      { title: 'Scrutiny Proceedings', description: 'Assistance in responding to departmental notices.' }
+      { title: 'ITR Filing', description: 'For all entities including Salaried Individuals, Business Owners, HUFs, and Companies.' },
+      { title: 'Tax Planning', description: 'Strategic advice to legally optimize your tax position throughout the year.' },
+      { title: 'TDS/TCS Compliance', description: 'Accurate calculation, deposit, and filing of TDS and TCS returns.' },
+      { title: 'Scrutiny & Notice Handling', description: 'Professional assistance in handling scrutiny cases and responding to departmental notices.' }
     ]
   },
   'company-law': {
     id: 'company-law',
     title: 'Company Law & ROC Matters',
-    shortDescription: 'Secretarial and statutory compliance services under the Companies Act.',
-    longDescription: "We assist companies in complying with the requirements of the Companies Act and filings with the Registrar of Companies (ROC).",
+    shortDescription: 'Ensuring your company remains compliant with all secretarial and statutory requirements under the Companies Act.',
+    longDescription: "Maintaining compliance with the Companies Act and Registrar of Companies (ROC) is essential for every registered company. We provide secretarial services to manage these obligations efficiently.",
     features: [
-      { title: 'Annual Filings', description: 'Filing of annual returns and financial statements (Forms AOC-4, MGT-7).' },
-      { title: 'Statutory Registers', description: 'Assistance in maintenance of statutory records and registers.' },
-      { title: 'Event-Based Filings', description: 'Filings related to changes in directorship or registered office.' },
-      { title: 'Secretarial Services', description: 'Assistance with documentation for board meetings and resolutions.' }
+      { title: 'Annual ROC Filings', description: 'Preparation and filing of annual returns and financial statements (Forms AOC-4, MGT-7) with the ROC.' },
+      { title: 'Maintenance of Registers', description: 'Keeping all mandatory statutory records and registers updated as required by law.' },
+      { title: 'Event-Based Compliances', description: 'Managing filings related to changes in directorship, share capital, registered office, or amendments to charter documents.' },
+      { title: 'Secretarial Advisory', description: 'Providing expert advice on matters of corporate governance and board meetings.' }
     ]
   },
   'litigation': {
     id: 'litigation',
     title: 'Litigation Support',
-    shortDescription: 'Representation services for tax proceedings.',
-    longDescription: "We represent clients in assessment and appellate proceedings before tax authorities and tribunals.",
+    shortDescription: 'Professional representation. We help you navigate tax disputes and departmental notices.',
+    longDescription: "Facing a notice from the tax department requires careful attention. Our litigation support services are designed to provide you with professional representation. We manage communications, prepare robust responses, and represent your case effectively.",
     features: [
-      { title: 'Response Drafting', description: 'Drafting responses to notices and inquiries.' },
-      { title: 'Representation', description: 'Appearing before assessing officers.' },
-      { title: 'Appeals', description: 'Filing appeals before Commissioner (Appeals) and ITAT.' },
-      { title: 'Procedural Advisory', description: 'Guidance on tax dispute procedures.' }
+      { title: 'Responding to Notices', description: 'Drafting and filing detailed responses to scrutiny notices, inquiries, and letters from tax authorities.' },
+      { title: 'Case Representation', description: 'Representing your case before assessing officers and other tax authorities during hearings and assessments.' },
+      { title: 'Appeals & Revisions', description: 'Preparing and filing appeals before appellate authorities like the Commissioner (Appeals) and the Income Tax Appellate Tribunal (ITAT).' },
+      { title: 'Advisory', description: 'Providing professional advice on the legal merits of your case.' }
     ]
   },
   'advisory': {
     id: 'advisory',
     title: 'Advisory & Consulting',
-    shortDescription: 'Business setup and reporting services.',
-    longDescription: "We provide assistance with business incorporation, registration, and preparation of financial reports.",
+    shortDescription: 'Professional guidance to help your business navigate challenges and achieve sustainable growth.',
+    longDescription: "Beyond compliance, we act as your advisor, offering guidance to help you make sound financial decisions. Whether you are starting a new venture or optimizing operations, our consulting services provide clarity.",
     features: [
-      { title: 'Business Incorporation', description: 'Assistance with registration of entities.' },
-      { title: 'Project Reports', description: 'Preparation of Project Reports and CMA Data.' },
-      { title: 'Financial Reporting', description: 'Preparation of financial statements and projections.' },
-      { title: 'Valuation', description: 'Business valuation services.' }
+      { title: 'Business Setup', description: 'Guidance on selecting the business structure and managing the complete registration process.' },
+      { title: 'Project Financing', description: 'Preparation of detailed project reports and CMA data for submission to banks for financing.' },
+      { title: 'Financial Projections', description: 'Assistance with budgeting, cash flow forecasting, and performance analysis.' },
+      { title: 'Startup Advisory', description: 'Guidance for new ventures, including business plan creation and valuation services.' }
     ]
   },
   'audit': {
     id: 'audit',
     title: 'Audit & Assurance',
-    shortDescription: 'Auditing services.',
-    longDescription: "We conduct statutory and tax audits in accordance with the Companies Act and Income Tax Act.",
+    shortDescription: 'Providing a clear and fair view of your financial statements with independent audits.',
+    longDescription: "Our audit and assurance services provide stakeholders with confidence in your financial reporting. We conduct our audits with a commitment to objectivity and integrity, complying with all regulatory standards.",
     features: [
-      { title: 'Statutory Audit', description: 'Audits under the Companies Act, 2013.' },
-      { title: 'Tax Audit', description: 'Audits under Section 44AB of the Income Tax Act, 1961.' },
-      { title: 'Internal Audit', description: 'Internal audit services.' },
-      { title: 'Certifications', description: 'Issuance of certificates such as 15CB and Net Worth certificates.' }
+      { title: 'Statutory Audit', description: 'Audits as required under the Companies Act, 2013, ensuring full compliance.' },
+      { title: 'Tax Audit', description: 'Audits under Section 44AB of the Income Tax Act, 1961, to verify the accuracy of your tax-related records.' },
+      { title: 'Internal Audits', description: 'Reviews of your internal controls and operational efficiency.' },
+      { title: 'Certification Services', description: 'Providing various certifications required for regulatory purposes, including net worth certificates and 15CB forms.' }
     ]
   },
   'bookkeeping': {
     id: 'bookkeeping',
     title: 'Bookkeeping & Accounting',
-    shortDescription: 'Accounting and bookkeeping services.',
-    longDescription: "We provide services for the maintenance of books of accounts and preparation of financial statements.",
+    shortDescription: 'Laying the foundation for financial clarity with meticulous record-keeping.',
+    longDescription: "Accurate bookkeeping is the bedrock of sound financial management. It provides the clear data you need to make informed decisions and maintain compliance. Our service manages the financial tracking, allowing you to focus on your business.",
     features: [
-      { title: 'Accounting', description: 'Recording of financial transactions.' },
-      { title: 'Reconciliation', description: 'Bank and ledger reconciliation.' },
-      { title: 'Ledgers', description: 'Maintenance of general and subsidiary ledgers.' },
-      { title: 'Financial Statements', description: 'Preparation of Profit & Loss Account and Balance Sheet.' }
+      { title: 'Transaction Recording', description: 'Comprehensive recording of all financial transactions.' },
+      { title: 'Bank Reconciliation', description: 'Regular reconciliation of your bank statements with your accounting records.' },
+      { title: 'Ledger Management', description: 'Maintaining general ledger, accounts payable, and accounts receivable ledgers.' },
+      { title: 'Financial Statements', description: 'Generation of key financial reports such as the Profit & Loss Statement and Balance Sheet.' }
     ]
   },
   'payroll': {
     id: 'payroll',
     title: 'Payroll Management',
-    shortDescription: 'Payroll compliance services.',
-    longDescription: "We assist in payroll calculation and compliance with related statutory requirements.",
+    shortDescription: 'Ensuring your team is paid accurately and on time, while navigating payroll compliance.',
+    longDescription: "Payroll is a critical function that impacts compliance. Our comprehensive payroll services manage the process, from salary calculations to statutory deductions, ensuring accuracy and timeliness.",
     features: [
-      { title: 'Payroll Processing', description: 'Calculation of salaries.' },
-      { title: 'Statutory Compliance', description: 'Assistance with TDS, PF, and ESI filings.' },
-      { title: 'Payslips', description: 'Generation of payslips.' },
-      { title: 'Filings', description: 'Filing of payroll returns.' }
+      { title: 'Salary Processing', description: 'Accurate calculation of monthly salaries, including allowances and deductions.' },
+      { title: 'Statutory Compliance', description: 'Management of TDS, Provident Fund (PF), and Employee State Insurance (ESI) deductions and deposits.' },
+      { title: 'Payslip Generation', description: 'Providing clear and detailed monthly payslips for all employees.' },
+      { title: 'Reporting & Filing', description: 'Preparation and filing of all necessary payroll-related returns and reports.' }
     ]
   }
 };

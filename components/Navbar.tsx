@@ -83,6 +83,7 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
           className="flex items-center gap-2 md:gap-3 bg-brand-surface/50 md:bg-brand-surface px-3 py-2 md:px-5 rounded-full md:border border-brand-border/30 shadow-none md:shadow-sm group hover:border-brand-moss/30 transition-all shrink-0 min-h-[44px]"
           aria-label="Sagar H R & Co. Home"
         >
+           <div className="w-8 h-8 md:w-8 md:h-8 bg-brand-dark text-brand-inverse rounded-full flex items-center justify-center font-heading font-bold text-base md:text-lg group-hover:scale-110 transition-transform duration-300 shrink-0">S</div>
            <h1 className="font-heading text-sm md:text-lg font-bold text-brand-dark tracking-tight block whitespace-nowrap">
             Sagar H R & Co.
           </h1>
@@ -123,7 +124,7 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
             className="hidden md:flex pl-6 pr-1.5 py-1.5 bg-brand-dark text-brand-inverse text-sm font-bold rounded-full shadow-lg shadow-brand-dark/10 items-center gap-3 group transition-all duration-300 hover:bg-brand-dark/90 hover:ring-4 hover:ring-brand-border/20 min-h-[44px]"
             aria-label="Contact Us"
           >
-            <span className="pl-1 group-hover:translate-x-0.5 transition-transform duration-300">Contact</span>
+            <span className="pl-1 group-hover:translate-x-0.5 transition-transform duration-300">Let's Talk</span>
             <div className="w-9 h-9 bg-brand-moss text-white rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-white group-hover:text-brand-dark group-hover:scale-110">
               <MessageSquare size={14} className="group-hover:rotate-12 transition-transform duration-300" />
             </div>
@@ -210,7 +211,7 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
               onClick={() => setIsOpen(false)}
               className="w-full py-5 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 text-lg min-h-[60px] shadow-lg active:scale-95 transition-transform"
              >
-                Contact <MessageSquare size={20} />
+                Let's Talk <MessageSquare size={20} />
              </Link>
            </div>
         </div>
