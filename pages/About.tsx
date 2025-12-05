@@ -127,13 +127,15 @@ const About: React.FC = () => {
          <div className="container mx-auto max-w-7xl">
             <div className="bg-brand-surface rounded-[3rem] border border-brand-border overflow-hidden flex flex-col lg:flex-row">
                
-               <div className="lg:w-2/5 relative min-h-[400px] lg:min-h-auto border-b lg:border-b-0 lg:border-r border-brand-border group overflow-hidden">
-                  <OptimizedImage 
-                    src="/sagar-hr.jpg" 
-                    alt="CA Sagar H R" 
-                    className="absolute inset-0 w-full h-full"
-                    imgClassName="object-cover transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                  />
+               <div className="lg:w-2/5 p-10 flex items-center justify-center border-b lg:border-b-0 lg:border-r border-brand-border">
+                  <div className="w-32 h-40 relative rounded-lg border border-brand-border shadow-sm overflow-hidden bg-brand-bg">
+                    <OptimizedImage 
+                      src="/sagar-hr.jpg" 
+                      alt="CA Sagar H R" 
+                      className="w-full h-full"
+                      imgClassName="object-cover"
+                    />
+                  </div>
                </div>
 
                <div className="lg:w-3/5 p-10 md:p-16 flex flex-col justify-center">
@@ -169,30 +171,6 @@ const About: React.FC = () => {
                         </ul>
                      </div>
                   </div>
-               </div>
-            </div>
-         </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-20 px-4 md:px-6 border-t border-brand-border bg-brand-surface">
-         <div className="container mx-auto max-w-7xl">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-               <div className="space-y-2">
-                  <span className="block text-5xl md:text-7xl font-heading font-bold text-brand-dark">50+</span>
-                  <span className="text-brand-stone text-xs font-bold uppercase tracking-widest">Clients</span>
-               </div>
-               <div className="space-y-2">
-                  <span className="block text-5xl md:text-7xl font-heading font-bold text-brand-dark">100%</span>
-                  <span className="text-brand-stone text-xs font-bold uppercase tracking-widest">Compliance</span>
-               </div>
-               <div className="space-y-2">
-                  <span className="block text-5xl md:text-7xl font-heading font-bold text-brand-dark">12+</span>
-                  <span className="text-brand-stone text-xs font-bold uppercase tracking-widest">Industries</span>
-               </div>
-               <div className="space-y-2">
-                  <span className="block text-5xl md:text-7xl font-heading font-bold text-brand-dark">24/7</span>
-                  <span className="text-brand-stone text-xs font-bold uppercase tracking-widest">Support</span>
                </div>
             </div>
          </div>

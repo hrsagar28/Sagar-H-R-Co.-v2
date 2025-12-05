@@ -106,6 +106,7 @@ const Footer: React.FC = React.memo(() => {
                  <Link to="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
                  <Link to="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
                  <Link to="/disclaimer" className="hover:text-zinc-300 transition-colors">Disclaimer</Link>
+                 <a href="https://portal.casagar.co.in" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-300 transition-colors">Staff Portal</a>
               </div>
 
               <button 

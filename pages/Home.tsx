@@ -2,14 +2,12 @@
 import React from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
-  Shield, TrendingUp, CheckCircle2, ArrowRight, Check, 
-  UserCheck, Monitor, MessageCircle, Receipt, MapPin, Zap, 
-  Calendar, ArrowUpRight, Users 
+  Shield, TrendingUp, CheckCircle2, ArrowRight, Check 
 } from 'lucide-react';
 import { 
   Marquee, Reveal, MagneticButton, OptimizedImage, SEO, 
   Parallax, ScrollyTelling, HorizontalScroll,
-  TrustBar, FounderSection, IndustrySpotlight, 
+  FounderSection, IndustrySpotlight, 
   FAQPreview, LocationStrip, ConsultationBanner 
 } from '../components';
 import { CONTACT_INFO, SERVICES } from '../constants';
@@ -78,7 +76,7 @@ const Home: React.FC = () => {
     {
       id: 'integrity',
       title: 'Professional Integrity',
-      description: "Adhering to the ethical standards of the ICAI. We maintain objectivity and independence in all our professional engagements.",
+      description: "Adhering to the ethical standards of the ICAI.",
       visual: (
         <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-brand-moss/80 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(26,77,46,0.3)] flex flex-col items-center justify-center p-8 relative overflow-hidden group backdrop-blur-xl">
            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
@@ -91,10 +89,6 @@ const Home: React.FC = () => {
               <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                  <div className="h-full bg-[#4ADE80] w-[90%] animate-[expandWidth_2s_ease-out_forwards]"></div>
               </div>
-              <div className="flex justify-between text-[10px] uppercase font-bold text-[#4ADE80] tracking-widest mt-2">
-                 <span>Security</span>
-                 <span>100%</span>
-              </div>
            </div>
         </div>
       )
@@ -102,7 +96,7 @@ const Home: React.FC = () => {
     {
       id: 'compliance',
       title: 'Statutory Compliance',
-      description: "Ensuring adherence to relevant laws and regulations. We assist in accurate reporting and timely filings.",
+      description: "Assistance with reporting and filings.",
       visual: (
         <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-blue-900/40 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(59,130,246,0.2)] flex flex-col items-center justify-center p-8 relative overflow-hidden backdrop-blur-xl">
            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
@@ -127,7 +121,7 @@ const Home: React.FC = () => {
     {
       id: 'advisory',
       title: 'Business Advisory',
-      description: "Providing professional guidance for business structuring and financial management based on factual data.",
+      description: "Guidance for business structuring.",
       visual: (
         <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-purple-900/40 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.2)] flex flex-col justify-end p-8 relative overflow-hidden backdrop-blur-xl">
            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
@@ -155,7 +149,7 @@ const Home: React.FC = () => {
     <div className="w-full bg-brand-bg">
       <SEO 
         title={`${CONTACT_INFO.name} | Chartered Accountants | Mysuru`}
-        description={`${CONTACT_INFO.name} - Chartered Accountants in Mysuru. Services in Audit, Taxation, GST, and Business Advisory.`}
+        description={`${CONTACT_INFO.name} - Chartered Accountants in Mysuru. Providing services in Audit, Taxation, and Regulatory Compliance.`}
         schema={schema}
       />
       
@@ -188,7 +182,7 @@ const Home: React.FC = () => {
                 </div>
               </Reveal>
               
-              {/* Dynamic Service-Based Headline - Compliant & Professional */}
+              {/* Dynamic Service-Based Headline */}
               <div className="mb-10">
                 <Reveal variant="reveal-mask" delay={0.2} duration={1}>
                   <h1 className="font-heading font-bold text-white tracking-tighter leading-[0.9] drop-shadow-2xl overflow-hidden max-w-full">
@@ -210,7 +204,7 @@ const Home: React.FC = () => {
               <div className="flex flex-col items-start gap-8">
                  <Reveal delay={0.6}>
                    <div className="flex items-center gap-4 text-white/80 text-lg md:text-xl font-medium border-l-2 border-[#4ADE80] pl-6">
-                      <span className="uppercase tracking-widest text-sm font-bold">Chartered Accountants</span>
+                      <span className="block">Chartered Accountants based in Mysuru. Providing services in Audit, Taxation, and Regulatory Compliance.</span>
                    </div>
                  </Reveal>
 
@@ -238,16 +232,13 @@ const Home: React.FC = () => {
         </Parallax>
       </section>
 
-      {/* 2. TRUST BAR (Floating) */}
-      <TrustBar />
-
-      {/* 3. FOUNDER SECTION */}
+      {/* 2. FOUNDER SECTION */}
       <FounderSection />
 
-      {/* 4. PHILOSOPHY SCROLLYTELLING */}
+      {/* 3. PHILOSOPHY SCROLLYTELLING */}
       <ScrollyTelling items={ethosItems} />
 
-      {/* 5. IMMERSIVE SERVICES (Horizontal Scroll) */}
+      {/* 4. IMMERSIVE SERVICES (Horizontal Scroll) */}
       <section className="bg-brand-black text-white relative z-30 pt-32 pb-20">
          <div className="container mx-auto max-w-7xl relative z-10 px-4 mb-20">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-10">
@@ -310,10 +301,10 @@ const Home: React.FC = () => {
          </HorizontalScroll>
       </section>
 
-      {/* 6. INDUSTRY SPOTLIGHT (COMPACT VARIANT) */}
+      {/* 5. INDUSTRY SPOTLIGHT (COMPACT VARIANT) */}
       <IndustrySpotlight variant="compact" />
 
-      {/* 7. RECENT INSIGHTS (Redesigned Editorial Cards) */}
+      {/* 6. RECENT INSIGHTS */}
       {recentInsights.length > 0 && (
         <section className="py-32 px-4 md:px-6 bg-white relative overflow-hidden border-t border-brand-border/60">
           <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
@@ -392,16 +383,16 @@ const Home: React.FC = () => {
         </section>
       )}
 
-      {/* 8. FAQ PREVIEW */}
+      {/* 7. FAQ PREVIEW */}
       <FAQPreview />
       
-      {/* 9. MARQUEE */}
+      {/* 8. MARQUEE */}
       <Marquee />
 
-      {/* 10. LOCATION STRIP */}
+      {/* 9. LOCATION STRIP */}
       <LocationStrip />
 
-      {/* 11. CONSULTATION BANNER */}
+      {/* 10. CONSULTATION BANNER */}
       <ConsultationBanner />
     </div>
   );

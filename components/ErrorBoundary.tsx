@@ -1,4 +1,4 @@
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { RefreshCcw, Home, Copy, Mail } from 'lucide-react';
 import { logger } from '../utils/logger';
 
@@ -13,7 +13,7 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
+class ErrorBoundary extends Component<Props, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
     error: null,

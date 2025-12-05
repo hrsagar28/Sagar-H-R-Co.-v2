@@ -2,7 +2,7 @@
 import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
-  Navbar, Footer, CustomCursor, Preloader, WhatsAppWidget, 
+  Navbar, Footer, CustomCursor, Preloader, 
   PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
   ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton
 } from './components';
@@ -98,7 +98,6 @@ const App: React.FC = () => {
           </div>
 
           <div className="print:hidden">
-            <WhatsAppWidget />
             <ToastContainer />
           </div>
 
@@ -106,7 +105,6 @@ const App: React.FC = () => {
           <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply print:hidden" />
 
           {/* Main Layout */}
-          {/* Removed animate-content-reveal to prevent transform stacking context issues with sticky elements */}
           <div className="relative z-base flex flex-col min-h-screen bg-brand-bg w-full print:bg-white">
             <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
               <Suspense fallback={<PageLoader />}>
