@@ -1,5 +1,5 @@
 
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { RefreshCw, AlertCircle } from 'lucide-react';
 import { logger } from '../utils/logger';
 
@@ -11,7 +11,7 @@ interface RouteErrorBoundaryState {
   hasError: boolean;
 }
 
-class RouteErrorBoundary extends React.Component<Props, RouteErrorBoundaryState> {
+class RouteErrorBoundary extends Component<Props, RouteErrorBoundaryState> {
   public state: RouteErrorBoundaryState = { hasError: false };
 
   constructor(props: Props) {
