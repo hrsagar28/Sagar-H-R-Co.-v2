@@ -1,5 +1,5 @@
 
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { RefreshCcw, Home, Copy, Mail } from 'lucide-react';
 import { logger } from '../utils/logger';
 
@@ -14,16 +14,12 @@ interface ErrorBoundaryState {
   errorInfo: ErrorInfo | null;
 }
 
-class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
+class ErrorBoundary extends Component<Props, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
     error: null,
     errorInfo: null
   };
-
-  constructor(props: Props) {
-    super(props);
-  }
 
   public static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error, errorInfo: null };
@@ -38,7 +34,6 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
   private handleCopyError = () => {
     const errorText = `Error: ${this.state.error?.message}\n\nStack: ${this.state.errorInfo?.componentStack}`;
     navigator.clipboard.writeText(errorText);
-    // Simple alert feedback since we can't use hooks here easily without wrapping
     alert('Error details copied to clipboard');
   };
 

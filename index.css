@@ -1,4 +1,8 @@
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .bg-grid {
   background-size: 80px 80px;
   background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
@@ -176,5 +180,91 @@
     max-height: none !important;
     opacity: 1 !important;
     display: block !important;
+  }
+}
+
+/* PREMIUM ARTICLE TYPOGRAPHY & LAYOUT */
+@layer components {
+  .article-wrapper {
+    @apply text-lg text-brand-dark/90 font-sans max-w-none selection:bg-brand-moss/20 selection:text-brand-dark;
+  }
+
+  /* Drop Cap - Clean Editorial Style */
+  .article-wrapper > p:first-of-type::first-letter {
+    @apply float-left text-[5.5rem] leading-[0.85] font-serif font-medium text-brand-moss mr-4 mt-1;
+  }
+
+  /* Headings - Serif for impact */
+  .article-wrapper h2 {
+    @apply font-serif font-bold text-3xl md:text-4xl text-brand-dark mt-16 mb-6 tracking-tight relative;
+  }
+  
+  .article-wrapper h3 {
+    @apply font-heading font-bold text-xl md:text-2xl text-brand-dark mt-10 mb-4;
+  }
+
+  /* Body Text */
+  .article-wrapper p {
+    @apply mb-6 leading-8 text-brand-stone font-normal text-lg md:text-[1.15rem] md:leading-[1.9];
+  }
+
+  /* Summary Card - Highlight Box */
+  .article-wrapper .summary-card {
+    @apply bg-brand-bg rounded-2xl p-8 my-10 border border-brand-border relative overflow-hidden;
+  }
+  
+  .article-wrapper .summary-card::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-1.5 bg-brand-moss;
+  }
+
+  .article-wrapper .summary-card h3 {
+    @apply font-sans text-xs font-bold uppercase tracking-[0.2em] text-brand-moss mt-0 mb-6 flex items-center gap-3 border-b border-brand-border/50 pb-4;
+  }
+
+  .article-wrapper .summary-card ul {
+    @apply my-0 space-y-4 pl-0;
+  }
+
+  .article-wrapper .summary-card ul li {
+    @apply pl-0 flex items-start gap-3 text-brand-dark font-heading font-semibold text-lg leading-snug;
+  }
+  
+  /* Custom Checkmark Icon for Summary Items */
+  .article-wrapper .summary-card ul li::before {
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%231A4D2E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    @apply static w-5 h-5 mt-0.5 shrink-0 bg-transparent rounded-none;
+  }
+
+  /* Regular Lists */
+  .article-wrapper ul:not(.summary-card ul) {
+    @apply space-y-3 my-8 pl-1;
+  }
+  
+  .article-wrapper ul:not(.summary-card ul) li {
+    @apply relative pl-8 text-brand-stone font-medium text-lg leading-relaxed;
+  }
+  
+  .article-wrapper ul:not(.summary-card ul) li::before {
+    content: '';
+    @apply absolute left-0 top-[0.6em] w-1.5 h-1.5 bg-brand-moss rounded-full;
+  }
+
+  .article-wrapper strong {
+    @apply text-brand-dark font-bold;
+  }
+  
+  .article-wrapper a {
+    @apply text-brand-moss font-bold border-b border-brand-moss/30 hover:border-brand-moss transition-colors decoration-0 pb-0.5;
+  }
+  
+  /* Modern Blockquote */
+  .article-wrapper blockquote {
+    @apply relative pl-8 py-2 my-10 text-2xl md:text-3xl text-brand-dark font-serif italic leading-normal;
+  }
+  
+  .article-wrapper blockquote::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-1 bg-brand-moss rounded-full;
   }
 }
