@@ -4,7 +4,8 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { 
   Navbar, Footer, CustomCursor, Preloader, 
   PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
-  ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton
+  ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton,
+  WhatsAppFloat
 } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
@@ -90,6 +91,7 @@ const App: React.FC = () => {
             <NetworkStatus />
             <Preloader />
             <CustomCursor />
+            <WhatsAppFloat />
           </div>
           
           {/* Fixed Elements */}

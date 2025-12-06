@@ -8,7 +8,7 @@ import {
   Marquee, Reveal, MagneticButton, OptimizedImage, SEO, 
   Parallax, ScrollyTelling, HorizontalScroll,
   FounderSection, IndustrySpotlight, 
-  FAQPreview, LocationStrip, ConsultationBanner 
+  FAQPreview, LocationStrip 
 } from '../components';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useInsights } from '../hooks';
@@ -391,9 +391,6 @@ const Home: React.FC = () => {
 
       {/* 9. LOCATION STRIP */}
       <LocationStrip />
-
-      {/* 10. CONSULTATION BANNER */}
-      <ConsultationBanner />
     </div>
   );
 };

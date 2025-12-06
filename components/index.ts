@@ -27,6 +27,7 @@ export { default as ToastContainer } from './ToastContainer';
 export { default as TopProgressBar } from './TopProgressBar';
 export { default as VisuallyHidden } from './VisuallyHidden';
 export { default as ConsultationBanner } from './ConsultationBanner';
+export { default as WhatsAppFloat } from './WhatsAppFloat';
 
 // Home Specific Components
 export { default as FounderSection } from './home/FounderSection';
