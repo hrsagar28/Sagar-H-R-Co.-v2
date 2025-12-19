@@ -2,14 +2,16 @@
 import React from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
-  Shield, TrendingUp, CheckCircle2, ArrowRight, Check 
+  Shield, TrendingUp, CheckCircle2, ArrowRight, Check, FileCheck, BarChart3, Lock, Compass, Target 
 } from 'lucide-react';
 import { 
   Marquee, Reveal, MagneticButton, OptimizedImage, SEO, 
   Parallax, ScrollyTelling, HorizontalScroll,
-  FounderSection, IndustrySpotlight, 
+  FounderSection, 
   FAQPreview, LocationStrip 
 } from '../components';
+import TrustBar from '../components/home/TrustBar';
+import TestimonialCarousel from '../components/home/TestimonialCarousel';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useInsights } from '../hooks';
 
@@ -75,19 +77,31 @@ const Home: React.FC = () => {
   const ethosItems = [
     {
       id: 'integrity',
-      title: 'Professional Integrity',
-      description: "Adhering to the ethical standards of the ICAI.",
+      title: 'Uncompromising Integrity',
+      description: "Trust is our currency. We adhere to the highest ethical standards of the ICAI, ensuring absolute transparency in every engagement.",
       visual: (
-        <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-brand-moss/80 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(26,77,46,0.3)] flex flex-col items-center justify-center p-8 relative overflow-hidden group backdrop-blur-xl">
-           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-           <div className="absolute inset-0 bg-grid opacity-20 [mask-image:linear-gradient(to_bottom,transparent,black)]"></div>
-           <div className="relative z-10 p-6 rounded-full border border-[#4ADE80]/30 bg-[#4ADE80]/10 mb-8 shadow-[0_0_30px_rgba(74,222,128,0.2)] animate-pulse">
-              <Shield size={48} className="text-[#4ADE80]" strokeWidth={1.5} />
-           </div>
-           <div className="absolute top-0 left-0 w-full h-1 bg-[#4ADE80]/50 shadow-[0_0_15px_#4ADE80] animate-[blob_3s_infinite_ease-in-out] opacity-50"></div>
-           <div className="w-full space-y-3 relative z-10">
-              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                 <div className="h-full bg-[#4ADE80] w-[90%] animate-[expandWidth_2s_ease-out_forwards]"></div>
+        <div className="w-full h-full flex items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl">
+           {/* Background Grid */}
+           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+           
+           {/* Animated Core */}
+           <div className="relative z-10 w-64 h-64 flex items-center justify-center">
+              {/* Outer Ring */}
+              <div className="absolute inset-0 border border-brand-moss/30 rounded-full animate-[spin_10s_linear_infinite]"></div>
+              <div className="absolute -inset-4 border border-white/5 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+              
+              {/* Glow */}
+              <div className="absolute inset-0 bg-brand-moss/20 rounded-full blur-[60px] animate-pulse"></div>
+              
+              {/* Central Shield */}
+              <div className="relative bg-brand-surface-dark border border-brand-moss/50 p-8 rounded-3xl shadow-[0_0_30px_rgba(74,222,128,0.15)] flex flex-col items-center gap-2 backdrop-blur-md">
+                 <Shield size={48} className="text-[#4ADE80] drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" strokeWidth={1.5} />
+                 <span className="text-[10px] font-bold uppercase tracking-widest text-brand-moss mt-2">Verified</span>
+              </div>
+
+              {/* Orbiting Dot */}
+              <div className="absolute inset-0 animate-[spin_4s_linear_infinite]">
+                 <div className="w-2 h-2 bg-[#4ADE80] rounded-full absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_#4ADE80]"></div>
               </div>
            </div>
         </div>
@@ -95,50 +109,80 @@ const Home: React.FC = () => {
     },
     {
       id: 'compliance',
-      title: 'Statutory Compliance',
-      description: "Assistance with reporting and filings.",
+      title: 'Precision Compliance',
+      description: "Navigating the regulatory maze with exactitude. We ensure your filings are accurate, timely, and foolproof.",
       visual: (
-        <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-blue-900/40 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(59,130,246,0.2)] flex flex-col items-center justify-center p-8 relative overflow-hidden backdrop-blur-xl">
-           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-           <div className="w-full space-y-4 relative z-10">
-              {[1, 2, 3].map((i) => (
-                 <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm transform transition-all duration-500 hover:scale-105 hover:bg-white/10 group">
-                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center">
-                       <Check size={14} />
-                    </div>
-                    <div className="h-2 bg-blue-200/20 rounded-full w-full relative overflow-hidden">
-                       <div className="absolute inset-0 bg-blue-400/50 w-full origin-left animate-[expandWidth_1s_ease-out_forwards]" style={{ animationDelay: `${i * 0.2}s` }}></div>
-                    </div>
+        <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl p-8">
+           {/* Scan Line Effect */}
+           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-[#4ADE80]/5 to-transparent animate-[translate-y_3s_linear_infinite]"></div>
+           
+           <div className="w-full max-w-xs bg-brand-surface-dark/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 relative z-10 transform rotate-[-5deg] hover:rotate-0 transition-transform duration-500">
+              <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+                 <div className="flex items-center gap-3">
+                    <FileCheck size={20} className="text-brand-moss" />
+                    <span className="text-xs font-bold text-white/80 uppercase tracking-wider">Audit Report</span>
                  </div>
-              ))}
-           </div>
-           <div className="absolute bottom-0 right-0 p-8 opacity-20">
-              <CheckCircle2 size={120} className="text-blue-500" />
+                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              </div>
+              
+              <div className="space-y-4">
+                 {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-3">
+                       <div className="w-5 h-5 rounded-full border border-brand-moss/30 flex items-center justify-center bg-brand-moss/10">
+                          <Check size={10} className="text-[#4ADE80]" />
+                       </div>
+                       <div className="h-2 bg-white/10 rounded-full w-full overflow-hidden">
+                          <div className="h-full bg-[#4ADE80] w-full animate-[expandWidth_1.5s_ease-out_forwards]" style={{ animationDelay: `${i * 0.3}s` }}></div>
+                       </div>
+                    </div>
+                 ))}
+              </div>
+
+              <div className="mt-6 pt-4 flex justify-between items-center text-[10px] text-white/40 font-mono">
+                 <span>STATUS: APPROVED</span>
+                 <span>ID: 884-X</span>
+              </div>
            </div>
         </div>
       )
     },
     {
       id: 'advisory',
-      title: 'Business Advisory',
-      description: "Guidance for business structuring.",
+      title: 'Strategic Vision',
+      description: "Beyond numbers, we provide foresight. Our advisory services align your business structure with long-term objectives.",
       visual: (
-        <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-purple-900/40 to-brand-black rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.2)] flex flex-col justify-end p-8 relative overflow-hidden backdrop-blur-xl">
-           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-           <div className="flex items-end justify-between gap-3 h-48 w-full relative z-10 pb-4">
-              {[30, 45, 60, 40, 75, 90, 100].map((h, i) => (
-                 <div key={i} className="w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-md relative group">
-                    <div className="w-full bg-purple-500 absolute bottom-0 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" style={{ height: `${h}%` }}></div>
+        <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl perspective-[1000px]">
+           {/* Ambient Light */}
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.05),transparent_70%)]"></div>
+           
+           {/* Gyroscope Structure - Symbolic of Stability & Direction */}
+           <div className="relative w-64 h-64">
+              {/* Ring 1 - Outer */}
+              <div className="absolute inset-0 border border-white/10 rounded-full animate-[spin_8s_linear_infinite]" style={{ transformStyle: 'preserve-3d', transform: 'rotateX(60deg)' }}></div>
+              
+              {/* Ring 2 - Middle (Opposite spin) */}
+              <div className="absolute inset-4 border border-brand-moss/40 rounded-full animate-[spin_12s_linear_infinite_reverse]" style={{ transformStyle: 'preserve-3d', transform: 'rotateY(45deg)' }}></div>
+              
+              {/* Ring 3 - Inner */}
+              <div className="absolute inset-12 border-2 border-white/5 rounded-full animate-[spin_5s_linear_infinite]" style={{ borderTopColor: '#4ADE80' }}></div>
+
+              {/* Core - The Focus Point */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                 <div className="w-16 h-16 bg-brand-surface-dark border border-brand-moss/50 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(74,222,128,0.2)] backdrop-blur-xl relative z-10">
+                    <Target size={24} className="text-[#4ADE80]" />
                  </div>
-              ))}
+              </div>
+
+              {/* Orbital Elements */}
+              <div className="absolute top-0 left-1/2 w-full h-full -translate-x-1/2 animate-[spin_20s_linear_infinite]">
+                 <div className="w-2 h-2 bg-white rounded-full absolute top-0 left-1/2 shadow-[0_0_10px_white]"></div>
+              </div>
            </div>
-           <div className="flex items-center gap-3 relative z-10 border-t border-white/10 pt-4">
-              <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
-                 <TrendingUp size={24} />
-              </div>
-              <div>
-                 <span className="block text-xs text-purple-200/60 uppercase tracking-wider">Analysis</span>
-              </div>
+
+           {/* Interface Elements */}
+           <div className="absolute bottom-8 left-0 w-full px-12 flex justify-between items-center text-[10px] font-mono text-white/30 uppercase tracking-widest">
+              <span>Calibration: OK</span>
+              <span>Vector: North</span>
            </div>
         </div>
       )
@@ -232,13 +276,16 @@ const Home: React.FC = () => {
         </Parallax>
       </section>
 
-      {/* 2. FOUNDER SECTION */}
+      {/* 2. TRUST BAR - New for Advertisement Compliance */}
+      <TrustBar />
+
+      {/* 3. FOUNDER SECTION */}
       <FounderSection />
 
-      {/* 3. PHILOSOPHY SCROLLYTELLING */}
+      {/* 4. PHILOSOPHY SCROLLYTELLING */}
       <ScrollyTelling items={ethosItems} />
 
-      {/* 4. IMMERSIVE SERVICES (Horizontal Scroll) */}
+      {/* 5. IMMERSIVE SERVICES (Horizontal Scroll) */}
       <section className="bg-brand-black text-white relative z-30 pt-32 pb-20">
          <div className="container mx-auto max-w-7xl relative z-10 px-4 mb-20">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-10">
@@ -301,10 +348,10 @@ const Home: React.FC = () => {
          </HorizontalScroll>
       </section>
 
-      {/* 5. INDUSTRY SPOTLIGHT (COMPACT VARIANT) */}
-      <IndustrySpotlight variant="compact" />
+      {/* 6. TESTIMONIALS */}
+      <TestimonialCarousel />
 
-      {/* 6. RECENT INSIGHTS */}
+      {/* 7. RECENT INSIGHTS */}
       {recentInsights.length > 0 && (
         <section className="py-32 px-4 md:px-6 bg-white relative overflow-hidden border-t border-brand-border/60">
           <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
@@ -383,13 +430,49 @@ const Home: React.FC = () => {
         </section>
       )}
 
-      {/* 7. FAQ PREVIEW */}
+      {/* 8. FAQ PREVIEW */}
       <FAQPreview />
       
-      {/* 8. MARQUEE */}
+      {/* 9. MARQUEE */}
       <Marquee />
 
-      {/* 9. LOCATION STRIP */}
+      {/* 10. CAREERS BANNER */}
+      <Reveal width="100%">
+        <section className="py-20 bg-brand-surface border-t border-brand-border/50">
+          <div className="container mx-auto max-w-7xl px-4 md:px-6">
+            <div className="bg-brand-moss rounded-[2.5rem] p-10 md:p-16 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl shadow-brand-moss/20">
+              {/* Decorative */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-[60px] pointer-events-none -mr-10 -mt-10"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-black opacity-10 rounded-full blur-[60px] pointer-events-none -ml-10 -mb-10"></div>
+              
+              <div className="relative z-10 max-w-xl">
+                <span className="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+                  Join the Firm
+                </span>
+                <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6">
+                  Build your career with <br/>
+                  <span className="text-white/70">industry experts.</span>
+                </h2>
+                <p className="text-white/80 text-lg font-medium leading-relaxed">
+                  We are always looking for dedicated professionals. Explore opportunities for Articleship and Audit Associates.
+                </p>
+              </div>
+
+              <div className="relative z-10 shrink-0">
+                <Link 
+                  to="/careers" 
+                  className="group flex items-center gap-4 bg-white text-brand-moss px-8 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:text-white transition-all duration-300 shadow-xl"
+                >
+                  Open Positions
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      {/* 11. LOCATION STRIP */}
       <LocationStrip />
     </div>
   );
