@@ -308,7 +308,7 @@ const Home: React.FC = () => {
                 <Link 
                   key={service.id}
                   to={service.link}
-                  className="shrink-0 w-[300px] md:w-[400px] aspect-[3/4] bg-brand-dark border border-white/5 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between hover:border-[#4ADE80]/50 hover:bg-brand-surface-dark-hover transition-all duration-500 group snap-center relative overflow-hidden"
+                  className="shrink-0 w-[300px] md:w-[400px] aspect-[4/5] bg-brand-dark border border-white/5 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between hover:border-[#4ADE80]/50 hover:bg-brand-surface-dark-hover transition-all duration-500 group snap-center relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                     
@@ -335,7 +335,7 @@ const Home: React.FC = () => {
                     </div>
                 </Link>
             ))}
-            <div className="shrink-0 w-[300px] md:w-[400px] aspect-[3/4] flex items-center justify-center snap-center">
+            <div className="shrink-0 w-[300px] md:w-[400px] aspect-[4/5] flex items-center justify-center snap-center">
                <Link to="/services" className="text-center group">
                   <div className="w-24 h-24 rounded-full border border-white/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-white group-hover:text-black transition-all duration-500">
                      <ArrowRight size={32} />
