@@ -89,12 +89,11 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
         </Link>
 
         {/* Desktop Menu - Center Pill (Rolling Text Effect) */}
-        <div className="hidden lg:flex items-center bg-brand-surface/80 px-1 py-1 rounded-full border border-brand-border/30 shadow-sm backdrop-blur-md mx-2" role="menubar">
+        <nav aria-label="Primary Navigation" className="hidden lg:flex items-center bg-brand-surface/80 px-1 py-1 rounded-full border border-brand-border/30 shadow-sm backdrop-blur-md mx-2">
           {NAV_LINKS.slice(0, 7).map((link) => (
             <Link 
               key={link.name} 
               to={link.path}
-              role="menuitem"
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden whitespace-nowrap group min-h-[44px] flex items-center ${
                 location.pathname === link.path 
                   ? 'bg-brand-moss text-brand-inverse shadow-md' 
@@ -113,7 +112,7 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
               )}
             </Link>
           ))}
-        </div>
+        </nav>
 
         {/* Actions - Right Pill */}
         <div className="flex items-center gap-2 shrink-0">

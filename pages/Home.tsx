@@ -80,7 +80,7 @@ const Home: React.FC = () => {
       title: 'Uncompromising Integrity',
       description: "Trust is our currency. We adhere to the highest ethical standards of the ICAI, ensuring absolute transparency in every engagement.",
       visual: (
-        <div className="w-full h-full flex items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl">
+        <div aria-hidden="true" className="w-full h-full flex items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl">
            {/* Background Grid */}
            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
            
@@ -112,7 +112,7 @@ const Home: React.FC = () => {
       title: 'Precision Compliance',
       description: "Navigating the regulatory maze with exactitude. We ensure your filings are accurate, timely, and foolproof.",
       visual: (
-        <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl p-8">
+        <div aria-hidden="true" className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl p-8">
            {/* Scan Line Effect */}
            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-[#4ADE80]/5 to-transparent animate-[translate-y_3s_linear_infinite]"></div>
            
@@ -151,7 +151,7 @@ const Home: React.FC = () => {
       title: 'Strategic Vision',
       description: "Beyond numbers, we provide foresight. Our advisory services align your business structure with long-term objectives.",
       visual: (
-        <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl perspective-[1000px]">
+        <div aria-hidden="true" className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-brand-black rounded-[2rem] border border-white/10 shadow-2xl perspective-[1000px]">
            {/* Ambient Light */}
            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.05),transparent_70%)]"></div>
            
@@ -290,7 +290,7 @@ const Home: React.FC = () => {
          <div className="container mx-auto max-w-7xl relative z-10 px-4 mb-20">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-10">
                <Reveal>
-                  <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">Practice Areas</span>
+                   <span className="text-amber-400 font-bold tracking-widest uppercase text-xs mb-4 block">Practice Areas</span>
                   <h2 className="text-5xl md:text-7xl font-heading font-bold text-white">
                      Services
                   </h2>
@@ -321,13 +321,13 @@ const Home: React.FC = () => {
                             <h3 className="text-2xl md:text-3xl font-heading font-bold leading-tight text-white group-hover:text-[#4ADE80] transition-colors mb-4">
                                 {service.title}
                             </h3>
-                            <p className="text-white/50 text-base font-medium leading-relaxed line-clamp-3 group-hover:text-white/70 transition-colors">
+                            <p className="text-white/65 text-base font-medium leading-relaxed line-clamp-3 group-hover:text-white/80 transition-colors">
                                 {service.description}
                             </p>
                         </div>
                         
                         <div className="flex items-center justify-between border-t border-white/10 pt-8 mt-8">
-                            <span className="text-xs font-bold uppercase tracking-widest text-white/40 group-hover:text-white transition-colors">View Details</span>
+                            <span className="text-xs font-bold uppercase tracking-widest text-amber-300 group-hover:text-white transition-colors">View Details</span>
                             <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#4ADE80] group-hover:text-black group-hover:border-[#4ADE80] transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0)] group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
                                 <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
                             </div>
