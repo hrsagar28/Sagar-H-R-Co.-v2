@@ -5,7 +5,7 @@ import {
   Navbar, Footer, CustomCursor, Preloader,
   PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
   ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton,
-  WhatsAppFloat
+  WhatsAppFloat, CookieConsent
 } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
@@ -92,6 +92,7 @@ const App: React.FC = () => {
             <Preloader />
             <CustomCursor />
             <WhatsAppFloat />
+            <CookieConsent />
           </div>
 
           {/* Fixed Elements */}

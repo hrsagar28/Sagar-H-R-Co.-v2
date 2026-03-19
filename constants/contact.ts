@@ -56,7 +56,7 @@ export const CONTACT_INFO = {
   tagline: "Chartered Accountants",
   assessmentYear: CURRENT_AY,
   financialYear: CURRENT_FY,
-  formEndpoint: getEnv('VITE_FORM_ENDPOINT') || "https://formsubmit.co/ajax/mail@casagar.co.in",
+  formEndpoint: getEnv('VITE_FORM_ENDPOINT') || "/api/contact",
   stats: {
     established: "2023",
     clientsServed: "500+",
