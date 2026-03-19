@@ -1,8 +1,8 @@
 
 import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-import { 
-  Navbar, Footer, CustomCursor, Preloader, 
+import {
+  Navbar, Footer, CustomCursor, Preloader,
   PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
   ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton,
   WhatsAppFloat
@@ -11,7 +11,7 @@ import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
 import { useAnnounce } from './hooks';
 
-const { HashRouter, Routes, Route, useLocation } = ReactRouterDOM;
+const { BrowserRouter, Routes, Route, useLocation } = ReactRouterDOM;
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));
@@ -33,7 +33,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const RouteHandler = () => {
   const { pathname } = useLocation();
   const { announce } = useAnnounce();
-  
+
   useLayoutEffect(() => {
     // Force instant scroll to top on route change, ignoring smooth scroll preferences
     window.scrollTo({
@@ -41,7 +41,7 @@ const RouteHandler = () => {
       left: 0,
       behavior: 'instant'
     });
-    
+
     // Focus management for accessibility
     // Focus the main content wrapper to announce page change to screen readers
     const mainContent = document.getElementById('main-content');
@@ -56,7 +56,7 @@ const RouteHandler = () => {
     if (pathname !== '/') {
       // Improve page name extraction
       const parts = pathname.substring(1).split('/');
-      
+
       // Handle known routes
       if (pathname.startsWith('/services/')) {
         pageName = `Service: ${parts[1].split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}`;
@@ -70,10 +70,10 @@ const RouteHandler = () => {
         if (pageName === 'Faqs') pageName = 'FAQ';
       }
     }
-    
+
     announce(`Navigated to ${pageName}`);
   }, [pathname, announce]);
-  
+
   return null;
 };
 
@@ -81,7 +81,7 @@ const App: React.FC = () => {
   return (
     <AnnounceProvider>
       <ToastProvider>
-        <HashRouter>
+        <BrowserRouter>
           <TopProgressBar />
           <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white print:hidden">
             Skip to content
@@ -93,7 +93,7 @@ const App: React.FC = () => {
             <CustomCursor />
             <WhatsAppFloat />
           </div>
-          
+
           {/* Fixed Elements */}
           <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none print:hidden">
             <Navbar className="animate-fade-in-up delay-200" />
@@ -159,12 +159,12 @@ const App: React.FC = () => {
                 </Routes>
               </Suspense>
             </main>
-            
+
             <div className="print:hidden">
               <Footer />
             </div>
           </div>
-        </HashRouter>
+        </BrowserRouter>
       </ToastProvider>
     </AnnounceProvider>
   );
