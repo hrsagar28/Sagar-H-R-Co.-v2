@@ -16,6 +16,14 @@ interface SEOProps {
   ogImage?: string;
   /** Structured Data (JSON-LD) object(s) */
   schema?: object | object[];
+  /** Breadcrumb navigation schema */
+  breadcrumbs?: Array<{ name: string; url: string }>;
+  /** Article / BlogPosting schema */
+  article?: { headline: string; author: string; datePublished: string; dateModified?: string; image?: string };
+  /** Service schema */
+  service?: { name: string; description: string; areaServed?: string };
+  /** FAQPage schema */
+  faqs?: Array<{ question: string; answer: string }>;
 }
 
 /**
@@ -38,7 +46,11 @@ const SEO: React.FC<SEOProps> = ({
   canonicalUrl = window.location.href,
   ogType = 'website',
   ogImage = 'https://casagar.co.in/og-image.jpg',
-  schema
+  schema,
+  breadcrumbs,
+  article,
+  service,
+  faqs
 }) => {
   useEffect(() => {
     // Update Title
@@ -86,30 +98,100 @@ const SEO: React.FC<SEOProps> = ({
       link.setAttribute('href', canonicalUrl);
     }
 
-    // JSON-LD Schema
-    const scriptId = 'json-ld-schema';
-    // Remove existing schema script to prevent duplicates on re-render/route change
-    const existingScript = document.getElementById(scriptId);
-    if (existingScript) {
-        existingScript.remove();
-    }
+    // Clean up all existing dynamic JSON-LD tags
+    const existingScripts = document.querySelectorAll('script[data-dynamic-schema]');
+    existingScripts.forEach(script => script.remove());
+
+    const addSchema = (id: string, data: object) => {
+      const script = document.createElement('script');
+      script.id = `json-ld-${id}`;
+      script.setAttribute('data-dynamic-schema', 'true');
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify(data);
+      document.head.appendChild(script);
+    };
 
     if (schema) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify(schema);
-      document.head.appendChild(script);
+      addSchema('schema', schema);
+    }
+
+    if (breadcrumbs && breadcrumbs.length > 0) {
+      addSchema('breadcrumbs', {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": breadcrumbs.map((item, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "name": item.name,
+          "item": item.url.startsWith('http') ? item.url : `https://casagar.co.in${item.url.startsWith('/') ? '' : '/'}${item.url}`
+        }))
+      });
+    }
+
+    if (article) {
+      addSchema('article', {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": article.headline,
+        "author": {
+          "@type": "Person",
+          "name": article.author
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Sagar H R & Co.",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://casagar.co.in/logo.png"
+          }
+        },
+        "datePublished": article.datePublished,
+        ...(article.dateModified ? { "dateModified": article.dateModified } : {}),
+        "image": article.image || ogImage,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": canonicalUrl
+        }
+      });
+    }
+
+    if (service) {
+      addSchema('service', {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": service.name,
+        "description": service.description,
+        "provider": {
+          "@id": "https://casagar.co.in/#organization"
+        },
+        ...(service.areaServed ? {
+          "areaServed": {
+            "@type": "City",
+            "name": service.areaServed
+          }
+        } : {})
+      });
+    }
+
+    if (faqs && faqs.length > 0) {
+      addSchema('faqs', {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      });
     }
 
     return () => {
-        // Optional: We could clean up, but keeping meta tags until next SEO component mounts 
-        // is usually better for persistence during transitions.
-        // However, we strictly remove the schema to avoid stale structured data.
-        const s = document.getElementById(scriptId);
-        if (s) s.remove();
+        document.querySelectorAll('script[data-dynamic-schema]').forEach(s => s.remove());
     };
-  }, [title, description, keywords, canonicalUrl, ogType, ogImage, schema]);
+  }, [title, description, keywords, canonicalUrl, ogType, ogImage, schema, breadcrumbs, article, service, faqs]);
 
   return null;
 };

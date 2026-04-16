@@ -151,30 +151,6 @@ const InsightDetail: React.FC = () => {
   if (loading) return <InsightDetailSkeleton />;
   if (!insight) return null;
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": insight.title,
-    "description": insight.summary,
-    "author": {
-      "@type": "Person",
-      "name": insight.author
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": CONTACT_INFO.name,
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://casagar.co.in/logo.png"
-      }
-    },
-    "datePublished": new Date(insight.date).toISOString(),
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": `https://casagar.co.in/insights/${insight.slug}`
-    }
-  };
-
   const radius = 24; 
   const circumference = 2 * Math.PI * radius;
   const dashoffset = circumference - scrollProgress * circumference;
@@ -185,7 +161,17 @@ const InsightDetail: React.FC = () => {
         title={`${insight.title} | Insights`}
         description={insight.summary}
         ogType="article"
-        schema={schema}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Insights', url: '/insights' },
+          { name: insight.title, url: window.location.pathname }
+        ]}
+        article={{
+          headline: insight.title,
+          author: "CA Sagar H R",
+          datePublished: new Date(insight.date).toISOString(),
+          image: insight.image
+        }}
       />
       
       {/* Decorative Background Elements */}

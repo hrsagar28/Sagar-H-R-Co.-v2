@@ -90,6 +90,11 @@ const ChecklistDetail: React.FC = () => {
       <SEO 
         title={`${checklist.title} | Resources`}
         description={`Download and view the checklist for ${checklist.title}. ${checklist.subtitle}`}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Resources', url: '/resources' },
+          { name: checklist.title, url: window.location.pathname }
+        ]}
       />
 
       <div className="container mx-auto max-w-4xl print:max-w-full print:p-0">
