@@ -1,3 +1,4 @@
+import Button from '../components/ui/Button';
 
 import React, { useEffect, useState, useMemo } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
@@ -356,7 +357,7 @@ const InsightDetail: React.FC = () => {
             {linkCopied ? <Check size={20} className="text-green-400" /> : <LinkIcon size={20} />}
         </button>
         <div className="w-[1px] h-8 bg-white/20 mx-2"></div>
-        <Link to="/contact" className="px-6 py-3 bg-brand-moss text-white rounded-full font-bold text-sm whitespace-nowrap active:scale-95 transition-transform">
+        <Button variant="solid" asChild className="whitespace-nowrap active:scale-95 transition-transform"><Link to="/contact">
             Consult Expert
         </Link>
       </div>
