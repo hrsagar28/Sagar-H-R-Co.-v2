@@ -19,9 +19,12 @@ const CookieConsent: React.FC = () => {
   const loadGoogleAnalytics = () => {
     if ((window as any).gtag) return; // Already loaded
 
+    const id = (import.meta as any).env?.VITE_GA_MEASUREMENT_ID;
+    if (!id) return;
+
     const script = document.createElement('script');
     script.async = true;
-    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-VZTPZ1RVRF';
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
     document.head.appendChild(script);
 
     (window as any).dataLayer = (window as any).dataLayer || [];
@@ -29,7 +32,7 @@ const CookieConsent: React.FC = () => {
       (window as any).dataLayer.push(args);
     }
     gtag('js', new Date());
-    gtag('config', 'G-VZTPZ1RVRF');
+    gtag('config', id);
     (window as any).gtag = gtag;
   };
 

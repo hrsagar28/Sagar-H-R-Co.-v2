@@ -63,6 +63,9 @@ const Contact: React.FC = () => {
       setIsSubmitting(true);
 
       try {
+        const formElement = e.target as HTMLFormElement;
+        const formData = new FormData(formElement);
+
         await apiClient.post(CONTACT_INFO.formEndpoint, {
           name: sanitizeInput(values.name),
           email: sanitizeInput(values.email),
@@ -70,7 +73,10 @@ const Contact: React.FC = () => {
           company: sanitizeInput(values.companyName),
           subject: sanitizeInput(values.subject) || 'Contact Form Inquiry',
           message: sanitizeInput(values.message),
-          _subject: `New Inquiry: ${sanitizeInput(values.name)}`
+          _subject: `New Inquiry: ${sanitizeInput(values.name)}`,
+          _honey: formData.get('_honey') || '',
+          _captcha: formData.get('_captcha') || 'false',
+          _template: formData.get('_template') || 'table'
         });
 
         setIsSuccess(true);
@@ -213,6 +219,11 @@ const Contact: React.FC = () => {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* FormSubmit Config & Honeypot */}
+                  <input type="text" name="_honey" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }} />
+                  <input type="hidden" name="_captcha" value="false" />
+                  <input type="hidden" name="_template" value="table" />
+
                   <div className="mb-2">
                     <h3 className="text-3xl font-heading font-bold text-brand-dark">Send a Message</h3>
                     <p className="text-brand-stone font-medium mt-2">Fill out the form below and we will get back to you.</p>
