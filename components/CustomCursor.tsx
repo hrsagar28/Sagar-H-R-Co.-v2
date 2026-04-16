@@ -1,33 +1,42 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const CustomCursor: React.FC = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
   const rafIdRef = useRef<number>(0);
   
+  const [canHover, setCanHover] = useState(() => 
+    typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches
+  );
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [isActive, setIsActive] = useState(false);
   const [forceHide, setForceHide] = useState(false);
   
+  const reducedMotion = useReducedMotion();
+  
+  if (!canHover || reducedMotion) return null;
+
   // Use refs for coordinates to avoid re-renders on every frame
   const mouse = useRef({ x: -100, y: -100 }); // Start off-screen
   const follower = useRef({ x: -100, y: -100 });
   
   useEffect(() => {
-    // Check for touch capability and reduced motion preference
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (typeof window === 'undefined') return;
 
-    // Do not activate custom cursor on touch devices or if reduced motion is requested
-    if (isTouch || prefersReducedMotion) {
-      return;
-    }
+    const mediaQuery = window.matchMedia('(pointer: fine)');
+    const handleMediaQueryChange = (e: MediaQueryListEvent) => {
+      setCanHover(e.matches);
+    };
 
-    setIsActive(true);
-    
+    mediaQuery.addEventListener('change', handleMediaQueryChange);
+    return () => mediaQuery.removeEventListener('change', handleMediaQueryChange);
+  }, []);
+
+  useEffect(() => {
+    if (!canHover || reducedMotion) return;
+
     // Add the class that hides the default cursor
     document.body.classList.add('custom-cursor-active');
 
@@ -114,8 +123,6 @@ const CustomCursor: React.FC = () => {
       cancelAnimationFrame(rafIdRef.current);
     };
   }, []);
-
-  if (!isActive) return null;
 
   const blendModeClass = "mix-blend-difference";
   
