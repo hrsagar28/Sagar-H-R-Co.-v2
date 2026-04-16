@@ -1,4 +1,4 @@
-
+import React, { useRef, useState, useEffect } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const CustomCursor: React.FC = () => {
