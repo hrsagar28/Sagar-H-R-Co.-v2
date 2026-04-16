@@ -24,10 +24,31 @@ const InsightDetail: React.FC = () => {
   const [shareCopied, setShareCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const insight = useMemo(() => {
+  const insightSchema = useMemo(() => {
     if (!slug) return undefined;
     return getInsightBySlug(slug);
   }, [slug, getInsightBySlug, insights]);
+
+  const [mdContent, setMdContent] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState(false);
+
+  useEffect(() => {
+    if (!slug) return;
+    setMdContent(null);
+    setFetchError(false);
+    fetch(`/content/insights/${slug}.md`)
+      .then(res => {
+        if (!res.ok) throw new Error('Not found');
+        return res.text();
+      })
+      .then(text => setMdContent(text))
+      .catch(err => {
+        logger.error('Failed to load markdown', err);
+        setFetchError(true);
+      });
+  }, [slug]);
+
+  const insight = insightSchema;
 
   // Redirect if not found after loading
   useEffect(() => {
@@ -149,8 +170,20 @@ const InsightDetail: React.FC = () => {
   }, [insight, insights]);
 
   // Render Logic
-  if (loading) return <InsightDetailSkeleton />;
+  if (loading || (insight && !mdContent && !fetchError)) return <InsightDetailSkeleton />;
   if (!insight) return null;
+
+  if (fetchError) {
+    return (
+      <div className="bg-brand-surface min-h-screen pt-48 pb-24 px-4 flex flex-col items-center justify-center text-center">
+        <h1 className="text-4xl font-heading font-bold text-brand-dark mb-4">Content Not Found</h1>
+        <p className="text-brand-stone mb-8">We couldn't load this article. It may have been moved or deleted.</p>
+        <Link to="/insights" className="px-6 py-2 bg-brand-moss text-white font-bold rounded-full hover:bg-brand-dark transition-all">
+          Back to Insights
+        </Link>
+      </div>
+    );
+  }
 
   const radius = 24; 
   const circumference = 2 * Math.PI * radius;
@@ -283,7 +316,7 @@ const InsightDetail: React.FC = () => {
             <main className="lg:col-span-8">
               <article className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   {/* Using New Markdown Renderer */}
-                  <MarkdownRenderer content={insight.content} />
+                  <MarkdownRenderer content={mdContent || ''} />
               </article>
 
               {/* Footer Author Card */}
@@ -359,7 +392,7 @@ const InsightDetail: React.FC = () => {
         <div className="w-[1px] h-8 bg-white/20 mx-2"></div>
         <Button variant="solid" asChild className="whitespace-nowrap active:scale-95 transition-transform"><Link to="/contact">
             Consult Expert
-        </Link>
+        </Link></Button>
       </div>
       
       {/* Scroll to Top Progress Ring */}
