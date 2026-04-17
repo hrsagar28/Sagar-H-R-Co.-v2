@@ -3,7 +3,7 @@ import React from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { Linkedin, ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
-import { getCopyrightYear } from '../config/financial-year';
+import { toRomanNumeral } from '../utils/toRomanNumeral';
 
 const { Link } = ReactRouterDOM;
 
@@ -102,7 +102,14 @@ const Footer: React.FC = React.memo(() => {
         <div className="px-6 md:px-20 pb-10 relative z-10">
            <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
               <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-500">
-                 <span>&copy; {getCopyrightYear()} {CONTACT_INFO.name}</span>
+                 <div className="flex flex-col gap-1 text-zinc-500 mr-4">
+                    <span>
+                      &copy; {new Date().getFullYear() === 2023 ? 'MMXXIII' : `MMXXIII–${toRomanNumeral(new Date().getFullYear())}`} · Sagar H R & Co. · Chartered Accountants
+                    </span>
+                    <span className="font-mono text-xs uppercase tracking-widest opacity-80">
+                      § Mysuru · ACA Practice · Sole Proprietor
+                    </span>
+                 </div>
                  <Link to="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
                  <Link to="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
                  <Link to="/disclaimer" className="hover:text-zinc-300 transition-colors">Disclaimer</Link>

@@ -341,3 +341,15 @@
   }
 }
 
+
+.nav-links { counter-reset: nav-counter; }
+.nav-links a::before {
+  content: counter(nav-counter, decimal-leading-zero);
+  counter-increment: nav-counter;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  margin-right: 0.5rem;
+  opacity: 0.5;
+  vertical-align: top;
+}
+

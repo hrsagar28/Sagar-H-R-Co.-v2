@@ -62,8 +62,7 @@ const Resources: React.FC = () => {
       {/* HERO SECTION - Hidden in Print */}
       <PageHero
         tag="Tools & Utilities"
-        title="Resource"
-        subtitle="Hub."
+        title={<>Resource <em>Hub.</em></>}
         className="print:hidden"
       />
 
@@ -133,3 +132,4 @@ const Resources: React.FC = () => {
 };
 
 export default Resources;
+

@@ -29,8 +29,7 @@ const FAQ: React.FC = () => {
       {/* UNIFIED HERO SECTION */}
       <PageHero
         tag="FAQs"
-        title="Common"
-        subtitle="Queries."
+        title={<>Common <em>Queries.</em></>}
         description="Clear answers to your financial queries. From tax planning to compliance, we have got you covered."
       />
 
@@ -95,3 +94,4 @@ const FAQ: React.FC = () => {
 };
 
 export default FAQ;
+

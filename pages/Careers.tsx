@@ -73,8 +73,7 @@ const Careers: React.FC = () => {
       {/* UNIFIED HERO SECTION */}
       <PageHero
         tag="Careers"
-        title="Work With"
-        subtitle="Us."
+        title={<>Work With <em>Us.</em></>}
         description="We are looking for dedicated professionals passionate about finance and accounting."
         className="z-base"
       />
@@ -143,3 +142,4 @@ const Careers: React.FC = () => {
 };
 
 export default Careers;
+

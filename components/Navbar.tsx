@@ -89,7 +89,7 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
         </Link>
 
         {/* Desktop Menu - Center Pill (Rolling Text Effect) */}
-        <nav aria-label="Primary Navigation" className="hidden lg:flex items-center bg-brand-surface/80 px-1 py-1 rounded-full border border-brand-border/30 shadow-sm backdrop-blur-md mx-2">
+        <nav aria-label="Primary Navigation" className="nav-links hidden lg:flex items-center bg-brand-surface/80 px-1 py-1 rounded-full border border-brand-border/30 shadow-sm backdrop-blur-md mx-2">
           {NAV_LINKS.slice(0, 7).map((link) => (
             <Link 
               key={link.name} 
@@ -225,3 +225,4 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
 });
 
 export default Navbar;
+

@@ -10,7 +10,7 @@ export interface BaseHeroProps {
 }
 export interface BasicHeroProps extends BaseHeroProps {
   variant?: 'basic';
-  tag?: string; subtitle?: string; description?: string;
+  tag?: string; subtitle?: string; description?: string; className?: string;
 }
 export interface SplitHeroProps extends BaseHeroProps {
   variant: 'split';
@@ -38,8 +38,10 @@ export interface ArchiveHeroProps extends BaseHeroProps {
 }
 export interface DirectoryHeroProps extends BaseHeroProps {
   variant: 'directory';
-  coordinates?: string;
+  coordinates?: React.ReactNode;
   contacts: Array<{ label: string; value: string; href?: string }>;
   ghostWord?: string;                         // default "Engage."
 }
 export type PageHeroProps = BasicHeroProps | SplitHeroProps | FolioHeroProps | LedgerHeroProps | FrontispieceHeroProps | ArchiveHeroProps | DirectoryHeroProps;
+
+
