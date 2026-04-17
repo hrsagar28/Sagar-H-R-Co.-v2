@@ -71,7 +71,7 @@ const CookieConsent: React.FC = () => {
           </button>
           <button 
             onClick={handleAccept}
-            className="px-6 py-3 rounded-xl bg-brand-dark text-white font-bold hover:bg-brand-moss transition-colors shadow-lg shadow-brand-dark/10 text-sm"
+            className="px-6 py-3 rounded-xl bg-brand-dark text-white font-bold hover:bg-brand-brass transition-colors shadow-lg shadow-brand-dark/10 text-sm"
           >
             Accept All
           </button>

@@ -93,14 +93,14 @@ const IndustrySpotlight: React.FC<IndustrySpotlightProps> = ({ variant = 'defaul
         <div 
             className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
             style={{
-              background: `radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(26, 77, 46, 0.15), transparent 40%)`
+              background: `radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(184, 146, 76, 0.15), transparent 40%)`
             }}
         />
 
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="flex flex-col md:flex-row md:items-start justify-between mb-16 gap-8 border-b border-white/10 pb-12">
             <div className="max-w-2xl">
-                <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">SECTORS</span>
+                <span className="text-brand-brass font-bold tracking-widest uppercase text-xs mb-4 block">SECTORS</span>
                 <h2 className="text-4xl md:text-6xl font-heading font-bold text-white mb-0">Industries We Serve</h2>
             </div>
             <p className="text-white/60 font-medium text-lg max-w-xs text-right md:text-left leading-relaxed">
@@ -114,9 +114,9 @@ const IndustrySpotlight: React.FC<IndustrySpotlightProps> = ({ variant = 'defaul
                 key={i} 
                 className="relative p-8 rounded-3xl bg-brand-dark hover:bg-brand-surface-dark-hover border border-white/5 transition-all duration-300 group/card flex flex-col items-start h-full hover:-translate-y-1 overflow-hidden"
               >
-                <div className="absolute inset-0 bg-brand-moss/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-brand-brass/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
-                <div className="relative z-10 w-12 h-12 rounded-xl flex items-center justify-center text-[#4ADE80] mb-6 bg-[#4ADE80]/10 border border-[#4ADE80]/20 group-hover/card:scale-105 transition-transform">
+                <div className="relative z-10 w-12 h-12 rounded-xl flex items-center justify-center text-brand-brass mb-6 bg-brand-brass/10 border border-brand-brass/20 group-hover/card:scale-105 transition-transform">
                   {React.cloneElement(ind.icon as React.ReactElement<{size?: number}>, { size: 24 })}
                 </div>
                 <h3 className="relative z-10 text-xl font-heading font-bold text-white mb-3">{ind.title}</h3>
@@ -127,7 +127,7 @@ const IndustrySpotlight: React.FC<IndustrySpotlightProps> = ({ variant = 'defaul
 
           <div className="mt-20 flex justify-center relative z-10">
             <Link to="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/20 text-white font-bold text-sm hover:bg-white hover:text-black transition-all duration-300 group">
-                Industry not listed? Contact Us <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform text-[#4ADE80] group-hover:text-black"/>
+                Industry not listed? Contact Us <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform text-brand-brass group-hover:text-black"/>
             </Link>
           </div>
         </div>

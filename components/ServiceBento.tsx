@@ -43,7 +43,7 @@ const ServiceBento: React.FC = React.memo(() => {
             containerClasses = "bg-gradient-to-br from-zinc-800 via-zinc-900 to-brand-black border-zinc-700 hover:border-zinc-600";
             textTitle = "text-white";
             textDesc = "text-zinc-400";
-            arrowBtn = "border-white/20 text-white group-hover:bg-white group-hover:text-black group-hover:border-white bg-white/5";
+            arrowBtn = "border-white/20 text-white group-hover:bg-brand-brass group-hover:text-white group-hover:border-brand-brass bg-white/5";
         }
         // Advisory (Warm Stone Gradient)
         else if (index === 4) {
@@ -61,7 +61,7 @@ const ServiceBento: React.FC = React.memo(() => {
             containerClasses = "bg-gradient-to-br from-neutral-900 to-brand-black border-neutral-800 hover:border-neutral-700";
             textTitle = "text-white";
             textDesc = "text-zinc-500";
-            arrowBtn = "border-white/20 text-white group-hover:bg-[#4ADE80] group-hover:text-black group-hover:border-[#4ADE80] bg-white/5";
+            arrowBtn = "border-white/20 text-white group-hover:bg-brand-brass group-hover:text-white group-hover:border-brand-brass bg-white/5";
         }
 
         return (

@@ -40,7 +40,7 @@ class RouteErrorBoundary extends React.Component<Props, RouteErrorBoundaryState>
           </p>
           <button
             onClick={this.handleRetry}
-            className="px-6 py-2 bg-brand-dark text-white rounded-full font-bold text-sm flex items-center gap-2 hover:bg-brand-moss transition-colors"
+            className="px-6 py-2 bg-brand-dark text-white rounded-full font-bold text-sm flex items-center gap-2 hover:bg-brand-brass transition-colors"
           >
             <RefreshCw size={14} /> Reload Page
           </button>

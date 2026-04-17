@@ -49,7 +49,7 @@ const Footer: React.FC = React.memo(() => {
                        { name: "Insights", path: "/insights" },
                     ].map(link => (
                        <li key={link.name}>
-                          <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-[#4ADE80] transition-colors inline-flex items-center gap-2 group">
+                          <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-brand-brass transition-colors inline-flex items-center gap-2 group">
                              {link.name}
                           </Link>
                        </li>
@@ -68,7 +68,7 @@ const Footer: React.FC = React.memo(() => {
                        { name: "Contact Us", path: "/contact" },
                     ].map(link => (
                        <li key={link.name}>
-                          <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-[#4ADE80] transition-colors inline-flex items-center gap-2 group">
+                          <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-brand-brass transition-colors inline-flex items-center gap-2 group">
                              {link.name}
                           </Link>
                        </li>
@@ -82,11 +82,11 @@ const Footer: React.FC = React.memo(() => {
                  <ul className="space-y-6">
                     <li>
                        <span className="block text-sm text-zinc-400 mb-1">Email</span>
-                       <a href={`mailto:${CONTACT_INFO.email}`} className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">{CONTACT_INFO.email}</a>
+                       <a href={`mailto:${CONTACT_INFO.email}`} className="text-xl font-heading font-bold text-white hover:text-brand-brass transition-colors">{CONTACT_INFO.email}</a>
                     </li>
                     <li>
                        <span className="block text-sm text-zinc-400 mb-1">Phone</span>
-                       <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-xl font-heading font-bold text-white hover:text-[#4ADE80] transition-colors">{CONTACT_INFO.phone.display}</a>
+                       <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-xl font-heading font-bold text-white hover:text-brand-brass transition-colors">{CONTACT_INFO.phone.display}</a>
                     </li>
                     <li>
                        <span className="block text-sm text-zinc-400 mb-1">Office Hours</span>
@@ -118,7 +118,7 @@ const Footer: React.FC = React.memo(() => {
 
               <button 
                  onClick={scrollToTop} 
-                 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-white hover:text-[#4ADE80] transition-colors group"
+                 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-white hover:text-brand-brass transition-colors group"
               >
                  Back to Top 
                  <ArrowUp size={16} className="group-hover:-translate-y-1 transition-transform" />
