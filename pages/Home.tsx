@@ -10,6 +10,7 @@ import {
   FounderSection, 
   FAQPreview, LocationStrip 
 } from '../components';
+import { AccentTitle } from '../components/ui/AccentTitle';
 import TrustBar from '../components/home/TrustBar';
 import TestimonialCarousel from '../components/home/TestimonialCarousel';
 import { CONTACT_INFO, SERVICES } from '../constants';
@@ -202,7 +203,9 @@ const Home: React.FC = () => {
         <div className="absolute inset-0 z-0 bg-black overflow-hidden">
            <Parallax speed={0.4} className="w-full h-[120%] -top-[10%] relative">
              <OptimizedImage 
-              src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
+              src="/images/hero/home-hero-office.jpg" 
+              srcAvif="/images/hero/home-hero-office.avif"
+              srcWebp="/images/hero/home-hero-office.webp"
               alt="Corporate Architecture" 
               priority={true}
               className="w-full h-full opacity-80 object-cover" 
@@ -229,19 +232,19 @@ const Home: React.FC = () => {
               {/* Dynamic Service-Based Headline */}
               <div className="mb-10">
                 <Reveal variant="reveal-mask" delay={0.2} duration={1}>
-                  <h1 className="font-heading font-bold text-white tracking-tighter leading-[0.9] drop-shadow-2xl overflow-hidden max-w-full">
+                  <AccentTitle as="h1" className="text-white drop-shadow-2xl overflow-hidden max-w-full">
                     <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Audit.</span>
-                  </h1>
+                  </AccentTitle>
                 </Reveal>
                 <Reveal variant="reveal-mask" delay={0.3} duration={1}>
-                  <h1 className="font-heading font-bold text-white tracking-tighter leading-[0.9] drop-shadow-2xl overflow-hidden max-w-full">
+                  <AccentTitle as="h1" className="text-white drop-shadow-2xl overflow-hidden max-w-full">
                     <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Taxation.</span>
-                  </h1>
+                  </AccentTitle>
                 </Reveal>
                 <Reveal variant="reveal-mask" delay={0.4} duration={1}>
-                  <h1 className="font-serif italic font-normal text-[#E8F5E9] tracking-tighter leading-[0.9] drop-shadow-2xl overflow-hidden max-w-full">
-                    <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Advisory.</span>
-                  </h1>
+                  <AccentTitle as="h1" className="text-white drop-shadow-2xl overflow-hidden max-w-full" accentClassName="text-[#E8F5E9]">
+                    <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]"><em>Advisory.</em></span>
+                  </AccentTitle>
                 </Reveal>
               </div>
               

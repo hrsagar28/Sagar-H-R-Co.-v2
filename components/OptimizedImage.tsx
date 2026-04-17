@@ -23,6 +23,10 @@ interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
   onLoad?: () => void;
   /** Callback when image fails to load */
   onError?: () => void;
+  /** Optional AVIF source for picture element */
+  srcAvif?: string;
+  /** Optional WebP source for picture element */
+  srcWebp?: string;
 }
 
 /**
@@ -52,6 +56,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   generateSrcSet = false,
   onLoad,
   onError,
+  srcAvif,
+  srcWebp,
   ...props 
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -127,21 +133,43 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
       />
       
       {/* Actual Image */}
-      <img
-        ref={imgRef}
-        src={currentSrc}
-        srcSet={calculatedSrcSet}
-        sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
-        alt={alt}
-        loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : "auto"}
-        decoding={priority ? "sync" : "async"}
-        onLoad={handleLoad}
-        onError={handleError}
-        className={`block w-full h-full object-cover transition-all duration-700 ease-in-out relative z-0 ${
-          isLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-sm scale-105'
-        } ${imgClassName}`}
-      />
+      {srcAvif || srcWebp ? (
+        <picture>
+          {srcAvif && <source srcSet={srcAvif} type="image/avif" />}
+          {srcWebp && <source srcSet={srcWebp} type="image/webp" />}
+          <img
+            ref={imgRef}
+            src={currentSrc}
+            srcSet={calculatedSrcSet}
+            sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+            alt={alt}
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            decoding={priority ? "sync" : "async"}
+            onLoad={handleLoad}
+            onError={handleError}
+            className={`block w-full h-full object-cover transition-all duration-700 ease-in-out relative z-0 ${
+              isLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-sm scale-105'
+            } ${imgClassName}`}
+          />
+        </picture>
+      ) : (
+        <img
+          ref={imgRef}
+          src={currentSrc}
+          srcSet={calculatedSrcSet}
+          sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+          alt={alt}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          decoding={priority ? "sync" : "async"}
+          onLoad={handleLoad}
+          onError={handleError}
+          className={`block w-full h-full object-cover transition-all duration-700 ease-in-out relative z-0 ${
+            isLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-sm scale-105'
+          } ${imgClassName}`}
+        />
+      )}
     </div>
   );
 };

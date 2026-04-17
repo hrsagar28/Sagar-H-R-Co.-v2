@@ -1,0 +1,97 @@
+import React, { useState } from 'react';
+import { FAQS } from '../constants';
+import { Plus, Minus } from 'lucide-react';
+import SEO from '../components/SEO';
+import PageHero from '../components/PageHero';
+import { CONTACT_INFO } from '../constants';
+
+const FAQ: React.FC = () => {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  // Group FAQs by category
+  const categories = Array.from(new Set(FAQS.map(item => item.category)));
+
+  const toggleAccordion = (idx: number) => {
+    setActiveIndex(activeIndex === idx ? null : idx);
+  };
+
+  return (
+    <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
+      <SEO 
+        title={`Frequently Asked Questions | ${CONTACT_INFO.name}`}
+        description="Answers to common queries regarding Income Tax, GST, Business Registration, and our engagement process."
+        faqs={FAQS.map(faq => ({
+          question: faq.question,
+          answer: faq.answer.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*/g, '').replace(/_([^_]+)_/g, '$1')
+        }))}
+      />
+      
+      {/* UNIFIED HERO SECTION */}
+      <PageHero
+        tag="FAQs"
+        title="Common"
+        subtitle="Queries."
+        description="Clear answers to your financial queries. From tax planning to compliance, we have got you covered."
+      />
+
+      <div className="py-20 px-4 md:px-6">
+        <div className="container mx-auto px-4 max-w-4xl">
+          {/* Grouped Accordion */}
+          <div className="space-y-16">
+            {categories.map((category, catIdx) => (
+              <div key={catIdx} className="animate-fade-in-up">
+                <h2 className="text-2xl font-heading font-bold text-brand-dark mb-6 pl-2 border-l-4 border-brand-moss">
+                  {category}
+                </h2>
+                <div className="space-y-4">
+                  {FAQS.filter(f => f.category === category).map((faq, index) => {
+                    const uniqueId = FAQS.indexOf(faq);
+                    
+                    return (
+                      <div 
+                        key={uniqueId} 
+                        className={`bg-brand-surface border rounded-3xl p-6 md:p-8 transition-all duration-300 hover:shadow-lg ${activeIndex === uniqueId ? 'border-brand-moss shadow-md' : 'border-brand-border'}`}
+                      >
+                        <button 
+                          className="w-full flex justify-between items-start md:items-center text-left focus:outline-none group gap-4"
+                          onClick={() => toggleAccordion(uniqueId)}
+                        >
+                          <span className={`text-lg md:text-xl font-heading font-bold transition-colors leading-tight ${activeIndex === uniqueId ? 'text-brand-moss' : 'text-brand-dark'}`}>
+                            {faq.question}
+                          </span>
+                          <span className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${activeIndex === uniqueId ? 'bg-brand-moss text-white rotate-180' : 'bg-brand-bg text-brand-dark'}`}>
+                            {activeIndex === uniqueId ? <Minus size={20} /> : <Plus size={20} />}
+                          </span>
+                        </button>
+                        <div 
+                          className={`overflow-hidden transition-all duration-500 ease-in-out ${activeIndex === uniqueId ? 'max-h-96 opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'}`}
+                        >
+                          <div className="text-brand-stone leading-relaxed font-medium text-base md:text-lg">
+                            {faq.answer}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Fallback CTA */}
+          <div className="mt-20 text-center bg-brand-surface border border-brand-border p-10 rounded-[2.5rem] shadow-sm">
+              <h2 className="text-3xl font-heading font-bold text-brand-dark mb-4">Still have questions?</h2>
+              <p className="text-brand-stone mb-8 font-medium text-lg">
+                  If you can't find the answer you're looking for, please don't hesitate to reach out.
+              </p>
+              <a href="#/contact" className="inline-block px-8 py-4 bg-brand-dark text-white font-bold rounded-full hover:bg-brand-moss transition-all duration-300 shadow-lg">
+                  Schedule a Consultation
+              </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FAQ;

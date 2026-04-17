@@ -56,6 +56,7 @@
     {
       "@context": "https://schema.org",
       "@type": "AccountingService",
+      "@id": "https://casagar.co.in/#organization",
       "name": "Sagar H R & Co.",
       "url": "https://casagar.co.in",
       "telephone": "+919482359455",
@@ -89,96 +90,17 @@
     }
     </script>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Fraunces (Headings), Plus Jakarta Sans (Body), Playfair Display (Editorial/Preloader), JetBrains Mono (Metadata) -->
+    <!-- Google Fonts: Outfit (Headings), Plus Jakarta Sans (Body), Playfair Display (Editorial/Preloader) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 
     <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" as="style" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&display=swap" as="style" />
 
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://images.unsplash.com" />
     <link rel="dns-prefetch" href="https://formsubmit.co" />
-
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            zIndex: {
-              'base': '1',
-              'dropdown': '100',
-              'sticky': '200',
-              'fixed': '300',
-              'modal-backdrop': '400',
-              'modal': '500',
-              'popover': '600',
-              'tooltip': '700',
-              'toast': '800',
-              'cursor': '900',
-              'preloader': '1000',
-              'network-status': '1100',
-            },
-            fontFamily: {
-              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-              heading: ['Fraunces', 'Georgia', 'serif'],
-              serif: ['"Playfair Display"', 'serif'],
-              mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-            },
-            colors: {
-              brand: {
-                bg: '#F2F2F0', // Warm Alabaster/Stone
-                surface: '#FFFFFF', // Pure White
-                dark: '#111111', // Charcoal Black
-                black: '#0A0A0A', // Deep Black
-                moss: '#1A4D2E', // Deep Forest Green
-                mossLight: '#E8F5E9',
-                border: '#e7e5e4',
-                stone: '#78716c',
-                inverse: '#FFFFFF',
-                'surface-dark': '#1e1e1e', // Code blocks/Dark cards
-                'surface-dark-hover': '#161616', // Dark card hover
-              }
-            },
-            animation: {
-              'spin-slow': 'spin 12s linear infinite',
-              'marquee': 'marquee 25s linear infinite',
-              'blob': 'blob 7s infinite',
-              'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'scale-in': 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'expand-width': 'expandWidth 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-            },
-            keyframes: {
-              marquee: {
-                '0%': { transform: 'translateX(0%)' },
-                '100%': { transform: 'translateX(-100%)' },
-              },
-              blob: {
-                '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                '100%': { transform: 'translate(0px, 0px) scale(1)' },
-              },
-              fadeInUp: {
-                '0%': { opacity: '0', transform: 'translateY(20px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              },
-              scaleIn: {
-                '0%': { opacity: '0', transform: 'scale(0.9)' },
-                '100%': { opacity: '1', transform: 'scale(1)' },
-              },
-              expandWidth: {
-                '0%': { width: '0' },
-                '100%': { width: '6rem' },
-              }
-            }
-          }
-        }
-      }
-    </script>
   </head>
   <body class="bg-[#F2F2F0] text-[#111111] overflow-x-hidden">
     <div id="root"></div>

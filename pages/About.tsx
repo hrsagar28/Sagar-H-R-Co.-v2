@@ -43,8 +43,8 @@ const About: React.FC = () => {
       {/* UNIFIED HERO SECTION */}
       <PageHero
         tag="The Firm"
-        title="About"
-        subtitle="Us."
+        title={<>About <em>Us.</em></>}
+        subtitle=""
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
            <div className="lg:col-span-7">

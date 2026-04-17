@@ -2,7 +2,7 @@
 import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import {
-  Navbar, Footer, CustomCursor, Preloader,
+  Navbar, Footer, Preloader,
   PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
   ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton,
   WhatsAppFloat, CookieConsent
@@ -29,6 +29,7 @@ const Disclaimer = lazy(() => import('./pages/Disclaimer'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const CustomCursor = lazy(() => import('./components/CustomCursor'));
 
 const RouteHandler = () => {
   const { pathname } = useLocation();
@@ -78,6 +79,14 @@ const RouteHandler = () => {
 };
 
 const App: React.FC = () => {
+  const [showCursor, setShowCursor] = React.useState(false);
+
+  useEffect(() => {
+    // Render custom cursor only after first paint
+    const timer = setTimeout(() => setShowCursor(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <AnnounceProvider>
       <ToastProvider>
@@ -90,7 +99,9 @@ const App: React.FC = () => {
           <div className="print:hidden">
             <NetworkStatus />
             <Preloader />
-            <CustomCursor />
+            <Suspense fallback={null}>
+              {showCursor && <CustomCursor />}
+            </Suspense>
             <WhatsAppFloat />
             <CookieConsent />
           </div>
