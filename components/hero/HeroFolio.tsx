@@ -1,4 +1,5 @@
 import React from 'react';
+import { WordReveal } from '../motion/WordReveal';
 import type { FolioHeroProps } from './types';
 
 export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, number, sideText, accentTone }) => {
@@ -21,7 +22,7 @@ export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, num
                </div>
             )}
             <h1 id="hero-folio-title" className="font-heading text-display-md leading-[1] tracking-[-0.02em] text-balance mb-8 animate-fade-in-up [&_em]:font-serif [&_em]:italic [&_em]:font-normal" style={{ animationDelay: '0.1s' }}>
-               {title}
+               <WordReveal>{title}</WordReveal>
             </h1>
             {blurb && (
                <p className="text-lead zone-text-muted max-w-lg leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -48,3 +49,4 @@ export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, num
     </section>
   );
 };
+

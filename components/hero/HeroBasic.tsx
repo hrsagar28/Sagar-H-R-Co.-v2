@@ -1,4 +1,5 @@
 import React from 'react';
+import { WordReveal } from '../motion/WordReveal';
 import { Eyebrow } from '../ui/Eyebrow';
 import { AccentTitle } from '../ui/AccentTitle';
 import type { BasicHeroProps } from './types';
@@ -26,7 +27,7 @@ export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children
                 </Eyebrow>
               )}
               <AccentTitle id="hero-title" className="text-6xl md:text-8xl lg:text-9xl text-brand-dark mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                {title}
+               <WordReveal>{title}</WordReveal>
                 {subtitle && (
                   <>
                     <br/>
@@ -45,3 +46,4 @@ export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children
     </section>
   );
 };
+

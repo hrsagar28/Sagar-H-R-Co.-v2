@@ -1,6 +1,7 @@
 import React from 'react';
+import { WordReveal } from '../motion/WordReveal';
 import type { SplitHeroProps } from './types';
-import { Crosshair } from './Crosshair';
+import { Crosshair } from '../ui/Crosshair';
 
 export const HeroSplit: React.FC<SplitHeroProps> = ({ eyebrow, title, blurb, meta, accentTone }) => {
   const accentClass = accentTone ? `text-brand-${accentTone}` : 'zone-accent';
@@ -26,7 +27,7 @@ export const HeroSplit: React.FC<SplitHeroProps> = ({ eyebrow, title, blurb, met
                     </div>
                  )}
                  <h1 id="hero-split-title" className="font-heading text-display-md leading-[1] tracking-[-0.02em] text-balance animate-fade-in-up [&_em]:font-serif [&_em]:italic [&_em]:font-normal" style={{ animationDelay: '0.1s' }}>
-                    {title}
+               <WordReveal>{title}</WordReveal>
                  </h1>
               </div>
 
@@ -54,3 +55,4 @@ export const HeroSplit: React.FC<SplitHeroProps> = ({ eyebrow, title, blurb, met
     </section>
   );
 };
+

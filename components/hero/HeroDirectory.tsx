@@ -1,6 +1,7 @@
 import React from 'react';
+import { WordReveal } from '../motion/WordReveal';
 import type { DirectoryHeroProps } from './types';
-import { GhostWord } from './GhostWord';
+import { GhostWord } from '../ui/GhostWord';
 
 export const HeroDirectory: React.FC<DirectoryHeroProps> = ({ eyebrow, title, blurb, contacts, coordinates, ghostWord = 'Engage.', accentTone }) => {
   return (
@@ -19,7 +20,7 @@ export const HeroDirectory: React.FC<DirectoryHeroProps> = ({ eyebrow, title, bl
                    </div>
                 )}
                 <h1 id="hero-directory-title" className="font-heading text-display-xl leading-[0.9] tracking-[-0.02em] text-balance mb-6 animate-fade-in-up [&_em]:font-serif [&_em]:italic [&_em]:font-normal" style={{ animationDelay: '0.1s' }}>
-                   {title}
+               <WordReveal>{title}</WordReveal>
                 </h1>
                 {blurb && (
                    <p className="text-lead zone-text-muted max-w-xl leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -61,3 +62,4 @@ export const HeroDirectory: React.FC<DirectoryHeroProps> = ({ eyebrow, title, bl
     </section>
   );
 };
+

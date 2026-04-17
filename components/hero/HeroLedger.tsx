@@ -1,4 +1,5 @@
 import React from 'react';
+import { WordReveal } from '../motion/WordReveal';
 import type { LedgerHeroProps } from './types';
 import * as ReactRouterDOM from 'react-router-dom';
 
@@ -26,7 +27,7 @@ export const HeroLedger: React.FC<LedgerHeroProps> = ({ eyebrow, title, blurb, s
                    </div>
                 )}
                 <h1 id="hero-ledger-title" className="font-heading text-display-md leading-[1] tracking-[-0.02em] text-balance animate-fade-in-up [&_em]:font-serif [&_em]:italic [&_em]:font-normal" style={{ animationDelay: '0.1s' }}>
-                   {title}
+               <WordReveal>{title}</WordReveal>
                 </h1>
             </div>
             <div className="md:w-2/5 flex gap-8 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -76,3 +77,4 @@ export const HeroLedger: React.FC<LedgerHeroProps> = ({ eyebrow, title, blurb, s
     </section>
   );
 };
+

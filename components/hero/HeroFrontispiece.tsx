@@ -1,6 +1,7 @@
 import React from 'react';
+import { WordReveal } from '../motion/WordReveal';
 import type { FrontispieceHeroProps } from './types';
-import { SectionSymbol } from './SectionSymbol';
+import { SectionSymbol } from '../ui/SectionSymbol';
 
 export const HeroFrontispiece: React.FC<FrontispieceHeroProps> = ({ eyebrow, title, blurb, metaStrip, ornament = "§", accentTone = 'rust' }) => {
   const accentClass = `text-brand-${accentTone}`; 
@@ -30,7 +31,7 @@ export const HeroFrontispiece: React.FC<FrontispieceHeroProps> = ({ eyebrow, tit
          )}
          
          <h1 id="hero-frontispiece-title" className="font-heading text-display-lg leading-[0.95] tracking-[-0.02em] text-balance mb-8 animate-fade-in-up [&_em]:font-serif [&_em]:italic [&_em]:font-normal" style={{ animationDelay: '0.2s' }}>
-           {title}
+               <WordReveal>{title}</WordReveal>
          </h1>
          
          {blurb && (
@@ -53,3 +54,4 @@ export const HeroFrontispiece: React.FC<FrontispieceHeroProps> = ({ eyebrow, tit
     </section>
   );
 };
+

@@ -1,4 +1,5 @@
 import React from 'react';
+import { WordReveal } from '../motion/WordReveal';
 import type { ArchiveHeroProps } from './types';
 import * as ReactRouterDOM from 'react-router-dom';
 
@@ -16,7 +17,7 @@ export const HeroArchive: React.FC<ArchiveHeroProps> = ({ eyebrow, title, blurb,
                </div>
             )}
             <h1 id="hero-archive-title" className="font-heading text-display-md leading-[1] tracking-[-0.02em] text-balance mb-8 animate-fade-in-up [&_em]:font-serif [&_em]:italic [&_em]:font-normal" style={{ animationDelay: '0.1s' }}>
-               {title}
+               <WordReveal>{title}</WordReveal>
             </h1>
             {blurb && (
                <p className="text-lead zone-text-muted leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -63,3 +64,4 @@ export const HeroArchive: React.FC<ArchiveHeroProps> = ({ eyebrow, title, blurb,
     </section>
   );
 };
+
