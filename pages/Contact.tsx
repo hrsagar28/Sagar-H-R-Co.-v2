@@ -123,7 +123,7 @@ const Contact: React.FC = () => {
         contacts={[
           { label: "By Letter", value: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}` },
           { label: "By Voice", value: CONTACT_INFO.phone.value, href: `tel:${CONTACT_INFO.phone.value}` },
-          { label: "By Visit", value: <>{CONTACT_INFO.address.street}<br />{CONTACT_INFO.address.city} - {CONTACT_INFO.address.zip}</> }
+          { label: "By Visit", value: `${CONTACT_INFO.address.street}, ${CONTACT_INFO.address.city} - ${CONTACT_INFO.address.zip}` }
         ]}
         ghostWord="Engage."
       />

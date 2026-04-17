@@ -19,7 +19,7 @@ export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children
   const displayDesc = description || blurb;
   
   return (
-    <section aria-labelledby="hero-title" className={`pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60 ${className}`}>
+    <section className={`pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60 ${className}`}>
         <div className="container mx-auto max-w-7xl relative z-10">
            <div className="max-w-5xl">
               {displayTag && (
@@ -27,7 +27,7 @@ export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children
                   {typeof displayTag === 'string' && !displayTag.startsWith('§') ? <><SectionSymbol /> {displayTag}</> : displayTag}
                 </Eyebrow>
               )}
-              <AccentTitle id="hero-title" className="text-6xl md:text-8xl lg:text-9xl text-brand-dark mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <AccentTitle className="text-6xl md:text-8xl lg:text-9xl text-brand-dark mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                <WordReveal>{title}</WordReveal>
                 {subtitle && (
                   <>

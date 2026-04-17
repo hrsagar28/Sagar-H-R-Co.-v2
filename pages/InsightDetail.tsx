@@ -203,8 +203,7 @@ const InsightDetail: React.FC = () => {
         article={{
           headline: insight.title,
           author: "CA Sagar H R",
-          datePublished: new Date(insight.date).toISOString(),
-          image: insight.image
+          datePublished: new Date(insight.date).toISOString()
         }}
       />
       
