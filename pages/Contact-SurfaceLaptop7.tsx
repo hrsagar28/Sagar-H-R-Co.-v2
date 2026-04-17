@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock } from 'lucide-react';
-import PageHero from '../components/PageHero';
+import { PageHero } from '../components/hero';
 import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
 import { CONTACT_INFO, SERVICES } from '../constants';

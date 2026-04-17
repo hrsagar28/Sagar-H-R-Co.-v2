@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FAQS } from '../constants';
 import { Plus, Minus } from 'lucide-react';
 import SEO from '../components/SEO';
-import PageHero from '../components/PageHero';
+import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
 
 const FAQ: React.FC = () => {

@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Briefcase, ArrowRight } from 'lucide-react';
 import CareerForm from '../components/forms/CareerForm';
 import SEO from '../components/SEO';
-import PageHero from '../components/PageHero';
+import { PageHero } from '../components/hero';
 
 const Careers: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);

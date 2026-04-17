@@ -4,7 +4,7 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { Target, ShieldCheck, TrendingUp, BookOpen } from 'lucide-react';
 import OptimizedImage from '../components/OptimizedImage';
 import SEO from '../components/SEO';
-import PageHero from '../components/PageHero';
+import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
 
 const { Link } = ReactRouterDOM;

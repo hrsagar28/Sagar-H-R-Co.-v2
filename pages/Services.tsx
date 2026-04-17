@@ -4,7 +4,7 @@ import ServiceBento from '../components/ServiceBento';
 import IndustrySpotlight from '../components/IndustrySpotlight';
 import { SERVICES, CONTACT_INFO } from '../constants';
 import SEO from '../components/SEO';
-import PageHero from '../components/PageHero';
+import { PageHero } from '../components/hero';
 import ConsultationBanner from '../components/ConsultationBanner';
 
 const Services: React.FC = () => {

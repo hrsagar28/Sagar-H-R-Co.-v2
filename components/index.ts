@@ -11,7 +11,7 @@ export { default as Marquee } from './Marquee';
 export { default as Navbar } from './Navbar';
 export { default as NetworkStatus } from './NetworkStatus';
 export { default as OptimizedImage } from './OptimizedImage';
-export { default as PageHero } from './PageHero';
+export { PageHero } from './hero';
 export { default as PageLoader } from './PageLoader';
 export { default as Parallax } from './Parallax';
 export { default as Preloader } from './Preloader';
