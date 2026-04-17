@@ -4,6 +4,7 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { MessageSquare, Phone, ArrowRight } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import Reveal from './Reveal';
+import { BigCTA } from './ui/BigCTA';
 
 const { Link } = ReactRouterDOM;
 
@@ -24,12 +25,9 @@ const ConsultationBanner: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link 
-              to="/contact" 
-              className="w-full sm:w-auto px-8 py-4 bg-white text-brand-moss rounded-full font-bold text-base hover:bg-brand-bg transition-all shadow-xl shadow-black/10 flex items-center justify-center gap-2 group"
-            >
-              Book Consultation <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <div className="w-full sm:w-auto flex justify-center">
+              <BigCTA to="/contact" tone="moss" size="lg">Engage on a matter</BigCTA>
+            </div>
             
             <a 
               href={`tel:${CONTACT_INFO.phone.value}`}

@@ -10,6 +10,7 @@ import {
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
 import { useAnnounce } from './hooks';
+import { Grain } from './components/ui/Grain';
 
 const { BrowserRouter, Routes, Route, useLocation } = ReactRouterDOM;
 
@@ -117,6 +118,7 @@ const App: React.FC = () => {
 
           {/* Global Background Noise */}
           <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply print:hidden" />
+          <Grain opacity={0.05} />
 
           {/* Main Layout */}
           <div className="relative z-base flex flex-col min-h-screen bg-brand-bg w-full print:bg-white">

@@ -13,6 +13,7 @@ import { logger } from '../utils/logger';
 import CustomDropdown from '../components/forms/CustomDropdown';
 import Button from '../components/ui/Button';
 import FormField from '../components/ui/FormField';
+import { BigCTA } from '../components/ui/BigCTA';
 
 interface ContactFormData {
   name: string;
@@ -305,10 +306,10 @@ const Contact: React.FC = () => {
                     ></textarea>
                   </FormField>
 
-                  <Button
+                  <BigCTA
                     type="submit"
                     disabled={isSubmitting || !canSubmit}
-                    variant="solid"
+                    tone="moss" size="lg"
                   >
                     {isSubmitting ? (
                       <>
@@ -316,10 +317,10 @@ const Contact: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        Send Message <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        Send
                       </>
                     )}
-                  </Button>
+                  </BigCTA>
                 </form>
               )}
             </div>

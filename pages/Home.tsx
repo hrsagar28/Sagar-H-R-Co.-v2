@@ -15,6 +15,7 @@ import TrustBar from '../components/home/TrustBar';
 import TestimonialCarousel from '../components/home/TestimonialCarousel';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useInsights } from '../hooks';
+import { BigCTA } from '../components/ui/BigCTA';
 
 const { useNavigate, Link } = ReactRouterDOM;
 
@@ -257,9 +258,7 @@ const Home: React.FC = () => {
 
                  <div className="flex flex-col md:flex-row items-start md:items-center gap-8 w-full mt-4">
                     <Reveal delay={0.8}>
-                      <MagneticButton onClick={() => navigate('/contact')}>
-                        Contact Us
-                      </MagneticButton>
+                      <BigCTA to="/contact" tone="moss" size="lg">Engage the practice</BigCTA>
                     </Reveal>
 
                     <Reveal delay={0.9} variant="fade-up">
