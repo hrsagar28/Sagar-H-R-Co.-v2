@@ -6,6 +6,8 @@ import { CheckCircle2, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CONTACT_INFO } from '../constants';
+import { PageHero } from '../components/hero';
+import { SERVICE_HERO_META } from '../constants/serviceHeroMeta';
 
 const { useParams, useNavigate, Link } = ReactRouterDOM;
 
@@ -54,16 +56,14 @@ const ServiceDetail: React.FC = () => {
         </div>
 
         {/* Header */}
-        <div className="mb-20 max-w-5xl print:mb-8">
-          <div className="inline-block px-4 py-1 rounded-full border border-brand-border bg-brand-surface text-xs font-bold tracking-widest uppercase mb-6 text-brand-moss print:border-black print:text-black">
-            Specialized Service
-          </div>
-          <h1 className="text-5xl md:text-8xl font-heading font-bold text-brand-dark mb-8 tracking-tighter leading-tight print:text-4xl print:mb-4">
-            {service.title}
-          </h1>
-          <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-3xl print:text-lg print:text-black">
-            {service.shortDescription}
-          </p>
+        <div className="mb-12">
+          <PageHero
+            variant="split"
+            eyebrow={`§ Practice / 02 · ${slug?.toUpperCase()}`}
+            title={service.title.includes(' ') ? <>{service.title.split(' ')[0]} <em>{service.title.substring(service.title.indexOf(' ') + 1)}</em></> : <><em>{service.title}</em></>}
+            blurb={service.shortDescription}
+            meta={SERVICE_HERO_META[slug || ''] || []}
+          />
         </div>
 
         {/* Main Content Layout */}

@@ -42,10 +42,16 @@ const Services: React.FC = () => {
       
       {/* 1. HERO SECTION */}
       <PageHero
-        tag="Our Expertise"
-        title="Comprehensive"
-        subtitle="Solutions."
-        description="Explore our specialized services tailored to optimize your personal and business requirements."
+        variant="split"
+        eyebrow="§ Practice / 02"
+        title={<>Four disciplines, one <em>practice</em>.</>}
+        blurb="A small practice across tax, audit, corporate, and advisory — each engagement led by the proprietor."
+        meta={[
+          { label: "Scope", value: "Tax · Audit · Corporate · Advisory" },
+          { label: "Engagement", value: "Retainer · Assignment" },
+          { label: "Principal", value: <>Sagar H R · <em>ACA</em></> },
+          { label: "Practice", value: "Mysuru · MMXXIII" }
+        ]}
       />
 
       {/* 2. SERVICES LIST - BENTO GRID */}

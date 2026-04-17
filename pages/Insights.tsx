@@ -7,6 +7,7 @@ import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
 import { useInsights } from '../hooks';
 import Skeleton from '../components/Skeleton';
+import { formatArchiveDate } from '../utils/formatArchiveDate';
 
 const { Link } = ReactRouterDOM;
 
@@ -59,10 +60,17 @@ const Insights: React.FC = () => {
       
       {/* UNIFIED HERO SECTION */}
       <PageHero
-        tag="Knowledge Base"
-        title="Strategic"
-        subtitle="Insights."
-        description="Analysis, regulatory updates, and strategic commentary from our research desk to help you stay ahead."
+        variant="archive"
+        eyebrow="§ Resources / 03"
+        title={<>Notes from <em>practice</em>.</>}
+        blurb="A working library of the firm's writing on tax, audit, and corporate law. Updated when something genuinely useful crosses the desk — never on a content schedule."
+        items={insights.slice(0, 4).map((insight, idx) => ({
+          num: String(idx + 1).padStart(2, '0'),
+          title: insight.title.includes(' ') ? <>{insight.title.split(' ')[0]} <em>{insight.title.substring(insight.title.indexOf(' ') + 1)}</em></> : <><em>{insight.title}</em></>,
+          date: formatArchiveDate(insight.date),
+          href: `/insights/${insight.slug}`
+        }))}
+        totalLabel={`${insights.length} in Archive`}
       />
 
       {/* Insights Grid */}

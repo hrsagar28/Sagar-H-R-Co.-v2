@@ -175,9 +175,9 @@ const InsightDetail: React.FC = () => {
 
   if (fetchError) {
     return (
-      <div className="bg-brand-surface min-h-screen pt-48 pb-24 px-4 flex flex-col items-center justify-center text-center">
-        <h1 className="text-4xl font-heading font-bold text-brand-dark mb-4">Content Not Found</h1>
-        <p className="text-brand-stone mb-8">We couldn't load this article. It may have been moved or deleted.</p>
+      <div data-zone="editorial-paper" className="zone-bg min-h-screen pt-48 pb-24 px-4 flex flex-col items-center justify-center text-center">
+        <h1 className="text-4xl font-heading font-bold zone-text mb-4">Content Not Found</h1>
+        <p className="zone-text-muted mb-8">We couldn't load this article. It may have been moved or deleted.</p>
         <Link to="/insights" className="px-6 py-2 bg-brand-moss text-white font-bold rounded-full hover:bg-brand-dark transition-all">
           Back to Insights
         </Link>
@@ -190,7 +190,7 @@ const InsightDetail: React.FC = () => {
   const dashoffset = circumference - scrollProgress * circumference;
 
   return (
-    <div className="bg-brand-surface min-h-screen relative selection:bg-brand-moss selection:text-white">
+    <div data-zone="editorial-paper" className="zone-bg min-h-screen relative selection:bg-brand-moss selection:text-white">
       <SEO 
         title={`${insight.title} | Insights`}
         description={insight.summary}
@@ -227,22 +227,22 @@ const InsightDetail: React.FC = () => {
             />
           </div>
           
-          <div className="mb-6">
-            <span className="inline-block px-3 py-1 rounded-full bg-brand-bg border border-brand-border text-[10px] font-bold uppercase tracking-widest text-brand-moss mb-4">
+          <div className="mb-8">
+            <span className="font-mono text-eyebrow uppercase tracking-[0.2em] zone-text-muted">
               {insight.category}
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-brand-dark mb-8 leading-[1.15] tracking-tight">
-            {insight.title}
+          <h1 className="text-display-md md:text-display-lg font-heading zone-text mb-8 leading-[1.15] tracking-[-0.02em] [&_em]:font-serif [&_em]:italic [&_em]:font-normal">
+            {insight.title.includes(' ') ? <>{insight.title.split(' ')[0]} <em>{insight.title.substring(insight.title.indexOf(' ') + 1)}</em></> : <><em>{insight.title}</em></>}
           </h1>
 
-          <div className="flex flex-wrap justify-center items-center gap-6 text-brand-stone text-sm font-medium border-t border-b border-brand-border/50 py-4 mx-auto max-w-2xl bg-white/50 backdrop-blur-sm rounded-full">
-            <span className="flex items-center gap-2"><Calendar size={16} className="text-brand-moss"/> {insight.date}</span>
-            <span className="w-1 h-1 bg-brand-border rounded-full"></span>
-            <span className="flex items-center gap-2"><Clock size={16} className="text-brand-moss"/> {insight.readTime}</span>
-            <span className="w-1 h-1 bg-brand-border rounded-full"></span>
-            <span className="text-brand-dark font-bold">By {insight.author}</span>
+          <div className="flex flex-wrap justify-center items-center gap-6 zone-text-muted border-t border-b zone-border/50 py-6 mx-auto max-w-2xl font-mono text-xs uppercase tracking-[0.1em]">
+            <span className="flex items-center gap-2">{insight.date}</span>
+            <span className="w-1 h-1 rounded-full bg-brand-stone opacity-30"></span>
+            <span className="flex items-center gap-2">{insight.readTime}</span>
+            <span className="w-1 h-1 rounded-full bg-brand-stone opacity-30"></span>
+            <span className="zone-text">BY {insight.author.toUpperCase()}</span>
           </div>
         </header>
 
@@ -251,12 +251,12 @@ const InsightDetail: React.FC = () => {
             {/* Left Sidebar - Floating Actions (Desktop) */}
             <aside className="hidden lg:block lg:col-span-2 relative">
               <div className="sticky top-40 flex flex-col gap-6 items-center">
-                 <div className="flex flex-col gap-3 p-2 bg-white/80 backdrop-blur-md border border-brand-border/50 rounded-2xl shadow-lg shadow-brand-dark/5">
+                 <div className="flex flex-col gap-3 p-2 bg-white/80 backdrop-blur-md border zone-border/50 rounded-2xl shadow-lg shadow-brand-dark/5">
                     {/* Share Button */}
                     <button 
                       onClick={handleShare}
                       aria-label="Share article"
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-brand-stone hover:text-brand-moss hover:bg-brand-bg transition-all relative group"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center zone-text-muted hover:text-brand-moss hover:zone-bg transition-all relative group"
                     >
                       {shareCopied ? <Check size={20} className="text-green-600" /> : <Share2 size={20} />}
                       
@@ -268,7 +268,7 @@ const InsightDetail: React.FC = () => {
                     <button 
                       onClick={handleCopyLink}
                       aria-label="Copy Link"
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-brand-stone hover:text-brand-moss hover:bg-brand-bg transition-all relative group"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center zone-text-muted hover:text-brand-moss hover:zone-bg transition-all relative group"
                     >
                       {linkCopied ? <Check size={20} className="text-green-600" /> : <LinkIcon size={20} />}
                       
@@ -280,7 +280,7 @@ const InsightDetail: React.FC = () => {
                     <button 
                       onClick={handlePrint}
                       aria-label="Print article"
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-brand-stone hover:text-brand-moss hover:bg-brand-bg transition-all relative group"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center zone-text-muted hover:text-brand-moss hover:zone-bg transition-all relative group"
                     >
                       <Printer size={20} />
                       <span className="absolute left-full ml-3 px-2 py-1 bg-brand-dark text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-tooltip">
@@ -295,7 +295,7 @@ const InsightDetail: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Share on Twitter"
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-brand-stone hover:text-[#1DA1F2] hover:bg-[#1DA1F2]/10 transition-all"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center zone-text-muted hover:text-[#1DA1F2] hover:bg-[#1DA1F2]/10 transition-all"
                     >
                       <Twitter size={20} />
                     </a>
@@ -304,7 +304,7 @@ const InsightDetail: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Share on LinkedIn"
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-brand-stone hover:text-[#0A66C2] hover:bg-[#0A66C2]/10 transition-all"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center zone-text-muted hover:text-[#0A66C2] hover:bg-[#0A66C2]/10 transition-all"
                     >
                       <Linkedin size={20} />
                     </a>
@@ -320,18 +320,18 @@ const InsightDetail: React.FC = () => {
               </article>
 
               {/* Footer Author Card */}
-              <div className="mt-24 pt-12 border-t border-brand-border/60">
-                  <div className="bg-brand-bg/50 p-8 md:p-10 rounded-[2rem] border border-brand-border/50 flex flex-col md:flex-row items-center md:items-start gap-8 text-center md:text-left">
+              <div className="mt-24 pt-12 border-t zone-border/60">
+                  <div className="zone-bg/50 p-8 md:p-10 rounded-[2rem] border zone-border/50 flex flex-col md:flex-row items-center md:items-start gap-8 text-center md:text-left">
                     <div className="w-20 h-20 bg-brand-dark text-white rounded-full flex items-center justify-center font-serif font-bold text-3xl shadow-xl shadow-brand-dark/20 shrink-0">
                         {insight.author.replace('CA ', '').charAt(0)}
                     </div>
                     <div className="flex-grow">
                         <p className="text-xs font-bold uppercase tracking-widest text-brand-moss mb-2">About the Author</p>
-                        <h3 className="text-2xl font-heading font-bold text-brand-dark mb-3">{insight.author}</h3>
-                        <p className="text-brand-stone text-base leading-relaxed mb-6">
+                        <h3 className="text-2xl font-heading font-bold zone-text mb-3">{insight.author}</h3>
+                        <p className="zone-text-muted text-base leading-relaxed mb-6">
                           Senior Partner at {CONTACT_INFO.name}, specializing in corporate taxation, audit assurance, and strategic business advisory with over a decade of experience.
                         </p>
-                        <Link to="/contact" className="inline-block px-6 py-2 bg-white border border-brand-border text-brand-dark font-bold rounded-full hover:bg-brand-dark hover:text-white transition-all text-sm shadow-sm">
+                        <Link to="/contact" className="inline-block px-6 py-2 bg-white border zone-border zone-text font-bold rounded-full hover:bg-brand-dark hover:text-white transition-all text-sm shadow-sm">
                           Book Consultation
                         </Link>
                     </div>
@@ -340,13 +340,13 @@ const InsightDetail: React.FC = () => {
 
               {/* Related Insights Section */}
               {relatedInsights.length > 0 && (
-                <section className="mt-24 pt-16 border-t border-brand-border">
+                <section className="mt-24 pt-16 border-t zone-border">
                    <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
                       <div>
                         <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-2 block">Further Reading</span>
-                        <h3 className="text-3xl font-heading font-bold text-brand-dark">Related Insights</h3>
+                        <h3 className="text-3xl font-heading font-bold zone-text">Related Insights</h3>
                       </div>
-                      <Link to="/insights" className="text-sm font-bold uppercase tracking-wider text-brand-stone hover:text-brand-moss transition-colors flex items-center gap-2 group">
+                      <Link to="/insights" className="text-sm font-bold uppercase tracking-wider zone-text-muted hover:text-brand-moss transition-colors flex items-center gap-2 group">
                          View All <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                       </Link>
                    </div>
@@ -356,17 +356,17 @@ const InsightDetail: React.FC = () => {
                         <Link 
                           to={`/insights/${item.slug}`} 
                           key={item.id}
-                          className="group bg-brand-surface rounded-[1.5rem] p-6 border border-brand-border hover:border-brand-moss hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+                          className="group zone-surface rounded-[1.5rem] p-6 border zone-border hover:border-brand-moss hover:shadow-lg transition-all duration-300 flex flex-col h-full"
                         >
-                           <span className="inline-block px-3 py-1 bg-brand-bg rounded-full text-brand-stone text-[10px] font-bold uppercase tracking-widest mb-4 w-fit group-hover:bg-brand-moss group-hover:text-white transition-colors">
+                           <span className="inline-block px-3 py-1 zone-bg rounded-full zone-text-muted text-[10px] font-bold uppercase tracking-widest mb-4 w-fit group-hover:bg-brand-moss group-hover:text-white transition-colors">
                              {item.category}
                            </span>
-                           <h4 className="text-lg font-heading font-bold text-brand-dark mb-3 group-hover:text-brand-moss transition-colors line-clamp-2">
+                           <h4 className="text-lg font-heading font-bold zone-text mb-3 group-hover:text-brand-moss transition-colors line-clamp-2">
                              {item.title}
                            </h4>
-                           <div className="mt-auto flex items-center justify-between pt-4 border-t border-brand-border/50 text-xs font-bold text-brand-stone">
+                           <div className="mt-auto flex items-center justify-between pt-4 border-t zone-border/50 text-xs font-bold zone-text-muted">
                               <span>{item.date}</span>
-                              <div className="w-8 h-8 rounded-full bg-brand-bg flex items-center justify-center group-hover:bg-brand-moss group-hover:text-white transition-all">
+                              <div className="w-8 h-8 rounded-full zone-bg flex items-center justify-center group-hover:bg-brand-moss group-hover:text-white transition-all">
                                  <ArrowUpRight size={14} />
                               </div>
                            </div>
@@ -401,7 +401,7 @@ const InsightDetail: React.FC = () => {
       >
          <button 
            onClick={scrollToTop}
-           className="relative w-14 h-14 bg-brand-surface rounded-full shadow-xl flex items-center justify-center group hover:scale-110 transition-transform"
+           className="relative w-14 h-14 zone-surface rounded-full shadow-xl flex items-center justify-center group hover:scale-110 transition-transform"
            aria-label="Scroll to top"
            title={`${Math.round(scrollProgress * 100)}% Read`}
          >
@@ -418,7 +418,7 @@ const InsightDetail: React.FC = () => {
                 className="transition-all duration-100"
               />
            </svg>
-           <ArrowUp size={20} className="absolute text-brand-dark group-hover:text-brand-moss transition-colors" />
+           <ArrowUp size={20} className="absolute zone-text group-hover:text-brand-moss transition-colors" />
          </button>
       </div>
     </div>
