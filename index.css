@@ -276,6 +276,57 @@
   }
 }
 
+@layer base {
+  :root {
+    /* zone-resolved tokens (default = moss zone) */
+    --zone-bg: #F2F2F0;
+    --zone-surface: #FFFFFF;
+    --zone-text: #111111;
+    --zone-text-muted: #78716c;
+    --zone-accent: #1A4D2E;          /* moss */
+    --zone-accent-alt: #8b3a2f;      /* rust as secondary */
+    --zone-hairline: rgba(17,17,17,0.12);
+  }
+
+  [data-zone="editorial"] {
+    --zone-bg: #0a0908;
+    --zone-surface: #252321;
+    --zone-text: #f4f1ea;
+    --zone-text-muted: #7a7366;
+    --zone-accent: #b8924c;          /* brass */
+    --zone-accent-alt: #8b3a2f;      /* rust */
+    --zone-hairline: rgba(244,241,234,0.08);
+    background-color: var(--zone-bg);
+    color: var(--zone-text);
+  }
+
+  [data-zone="editorial-paper"] {
+    --zone-bg: #f4f1ea;
+    --zone-surface: #eae5d9;
+    --zone-text: #0a0908;
+    --zone-text-muted: #7a7366;
+    --zone-accent: #8b3a2f;          /* rust dominates on paper */
+    --zone-accent-alt: #b8924c;
+    --zone-hairline: rgba(10,9,8,0.12);
+    background-color: var(--zone-bg);
+    color: var(--zone-text);
+  }
+
+  ::selection { background: #b8924c; color: #f4f1ea; }
+}
+
+@layer utilities {
+  .zone-bg { background-color: var(--zone-bg); }
+  .zone-surface { background-color: var(--zone-surface); }
+  .zone-text { color: var(--zone-text); }
+  .zone-text-muted { color: var(--zone-text-muted); }
+  .zone-accent { color: var(--zone-accent); }
+  .zone-accent-alt { color: var(--zone-accent-alt); }
+  .zone-border { border-color: var(--zone-hairline); }
+  .zone-hairline { background-color: var(--zone-hairline); }
+  .text-balance { text-wrap: balance; }
+}
+
 /* REDUCED MOTION — Global override for all CSS animations & transitions
    This covers Tailwind's animate-* classes and any custom keyframes.
    React hooks (useReducedMotion) cover JS-driven animations separately. */

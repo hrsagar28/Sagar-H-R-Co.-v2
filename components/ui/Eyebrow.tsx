@@ -9,8 +9,8 @@ interface EyebrowProps {
 
 const toneMap = {
   moss: { text: 'text-brand-moss', slug: 'bg-brand-moss' },
-  brass: { text: 'text-[#b8924c]', slug: 'bg-[#b8924c]' },
-  rust: { text: 'text-[#8b3a2f]', slug: 'bg-[#8b3a2f]' },
+  brass: { text: 'text-brand-brass', slug: 'bg-brand-brass' },
+  rust: { text: 'text-brand-rust', slug: 'bg-brand-rust' },
   stone: { text: 'text-brand-stone', slug: 'bg-brand-stone' }
 };
 
