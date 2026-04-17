@@ -15,25 +15,15 @@ const FAQ: React.FC = () => {
     setActiveIndex(activeIndex === idx ? null : idx);
   };
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": FAQS.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer
-      }
-    }))
-  };
-
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO 
         title={`Frequently Asked Questions | ${CONTACT_INFO.name}`}
         description="Answers to common queries regarding Income Tax, GST, Business Registration, and our engagement process."
-        schema={schema}
+        faqs={FAQS.map(faq => ({
+          question: faq.question,
+          answer: faq.answer.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*/g, '').replace(/_([^_]+)_/g, '$1')
+        }))}
       />
       
       {/* UNIFIED HERO SECTION */}

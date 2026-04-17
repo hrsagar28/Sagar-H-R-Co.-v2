@@ -1,3 +1,4 @@
+import Button from '../components/ui/Button';
 
 import React, { useEffect, useState, useMemo } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
@@ -90,6 +91,11 @@ const ChecklistDetail: React.FC = () => {
       <SEO 
         title={`${checklist.title} | Resources`}
         description={`Download and view the checklist for ${checklist.title}. ${checklist.subtitle}`}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Resources', url: '/resources' },
+          { name: checklist.title, url: window.location.pathname }
+        ]}
       />
 
       <div className="container mx-auto max-w-4xl print:max-w-full print:p-0">
@@ -117,12 +123,12 @@ const ChecklistDetail: React.FC = () => {
              >
                 <RotateCcw size={18} />
              </button>
-             <button 
+             <Button variant="solid" className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold hover:bg-brand-dark transition-colors shadow-md text-sm" 
                 onClick={handlePrint}
-                className="flex items-center gap-2 px-5 py-2.5 bg-brand-moss text-white rounded-full font-bold hover:bg-brand-dark transition-colors shadow-md text-sm"
+                
              >
                 <Printer size={16} /> Print / PDF
-             </button>
+             </Button>
           </div>
         </div>
 

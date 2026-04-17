@@ -111,7 +111,7 @@ const Privacy: React.FC = () => {
             <section>
               <h2 className="text-2xl font-heading font-bold text-brand-dark mb-4">8. Data Processors, transfers and safeguards</h2>
               <p>
-                We engage Data Processors including Google LLC (for Analytics), hosting providers, email providers, and cloud vendors under written Data Processing Agreements or standard contractual clauses. We will transfer Personal Data outside India only to jurisdictions not notified as restricted under s 16 DPDP Act, or pursuant to an exemption or lawful mechanism. Please note that Google Analytics data may be processed on servers located in the United States.
+                We engage Data Processors including Google LLC (for Analytics), FormSubmit (for secure contact form processing), hosting providers, email providers, and cloud vendors under written Data Processing Agreements or standard contractual clauses. We will transfer Personal Data outside India only to jurisdictions not notified as restricted under s 16 DPDP Act, or pursuant to an exemption or lawful mechanism. Please note that Google Analytics and FormSubmit data may be processed on servers located outside of India, such as in the United States.
               </p>
             </section>
 

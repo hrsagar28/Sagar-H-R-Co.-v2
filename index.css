@@ -185,6 +185,13 @@
 
 /* PREMIUM ARTICLE TYPOGRAPHY & LAYOUT */
 @layer components {
+  .card-surface {
+    @apply group relative flex flex-col p-6 md:p-8 rounded-[2rem] border border-brand-border/50 bg-brand-surface transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)];
+  }
+  .card-surface-hover {
+    @apply hover:-translate-y-2 hover:shadow-2xl hover:shadow-brand-dark/10;
+  }
+
   .article-wrapper {
     @apply text-lg text-brand-dark/90 font-sans max-w-none selection:bg-brand-moss/20 selection:text-brand-dark;
   }

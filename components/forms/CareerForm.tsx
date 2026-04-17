@@ -1,3 +1,4 @@
+import Button from '../ui/Button';
 
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
@@ -274,12 +275,12 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                  </p>
               </div>
               <div className="flex gap-2 w-full md:w-auto">
-                 <button 
+                 <Button variant="solid" className="flex-1 md:flex-none px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-brand-dark transition-colors flex items-center justify-center gap-2" 
                    onClick={handleRestoreDraft}
-                   className="flex-1 md:flex-none px-4 py-2 bg-brand-moss text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-brand-dark transition-colors flex items-center justify-center gap-2"
+                   
                  >
                     <RotateCcw size={14} /> Resume
-                 </button>
+                 </Button>
                  <button 
                    onClick={handleDiscardDraft}
                    className="flex-1 md:flex-none px-4 py-2 bg-white border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center justify-center gap-2"
@@ -338,41 +339,27 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           {/* STEP 1: PERSONAL DETAILS */}
           <div className={`${currentStep === 1 ? 'block animate-fade-in-up' : 'hidden'}`}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="group md:col-span-2">
-                <label htmlFor="fullName" className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                  <User size={14} className="text-brand-moss"/> Full Name <span className="text-red-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="fullName"
-                  name="fullName"
-                  value={values.fullName}
-                  onChange={onInputChange}
-                  placeholder="John Doe"
-                  aria-invalid={!!errors.fullName}
-                  aria-describedby={errors.fullName ? "fullName-error" : undefined}
-                  className={`w-full bg-brand-bg border ${errors.fullName ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
-                />
-                {errors.fullName && <p id="fullName-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.fullName}</p>}
+              <div className="md:col-span-2">
+                <FormField label="Full Name" name="fullName" required error={errors.fullName}>
+                  <input 
+                    type="text" 
+                    value={values.fullName}
+                    onChange={onInputChange}
+                    placeholder="John Doe"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                  />
+                </FormField>
               </div>
 
-              <div className="group">
-                <label htmlFor="fatherName" className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                  <User size={14} className="text-brand-moss"/> Father's Name <span className="text-red-500">*</span>
-                </label>
+              <FormField label="Father's Name" name="fatherName" required error={errors.fatherName}>
                 <input 
                   type="text" 
-                  id="fatherName"
-                  name="fatherName"
                   value={values.fatherName}
                   onChange={onInputChange}
                   placeholder="Father's Full Name"
-                  aria-invalid={!!errors.fatherName}
-                  aria-describedby={errors.fatherName ? "fatherName-error" : undefined}
-                  className={`w-full bg-brand-bg border ${errors.fatherName ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
+                  className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
                 />
-                {errors.fatherName && <p id="fatherName-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.fatherName}</p>}
-              </div>
+              </FormField>
 
               {/* Date of Birth */}
               <div>
@@ -392,39 +379,27 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           <div className={`${currentStep === 2 ? 'block animate-fade-in-up' : 'hidden'}`}>
             <div className="grid grid-cols-1 gap-8">
               <div className="group">
-                <label htmlFor="mobile" className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                  <Phone size={14} className="text-brand-moss"/> Mobile Number <span className="text-red-500">*</span>
-                </label>
-                <input 
-                  type="tel" 
-                  id="mobile"
-                  name="mobile"
-                  value={values.mobile}
-                  onChange={onInputChange}
-                  placeholder="+91 98765 43210"
-                  aria-invalid={!!errors.mobile}
-                  aria-describedby={errors.mobile ? "mobile-error" : undefined}
-                  className={`w-full bg-brand-bg border ${errors.mobile ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
-                />
-                {errors.mobile && <p id="mobile-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.mobile}</p>}
+                <FormField label="Mobile Number" name="mobile" required error={errors.mobile}>
+                  <input 
+                    type="tel" 
+                    value={values.mobile}
+                    onChange={onInputChange}
+                    placeholder="+91 98765 43210"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                  />
+                </FormField>
               </div>
 
               <div className="group">
-                <label htmlFor="email" className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                  <Mail size={14} className="text-brand-moss"/> Email Address <span className="text-red-500">*</span>
-                </label>
-                <input 
-                  type="email" 
-                  id="email"
-                  name="email"
-                  value={values.email}
-                  onChange={onInputChange}
-                  placeholder="john@example.com"
-                  aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? "email-error" : undefined}
-                  className={`w-full bg-brand-bg border ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
-                />
-                {errors.email && <p id="email-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.email}</p>}
+                <FormField label="Email Address" name="email" required error={errors.email}>
+                  <input 
+                    type="email" 
+                    value={values.email}
+                    onChange={onInputChange}
+                    placeholder="john@example.com"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                  />
+                </FormField>
               </div>
             </div>
           </div>
@@ -446,21 +421,15 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
               {/* Qualification */}
               <div className="group">
-                <label htmlFor="qualification" className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                  <BookOpen size={14} className="text-brand-moss"/> Qualification <span className="text-red-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="qualification"
-                  name="qualification"
-                  value={values.qualification}
-                  onChange={onInputChange}
-                  placeholder="e.g. B.Com, CA Inter, MBA"
-                  aria-invalid={!!errors.qualification}
-                  aria-describedby={errors.qualification ? "qualification-error" : undefined}
-                  className={`w-full bg-brand-bg border ${errors.qualification ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'} py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all`}
-                />
-                {errors.qualification && <p id="qualification-error" className="text-red-500 text-xs mt-2 font-bold" role="alert">{errors.qualification}</p>}
+                <FormField label="Qualification" name="qualification" required error={errors.qualification}>
+                  <input 
+                    type="text" 
+                    value={values.qualification}
+                    onChange={onInputChange}
+                    placeholder="e.g. B.Com, CA Inter, MBA"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                  />
+                </FormField>
               </div>
 
               {/* Experience */}
@@ -477,18 +446,15 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
               {/* Previous Companies */}
               <div className="group">
-                <label htmlFor="previousCompanies" className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-widest mb-3 ml-1">
-                  <Building size={14} className="text-brand-moss"/> Companies Previously Worked At
-                </label>
-                <textarea 
-                  id="previousCompanies"
-                  name="previousCompanies"
-                  value={values.previousCompanies}
-                  onChange={onInputChange}
-                  rows={3}
-                  placeholder="List your previous employers..."
-                  className="w-full bg-brand-bg border border-brand-border py-4 px-6 rounded-2xl text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all resize-none"
-                ></textarea>
+                <FormField label="Companies Previously Worked At" name="previousCompanies">
+                  <textarea 
+                    value={values.previousCompanies}
+                    onChange={onInputChange}
+                    rows={3}
+                    placeholder="List your previous employers..."
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all resize-none"
+                  ></textarea>
+                </FormField>
               </div>
             </div>
           </div>
@@ -523,17 +489,14 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                 Next Step <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </button>
             ) : (
-              <button 
+              <Button 
                 key="submit-btn"
                 type="submit" 
                 disabled={isSubmitting || !canSubmit}
+                variant="solid"
                 className={`
-                  flex-1 py-5 rounded-full font-heading font-bold text-lg 
-                  flex justify-center items-center gap-2 group transition-all duration-300 shadow-xl
-                  ${(isSubmitting || !canSubmit)
-                    ? 'bg-brand-stone opacity-80 cursor-not-allowed' 
-                    : 'bg-brand-moss text-white hover:bg-brand-dark hover:shadow-brand-dark/30'
-                  }
+                  flex-1 py-5 shadow-xl flex justify-center items-center gap-2 group
+                  ${(isSubmitting || !canSubmit) ? 'opacity-80' : 'hover:shadow-brand-dark/30'}
                 `}
               >
                 {isSubmitting ? (
@@ -546,7 +509,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                         Submit Application <Check size={20} className="group-hover:scale-110 transition-transform" />
                     </>
                 )}
-              </button>
+              </Button>
             )}
           </div>
           

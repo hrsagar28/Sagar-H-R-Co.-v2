@@ -24,32 +24,21 @@ const ServiceDetail: React.FC = () => {
 
   if (!service) return null;
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": service.title,
-    "description": service.longDescription,
-    "provider": {
-      "@type": "AccountingService",
-      "name": CONTACT_INFO.name,
-      "url": "https://casagar.co.in"
-    },
-    "areaServed": {
-      "@type": "City",
-      "name": CONTACT_INFO.address.city
-    },
-    "offers": {
-      "@type": "Offer",
-      "description": service.shortDescription
-    }
-  };
-
   return (
     <div className="pt-32 md:pt-40 pb-20 px-4 md:px-6 bg-brand-bg bg-grid min-h-screen print:pt-0 print:pb-0 print:bg-white print:h-auto">
       <SEO 
         title={`${service.title} | ${CONTACT_INFO.name}`}
         description={service.shortDescription}
-        schema={schema}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Services', url: '/services' },
+          { name: service.title, url: window.location.pathname }
+        ]}
+        service={{
+          name: service.title,
+          description: service.shortDescription,
+          areaServed: "Mysuru, Karnataka"
+        }}
       />
 
       <div className="container mx-auto max-w-7xl print:max-w-full print:p-0">

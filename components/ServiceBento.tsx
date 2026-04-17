@@ -77,7 +77,7 @@ const ServiceBento: React.FC = React.memo(() => {
               className={`
                 group relative flex flex-col justify-between p-6 md:p-8 h-full min-h-[220px] md:min-h-[260px] rounded-[2rem] border 
                 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]
-                hover:-translate-y-2 hover:shadow-2xl hover:shadow-brand-dark/5
+                card-surface-hover
                 overflow-hidden ${containerClasses}
               `}
               aria-label={`View details for ${service.title}`}

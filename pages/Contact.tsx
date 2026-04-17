@@ -11,6 +11,8 @@ import { apiClient, ApiError } from '../utils/api';
 import { sanitizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
 import CustomDropdown from '../components/forms/CustomDropdown';
+import Button from '../components/ui/Button';
+import FormField from '../components/ui/FormField';
 
 interface ContactFormData {
   name: string;
@@ -63,6 +65,9 @@ const Contact: React.FC = () => {
       setIsSubmitting(true);
 
       try {
+        const formElement = e.target as HTMLFormElement;
+        const formData = new FormData(formElement);
+
         await apiClient.post(CONTACT_INFO.formEndpoint, {
           name: sanitizeInput(values.name),
           email: sanitizeInput(values.email),
@@ -70,7 +75,10 @@ const Contact: React.FC = () => {
           company: sanitizeInput(values.companyName),
           subject: sanitizeInput(values.subject) || 'Contact Form Inquiry',
           message: sanitizeInput(values.message),
-          _subject: `New Inquiry: ${sanitizeInput(values.name)}`
+          _subject: `New Inquiry: ${sanitizeInput(values.name)}`,
+          _honey: formData.get('_honey') || '',
+          _captcha: formData.get('_captcha') || 'false',
+          _template: formData.get('_template') || 'table'
         });
 
         setIsSuccess(true);
@@ -213,6 +221,11 @@ const Contact: React.FC = () => {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* FormSubmit Config & Honeypot */}
+                  <input type="text" name="_honey" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }} />
+                  <input type="hidden" name="_captcha" value="false" />
+                  <input type="hidden" name="_template" value="table" />
+
                   <div className="mb-2">
                     <h3 className="text-3xl font-heading font-bold text-brand-dark">Send a Message</h3>
                     <p className="text-brand-stone font-medium mt-2">Fill out the form below and we will get back to you.</p>
@@ -220,62 +233,47 @@ const Contact: React.FC = () => {
 
                   {/* Row 1: Name & Phone */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="group">
-                      <label htmlFor="name" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Name <span className="text-red-500">*</span></label>
+                    <FormField label="Name" name="name" required error={errors.name}>
                       <input
                         type="text"
-                        id="name"
-                        name="name"
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className={`w-full bg-brand-bg border ${errors.name ? 'border-red-500' : 'border-brand-border'} rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all`}
+                        className="w-full bg-brand-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
                         placeholder="Your Name"
                       />
-                      {errors.name && <p className="text-red-500 text-xs mt-1 ml-1">{errors.name}</p>}
-                    </div>
-                    <div className="group">
-                      <label htmlFor="phone" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Phone <span className="text-red-500">*</span></label>
+                    </FormField>
+                    <FormField label="Phone" name="phone" required error={errors.phone}>
                       <input
                         type="tel"
-                        id="phone"
-                        name="phone"
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
-                        className={`w-full bg-brand-bg border ${errors.phone ? 'border-red-500' : 'border-brand-border'} rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all`}
+                        className="w-full bg-brand-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
                         placeholder="Mobile Number"
                       />
-                      {errors.phone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.phone}</p>}
-                    </div>
+                    </FormField>
                   </div>
 
                   {/* Row 2: Email & Company Name */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="group">
-                      <label htmlFor="email" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Email <span className="text-red-500">*</span></label>
+                    <FormField label="Email" name="email" required error={errors.email}>
                       <input
                         type="email"
-                        id="email"
-                        name="email"
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
-                        className={`w-full bg-brand-bg border ${errors.email ? 'border-red-500' : 'border-brand-border'} rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all`}
+                        className="w-full bg-brand-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
                         placeholder="email@company.com"
                       />
-                      {errors.email && <p className="text-red-500 text-xs mt-1 ml-1">{errors.email}</p>}
-                    </div>
+                    </FormField>
 
-                    <div className="group">
-                      <label htmlFor="companyName" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Company Name</label>
+                    <FormField label="Company Name" name="companyName">
                       <input
                         type="text"
-                        id="companyName"
-                        name="companyName"
                         value={values.companyName}
                         onChange={(e) => handleChange('companyName', e.target.value)}
-                        className="w-full bg-brand-bg border border-brand-border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
+                        className="w-full bg-brand-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
                         placeholder="Company Name"
                       />
-                    </div>
+                    </FormField>
                   </div>
 
                   {/* Row 3: Subject (Full Width) */}
@@ -291,24 +289,20 @@ const Contact: React.FC = () => {
                   </div>
 
                   {/* Row 4: Message */}
-                  <div className="group">
-                    <label htmlFor="message" className="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-2 ml-1">Message <span className="text-red-500">*</span></label>
+                  <FormField label="Message" name="message" required error={errors.message}>
                     <textarea
-                      id="message"
                       rows={4}
-                      name="message"
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className={`w-full bg-brand-bg border ${errors.message ? 'border-red-500' : 'border-brand-border'} rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all resize-none`}
+                      className="w-full bg-brand-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all resize-none"
                       placeholder="How can we help you?"
                     ></textarea>
-                    {errors.message && <p className="text-red-500 text-xs mt-1 ml-1">{errors.message}</p>}
-                  </div>
+                  </FormField>
 
-                  <button
+                  <Button
                     type="submit"
                     disabled={isSubmitting || !canSubmit}
-                    className="w-full bg-brand-dark text-white font-bold py-5 rounded-2xl hover:bg-brand-moss transition-all shadow-xl shadow-brand-dark/10 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group text-lg mt-4"
+                    variant="solid"
                   >
                     {isSubmitting ? (
                       <>
@@ -319,7 +313,7 @@ const Contact: React.FC = () => {
                         Send Message <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                       </>
                     )}
-                  </button>
+                  </Button>
                 </form>
               )}
             </div>

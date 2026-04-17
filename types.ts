@@ -34,7 +34,6 @@ export interface InsightItem {
   slug: string;
   author: string;
   readTime: string;
-  content: string; // HTML string for the article body
 }
 
 export interface FAQItem {
