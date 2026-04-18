@@ -32,19 +32,24 @@ const FounderSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-12 lg:gap-20 items-start">
 
           {/* Left: Portrait + caption + credentials */}
-          <div className="mx-auto lg:mx-0 w-full max-w-[320px]">
+          <div className="mx-auto lg:mx-0 w-full max-w-[300px]">
             <Reveal variant="fade-up">
               <figure className="relative">
                 {/* Brass hairline frame — a 1px ring with a small inset echo so
                     the portrait reads as "framed", not just cropped. */}
                 <div className="relative p-[5px] rounded-[4px] bg-brand-bg shadow-[0_20px_40px_-24px_rgba(17,17,17,0.35)] border border-[#b8924c]/60">
-                  <div className="relative overflow-hidden rounded-[2px] aspect-[4/5] bg-brand-border">
+                  {/* aspect-[3/4] on a 9:16 source keeps more vertical content
+                      visible than 4:5, so the full head (including hair) shows.
+                      `object-position: 50% 18%` pulls the crop higher, letting
+                      the torso be the thing that gets trimmed — not the hair. */}
+                  <div className="relative overflow-hidden rounded-[2px] aspect-[3/4] bg-brand-border">
                     <img
                       src={FOUNDER_PHOTO_SRC}
                       alt={`Portrait of ${CONTACT_INFO.founder.name}, ${CONTACT_INFO.founder.title}`}
                       loading="lazy"
                       decoding="async"
                       className="absolute inset-0 w-full h-full object-cover"
+                      style={{ objectPosition: '50% 18%' }}
                       // If the image fails to load, quietly hide it so the
                       // brass frame remains as a graceful placeholder
                       // instead of a broken-image icon.

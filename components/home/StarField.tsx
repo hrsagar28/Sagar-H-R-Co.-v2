@@ -72,6 +72,16 @@ const STARS: Star[] = [
   { cx: 60.8, cy: 44.2, r: 1.0, o: 0.24 },
   { cx: 74.2, cy: 41.6, r: 0.8, o: 0.16 },
   { cx: 87.9, cy: 38.3, r: 0.9, o: 0.20 },
+  // Extra mid-brightness stars — a second reading layer so the sky doesn't
+  // feel evenly stippled. Placed away from headline copy's vertical centre.
+  { cx: 9.6,  cy: 2.8,  r: 1.5, o: 0.58 },
+  { cx: 39.4, cy: 17.9, r: 1.4, o: 0.50 },
+  { cx: 67.3, cy: 26.4, r: 1.3, o: 0.46 },
+  { cx: 6.9,  cy: 28.6, r: 1.2, o: 0.42, twinkle: true },
+  { cx: 54.2, cy: 36.1, r: 1.3, o: 0.44 },
+  { cx: 96.1, cy: 3.2,  r: 1.2, o: 0.40 },
+  { cx: 24.8, cy: 66.3, r: 1.1, o: 0.30 },
+  { cx: 80.4, cy: 47.1, r: 1.2, o: 0.34 },
 ];
 
 // Mobile subset — removes every second star in the busy upper half to keep
@@ -97,8 +107,23 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
 
       {/* Subtle vertical gradient — darker at top-left, almost-black at bottom
           — so the stars feel like they sit in depth rather than on a flat plate. */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(26,77,46,0.08),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(26,77,46,0.12),transparent_55%)]" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050403]" />
+
+      {/* Moss aurora — a hushed horizontal band of moss glow that sits just
+          above the horizon line. Adds depth without competing with headline
+          copy. Very low opacity so it reads as ambient atmosphere, not effect. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0"
+        style={{
+          top: '60%',
+          height: '26%',
+          background:
+            'radial-gradient(ellipse 55% 100% at 50% 100%, rgba(26,77,46,0.22) 0%, rgba(26,77,46,0.08) 40%, transparent 75%)',
+          filter: 'blur(6px)',
+        }}
+      />
 
       {/* Star SVG — desktop */}
       <svg
@@ -127,17 +152,30 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
             }
           />
         ))}
-        {/* Anchor star — the "north star". Slightly brighter, haloed moss. */}
+        {/* Anchor star — the "north star". Slightly brighter, haloed moss.
+            Outer halo (wider, dimmer) + inner halo (tighter, warmer) so the
+            anchor carries more presence without becoming an ornament. */}
         <g>
           <circle
             cx="79.5"
             cy="12.5"
-            r="1.4"
+            r="2.4"
             fill="#1A4D2E"
-            opacity="0.35"
+            opacity="0.28"
             className={!prefersReduced ? 'sh-star-halo' : undefined}
           />
-          <circle cx="79.5" cy="12.5" r="0.55" fill="#ffffff" opacity="0.92" />
+          <circle
+            cx="79.5"
+            cy="12.5"
+            r="1.3"
+            fill="#1A4D2E"
+            opacity="0.55"
+            className={!prefersReduced ? 'sh-star-halo' : undefined}
+          />
+          <circle cx="79.5" cy="12.5" r="0.7" fill="#ffffff" opacity="1" />
+          {/* 4-point sparkle cross — reads as "brighter than a dot" */}
+          <line x1="79.5" y1="10.3" x2="79.5" y2="14.7" stroke="#ffffff" strokeWidth="0.08" opacity="0.7" />
+          <line x1="77.3" y1="12.5" x2="81.7" y2="12.5" stroke="#ffffff" strokeWidth="0.08" opacity="0.7" />
         </g>
       </svg>
 
@@ -172,12 +210,22 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
           <circle
             cx="79.5"
             cy="12.5"
-            r="1.6"
+            r="2.6"
             fill="#1A4D2E"
-            opacity="0.4"
+            opacity="0.30"
             className={!prefersReduced ? 'sh-star-halo' : undefined}
           />
-          <circle cx="79.5" cy="12.5" r="0.65" fill="#ffffff" opacity="0.95" />
+          <circle
+            cx="79.5"
+            cy="12.5"
+            r="1.4"
+            fill="#1A4D2E"
+            opacity="0.55"
+            className={!prefersReduced ? 'sh-star-halo' : undefined}
+          />
+          <circle cx="79.5" cy="12.5" r="0.75" fill="#ffffff" opacity="1" />
+          <line x1="79.5" y1="10.1" x2="79.5" y2="14.9" stroke="#ffffff" strokeWidth="0.1" opacity="0.7" />
+          <line x1="77.1" y1="12.5" x2="81.9" y2="12.5" stroke="#ffffff" strokeWidth="0.1" opacity="0.7" />
         </g>
       </svg>
 

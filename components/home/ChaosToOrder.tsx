@@ -169,18 +169,26 @@ const ChaosToOrder: React.FC = () => {
             role="group"
             aria-roledescription="Before and after comparison"
           >
-            {/* CHAOS layer — always rendered fully; the Order layer sits on top. */}
-            <div className="absolute inset-0">
+            {/* CHAOS layer — always rendered fully; the Order layer sits on top.
+                `isolation: isolate` confines invoice card z-indexes to this
+                wrapper so they can't escape above the Order layer. */}
+            <div
+              className="absolute inset-0"
+              style={{ isolation: 'isolate', zIndex: 1 }}
+            >
               <ChaosPane />
             </div>
 
             {/* ORDER layer — clipped from the left based on divider %.
-                Using clipPath so layout is never reflowed during drag. */}
+                Using clipPath so layout is never reflowed during drag.
+                Explicit z-index keeps it above the Chaos stacking context. */}
             <div
               className="absolute inset-0"
               style={{
                 clipPath: `inset(0 0 0 ${divider}%)`,
                 WebkitClipPath: `inset(0 0 0 ${divider}%)`,
+                isolation: 'isolate',
+                zIndex: 2,
               }}
             >
               <OrderPane />
@@ -189,7 +197,7 @@ const ChaosToOrder: React.FC = () => {
             {/* Divider line */}
             <div
               className="absolute top-0 bottom-0 w-px bg-[#0a0908]/40 pointer-events-none"
-              style={{ left: `${divider}%` }}
+              style={{ left: `${divider}%`, zIndex: 3 }}
             />
 
             {/* Drag handle (slider) */}
@@ -210,7 +218,7 @@ const ChaosToOrder: React.FC = () => {
               className={`absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#0a0908] text-[#f4f1ea] flex items-center justify-center shadow-lg shadow-[#0a0908]/30 border border-[#f4f1ea]/10 transition-transform duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b8924c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f4f1ea] ${
                 isDragging ? 'cursor-grabbing scale-105' : 'cursor-grab hover:scale-105'
               }`}
-              style={{ left: `${divider}%` }}
+              style={{ left: `${divider}%`, zIndex: 4 }}
             >
               <svg
                 width="18"
@@ -237,12 +245,18 @@ const ChaosToOrder: React.FC = () => {
             </button>
 
             {/* Corner captions */}
-            <div className="absolute top-3 left-3 md:top-5 md:left-6 pointer-events-none">
+            <div
+              className="absolute top-3 left-3 md:top-5 md:left-6 pointer-events-none"
+              style={{ zIndex: 3 }}
+            >
               <span className="inline-block px-2 py-1 bg-[#f4f1ea]/85 backdrop-blur-sm rounded text-[#8b3a2f] font-mono text-[10px] md:text-[11px] tracking-[0.2em] uppercase">
                 Before · filings, forgotten
               </span>
             </div>
-            <div className="absolute top-3 right-3 md:top-5 md:right-6 pointer-events-none">
+            <div
+              className="absolute top-3 right-3 md:top-5 md:right-6 pointer-events-none"
+              style={{ zIndex: 3 }}
+            >
               <span className="inline-block px-2 py-1 bg-[#f4f1ea]/85 backdrop-blur-sm rounded text-[#0a0908] font-mono text-[10px] md:text-[11px] tracking-[0.2em] uppercase">
                 After · filings, finalised
               </span>
