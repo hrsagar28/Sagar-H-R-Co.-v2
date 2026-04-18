@@ -34,6 +34,8 @@ export { default as WhatsAppFloat } from './WhatsAppFloat';
 export { default as FounderSection } from './home/FounderSection';
 export { default as FAQPreview } from './home/FAQPreview';
 export { default as LocationStrip } from './home/LocationStrip';
+export { default as StarField } from './home/StarField';
+export { default as ChaosToOrder } from './home/ChaosToOrder';
 
 // Skeletons
 export { default as ContactSkeleton } from './skeletons/ContactSkeleton';
