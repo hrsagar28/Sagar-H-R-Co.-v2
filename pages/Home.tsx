@@ -266,7 +266,7 @@ const Home: React.FC = () => {
                           <span className="px-3 py-1 bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-wider rounded-full">
                             {insight.category}
                           </span>
-                          <span className="text-brand-stone text-xs font-bold uppercase tracking-wider">
+                          <span className="text-brand-dark text-xs font-bold uppercase tracking-wider">
                             {insight.readTime}
                           </span>
                         </div>
@@ -275,7 +275,7 @@ const Home: React.FC = () => {
                           {insight.title}
                         </h3>
 
-                        <p className="text-brand-stone font-medium leading-relaxed line-clamp-3 mb-6 flex-grow">
+                        <p className="text-brand-dark font-medium leading-relaxed line-clamp-3 mb-6 flex-grow">
                           {insight.summary}
                         </p>
 
@@ -284,10 +284,10 @@ const Home: React.FC = () => {
                             <div className="w-8 h-8 rounded-full bg-brand-moss/10 flex items-center justify-center text-brand-moss text-xs font-bold">
                               {insight.author.split(' ').map((n: string) => n[0]).join('')}
                             </div>
-                            <span className="text-xs font-bold uppercase tracking-wider text-brand-stone">{insight.date}</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">{insight.date}</span>
                           </div>
 
-                          <div className="w-10 h-10 rounded-full border border-brand-border flex items-center justify-center text-brand-stone group-hover:bg-brand-moss group-hover:border-brand-moss group-hover:text-white transition-all duration-300">
+                          <div className="w-10 h-10 rounded-full border border-brand-border flex items-center justify-center text-brand-dark group-hover:bg-brand-moss group-hover:border-brand-moss group-hover:text-white transition-all duration-300">
                             <ArrowRight size={16} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
                           </div>
                         </div>

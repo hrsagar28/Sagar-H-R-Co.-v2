@@ -38,42 +38,46 @@ const Footer: React.FC = React.memo(() => {
                  </div>
               </div>
 
-              {/* Column 2: Explore (Main Pages) */}
-              <div className="md:col-span-2 lg:col-span-2">
-                 <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Explore</h3>
-                 <ul className="space-y-4">
-                    {[
-                       { name: "Home", path: "/" },
-                       { name: "About Firm", path: "/about" },
-                       { name: "Services", path: "/services" },
-                       { name: "Insights", path: "/insights" },
-                    ].map(link => (
-                       <li key={link.name}>
-                          <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-brand-brass transition-colors inline-flex items-center gap-2 group">
-                             {link.name}
-                          </Link>
-                       </li>
-                    ))}
-                 </ul>
-              </div>
+              {/* Columns 2 & 3: Explore + Resources — side-by-side on mobile, back into 12-col grid on md+ */}
+              <div className="grid grid-cols-2 gap-8 md:contents">
 
-              {/* Column 3: Resources */}
-              <div className="md:col-span-3 lg:col-span-2">
-                 <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Resources</h3>
-                 <ul className="space-y-4">
-                    {[
-                       { name: "Client Resources", path: "/resources" },
-                       { name: "FAQs", path: "/faqs" },
-                       { name: "Careers", path: "/careers" },
-                       { name: "Contact Us", path: "/contact" },
-                    ].map(link => (
-                       <li key={link.name}>
-                          <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-brand-brass transition-colors inline-flex items-center gap-2 group">
-                             {link.name}
-                          </Link>
-                       </li>
-                    ))}
-                 </ul>
+                 {/* Column 2: Explore (Main Pages) */}
+                 <div className="md:col-span-2 lg:col-span-2">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Explore</h3>
+                    <ul className="space-y-4">
+                       {[
+                          { name: "Home", path: "/" },
+                          { name: "About Firm", path: "/about" },
+                          { name: "Services", path: "/services" },
+                          { name: "Insights", path: "/insights" },
+                       ].map(link => (
+                          <li key={link.name}>
+                             <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-brand-brass transition-colors inline-flex items-center gap-2 group">
+                                {link.name}
+                             </Link>
+                          </li>
+                       ))}
+                    </ul>
+                 </div>
+
+                 {/* Column 3: Resources */}
+                 <div className="md:col-span-3 lg:col-span-2">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Resources</h3>
+                    <ul className="space-y-4">
+                       {[
+                          { name: "Client Resources", path: "/resources" },
+                          { name: "FAQs", path: "/faqs" },
+                          { name: "Contact Us", path: "/contact" },
+                       ].map(link => (
+                          <li key={link.name}>
+                             <Link to={link.path} className="text-lg font-medium text-zinc-300 hover:text-brand-brass transition-colors inline-flex items-center gap-2 group">
+                                {link.name}
+                             </Link>
+                          </li>
+                       ))}
+                    </ul>
+                 </div>
+
               </div>
 
               {/* Column 4: Quick Contact */}
@@ -99,8 +103,8 @@ const Footer: React.FC = React.memo(() => {
         </div>
 
         {/* Hiring Strip */}
-        <div className="px-6 md:px-20 relative z-10">
-          <div className="border-t border-white/10 py-5 flex items-center gap-3">
+        <div className="px-6 md:px-20 border-t border-white/10 relative z-10">
+          <div className="py-5 flex items-center gap-3">
             <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Hiring articled assistants</span>
             <span className="text-zinc-700 text-xs select-none">—</span>
             <Link to="/careers" className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-brand-moss hover:text-white transition-colors group">
@@ -112,7 +116,7 @@ const Footer: React.FC = React.memo(() => {
 
         {/* Bottom Section: Legal */}
         <div className="px-6 md:px-20 pb-10 relative z-10">
-           <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
+           <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
               <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-500">
                  <div className="flex flex-col gap-1 text-zinc-500 mr-4">
                     <span>
