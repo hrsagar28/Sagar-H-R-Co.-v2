@@ -330,7 +330,7 @@ const Contact: React.FC = () => {
         {/* Map Section */}
         <Reveal variant="scale" delay={0.2} width="100%">
           <div
-            className="w-full h-[250px] md:h-[350px] rounded-[3rem] overflow-hidden shadow-2xl border zone-border md:grayscale group relative transition-all duration-700 hover:grayscale-0"
+            className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full h-[280px] md:h-[350px] rounded-none md:rounded-[3rem] overflow-hidden shadow-2xl border-0 md:border zone-border grayscale-0 md:grayscale group relative transition-all duration-700 hover:grayscale-0"
             data-hide-cursor="true"
           >
             <div className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 zone-surface/90 backdrop-blur-md px-6 py-4 rounded-2xl border zone-border/50 shadow-lg pointer-events-none w-max">
