@@ -83,8 +83,11 @@ const Home: React.FC = () => {
       {/* 1. CINEMATIC HERO
           Dark ink background with a quiet star field; no photographic layer.
           Animation timings are tighter than before so the headline lands inside
-          ~0.6s and the CTA is interactive by ~1s. */}
-      <section className="relative min-h-screen flex flex-col justify-center px-4 md:px-6 overflow-hidden pt-20">
+          ~0.6s and the CTA is interactive by ~1s.
+          `min-h-[100dvh]` handles iOS Safari's collapsing URL bar — without it
+          the hero's "min-h-screen" locks to the larger 100vh and content jumps
+          when the bar retracts. Desktop/Firefox fall through to min-h-screen. */}
+      <section className="relative min-h-screen min-h-[100dvh] flex flex-col justify-center px-4 md:px-6 overflow-hidden pt-20">
         <StarField />
 
         <div className="container mx-auto max-w-7xl relative z-20 mt-12 md:mt-0">
@@ -157,25 +160,35 @@ const Home: React.FC = () => {
       {/* 3. FOUNDER SECTION */}
       <FounderSection />
 
-      {/* 4. IMMERSIVE SERVICES (Horizontal Scroll) */}
-      <section className="bg-brand-black text-white relative z-30 pt-16 md:pt-32 pb-20">
-        <div className="container mx-auto max-w-7xl relative z-10 px-4 mb-10 md:mb-20">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-10">
-            <Reveal>
-              <span className="text-amber-400 font-bold tracking-widest uppercase text-xs mb-4 block">Practice Areas</span>
-              <h2 className="text-5xl md:text-7xl font-heading font-bold text-white">
-                Services
-              </h2>
-            </Reveal>
-            <Reveal delay={0.2} className="md:w-1/3">
-              <p className="text-white/60 font-medium text-lg leading-relaxed text-right md:text-left">
-                Scroll to view our professional services.
-              </p>
-            </Reveal>
-          </div>
-        </div>
-
-        <HorizontalScroll>
+      {/* 4. IMMERSIVE SERVICES (Horizontal Scroll)
+             Heading is passed into HorizontalScroll as a `header` slot so that
+             on desktop it lives inside the sticky pane and stays visible while
+             cards translate horizontally — no more scrolling past the title to
+             reach content. On mobile the header simply renders above the
+             scroll-snap row.
+             Mobile alignment: items-start so the heading and caption hug the
+             left edge instead of being pushed right by the desktop `items-end`
+             baseline. */}
+      <section className="bg-brand-black text-white relative z-30 pt-8 md:pt-12 pb-12 md:pb-16">
+        <HorizontalScroll
+          header={
+            <div className="container mx-auto max-w-7xl relative z-10 px-4 md:px-6 pt-10 md:pt-14 pb-4 md:pb-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 md:gap-6 border-b border-white/10 pb-4 md:pb-6">
+                <Reveal>
+                  <span className="text-amber-400 font-bold tracking-widest uppercase text-[11px] md:text-xs mb-2 md:mb-3 block">Practice Areas</span>
+                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-white leading-[0.95]">
+                    Services
+                  </h2>
+                </Reveal>
+                <Reveal delay={0.2} className="md:w-1/3">
+                  <p className="text-white/60 font-medium text-sm md:text-base lg:text-lg leading-relaxed text-left md:text-left">
+                    Scroll to view our professional services.
+                  </p>
+                </Reveal>
+              </div>
+            </div>
+          }
+        >
           {SERVICES.map((service) => (
             <Link
               key={service.id}

@@ -271,28 +271,35 @@ const ChaosToOrder: React.FC = () => {
 /*  BEFORE — Chaos pane                                                        */
 /* -------------------------------------------------------------------------- */
 
-type Invoice = {
+type DocKind = 'invoice' | 'gstr' | 'brs' | 'itr' | 'tds' | 'cheque';
+
+type ChaosDoc = {
+  kind: DocKind;
   left: string;
   top: string;
   width: string;
   rotate: number;
   z: number;
   tone: 'paper' | 'yellowed';
-  stamp?: 'overdue' | 'pending' | 'unpaid';
+  stamp?: 'overdue' | 'pending' | 'unpaid' | 'mismatch' | 'late-fee' | 'not-filed';
   scribble?: boolean;
 };
 
 // Hand-placed to feel tossed, not gridded. z-index staggered so some cards
 // clearly overlap others (the chaos of a folder that was never filed).
-const INVOICES: Invoice[] = [
-  { left: '2%',  top: '10%', width: '28%', rotate: -6, z: 1, tone: 'paper',    stamp: 'overdue' },
-  { left: '22%', top: '22%', width: '26%', rotate:  4, z: 3, tone: 'yellowed'                  },
-  { left: '4%',  top: '48%', width: '30%', rotate:  9, z: 2, tone: 'paper',    stamp: 'pending', scribble: true },
-  { left: '36%', top: '6%',  width: '24%', rotate: -3, z: 4, tone: 'paper'                     },
-  { left: '48%', top: '38%', width: '28%', rotate:  6, z: 5, tone: 'yellowed', stamp: 'unpaid' },
-  { left: '38%', top: '62%', width: '26%', rotate: -8, z: 3, tone: 'paper',    scribble: true  },
-  { left: '66%', top: '14%', width: '26%', rotate:  3, z: 4, tone: 'yellowed'                  },
-  { left: '72%', top: '52%', width: '24%', rotate: -5, z: 5, tone: 'paper',    stamp: 'overdue' },
+// The mix is intentional: it's not just invoices — it's every filing that
+// *should* have happened (GSTR, BRS, ITR, TDS) lying next to the cheque
+// nobody deposited. That's the actual chaos of a practice without a CA.
+const INVOICES: ChaosDoc[] = [
+  { kind: 'invoice', left: '2%',  top: '8%',  width: '26%', rotate: -6, z: 1, tone: 'paper',    stamp: 'overdue' },
+  { kind: 'gstr',    left: '20%', top: '18%', width: '28%', rotate:  4, z: 3, tone: 'yellowed', stamp: 'late-fee' },
+  { kind: 'invoice', left: '2%',  top: '44%', width: '28%', rotate:  9, z: 2, tone: 'paper',    stamp: 'pending', scribble: true },
+  { kind: 'cheque',  left: '32%', top: '2%',  width: '26%', rotate: -3, z: 4, tone: 'paper'                     },
+  { kind: 'brs',     left: '46%', top: '34%', width: '30%', rotate:  6, z: 5, tone: 'yellowed', stamp: 'mismatch' },
+  { kind: 'invoice', left: '34%', top: '60%', width: '26%', rotate: -8, z: 3, tone: 'paper',    scribble: true  },
+  { kind: 'tds',     left: '62%', top: '10%', width: '28%', rotate:  3, z: 4, tone: 'yellowed', stamp: 'pending' },
+  { kind: 'itr',     left: '68%', top: '48%', width: '28%', rotate: -5, z: 5, tone: 'paper',    stamp: 'not-filed' },
+  { kind: 'invoice', left: '54%', top: '70%', width: '22%', rotate:  7, z: 2, tone: 'yellowed', stamp: 'unpaid' },
 ];
 
 const ChaosPane: React.FC = () => {
@@ -352,9 +359,9 @@ const ChaosPane: React.FC = () => {
         </div>
       </div>
 
-      {/* Invoice cards */}
-      {INVOICES.map((inv, i) => (
-        <InvoiceCard key={i} {...inv} seed={i} />
+      {/* Scattered documents — invoices, GSTR, BRS, ITR, TDS, cheques */}
+      {INVOICES.map((doc, i) => (
+        <DocCard key={i} {...doc} seed={i} />
       ))}
 
       {/* Red question-mark margin scribble */}
@@ -392,7 +399,17 @@ const ChaosPane: React.FC = () => {
   );
 };
 
-const InvoiceCard: React.FC<Invoice & { seed: number }> = ({
+/**
+ * DocCard
+ * -------
+ * Shared card chrome (paper tone, shadow, scribble, stamp) with a body
+ * dispatched per `kind`. This lets the chaos pane show the real set of
+ * filings a practice neglects — invoices, GSTR returns, a BRS that
+ * doesn't tie, an unfiled ITR, a TDS certificate, a stale cheque — all
+ * tossed into the same pile.
+ */
+const DocCard: React.FC<ChaosDoc & { seed: number }> = ({
+  kind,
   left,
   top,
   width,
@@ -404,7 +421,9 @@ const InvoiceCard: React.FC<Invoice & { seed: number }> = ({
   seed,
 }) => {
   const bg = tone === 'yellowed' ? '#f5ecd6' : '#fbf7ec';
-  const lines = 4 + (seed % 3); // vary line count
+
+  // Cheques are landscape (long & short); everything else is ~4:3
+  const aspectRatio = kind === 'cheque' ? '5 / 2' : '4 / 3';
 
   return (
     <div
@@ -413,7 +432,7 @@ const InvoiceCard: React.FC<Invoice & { seed: number }> = ({
         left,
         top,
         width,
-        aspectRatio: '4 / 3',
+        aspectRatio,
         transform: `rotate(${rotate}deg)`,
         zIndex: z,
       }}
@@ -422,32 +441,15 @@ const InvoiceCard: React.FC<Invoice & { seed: number }> = ({
         className="relative w-full h-full rounded-[2px] shadow-[0_6px_14px_-6px_rgba(10,9,8,0.35)] overflow-hidden border border-[#0a0908]/8"
         style={{ backgroundColor: bg }}
       >
-        {/* Header */}
-        <div className="px-3 pt-2 pb-1.5 flex items-center justify-between border-b border-dashed border-[#0a0908]/15">
-          <span className="font-mono text-[8px] md:text-[9px] tracking-[0.2em] uppercase text-[#0a0908]/65">
-            Invoice · {String(1024 + seed * 37).padStart(4, '0')}
-          </span>
-          <span className="font-mono text-[7px] md:text-[8px] text-[#0a0908]/45">
-            {/* Throwaway "dates" that look plausibly old */}
-            {['12/04', '03/07', '28/11', '19/02', '06/09', '22/01', '14/05', '30/08'][seed % 8]}
-          </span>
-        </div>
-        {/* Body — fake text lines */}
-        <div className="p-3 space-y-1.5">
-          {Array.from({ length: lines }).map((_, i) => (
-            <div
-              key={i}
-              className="h-[2px] bg-[#0a0908]/15 rounded-full"
-              style={{ width: `${55 + ((seed * 13 + i * 19) % 40)}%` }}
-            />
-          ))}
-          <div className="pt-1.5 flex justify-between">
-            <div className="h-[3px] w-[30%] bg-[#0a0908]/25 rounded-full" />
-            <div className="h-[3px] w-[22%] bg-[#0a0908]/25 rounded-full" />
-          </div>
-        </div>
+        {kind === 'invoice' && <InvoiceBody seed={seed} />}
+        {kind === 'gstr'    && <GSTRBody    seed={seed} />}
+        {kind === 'brs'     && <BRSBody     seed={seed} />}
+        {kind === 'itr'     && <ITRBody     seed={seed} />}
+        {kind === 'tds'     && <TDSBody     seed={seed} />}
+        {kind === 'cheque'  && <ChequeBody  seed={seed} />}
 
-        {/* Optional hand-scribble over the card */}
+        {/* Optional hand-scribble over the card — the CA scrawling
+            "check this", green ink, on something that never got checked. */}
         {scribble && (
           <svg
             className="absolute inset-0 pointer-events-none"
@@ -473,8 +475,248 @@ const InvoiceCard: React.FC<Invoice & { seed: number }> = ({
   );
 };
 
-const Stamp: React.FC<{ label: 'overdue' | 'pending' | 'unpaid' }> = ({ label }) => {
-  const text = label.toUpperCase();
+/* ---------- Document bodies --------------------------------------------- */
+
+const InvoiceBody: React.FC<{ seed: number }> = ({ seed }) => {
+  const lines = 4 + (seed % 3);
+  return (
+    <>
+      <div className="px-3 pt-2 pb-1.5 flex items-center justify-between border-b border-dashed border-[#0a0908]/15">
+        <span className="font-mono text-[8px] md:text-[9px] tracking-[0.2em] uppercase text-[#0a0908]/65">
+          Invoice · {String(1024 + seed * 37).padStart(4, '0')}
+        </span>
+        <span className="font-mono text-[7px] md:text-[8px] text-[#0a0908]/45">
+          {['12/04', '03/07', '28/11', '19/02', '06/09', '22/01', '14/05', '30/08'][seed % 8]}
+        </span>
+      </div>
+      <div className="p-3 space-y-1.5">
+        {Array.from({ length: lines }).map((_, i) => (
+          <div
+            key={i}
+            className="h-[2px] bg-[#0a0908]/15 rounded-full"
+            style={{ width: `${55 + ((seed * 13 + i * 19) % 40)}%` }}
+          />
+        ))}
+        <div className="pt-1.5 flex justify-between">
+          <div className="h-[3px] w-[30%] bg-[#0a0908]/25 rounded-full" />
+          <div className="h-[3px] w-[22%] bg-[#0a0908]/25 rounded-full" />
+        </div>
+      </div>
+    </>
+  );
+};
+
+/** GSTR-1 / GSTR-3B return — HSN summary grid with red totals */
+const GSTRBody: React.FC<{ seed: number }> = ({ seed }) => {
+  const rows = [
+    { hsn: '9983', val: '2,14,500', tax: '38,610' },
+    { hsn: '8471', val: '  68,240', tax: '12,283' },
+    { hsn: '9954', val: '1,02,900', tax: '18,522' },
+    { hsn: '4901', val: '  14,760', tax: '  2,656' },
+  ];
+  return (
+    <>
+      <div className="px-3 pt-2 pb-1.5 flex items-center justify-between border-b border-[#8b3a2f]/35" style={{ backgroundColor: 'rgba(139,58,47,0.06)' }}>
+        <span className="font-mono text-[8px] md:text-[9px] tracking-[0.2em] uppercase text-[#8b3a2f] font-bold">
+          GSTR-{seed % 2 === 0 ? '3B' : '1'} · {seed % 2 === 0 ? 'SUMMARY' : 'OUTWARD SUPPLY'}
+        </span>
+        <span className="font-mono text-[7px] md:text-[8px] text-[#0a0908]/55">
+          {['MAR-24', 'APR-24', 'MAY-24', 'JUN-24', 'JUL-24', 'AUG-24'][seed % 6]}
+        </span>
+      </div>
+      <div className="px-3 py-2">
+        <div className="grid grid-cols-[1fr_1.2fr_1fr] gap-1 font-mono text-[6px] md:text-[7px] text-[#0a0908]/50 uppercase tracking-[0.1em] pb-1 border-b border-[#0a0908]/10">
+          <span>HSN</span>
+          <span className="text-right">Taxable</span>
+          <span className="text-right">IGST</span>
+        </div>
+        {rows.map((r, i) => (
+          <div
+            key={i}
+            className="grid grid-cols-[1fr_1.2fr_1fr] gap-1 font-mono text-[7px] md:text-[8px] text-[#0a0908]/80 py-[3px] tabular-nums border-b border-[#0a0908]/5 last:border-b-0"
+          >
+            <span>{r.hsn}</span>
+            <span className="text-right">{r.val}</span>
+            <span className="text-right">{r.tax}</span>
+          </div>
+        ))}
+        <div className="flex items-center justify-between pt-1.5 mt-1 border-t border-[#8b3a2f]/40">
+          <span className="font-mono text-[7px] md:text-[8px] uppercase text-[#8b3a2f] font-bold">Total tax</span>
+          <span className="font-mono text-[7px] md:text-[8px] text-[#8b3a2f] font-bold tabular-nums">72,071</span>
+        </div>
+      </div>
+    </>
+  );
+};
+
+/** Bank Reconciliation Statement — bank vs books columns, highlighted gap */
+const BRSBody: React.FC<{ seed: number }> = ({ seed }) => {
+  return (
+    <>
+      <div className="px-3 pt-2 pb-1.5 flex items-center justify-between border-b border-dashed border-[#0a0908]/15">
+        <span className="font-mono text-[8px] md:text-[9px] tracking-[0.2em] uppercase text-[#0a0908]/65 font-bold">
+          Bank Reconciliation
+        </span>
+        <span className="font-mono text-[7px] md:text-[8px] text-[#0a0908]/45">
+          HDFC · {seed % 2 ? '56431' : '87209'}
+        </span>
+      </div>
+      <div className="px-3 py-2 font-mono text-[7px] md:text-[8px] text-[#0a0908]/80 tabular-nums">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-x-2 gap-y-[2px]">
+          <span>Balance as per bank</span>
+          <span></span>
+          <span className="text-right">4,86,210</span>
+          <span>Less: Cheques not presented</span>
+          <span></span>
+          <span className="text-right text-[#0a0908]/55">(  42,300)</span>
+          <span>Add: Cheques issued not cleared</span>
+          <span></span>
+          <span className="text-right text-[#0a0908]/55">   18,500</span>
+          <span>Less: Unrecorded bank charges</span>
+          <span></span>
+          <span className="text-right text-[#0a0908]/55">(     640)</span>
+        </div>
+        <div className="h-px my-1.5 bg-[#0a0908]/15" />
+        <div className="flex items-center justify-between">
+          <span className="font-bold">Balance as per books</span>
+          <span className="font-bold">4,61,770</span>
+        </div>
+        <div className="mt-1.5 rounded px-1.5 py-[2px] flex items-center justify-between" style={{ backgroundColor: 'rgba(139,58,47,0.12)' }}>
+          <span className="text-[#8b3a2f] font-bold uppercase tracking-[0.1em]">Difference</span>
+          <span className="text-[#8b3a2f] font-bold">7,940</span>
+        </div>
+      </div>
+    </>
+  );
+};
+
+/** ITR-V acknowledgment — boxy income tax form with fake AY/PAN */
+const ITRBody: React.FC<{ seed: number }> = ({ seed }) => {
+  return (
+    <>
+      <div className="px-3 pt-2 pb-1.5 border-b-2 border-[#0a0908]/30" style={{ backgroundColor: 'rgba(184,146,76,0.12)' }}>
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[7px] md:text-[8px] tracking-[0.2em] uppercase text-[#0a0908]/55">
+            Form ITR-{[1,2,3,4,5][seed % 5]}
+          </span>
+          <span className="font-mono text-[6px] md:text-[7px] tracking-[0.15em] uppercase text-[#0a0908]/45">
+            AY {['2023-24','2024-25','2025-26'][seed % 3]}
+          </span>
+        </div>
+        <div className="font-mono text-[8px] md:text-[9px] font-bold uppercase tracking-[0.15em] text-[#0a0908] mt-[2px]">
+          Income Tax Return
+        </div>
+      </div>
+      <div className="px-3 py-2 font-mono text-[7px] md:text-[8px] text-[#0a0908]/80 space-y-[3px]">
+        <div className="flex justify-between border-b border-dotted border-[#0a0908]/15 pb-[2px]">
+          <span className="text-[#0a0908]/55">PAN</span>
+          <span className="tabular-nums">AXXPS{String(seed * 131 % 10000).padStart(4,'0')}Q</span>
+        </div>
+        <div className="flex justify-between border-b border-dotted border-[#0a0908]/15 pb-[2px]">
+          <span className="text-[#0a0908]/55">Gross Total Income</span>
+          <span className="tabular-nums">18,42,700</span>
+        </div>
+        <div className="flex justify-between border-b border-dotted border-[#0a0908]/15 pb-[2px]">
+          <span className="text-[#0a0908]/55">Total Deductions</span>
+          <span className="tabular-nums">2,15,000</span>
+        </div>
+        <div className="flex justify-between font-bold pt-[2px]">
+          <span>Tax Payable</span>
+          <span className="tabular-nums">3,14,820</span>
+        </div>
+      </div>
+    </>
+  );
+};
+
+/** TDS / Form 16A — lighter on data, heavier on letterhead look */
+const TDSBody: React.FC<{ seed: number }> = ({ seed }) => {
+  return (
+    <>
+      <div className="px-3 pt-2 pb-1.5 border-b border-[#0a0908]/20">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[7px] md:text-[8px] tracking-[0.2em] uppercase text-[#0a0908]/55">
+            Form 16{seed % 2 ? 'A' : ''}
+          </span>
+          <span className="font-mono text-[7px] md:text-[8px] text-[#0a0908]/45">
+            Q{(seed % 4) + 1} · FY 24-25
+          </span>
+        </div>
+        <div className="font-mono text-[8px] md:text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a0908] mt-[2px]">
+          Certificate of TDS
+        </div>
+      </div>
+      <div className="px-3 py-2 font-mono text-[7px] md:text-[8px] text-[#0a0908]/80 tabular-nums space-y-[3px]">
+        <div className="flex justify-between">
+          <span className="text-[#0a0908]/55">TAN of deductor</span>
+          <span>BLRA{String(12340 + seed * 17).slice(-5)}B</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-[#0a0908]/55">Amount paid / credited</span>
+          <span>8,40,000</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-[#0a0908]/55">TDS u/s 194{seed % 2 ? 'J' : 'C'}</span>
+          <span>84,000</span>
+        </div>
+        <div className="flex justify-between font-bold border-t border-[#0a0908]/15 pt-[3px]">
+          <span>Challan date</span>
+          <span>07/07/24</span>
+        </div>
+      </div>
+    </>
+  );
+};
+
+/** Bearer cheque — landscape, MICR band, signature line */
+const ChequeBody: React.FC<{ seed: number }> = ({ seed }) => {
+  return (
+    <div className="relative w-full h-full px-3 py-2 font-mono text-[7px] md:text-[8px] text-[#0a0908]/80">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="font-bold uppercase tracking-[0.15em] text-[8px] md:text-[9px] text-[#0a0908]">HDFC Bank</div>
+          <div className="text-[6px] md:text-[7px] text-[#0a0908]/55">Devaraja Urs Road, Mysuru</div>
+        </div>
+        <div className="text-[6px] md:text-[7px] text-[#0a0908]/55 tabular-nums">
+          Date <span className="border-b border-dotted border-[#0a0908]/35 px-1">__/__/____</span>
+        </div>
+      </div>
+      <div className="mt-1.5 flex items-center gap-1">
+        <span className="text-[#0a0908]/55">Pay</span>
+        <div className="flex-1 border-b border-dotted border-[#0a0908]/35" />
+      </div>
+      <div className="mt-1.5 flex items-center justify-between">
+        <span className="text-[6px] md:text-[7px] text-[#0a0908]/55">
+          Rupees _________________________
+        </span>
+        <div className="border border-[#0a0908]/40 px-2 py-[1px] rounded-sm tabular-nums font-bold">
+          ₹ 42,500
+        </div>
+      </div>
+      <div className="absolute left-3 right-3 bottom-[22%] text-right text-[#0a0908]/35 italic text-[7px]">
+        signature
+      </div>
+      {/* MICR band */}
+      <div
+        className="absolute left-0 right-0 bottom-0 px-3 py-1 font-mono text-[7px] md:text-[8px] tracking-[0.2em] text-[#0a0908]/70 border-t border-[#0a0908]/15"
+        style={{ backgroundColor: 'rgba(10,9,8,0.04)' }}
+      >
+        ⑆{String(570240011 + seed).slice(-9)}⑆ 560{String(seed * 17).slice(-3)}⑈
+      </div>
+    </div>
+  );
+};
+
+const STAMP_STYLES: Record<NonNullable<ChaosDoc['stamp']>, string> = {
+  'overdue':   'OVERDUE',
+  'pending':   'PENDING',
+  'unpaid':    'UNPAID',
+  'mismatch':  'MISMATCH',
+  'late-fee':  'LATE FEE',
+  'not-filed': 'NOT FILED',
+};
+
+const Stamp: React.FC<{ label: NonNullable<ChaosDoc['stamp']> }> = ({ label }) => {
   return (
     <div
       className="absolute"
@@ -494,7 +736,7 @@ const Stamp: React.FC<{ label: 'overdue' | 'pending' | 'unpaid' }> = ({ label })
         backgroundColor: 'rgba(139,58,47,0.04)',
       }}
     >
-      {text}
+      {STAMP_STYLES[label]}
     </div>
   );
 };

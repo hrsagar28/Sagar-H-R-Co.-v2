@@ -24,10 +24,17 @@ const WhatsAppFloat: React.FC = () => {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
+      // Safari on iOS has a dynamic bottom URL bar and a home-indicator
+      // inset on notched devices. env(safe-area-inset-*) offsets the pill
+      // above both; unsupported browsers get 0 + the regular inset.
       className={`
-        fixed bottom-6 right-6 md:bottom-10 md:right-10 z-fixed 
-        w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#25D366] text-white 
-        flex items-center justify-center shadow-xl shadow-[#25D366]/30 
+        fixed z-fixed
+        bottom-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]
+        right-[calc(env(safe-area-inset-right,0px)+1.5rem)]
+        md:bottom-[calc(env(safe-area-inset-bottom,0px)+2.5rem)]
+        md:right-[calc(env(safe-area-inset-right,0px)+2.5rem)]
+        w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#25D366] text-white
+        flex items-center justify-center shadow-xl shadow-[#25D366]/30
         hover:scale-110 hover:shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
         ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}
       `}

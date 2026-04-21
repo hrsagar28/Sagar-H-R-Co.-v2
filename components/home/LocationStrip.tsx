@@ -83,24 +83,28 @@ const LocationStrip: React.FC = () => {
               </Reveal>
             </div>
             
-            {/* Right: Map with styled container - Increased Size */}
-            <Reveal delay={0.2} className="relative w-full">
-              <div className="relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl">
-                {/* Decorative frame */}
-                <div className="absolute inset-0 border-[12px] border-white/5 rounded-[2rem] pointer-events-none z-10" />
-                
+            {/* Right: Map with styled container - Increased Size.
+                On mobile the map is full-bleed (negative margin cancels the
+                container's px-4) and stays colourful — there's no hover on
+                touch devices so a grayscale→colour trick makes no sense.
+                Desktop keeps the editorial grayscale-until-hover treatment. */}
+            <Reveal delay={0.2} width="100%" className="relative -mx-4 md:-mx-6 lg:mx-0">
+              <div className="relative overflow-hidden shadow-2xl lg:rounded-[2rem] lg:border lg:border-white/10">
+                {/* Decorative frame — only on desktop where rounded corners exist */}
+                <div className="absolute inset-0 border-[12px] border-white/5 rounded-[2rem] pointer-events-none z-10 hidden lg:block" />
+
                 {/* Map - Size Increased */}
                 <div className="aspect-square md:h-[600px] w-full" data-hide-cursor="true">
-                  <iframe 
+                  <iframe
                     src={CONTACT_INFO.geo.mapEmbedUrl}
-                    className="w-full h-full grayscale hover:grayscale-0 transition-all duration-700"
+                    className="w-full h-full lg:grayscale lg:hover:grayscale-0 transition-[filter] duration-700"
                     loading="lazy"
                     title="Office Location"
                   />
                 </div>
-                
+
                 {/* Floating badge */}
-                <div className="absolute bottom-6 left-6 bg-white text-brand-dark px-4 py-2 rounded-full text-sm font-bold shadow-xl z-20 flex items-center gap-2">
+                <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-white text-brand-dark px-4 py-2 rounded-full text-sm font-bold shadow-xl z-20 flex items-center gap-2">
                   <MapPin size={16} className="text-brand-moss" /> Mysuru, Karnataka
                 </div>
               </div>

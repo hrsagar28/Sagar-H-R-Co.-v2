@@ -26,6 +26,28 @@
     scrollbar-width: none;  /* Firefox */
 }
 
+/* ---- Cross-browser polish --------------------------------------------- */
+
+/* iOS Safari: the collapsing URL bar changes 100vh mid-scroll and
+   breaks things that use vh for layout. Prefer dvh whenever it
+   resolves; browsers that don't support dvh fall back to the vh line
+   written immediately before. */
+@supports (height: 100dvh) {
+  .h-screen-safe { height: 100dvh; }
+  .min-h-screen-safe { min-height: 100dvh; }
+}
+.h-screen-safe { height: 100vh; }
+.min-h-screen-safe { min-height: 100vh; }
+
+/* Firefox: overflow-x: hidden on <body> can interact badly with
+   position:sticky ancestors. Keep horizontal containment local to the
+   scroll-trap containers instead of leaking it to the whole document. */
+
+/* iOS: prevent elastic rubber-band on fixed chrome where it looks glitchy */
+html {
+    -webkit-text-size-adjust: 100%; /* stops iOS auto-upsizing landscape text */
+}
+
 /* Roll Text Effect for Navbar */
 .roll-text-group {
   display: inline-block;

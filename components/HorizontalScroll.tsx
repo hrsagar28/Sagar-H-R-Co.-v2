@@ -6,9 +6,16 @@ import { ChevronsRight, ChevronLeft, ChevronRight } from 'lucide-react';
 interface HorizontalScrollProps {
   children: React.ReactNode;
   className?: string;
+  /**
+   * Optional header rendered at the top of the sticky viewport on desktop
+   * (and above the cards on mobile). Keeping the heading inside the sticky
+   * region means the section title stays visible while cards scroll
+   * horizontally, instead of being pushed off-screen by the 100vh pane.
+   */
+  header?: React.ReactNode;
 }
 
-const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className = '' }) => {
+const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className = '', header }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [dynamicHeight, setDynamicHeight] = useState('auto');
@@ -135,82 +142,103 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
       className={`relative w-full ${className}`}
       style={{ height: isDisabled ? 'auto' : dynamicHeight }}
     >
-      <div className={`${isDisabled ? '' : 'sticky top-0 h-screen'} flex items-center overflow-hidden`}>
-        {/* Minimalistic Mobile Swipe Indicator */}
-        {isMobile && (
-          <div
-            className={`
-              absolute right-2 top-1/2 -translate-y-1/2 z-20 pointer-events-none 
-              transition-opacity duration-700 ease-out
-              ${showSwipeHint ? 'opacity-100' : 'opacity-0'}
-            `}
-          >
-            <div className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg animate-bounce-x">
-              <ChevronsRight size={20} className="text-white/90" />
-            </div>
+      {/*
+        Desktop: sticky flex-col pane that holds the header at the top and
+        fills the remaining height with the horizontally-scrolling cards.
+        Using `h-[100dvh]` (with h-screen fallback) avoids iOS Safari's
+        bottom URL bar eating into the sticky region.
+        Mobile: no sticky — content flows normally; header sits above cards.
+      */}
+      <div
+        className={`${
+          isDisabled ? '' : 'sticky top-0 h-screen h-[100dvh]'
+        } flex flex-col overflow-hidden`}
+      >
+        {header && (
+          <div className="shrink-0 w-full">
+            {header}
           </div>
         )}
 
-        {/* Desktop: Left Arrow (hidden at start) */}
-        {!isDisabled && (
-          <button
-            onClick={() => nudgeScroll('left')}
-            aria-label="Scroll left"
-            className={`
-              absolute left-4 z-20 w-12 h-12 rounded-full
-              bg-white/10 backdrop-blur-md border border-white/20 shadow-lg
-              flex items-center justify-center text-white
-              hover:bg-white/20 transition-all duration-300
-              ${scrollProgress > 0.02 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'}
-            `}
-          >
-            <ChevronLeft size={22} />
-          </button>
-        )}
+        {/* Cards viewport — this is the positioning context for arrows,
+            swipe hint and progress bar. */}
+        <div className="relative flex-1 flex items-center overflow-hidden w-full min-h-0">
+          {/* Minimalistic Mobile Swipe Indicator */}
+          {isMobile && (
+            <div
+              className={`
+                absolute right-2 top-1/2 -translate-y-1/2 z-20 pointer-events-none
+                transition-opacity duration-700 ease-out
+                ${showSwipeHint ? 'opacity-100' : 'opacity-0'}
+              `}
+            >
+              <div className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg animate-bounce-x">
+                <ChevronsRight size={20} className="text-white/90" />
+              </div>
+            </div>
+          )}
 
-        {/* Desktop: Right Arrow (hidden at end) */}
-        {!isDisabled && (
-          <button
-            onClick={() => nudgeScroll('right')}
-            aria-label="Scroll right"
-            className={`
-              absolute right-4 z-20 w-12 h-12 rounded-full
-              bg-white/10 backdrop-blur-md border border-white/20 shadow-lg
-              flex items-center justify-center text-white
-              hover:bg-white/20 transition-all duration-300
-              ${scrollProgress < 0.98 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}
-            `}
-          >
-            <ChevronRight size={22} />
-          </button>
-        )}
+          {/* Desktop: Left Arrow (hidden at start) */}
+          {!isDisabled && (
+            <button
+              onClick={() => nudgeScroll('left')}
+              aria-label="Scroll left"
+              className={`
+                absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full
+                bg-white/10 backdrop-blur-md border border-white/20 shadow-lg
+                flex items-center justify-center text-white
+                hover:bg-white/20 transition-all duration-300
+                ${scrollProgress > 0.02 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'}
+              `}
+            >
+              <ChevronLeft size={22} />
+            </button>
+          )}
 
-        <div
-          ref={scrollContainerRef}
-          onScroll={isMobile ? handleMobileScroll : undefined}
-          className={`
-            flex gap-8 px-4 md:px-20 
-            ${isDisabled
-              ? 'overflow-x-auto pb-12 flex-nowrap w-full snap-x snap-mandatory no-scrollbar'
-              : 'will-change-transform'
-            }
-          `}
-          style={{ transform: isDisabled ? 'none' : `translate3d(-${translateX}px, 0, 0)` }}
-        >
-          {children}
-        </div>
+          {/* Desktop: Right Arrow (hidden at end) */}
+          {!isDisabled && (
+            <button
+              onClick={() => nudgeScroll('right')}
+              aria-label="Scroll right"
+              className={`
+                absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full
+                bg-white/10 backdrop-blur-md border border-white/20 shadow-lg
+                flex items-center justify-center text-white
+                hover:bg-white/20 transition-all duration-300
+                ${scrollProgress < 0.98 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}
+              `}
+            >
+              <ChevronRight size={22} />
+            </button>
+          )}
 
-        {/* Scroll Progress Bar — bottom of sticky panel */}
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/10 z-20">
           <div
-            className="h-full bg-[#4ADE80] transition-all duration-100 ease-linear rounded-full"
-            style={{ width: `${scrollProgress * 100}%` }}
-            role="progressbar"
-            aria-valuenow={Math.round(scrollProgress * 100)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Horizontal scroll progress"
-          />
+            ref={scrollContainerRef}
+            onScroll={isMobile ? handleMobileScroll : undefined}
+            className={`
+              flex gap-8 px-4 md:px-20
+              ${isDisabled
+                ? 'overflow-x-auto pb-12 flex-nowrap w-full snap-x snap-mandatory no-scrollbar'
+                : 'will-change-transform'
+              }
+            `}
+            style={{ transform: isDisabled ? 'none' : `translate3d(-${translateX}px, 0, 0)` }}
+          >
+            {children}
+          </div>
+
+          {/* Scroll Progress Bar — bottom of the cards viewport */}
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/10 z-20">
+            <div
+              className="h-full bg-[#4ADE80] transition-all duration-100 ease-linear rounded-full"
+              style={{ width: `${scrollProgress * 100}%` }}
+              role="progressbar"
+              aria-valuenow={Math.round(scrollProgress * 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Horizontal scroll progress"
+            />
+          </div>
         </div>
       </div>
     </div>
