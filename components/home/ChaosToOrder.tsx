@@ -125,23 +125,13 @@ const ChaosToOrder: React.FC = () => {
 
       {/* Section intro */}
       <div className="container mx-auto max-w-7xl px-4 md:px-6 mb-10 md:mb-14">
-        <Reveal variant="fade-up">
-          <div className="flex items-baseline gap-4 mb-6">
-            <span className="text-[#8b3a2f] font-mono text-[11px] tracking-[0.25em] uppercase">
-              § 01
-            </span>
-            <span className="flex-1 h-px bg-gradient-to-r from-[#b8924c]/60 via-[#b8924c]/25 to-transparent" />
-            <span className="text-[#0a0908]/45 font-mono text-[10px] tracking-[0.25em] uppercase hidden md:inline">
-              Before / After
-            </span>
-          </div>
-        </Reveal>
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <Reveal variant="fade-up" delay={0.08}>
             <h2
               id="chaos-to-order-title"
-              className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold leading-[0.95] max-w-4xl"
+              className="font-heading font-bold leading-[0.95] max-w-4xl"
+              style={{ fontSize: 'clamp(1.75rem, 5vw, 4.5rem)' }}
             >
               Messy books, in.
               <br />
@@ -151,7 +141,7 @@ const ChaosToOrder: React.FC = () => {
             </h2>
           </Reveal>
           <Reveal variant="fade-up" delay={0.18}>
-            <p className="max-w-md text-[#2A251D]/75 text-base md:text-lg font-medium leading-relaxed md:text-right">
+            <p className="max-w-md text-[#2A251D]/75 font-medium leading-relaxed md:text-right" style={{ fontSize: 'clamp(0.8125rem, 1.8vw, 1.125rem)' }}>
               Drag the divider. What a practice looks like before we step in —
               and after a year of quiet, on-time filings.
             </p>
@@ -165,7 +155,7 @@ const ChaosToOrder: React.FC = () => {
           <div
             ref={containerRef}
             onPointerDown={onContainerPointerDown}
-            className="relative select-none w-full aspect-[4/3] md:aspect-[16/9] rounded-[1.75rem] md:rounded-[2rem] overflow-hidden border border-[#0a0908]/10 shadow-[0_30px_60px_-20px_rgba(10,9,8,0.25)] bg-[#eae5d9] cursor-ew-resize touch-pan-y"
+            className="relative select-none w-full aspect-[3/4] sm:aspect-[4/3] lg:aspect-[16/10] rounded-[1.75rem] md:rounded-[2rem] overflow-hidden border border-[#0a0908]/10 shadow-[0_30px_60px_-20px_rgba(10,9,8,0.25)] bg-[#eae5d9] cursor-ew-resize touch-pan-y"
             role="group"
             aria-roledescription="Before and after comparison"
           >
@@ -221,23 +211,23 @@ const ChaosToOrder: React.FC = () => {
               style={{ left: `${divider}%`, zIndex: 4 }}
             >
               <svg
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
                 fill="none"
                 aria-hidden="true"
               >
                 <path
-                  d="M7 4L3 9L7 14"
+                  d="M8 5L4 10L8 15"
                   stroke="currentColor"
-                  strokeWidth="1.5"
+                  strokeWidth="1.6"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
-                  d="M11 4L15 9L11 14"
+                  d="M12 5L16 10L12 15"
                   stroke="currentColor"
-                  strokeWidth="1.5"
+                  strokeWidth="1.6"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -249,7 +239,7 @@ const ChaosToOrder: React.FC = () => {
               className="absolute top-3 left-3 md:top-5 md:left-6 pointer-events-none"
               style={{ zIndex: 3 }}
             >
-              <span className="inline-block px-2 py-1 bg-[#f4f1ea]/85 backdrop-blur-sm rounded text-[#8b3a2f] font-mono text-[10px] md:text-[11px] tracking-[0.2em] uppercase">
+              <span className="inline-block px-2 py-1 bg-[#f4f1ea]/85 backdrop-blur-sm rounded text-[#8b3a2f] font-mono tracking-[0.2em] uppercase" style={{ fontSize: 'clamp(8px, 1.4vw, 11px)' }}>
                 Before · filings, forgotten
               </span>
             </div>
@@ -257,7 +247,7 @@ const ChaosToOrder: React.FC = () => {
               className="absolute top-3 right-3 md:top-5 md:right-6 pointer-events-none"
               style={{ zIndex: 3 }}
             >
-              <span className="inline-block px-2 py-1 bg-[#f4f1ea]/85 backdrop-blur-sm rounded text-[#0a0908] font-mono text-[10px] md:text-[11px] tracking-[0.2em] uppercase">
+              <span className="inline-block px-2 py-1 bg-[#f4f1ea]/85 backdrop-blur-sm rounded text-[#0a0908] font-mono tracking-[0.2em] uppercase" style={{ fontSize: 'clamp(8px, 1.4vw, 11px)' }}>
                 After · filings, finalised
               </span>
             </div>
