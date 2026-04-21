@@ -1,268 +1,309 @@
-
-import React, { useMemo } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { useReducedMotion } from '../../hooks';
 
-/**
- * StarField — a restrained, editorial night-sky background for the Home hero.
- *
- * Design intent (kept deliberately quiet so it reads as wallpaper, not spectacle):
- *   - 48 pin-prick stars (≈30 on mobile), 1–2.5px diameter, opacity 0.14–0.55.
- *   - Three stars twinkle on a slow 5–7s opacity cycle. Rest are static.
- *   - One "anchor" star in the upper-right quadrant is slightly brighter (3px)
- *     with a soft moss-green halo — a fixed reference point. Conceptual nod
- *     to the practice: a north star that doesn't move.
- *   - A thin moss horizon line sits in the lower third.
- *   - Fully disables motion under `prefers-reduced-motion`.
- */
+const BG = '#06070a';
+const MOBILE_BP = 768;
+const NEBULA_COLOR = 'rgba(90,110,180,0.06)';
+const WARM_WHITE = '#fff4e0';
+const SHOOT_ANGLE_DEG = 215;
+const SHOOT_ANGLE_SPREAD = 15;
+const SHOOT_TRAIL_LEN = 140;
+const SHOOT_FADE_IN = 180;
+const SHOOT_TRAVEL = 900;
+const SHOOT_FADE_OUT = 220;
+const SHOOT_AVG_INTERVAL = 55_000;
 
-type Star = { cx: number; cy: number; r: number; o: number; twinkle?: boolean };
+interface Star {
+  x: number;
+  y: number;
+  r: number;
+  o: number;
+  vx: number;
+  vy: number;
+}
 
-// Deterministic star positions. Hand-distributed across a 100×100 viewBox
-// so the eye doesn't fall into grid artefacts. Kept sparse around the lower
-// third so headline copy stays legible.
-const STARS: Star[] = [
-  { cx: 3.2,  cy: 8.4,  r: 1.1, o: 0.32 },
-  { cx: 7.8,  cy: 18.1, r: 0.9, o: 0.22 },
-  { cx: 11.4, cy: 5.6,  r: 1.3, o: 0.44 },
-  { cx: 14.9, cy: 24.2, r: 0.8, o: 0.19 },
-  { cx: 18.7, cy: 12.3, r: 1.0, o: 0.28 },
-  { cx: 22.1, cy: 31.8, r: 1.2, o: 0.36, twinkle: true },
-  { cx: 26.3, cy: 7.1,  r: 0.9, o: 0.25 },
-  { cx: 29.8, cy: 19.4, r: 1.1, o: 0.31 },
-  { cx: 33.5, cy: 3.9,  r: 0.8, o: 0.17 },
-  { cx: 37.2, cy: 26.7, r: 1.3, o: 0.48 },
-  { cx: 41.6, cy: 14.2, r: 0.9, o: 0.23 },
-  { cx: 44.8, cy: 33.5, r: 1.0, o: 0.29 },
-  { cx: 48.3, cy: 9.8,  r: 1.4, o: 0.52, twinkle: true },
-  { cx: 51.9, cy: 21.6, r: 0.8, o: 0.18 },
-  { cx: 55.4, cy: 5.2,  r: 1.1, o: 0.34 },
-  { cx: 58.7, cy: 28.9, r: 0.9, o: 0.24 },
-  { cx: 62.5, cy: 16.3, r: 1.2, o: 0.39 },
-  { cx: 66.1, cy: 35.1, r: 0.8, o: 0.16 },
-  { cx: 69.8, cy: 4.5,  r: 1.0, o: 0.27 },
-  { cx: 73.4, cy: 22.8, r: 1.1, o: 0.33 },
-  { cx: 76.9, cy: 11.5, r: 0.9, o: 0.21 },
-  // "Anchor" neighbourhood (upper-right). A couple of lesser stars surround
-  // the anchor so it reads as a constellation, not a lone ornament.
-  { cx: 82.1, cy: 7.8,  r: 1.2, o: 0.42 },
-  { cx: 85.7, cy: 14.6, r: 0.9, o: 0.26 },
-  { cx: 88.3, cy: 19.2, r: 1.0, o: 0.30 },
-  { cx: 91.8, cy: 9.4,  r: 1.1, o: 0.36, twinkle: true },
-  { cx: 94.6, cy: 25.7, r: 0.8, o: 0.20 },
-  { cx: 97.2, cy: 16.8, r: 1.0, o: 0.29 },
-  // Lower half — sparser so headline type reads clean
-  { cx: 5.1,  cy: 48.3, r: 0.9, o: 0.18 },
-  { cx: 12.8, cy: 62.9, r: 1.0, o: 0.22 },
-  { cx: 19.4, cy: 54.1, r: 0.8, o: 0.15 },
-  { cx: 28.7, cy: 70.6, r: 1.1, o: 0.26 },
-  { cx: 36.2, cy: 58.4, r: 0.9, o: 0.19 },
-  { cx: 42.9, cy: 76.3, r: 0.8, o: 0.14 },
-  { cx: 51.3, cy: 64.8, r: 1.0, o: 0.21 },
-  { cx: 58.6, cy: 52.7, r: 0.9, o: 0.17 },
-  { cx: 64.2, cy: 78.9, r: 1.1, o: 0.24 },
-  { cx: 71.5, cy: 61.4, r: 0.8, o: 0.16 },
-  { cx: 78.3, cy: 73.2, r: 0.9, o: 0.19 },
-  { cx: 83.7, cy: 56.8, r: 1.0, o: 0.22 },
-  { cx: 89.4, cy: 68.5, r: 0.8, o: 0.15 },
-  { cx: 94.1, cy: 51.9, r: 0.9, o: 0.18 },
-  { cx: 2.6,  cy: 37.2, r: 0.9, o: 0.21 },
-  { cx: 16.3, cy: 42.1, r: 0.8, o: 0.17 },
-  { cx: 31.9, cy: 45.8, r: 1.0, o: 0.23 },
-  { cx: 46.7, cy: 39.5, r: 0.9, o: 0.19 },
-  { cx: 60.8, cy: 44.2, r: 1.0, o: 0.24 },
-  { cx: 74.2, cy: 41.6, r: 0.8, o: 0.16 },
-  { cx: 87.9, cy: 38.3, r: 0.9, o: 0.20 },
-  // Extra mid-brightness stars — a second reading layer so the sky doesn't
-  // feel evenly stippled. Placed away from headline copy's vertical centre.
-  { cx: 9.6,  cy: 2.8,  r: 1.5, o: 0.58 },
-  { cx: 39.4, cy: 17.9, r: 1.4, o: 0.50 },
-  { cx: 67.3, cy: 26.4, r: 1.3, o: 0.46 },
-  { cx: 6.9,  cy: 28.6, r: 1.2, o: 0.42, twinkle: true },
-  { cx: 54.2, cy: 36.1, r: 1.3, o: 0.44 },
-  { cx: 96.1, cy: 3.2,  r: 1.2, o: 0.40 },
-  { cx: 24.8, cy: 66.3, r: 1.1, o: 0.30 },
-  { cx: 80.4, cy: 47.1, r: 1.2, o: 0.34 },
-];
+interface MidStar extends Star {
+  phase: number;
+  period: number;
+  warm: boolean;
+}
 
-// Mobile subset — removes every second star in the busy upper half to keep
-// performance up and the aesthetic quiet on small screens.
-const mobileStars = (stars: Star[]): Star[] =>
-  stars.filter((_, i) => i % 3 !== 2);
+interface ShootingStar {
+  x: number;
+  y: number;
+  angle: number;
+  birth: number;
+  speed: number;
+}
+
+const rand = (a: number, b: number) => a + Math.random() * (b - a);
+
+const seedBack = (w: number, h: number, n: number): Star[] =>
+  Array.from({ length: n }, () => ({
+    x: rand(0, w),
+    y: rand(0, h),
+    r: rand(0.3, 0.8),
+    o: rand(0.2, 0.5),
+    vx: rand(0.02, 0.06),
+    vy: rand(0.01, 0.04),
+  }));
+
+const seedMid = (w: number, h: number, n: number): MidStar[] =>
+  Array.from({ length: n }, () => ({
+    x: rand(0, w),
+    y: rand(0, h),
+    r: rand(0.8, 1.4),
+    o: 0,
+    vx: rand(0.03, 0.07),
+    vy: rand(0.015, 0.05),
+    phase: rand(0, Math.PI * 2),
+    period: rand(4000, 9000),
+    warm: Math.random() < 0.15,
+  }));
 
 const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
-  const prefersReduced = useReducedMotion();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
 
-  // Memoise the per-star animation-delay so React doesn't recompute on rerender.
-  const desktopStars = useMemo(() => STARS, []);
-  const smallStars = useMemo(() => mobileStars(STARS), []);
+  const drawStatic = useCallback((canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, w, h);
+
+    // nebula
+    const grad = ctx.createRadialGradient(w * 0.5, h * 0.25, 0, w * 0.5, h * 0.25, w * 0.45);
+    grad.addColorStop(0, NEBULA_COLOR);
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    const isMobile = w < MOBILE_BP;
+    const backStars = seedBack(w, h, isMobile ? 110 : 180);
+    const midStars = seedMid(w, h, isMobile ? 24 : 40);
+
+    for (const s of backStars) {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${s.o})`;
+      ctx.fill();
+    }
+    for (const s of midStars) {
+      const o = 0.35 + (0.9 - 0.35) * 0.5;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = s.warm
+        ? `rgba(255,244,224,${o})`
+        : `rgba(255,255,255,${o})`;
+      ctx.fill();
+    }
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
+    // save-data fallback
+    const nav = navigator as any;
+    if (nav.connection?.saveData) {
+      canvas.style.display = 'none';
+      container.style.background = `radial-gradient(ellipse at 50% 30%, rgba(90,110,180,0.08), ${BG} 70%)`;
+      return;
+    }
+
+    if (reducedMotion) {
+      drawStatic(canvas);
+      return;
+    }
+
+    const ctx = canvas.getContext('2d')!;
+    let dpr = window.devicePixelRatio || 1;
+    let w = 0;
+    let h = 0;
+    let backStars: Star[] = [];
+    let midStars: MidStar[] = [];
+    let shooting: ShootingStar | null = null;
+    let mouseX = 0;
+    let mouseY = 0;
+    let isTouch = 'ontouchstart' in window;
+    let visible = true;
+    let rafId = 0;
+    let lastFrame = 0;
+    let nebulaX = 0;
+    let nebulaY = 0;
+    let resizeTimer: ReturnType<typeof setTimeout>;
+
+    const resize = () => {
+      dpr = window.devicePixelRatio || 1;
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const isMobile = w < MOBILE_BP;
+      backStars = seedBack(w, h, isMobile ? 110 : 180);
+      midStars = seedMid(w, h, isMobile ? 24 : 40);
+    };
+
+    resize();
+
+    // parallax
+    const onMouseMove = (e: MouseEvent) => {
+      if (isTouch) return;
+      const rect = container.getBoundingClientRect();
+      mouseX = (e.clientX - rect.left) / rect.width - 0.5;
+      mouseY = (e.clientY - rect.top) / rect.height - 0.5;
+    };
+    container.addEventListener('mousemove', onMouseMove, { passive: true });
+
+    // visibility
+    const io = new IntersectionObserver(
+      ([entry]) => { visible = entry.intersectionRatio >= 0.1; },
+      { threshold: 0.1 }
+    );
+    io.observe(container);
+
+    // resize debounced
+    const ro = new ResizeObserver(() => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    });
+    ro.observe(container);
+
+    const trySpawnShoot = (dt: number) => {
+      if (shooting) return;
+      const p = 1 - Math.exp(-dt / SHOOT_AVG_INTERVAL);
+      if (Math.random() < p) {
+        const angleDeg = SHOOT_ANGLE_DEG + rand(-SHOOT_ANGLE_SPREAD, SHOOT_ANGLE_SPREAD);
+        const angleRad = (angleDeg * Math.PI) / 180;
+        shooting = {
+          x: rand(w * 0.3, w),
+          y: rand(0, h * 0.4),
+          angle: angleRad,
+          birth: performance.now(),
+          speed: rand(0.35, 0.55),
+        };
+      }
+    };
+
+    const drawShoot = (now: number) => {
+      if (!shooting) return;
+      const age = now - shooting.birth;
+      const totalLife = SHOOT_FADE_IN + SHOOT_TRAVEL + SHOOT_FADE_OUT;
+      if (age > totalLife) { shooting = null; return; }
+
+      let alpha: number;
+      if (age < SHOOT_FADE_IN) alpha = age / SHOOT_FADE_IN;
+      else if (age < SHOOT_FADE_IN + SHOOT_TRAVEL) alpha = 1;
+      else alpha = 1 - (age - SHOOT_FADE_IN - SHOOT_TRAVEL) / SHOOT_FADE_OUT;
+      alpha = Math.max(0, Math.min(1, alpha));
+
+      const dist = age * shooting.speed;
+      const headX = shooting.x + Math.cos(shooting.angle) * dist;
+      const headY = shooting.y + Math.sin(shooting.angle) * dist;
+      const tailX = headX - Math.cos(shooting.angle) * SHOOT_TRAIL_LEN;
+      const tailY = headY - Math.sin(shooting.angle) * SHOOT_TRAIL_LEN;
+
+      const grad = ctx.createLinearGradient(tailX, tailY, headX, headY);
+      grad.addColorStop(0, `rgba(255,255,255,0)`);
+      grad.addColorStop(1, `rgba(255,255,255,${alpha * 0.8})`);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(tailX, tailY);
+      ctx.lineTo(headX, headY);
+      ctx.stroke();
+    };
+
+    const loop = (now: number) => {
+      rafId = requestAnimationFrame(loop);
+      if (!visible) return;
+
+      const dt = lastFrame ? now - lastFrame : 16;
+      lastFrame = now;
+      // cap at ~60fps
+      if (dt < 14) return;
+
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, w, h);
+
+      // nebula drifts in upper third on 60s cycle
+      const nebulaT = (now % 60_000) / 60_000 * Math.PI * 2;
+      nebulaX = w * 0.5 + Math.sin(nebulaT) * w * 0.12;
+      nebulaY = h * 0.2 + Math.cos(nebulaT * 0.7) * h * 0.08;
+      const nebGrad = ctx.createRadialGradient(nebulaX, nebulaY, 0, nebulaX, nebulaY, w * 0.45);
+      nebGrad.addColorStop(0, NEBULA_COLOR);
+      nebGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = nebGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      const backPx = isTouch ? 0 : mouseX * w * 0.02;
+      const backPy = isTouch ? 0 : mouseY * h * 0.02;
+      const midPx = isTouch ? 0 : mouseX * w * 0.05;
+      const midPy = isTouch ? 0 : mouseY * h * 0.05;
+
+      // back layer
+      for (const s of backStars) {
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.x > w) s.x -= w;
+        if (s.y > h) s.y -= h;
+        ctx.beginPath();
+        ctx.arc(s.x + backPx, s.y + backPy, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${s.o})`;
+        ctx.fill();
+      }
+
+      // mid layer
+      for (const s of midStars) {
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.x > w) s.x -= w;
+        if (s.y > h) s.y -= h;
+        const breathe = Math.sin((now / s.period) * Math.PI * 2 + s.phase);
+        const o = 0.35 + (0.9 - 0.35) * (breathe * 0.5 + 0.5);
+        ctx.beginPath();
+        ctx.arc(s.x + midPx, s.y + midPy, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = s.warm
+          ? `rgba(255,244,224,${o})`
+          : `rgba(255,255,255,${o})`;
+        ctx.fill();
+      }
+
+      trySpawnShoot(dt);
+      drawShoot(now);
+    };
+
+    rafId = requestAnimationFrame(loop);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      io.disconnect();
+      ro.disconnect();
+      container.removeEventListener('mousemove', onMouseMove);
+      clearTimeout(resizeTimer);
+    };
+  }, [reducedMotion, drawStatic]);
 
   return (
     <div
+      ref={containerRef}
       aria-hidden="true"
       className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
+      style={{ background: BG }}
     >
-      {/* Warm-ink base (slightly warmer than pure black so it sits alongside
-          the brand's editorial zones without clashing). */}
-      <div className="absolute inset-0 bg-[#0a0908]" />
-
-      {/* Subtle vertical gradient — darker at top-left, almost-black at bottom
-          — so the stars feel like they sit in depth rather than on a flat plate. */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(26,77,46,0.12),transparent_55%)]" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050403]" />
-
-      {/* Moss aurora — a hushed horizontal band of moss glow that sits just
-          above the horizon line. Adds depth without competing with headline
-          copy. Very low opacity so it reads as ambient atmosphere, not effect. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0"
-        style={{
-          top: '60%',
-          height: '26%',
-          background:
-            'radial-gradient(ellipse 55% 100% at 50% 100%, rgba(26,77,46,0.22) 0%, rgba(26,77,46,0.08) 40%, transparent 75%)',
-          filter: 'blur(6px)',
-        }}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
       />
-
-      {/* Star SVG — desktop */}
-      <svg
-        viewBox="0 0 100 80"
-        preserveAspectRatio="xMidYMid slice"
-        className="absolute inset-0 h-full w-full hidden md:block"
-      >
-        {desktopStars.map((s, i) => (
-          <circle
-            key={i}
-            cx={s.cx}
-            cy={s.cy}
-            r={s.r * 0.18}
-            fill="#ffffff"
-            opacity={s.twinkle && !prefersReduced ? undefined : s.o}
-            className={
-              s.twinkle && !prefersReduced ? 'sh-star-twinkle' : undefined
-            }
-            style={
-              s.twinkle && !prefersReduced
-                ? ({
-                    animationDelay: `${(i % 3) * 1.4}s`,
-                    ['--sh-o' as any]: s.o,
-                  } as React.CSSProperties)
-                : undefined
-            }
-          />
-        ))}
-        {/* Anchor star — the "north star". Slightly brighter, haloed moss.
-            Outer halo (wider, dimmer) + inner halo (tighter, warmer) so the
-            anchor carries more presence without becoming an ornament. */}
-        <g>
-          <circle
-            cx="79.5"
-            cy="12.5"
-            r="2.4"
-            fill="#1A4D2E"
-            opacity="0.28"
-            className={!prefersReduced ? 'sh-star-halo' : undefined}
-          />
-          <circle
-            cx="79.5"
-            cy="12.5"
-            r="1.3"
-            fill="#1A4D2E"
-            opacity="0.55"
-            className={!prefersReduced ? 'sh-star-halo' : undefined}
-          />
-          <circle cx="79.5" cy="12.5" r="0.7" fill="#ffffff" opacity="1" />
-          {/* 4-point sparkle cross — reads as "brighter than a dot" */}
-          <line x1="79.5" y1="10.3" x2="79.5" y2="14.7" stroke="#ffffff" strokeWidth="0.08" opacity="0.7" />
-          <line x1="77.3" y1="12.5" x2="81.7" y2="12.5" stroke="#ffffff" strokeWidth="0.08" opacity="0.7" />
-        </g>
-      </svg>
-
-      {/* Star SVG — mobile (sparser) */}
-      <svg
-        viewBox="0 0 100 80"
-        preserveAspectRatio="xMidYMid slice"
-        className="absolute inset-0 h-full w-full md:hidden"
-      >
-        {smallStars.map((s, i) => (
-          <circle
-            key={i}
-            cx={s.cx}
-            cy={s.cy}
-            r={s.r * 0.2}
-            fill="#ffffff"
-            opacity={s.twinkle && !prefersReduced ? undefined : s.o}
-            className={
-              s.twinkle && !prefersReduced ? 'sh-star-twinkle' : undefined
-            }
-            style={
-              s.twinkle && !prefersReduced
-                ? ({
-                    animationDelay: `${(i % 3) * 1.4}s`,
-                    ['--sh-o' as any]: s.o,
-                  } as React.CSSProperties)
-                : undefined
-            }
-          />
-        ))}
-        <g>
-          <circle
-            cx="79.5"
-            cy="12.5"
-            r="2.6"
-            fill="#1A4D2E"
-            opacity="0.30"
-            className={!prefersReduced ? 'sh-star-halo' : undefined}
-          />
-          <circle
-            cx="79.5"
-            cy="12.5"
-            r="1.4"
-            fill="#1A4D2E"
-            opacity="0.55"
-            className={!prefersReduced ? 'sh-star-halo' : undefined}
-          />
-          <circle cx="79.5" cy="12.5" r="0.75" fill="#ffffff" opacity="1" />
-          <line x1="79.5" y1="10.1" x2="79.5" y2="14.9" stroke="#ffffff" strokeWidth="0.1" opacity="0.7" />
-          <line x1="77.1" y1="12.5" x2="81.9" y2="12.5" stroke="#ffffff" strokeWidth="0.1" opacity="0.7" />
-        </g>
-      </svg>
-
-      {/* Horizon line — a single thin moss stroke in the lower third.
-          Conceptual "ground" so the stars above feel positioned, not floating. */}
-      <div
-        className="absolute left-0 right-0 h-px"
-        style={{
-          top: '78%',
-          background:
-            'linear-gradient(to right, transparent 0%, rgba(26,77,46,0.0) 8%, rgba(26,77,46,0.35) 50%, rgba(26,77,46,0.0) 92%, transparent 100%)',
-        }}
-      />
-
-      {/* Keyframes — scoped here so the component is self-contained and
-          doesn't leak animation names into the global stylesheet. */}
-      <style>{`
-        @keyframes sh-star-twinkle {
-          0%, 100% { opacity: var(--sh-o, 0.35); }
-          50%      { opacity: calc(var(--sh-o, 0.35) * 0.25); }
-        }
-        .sh-star-twinkle {
-          animation: sh-star-twinkle 6s ease-in-out infinite;
-        }
-        @keyframes sh-star-halo {
-          0%, 100% { opacity: 0.35; transform-origin: center; }
-          50%      { opacity: 0.6; }
-        }
-        .sh-star-halo {
-          transform-box: fill-box;
-          transform-origin: center;
-          animation: sh-star-halo 7s ease-in-out infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .sh-star-twinkle, .sh-star-halo { animation: none !important; }
-        }
-      `}</style>
     </div>
   );
 };
