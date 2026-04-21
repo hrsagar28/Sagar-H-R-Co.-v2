@@ -11,7 +11,6 @@ import {
 } from '../components';
 import { AccentTitle } from '../components/ui/AccentTitle';
 import TrustBar from '../components/home/TrustBar';
-import TestimonialCarousel from '../components/home/TestimonialCarousel';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useInsights } from '../hooks';
 import { BigCTA } from '../components/ui/BigCTA';
@@ -187,7 +186,7 @@ const Home: React.FC = () => {
 
               <div className="relative z-10 flex flex-col h-full">
                 <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-[#4ADE80] group-hover:scale-110 transition-transform duration-500 mb-8 border border-white/5 shadow-lg shadow-black/20">
-                  {React.cloneElement(service.icon as React.ReactElement<{size?: number}>, { size: 32 })}
+                  {React.cloneElement(service.icon as React.ReactElement<{ size?: number }>, { size: 32 })}
                 </div>
 
                 <div className="mb-auto">
@@ -224,9 +223,6 @@ const Home: React.FC = () => {
       {/* 5. TRUST BAR — moved below Services. Now reads as "and these are the
              sectors we've actually served", not decorative noise upfront. */}
       <TrustBar />
-
-      {/* 6. TESTIMONIALS */}
-      <TestimonialCarousel />
 
       {/* 7. RECENT INSIGHTS */}
       {recentInsights.length > 0 && (
@@ -312,42 +308,6 @@ const Home: React.FC = () => {
 
       {/* 9. MARQUEE */}
       <Marquee />
-
-      {/* 10. CAREERS BANNER */}
-      <Reveal width="100%">
-        <section className="py-20 bg-brand-surface border-t border-brand-border/50">
-          <div className="container mx-auto max-w-7xl px-4 md:px-6">
-            <div className="bg-brand-moss rounded-[2.5rem] p-10 md:p-16 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl shadow-brand-moss/20">
-              {/* Decorative */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-[60px] pointer-events-none -mr-10 -mt-10"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-black opacity-10 rounded-full blur-[60px] pointer-events-none -ml-10 -mb-10"></div>
-
-              <div className="relative z-10 max-w-xl">
-                <span className="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
-                  Join the Firm
-                </span>
-                <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6">
-                  Build your career with <br/>
-                  <span className="text-white/70">industry experts.</span>
-                </h2>
-                <p className="text-white/80 text-lg font-medium leading-relaxed">
-                  We are always looking for dedicated professionals. Explore opportunities for Articleship and Audit Associates.
-                </p>
-              </div>
-
-              <div className="relative z-10 shrink-0">
-                <Link
-                  to="/careers"
-                  className="group flex items-center gap-4 bg-white text-brand-moss px-8 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:text-white transition-all duration-300 shadow-xl"
-                >
-                  Open Positions
-                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </Reveal>
 
       {/* 11. LOCATION STRIP */}
       <LocationStrip />
