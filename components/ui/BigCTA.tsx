@@ -31,25 +31,25 @@ export function BigCTA({
         return {
           container: 'border-brand-moss text-brand-moss',
           fillBg: 'bg-brand-moss',
-          labelOnFill: 'text-brand-paper',
+          labelOnFill: 'group-hover:text-brand-paper',
         };
       case 'ink':
         return {
           container: 'border-brand-ink text-brand-ink',
           fillBg: 'bg-brand-ink',
-          labelOnFill: 'text-brand-paper',
+          labelOnFill: 'group-hover:text-brand-paper',
         };
       case 'paper':
         return {
           container: 'border-brand-paper text-brand-paper',
           fillBg: 'bg-brand-paper',
-          labelOnFill: 'text-brand-ink',
+          labelOnFill: 'group-hover:text-brand-ink',
         };
       case 'brass':
         return {
           container: 'border-brand-brass text-brand-brass',
           fillBg: 'bg-brand-brass',
-          labelOnFill: 'text-brand-ink',
+          labelOnFill: 'group-hover:text-brand-ink',
         };
     }
   };
@@ -62,7 +62,7 @@ export function BigCTA({
   const tones = getToneClasses();
   const classes = `group relative inline-flex items-center justify-center gap-3 rounded-full overflow-hidden border font-serif italic transition-colors duration-500 ease-out-expo ${tones.container} ${getSizeClasses()} ${className}`;
   const fillBgClass = tones.fillBg;
-  const labelOnFillClass = `group-hover:${tones.labelOnFill}`;
+  const labelOnFillClass = tones.labelOnFill;
 
   const InnerContent = () => (
     <>

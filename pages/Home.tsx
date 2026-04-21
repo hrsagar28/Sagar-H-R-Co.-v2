@@ -122,14 +122,14 @@ const Home: React.FC = () => {
 
             <div className="flex flex-col items-start gap-8">
               <Reveal delay={0.4}>
-                <div className="flex items-center gap-4 text-white/80 text-lg md:text-xl font-medium border-l-2 border-[#4ADE80] pl-6">
+                <div className="flex items-center gap-4 text-white/80 text-lg md:text-xl font-medium border-l-2 border-[#4ADE80] pl-4 md:pl-6">
                   <span className="block">Chartered Accountants based in Mysuru. Providing services in Audit, Taxation, and Regulatory Compliance.</span>
                 </div>
               </Reveal>
 
               <div className="flex flex-col md:flex-row items-start md:items-center gap-8 w-full mt-4">
                 <Reveal delay={0.5}>
-                  <BigCTA to="/contact" tone="moss" size="lg">Engage the practice</BigCTA>
+                  <BigCTA to="/contact" tone="paper" size="lg">Engage the practice</BigCTA>
                 </Reveal>
 
                 <Reveal delay={0.6} variant="fade-up">
@@ -158,8 +158,8 @@ const Home: React.FC = () => {
       <FounderSection />
 
       {/* 4. IMMERSIVE SERVICES (Horizontal Scroll) */}
-      <section className="bg-brand-black text-white relative z-30 pt-32 pb-20">
-        <div className="container mx-auto max-w-7xl relative z-10 px-4 mb-20">
+      <section className="bg-brand-black text-white relative z-30 pt-16 md:pt-32 pb-20">
+        <div className="container mx-auto max-w-7xl relative z-10 px-4 mb-10 md:mb-20">
           <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-10">
             <Reveal>
               <span className="text-amber-400 font-bold tracking-widest uppercase text-xs mb-4 block">Practice Areas</span>
@@ -226,12 +226,12 @@ const Home: React.FC = () => {
 
       {/* 7. RECENT INSIGHTS */}
       {recentInsights.length > 0 && (
-        <section className="py-32 px-4 md:px-6 bg-white relative overflow-hidden border-t border-brand-border/60">
+        <section className="py-16 md:py-32 px-4 md:px-6 bg-white relative overflow-hidden border-t border-brand-border/60">
           <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
 
           <div className="container mx-auto max-w-7xl relative z-10">
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8 md:mb-16">
               <div>
                 <Reveal>
                   <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Knowledge Base</span>
@@ -261,7 +261,7 @@ const Home: React.FC = () => {
 
                       <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-brand-moss to-[#4ADE80] transition-all duration-700" />
 
-                      <div className="p-8 flex flex-col flex-grow">
+                      <div className="p-6 md:p-8 flex flex-col flex-grow">
                         <div className="flex items-center justify-between mb-6">
                           <span className="px-3 py-1 bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-wider rounded-full">
                             {insight.category}
