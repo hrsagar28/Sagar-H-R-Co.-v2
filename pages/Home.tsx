@@ -250,7 +250,35 @@ const Home: React.FC = () => {
               </Reveal>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Mobile: compact list view */}
+            <div className="md:hidden divide-y divide-brand-border/60">
+              {recentInsights.map((insight, i) => (
+                <Reveal key={insight.id} delay={i * 0.05} width="100%">
+                  <Link
+                    to={`/insights/${insight.slug}`}
+                    className="group flex items-center gap-4 py-4 -mx-1 px-1 rounded-xl hover:bg-brand-bg/80 transition-colors"
+                  >
+                    <span className="text-xs font-bold font-mono text-brand-moss/70 w-6 shrink-0 tabular-nums">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-heading font-bold text-brand-dark group-hover:text-brand-moss transition-colors leading-snug mb-1">
+                        {insight.title}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-brand-moss">{insight.category}</span>
+                        <span className="text-brand-border text-xs">·</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-brand-dark">{insight.date}</span>
+                      </div>
+                    </div>
+                    <ArrowRight size={14} className="shrink-0 text-brand-dark group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+
+            {/* Desktop: card grid */}
+            <div className="hidden md:grid grid-cols-3 gap-8">
               {recentInsights.map((insight, i) => (
                 <Reveal key={insight.id} delay={i * 0.1} width="100%">
                   <Link

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { FAQS } from '../../constants/faq';
@@ -10,7 +10,14 @@ const { Link } = ReactRouterDOM;
 const FAQPreview: React.FC = () => {
   // Get top 3 General FAQs
   const featuredFaqs = FAQS.filter(f => f.category === 'General & Onboarding').slice(0, 3);
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  // Open first FAQ by default on desktop only
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      setOpenIndex(0);
+    }
+  }, []);
 
   return (
     <section className="py-32 px-4 md:px-6 bg-brand-bg relative">

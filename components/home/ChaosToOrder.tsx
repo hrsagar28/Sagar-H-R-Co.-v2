@@ -239,16 +239,18 @@ const ChaosToOrder: React.FC = () => {
               className="absolute top-3 left-3 md:top-5 md:left-6 pointer-events-none"
               style={{ zIndex: 3 }}
             >
-              <span className="inline-block px-2 py-1 bg-[#f4f1ea]/85 backdrop-blur-sm rounded text-[#8b3a2f] font-mono tracking-[0.2em] uppercase" style={{ fontSize: 'clamp(8px, 1.4vw, 11px)' }}>
-                Before · filings, forgotten
+              <span className="inline-block px-2 py-1 bg-[#8b3a2f]/85 backdrop-blur-sm rounded text-[#f4f1ea] font-mono tracking-[0.15em] uppercase" style={{ fontSize: 'clamp(9px, 1.4vw, 11px)' }}>
+                <span className="md:hidden">Before</span>
+                <span className="hidden md:inline">Before · filings, forgotten</span>
               </span>
             </div>
             <div
-              className="absolute top-3 right-3 md:top-5 md:right-6 pointer-events-none"
+              className="absolute bottom-3 right-3 md:bottom-auto md:top-5 md:right-6 pointer-events-none"
               style={{ zIndex: 3 }}
             >
-              <span className="inline-block px-2 py-1 bg-[#f4f1ea]/85 backdrop-blur-sm rounded text-[#0a0908] font-mono tracking-[0.2em] uppercase" style={{ fontSize: 'clamp(8px, 1.4vw, 11px)' }}>
-                After · filings, finalised
+              <span className="inline-block px-2 py-1 bg-[#0a0908]/85 backdrop-blur-sm rounded text-[#f4f1ea] font-mono tracking-[0.15em] uppercase" style={{ fontSize: 'clamp(9px, 1.4vw, 11px)' }}>
+                <span className="md:hidden">After</span>
+                <span className="hidden md:inline">After · filings, finalised</span>
               </span>
             </div>
           </div>
