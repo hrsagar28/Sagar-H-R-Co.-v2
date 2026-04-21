@@ -1,7 +1,7 @@
 
 import React from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-import { Linkedin, ArrowUp, ArrowRight } from 'lucide-react';
+import { Linkedin, ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import { toRomanNumeral } from '../utils/toRomanNumeral';
 
@@ -67,6 +67,7 @@ const Footer: React.FC = React.memo(() => {
                        {[
                           { name: "Client Resources", path: "/resources" },
                           { name: "FAQs", path: "/faqs" },
+                          { name: "Careers", path: "/careers" },
                           { name: "Contact Us", path: "/contact" },
                        ].map(link => (
                           <li key={link.name}>
@@ -102,21 +103,9 @@ const Footer: React.FC = React.memo(() => {
            </div>
         </div>
 
-        {/* Hiring Strip */}
-        <div className="px-6 md:px-20 border-t border-white/10 relative z-10">
-          <div className="py-5 flex items-center gap-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Hiring articled assistants</span>
-            <span className="text-zinc-700 text-xs select-none">—</span>
-            <Link to="/careers" className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-brand-moss hover:text-white transition-colors group">
-              See Careers
-              <ArrowRight size={11} className="group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-        </div>
-
         {/* Bottom Section: Legal */}
         <div className="px-6 md:px-20 pb-10 relative z-10">
-           <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
+           <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
               <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-500">
                  <div className="flex flex-col gap-1 text-zinc-500 mr-4">
                     <span>
