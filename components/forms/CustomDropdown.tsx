@@ -152,14 +152,15 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
 
   return (
     <div className="flex flex-col gap-2 relative z-dropdown" ref={dropdownRef}>
-      <label 
-        id={labelId} 
-        className="flex items-center gap-2 text-xs font-bold text-brand-dark uppercase tracking-widest mb-1 ml-1"
+      <label
+        id={labelId}
+        className="flex items-center gap-2 text-xs font-bold zone-text uppercase tracking-widest mb-1 ml-1"
       >
         {icon} {label} {required && <span className="text-red-500" aria-hidden="true">*</span>}
+        {required && <span className="sr-only"> (required)</span>}
       </label>
-      
-      <button 
+
+      <button
         ref={buttonRef}
         type="button"
         role="combobox"
@@ -173,17 +174,17 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         className={`
-          w-full bg-brand-bg border py-4 px-6 rounded-2xl text-brand-dark text-left
-          focus:outline-none focus:ring-2 focus:ring-brand-moss focus:border-brand-moss transition-all flex justify-between items-center group
-          ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'}
+          w-full zone-bg border py-4 px-6 rounded-2xl zone-text text-left
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--zone-accent)] focus-visible:border-[color:var(--zone-accent)] transition-all duration-200 flex justify-between items-center group
+          ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-[color:var(--zone-accent)] ring-1 ring-[color:var(--zone-accent)]' : 'zone-border'}
         `}
       >
-        <span className={value ? "text-brand-dark font-medium" : "text-brand-stone/40 font-medium"}>
+        <span className={value ? "zone-text font-medium" : "zone-text-muted font-medium opacity-70"}>
           {value || placeholder}
         </span>
-        <ChevronDown size={20} className={`text-brand-stone transition-transform duration-300 ${isOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} />
+        <ChevronDown size={20} className={`zone-text-muted transition-transform duration-300 ${isOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} aria-hidden="true" />
       </button>
-      
+
       {error && (
         <p id={errorId} className="text-red-500 text-xs mt-1 font-bold" role="alert" aria-live="polite">
           {error}
@@ -197,25 +198,25 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         aria-labelledby={labelId}
         tabIndex={-1}
         className={`
-          absolute top-full left-0 w-full mt-2 bg-brand-surface border border-brand-border rounded-2xl shadow-xl 
+          absolute top-full left-0 w-full mt-2 zone-surface border zone-border rounded-2xl shadow-xl
           overflow-hidden max-h-60 overflow-y-auto py-2 no-scrollbar outline-none z-popover
           transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top
-          ${isOpen 
-            ? 'opacity-100 scale-100 translate-y-0 visible pointer-events-auto' 
+          ${isOpen
+            ? 'opacity-100 scale-100 translate-y-0 visible pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-2 invisible pointer-events-none'}
         `}
       >
         {options.map((option, idx) => option === '---' ? (
-          <li key={`div-${idx}`} className="h-px bg-brand-border my-2 mx-4 pointer-events-none" aria-hidden="true" />
+          <li key={`div-${idx}`} className="h-px zone-hairline my-2 mx-4 pointer-events-none" aria-hidden="true" />
         ) : (
-          <li 
+          <li
             key={idx}
             id={`${name}-option-${idx}`}
             role="option"
             aria-selected={value === option}
             className={`
-              px-6 py-3 cursor-pointer flex justify-between items-center transition-colors
-              ${activeIndex === idx ? 'bg-brand-bg text-brand-moss' : 'text-brand-dark'}
+              px-6 py-3 cursor-pointer flex justify-between items-center transition-colors duration-150
+              ${activeIndex === idx ? 'zone-bg zone-accent' : 'zone-text'}
               ${value === option ? 'font-bold' : ''}
             `}
             onClick={() => handleSelect(option)}
@@ -224,7 +225,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             <span className="text-base font-medium">
               {option}
             </span>
-            {value === option && <Check size={16} className="text-brand-moss" />}
+            {value === option && <Check size={16} className="zone-accent" aria-hidden="true" />}
           </li>
         ))}
       </ul>

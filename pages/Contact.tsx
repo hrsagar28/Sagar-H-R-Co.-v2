@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock, MessageCircle, Copy } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock, MessageCircle, Copy, ArrowUpRight } from 'lucide-react';
 import { PageHero } from '../components/hero';
 import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
@@ -185,7 +185,7 @@ const Contact: React.FC = () => {
       <PageHero
         variant="directory"
         eyebrow="§ Contact / 06 · Direct Lines"
-        title={<>Begin a <em>conversation</em>.</>}
+        title={<>Begin a <em>conversation.</em></>}
         coordinates="12.3004° N · 76.6518° E"
         contacts={[
           { label: "By Letter", value: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}` },
@@ -218,7 +218,7 @@ const Contact: React.FC = () => {
                   <div className="space-y-6">
                     {/* Office */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <MapPin size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -232,13 +232,13 @@ const Contact: React.FC = () => {
 
                     {/* Email */}
                     <div className="flex items-start gap-5 group relative">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <Mail size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h3 className="text-white font-bold text-sm uppercase tracking-wide">Email Us</h3>
-                          <button onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-white rounded" aria-label="Copy Email" title="Copy Email">
+                          <button onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass" aria-label="Copy Email" title="Copy Email">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -250,13 +250,13 @@ const Contact: React.FC = () => {
 
                     {/* Phone */}
                     <div className="flex items-start gap-5 group relative">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <Phone size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h3 className="text-white font-bold text-sm uppercase tracking-wide">Call Us</h3>
-                          <button onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-white rounded" aria-label="Copy Phone" title="Copy Phone">
+                          <button onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass" aria-label="Copy Phone" title="Copy Phone">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -268,7 +268,7 @@ const Contact: React.FC = () => {
 
                     {/* Working Hours */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <Clock size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -279,29 +279,45 @@ const Contact: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* WhatsApp */}
-                    {CONTACT_INFO.social.whatsapp && (
-                      <div className="flex items-start gap-5 group">
-                        <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
-                          <MessageCircle size={18} aria-hidden="true" />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">WhatsApp</h3>
-                          <a href={CONTACT_INFO.social.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
-                            Message Us
-                          </a>
-                        </div>
+                  </div>
+
+                  {/* Primary WhatsApp CTA — full-card clickable */}
+                  {CONTACT_INFO.social.whatsapp && (
+                    <a
+                      href={CONTACT_INFO.social.whatsapp}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Chat with us on WhatsApp — opens in a new tab"
+                      className="mt-8 relative overflow-hidden flex items-center gap-4 bg-white/[0.04] hover:bg-brand-brass/15 border border-white/10 hover:border-brand-brass/40 rounded-2xl p-4 group transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--zone-bg)]"
+                    >
+                      <span aria-hidden="true" className="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-[900ms] ease-out-expo bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+                      <div className="relative w-12 h-12 bg-brand-brass/20 rounded-xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 shrink-0">
+                        <MessageCircle size={22} aria-hidden="true" />
                       </div>
-                    )}
+                      <div className="relative flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-bold text-[0.95rem] tracking-tight">Chat on WhatsApp</span>
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-brand-brass bg-brand-brass/10 border border-brand-brass/30 px-2 py-0.5 rounded-full">
+                            <span className="w-1.5 h-1.5 bg-brand-brass rounded-full animate-pulse" />
+                            Fastest
+                          </span>
+                        </div>
+                        <p className="text-gray-400 group-hover:text-gray-200 transition-colors text-xs font-medium mt-0.5">
+                          Typical reply in under an hour.
+                        </p>
+                      </div>
+                      <ArrowUpRight size={18} className="relative text-gray-500 group-hover:text-brand-brass group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 shrink-0" aria-hidden="true" />
+                    </a>
+                  )}
                   </div>
                 </div>
               </div>
             </Reveal>
           </div>
 
-          {/* Right Column: Contact Form (Light Theme) */}
+          {/* Right Column: Contact Form — inherits editorial zone (dark) */}
           <Reveal className="lg:col-span-8" delay={0.1} width="100%">
-            <div className="zone-surface p-8 md:p-12 rounded-[2.5rem] border zone-border h-full shadow-lg flex flex-col justify-center">
+            <div className="zone-surface p-8 md:p-12 rounded-[2.5rem] border border-white/10 h-full shadow-2xl shadow-black/40 focus-within:border-brand-brass/30 focus-within:shadow-brand-brass/10 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
               {isSuccess ? (
                 <div role="status" aria-live="polite" className="text-center py-10 animate-fade-in-up">
                   <div className="w-20 h-20 bg-brand-brass/20 text-brand-brass rounded-full flex items-center justify-center mx-auto mb-6">
@@ -338,7 +354,7 @@ const Contact: React.FC = () => {
                         maxLength={80}
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
+                        className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
                         placeholder="Your Name"
                         autoComplete="name"
                       />
@@ -349,7 +365,7 @@ const Contact: React.FC = () => {
                         maxLength={15}
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
+                        className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
                         placeholder="Mobile Number"
                         autoComplete="tel"
                       />
@@ -364,7 +380,7 @@ const Contact: React.FC = () => {
                         maxLength={254}
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
+                        className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
                         placeholder="email@company.com"
                         autoComplete="email"
                       />
@@ -376,7 +392,7 @@ const Contact: React.FC = () => {
                         maxLength={120}
                         value={values.companyName}
                         onChange={(e) => handleChange('companyName', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
+                        className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
                         placeholder="Company Name"
                         autoComplete="organization"
                       />
@@ -402,7 +418,7 @@ const Contact: React.FC = () => {
                             maxLength={80}
                             value={values.subjectOther}
                             onChange={(e) => handleChange('subjectOther', e.target.value)}
-                            className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
+                            className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
                             placeholder="What is your inquiry regarding?"
                           />
                         </FormField>
@@ -411,19 +427,21 @@ const Contact: React.FC = () => {
                   </div>
 
                   {/* Row 4: Message */}
-                  <FormField 
-                    label="Message" 
-                    name="message" 
-                    required 
+                  <FormField
+                    label="Message"
+                    name="message"
+                    required
                     error={errors.message}
-                    hint={`${values.message.length} / 2000`}
+                    hint={values.message.length > 1800
+                      ? `${values.message.length} / 2000 — approaching limit`
+                      : `${values.message.length} / 2000`}
                   >
                     <textarea
                       rows={4}
                       maxLength={2000}
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all resize-none"
+                      className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200 resize-none leading-relaxed"
                       placeholder="How can we help you?"
                     ></textarea>
                   </FormField>
