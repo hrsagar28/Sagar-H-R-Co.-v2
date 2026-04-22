@@ -19,7 +19,15 @@ export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children
   const displayDesc = description || blurb;
   
   return (
-    <section className={`pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg bg-grid relative overflow-hidden border-b border-brand-border/60 ${className}`}>
+    <section className={`pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg relative overflow-hidden border-b border-brand-border/60 ${className}`}>
+        {/* Faded Grid Background */}
+        <div 
+          className="absolute inset-0 bg-grid pointer-events-none" 
+          style={{ 
+            maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', 
+            WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' 
+          }} 
+        />
         <div className="container mx-auto max-w-7xl relative z-10">
            <div className="max-w-5xl">
               {displayTag && (
