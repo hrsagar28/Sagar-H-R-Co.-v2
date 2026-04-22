@@ -188,12 +188,12 @@ const Contact: React.FC = () => {
             <Reveal width="100%">
               <div className="zone-bg text-brand-surface p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl">
                 {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-moss opacity-20 rounded-full blur-[80px] pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-brass opacity-20 rounded-full blur-[80px] pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full blur-[60px] pointer-events-none"></div>
                 <div className="absolute inset-0 bg-noise opacity-[0.15] mix-blend-overlay pointer-events-none"></div>
 
                 <div className="relative z-10">
-                  <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
+                  <span className="text-brand-brass font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
                   <h2 className="text-2xl font-heading font-bold text-white mb-8">
                     Let's discuss your <br /> <span className="text-white/60">financial future.</span>
                   </h2>
@@ -201,7 +201,7 @@ const Contact: React.FC = () => {
                   <div className="space-y-6">
                     {/* Office */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
                         <MapPin size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -215,7 +215,7 @@ const Contact: React.FC = () => {
 
                     {/* Email */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
                         <Mail size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -228,7 +228,7 @@ const Contact: React.FC = () => {
 
                     {/* Phone */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
                         <Phone size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -241,7 +241,7 @@ const Contact: React.FC = () => {
 
                     {/* Working Hours */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
                         <Clock size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -262,7 +262,7 @@ const Contact: React.FC = () => {
             <div className="zone-surface p-8 md:p-12 rounded-[2.5rem] border zone-border h-full shadow-lg flex flex-col justify-center">
               {isSuccess ? (
                 <div role="status" aria-live="polite" className="text-center py-10 animate-fade-in-up">
-                  <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-brand-brass/20 text-brand-brass rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle size={40} aria-hidden="true" />
                   </div>
                   <h3 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold zone-text mb-4">Message Sent!</h3>
@@ -271,7 +271,7 @@ const Contact: React.FC = () => {
                   </p>
                   <button
                     onClick={() => setIsSuccess(false)}
-                    className="text-brand-moss font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2 rounded-md px-1"
+                    className="text-brand-brass font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass focus-visible:ring-offset-2 rounded-md px-1"
                   >
                     Send another message
                   </button>
@@ -295,7 +295,7 @@ const Contact: React.FC = () => {
                         type="text"
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
                         placeholder="Your Name"
                         autoComplete="name"
                       />
@@ -305,7 +305,7 @@ const Contact: React.FC = () => {
                         type="tel"
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
                         placeholder="Mobile Number"
                         autoComplete="tel"
                       />
@@ -319,7 +319,7 @@ const Contact: React.FC = () => {
                         type="email"
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
                         placeholder="email@company.com"
                         autoComplete="email"
                       />
@@ -330,7 +330,7 @@ const Contact: React.FC = () => {
                         type="text"
                         value={values.companyName}
                         onChange={(e) => handleChange('companyName', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
                         placeholder="Company Name"
                         autoComplete="organization"
                       />
@@ -355,7 +355,7 @@ const Contact: React.FC = () => {
                       rows={4}
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all resize-none"
+                      className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all resize-none"
                       placeholder="How can we help you?"
                     ></textarea>
                   </FormField>
@@ -363,7 +363,7 @@ const Contact: React.FC = () => {
                   <BigCTA
                     type="submit"
                     disabled={isSubmitting || !canSubmit}
-                    tone="moss" size="lg"
+                    tone="brass" size="lg"
                   >
                     {isSubmitting ? (
                       <>
