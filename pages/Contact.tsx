@@ -1,11 +1,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock, MessageCircle, Copy } from 'lucide-react';
 import { PageHero } from '../components/hero';
 import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
 import { CONTACT_INFO, SERVICES } from '../constants';
-import { useFormValidation, useToast, useRateLimit } from '../hooks';
+import { useFormValidation, useToast, useRateLimit, useFormDraft } from '../hooks';
 import { createFormSchema, required, email, indianPhone } from '../utils/formValidation';
 import { apiClient, ApiError } from '../utils/api';
 import { sanitizeInput } from '../utils/sanitize';
@@ -21,6 +21,7 @@ interface ContactFormData {
   phone: string;
   companyName: string;
   subject: string;
+  subjectOther: string;
   message: string;
 }
 
@@ -55,11 +56,26 @@ const Contact: React.FC = () => {
     phone: '',
     companyName: '',
     subject: '',
+    subjectOther: '',
     message: ''
   }, {
     validationSchema: contactSchema,
     validateOnChange: true
   });
+
+  const { loadDraft, clearDraft, lastSaved } = useFormDraft('contact_form_draft', values);
+
+  useEffect(() => {
+    const draft = loadDraft();
+    if (draft && !values.name && !values.email && !values.phone) {
+      setValues(draft);
+    }
+  }, []); // Run once on mount
+
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    addToast(`${label} copied to clipboard!`, 'success');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +97,7 @@ const Contact: React.FC = () => {
           email: sanitizeInput(values.email),
           phone: sanitizeInput(values.phone),
           company: sanitizeInput(values.companyName),
-          subject: sanitizeInput(values.subject) || 'Contact Form Inquiry',
+          subject: sanitizeInput(values.subject === 'Other' ? values.subjectOther || 'Other' : values.subject) || 'Contact Form Inquiry',
           message: sanitizeInput(values.message),
           _subject: `New Inquiry: ${sanitizeInput(values.name)}`,
           _honey: formData.get('_honey') || '',
@@ -91,7 +107,8 @@ const Contact: React.FC = () => {
 
         setIsSuccess(true);
         recordAttempt();
-        setValues({ name: '', email: '', phone: '', companyName: '', subject: '', message: '' });
+        clearDraft();
+        setValues({ name: '', email: '', phone: '', companyName: '', subject: '', subjectOther: '', message: '' });
         addToast('Message sent successfully!', 'success');
 
       } catch (error) {
@@ -214,12 +231,17 @@ const Contact: React.FC = () => {
                     </div>
 
                     {/* Email */}
-                    <div className="flex items-start gap-5 group">
+                    <div className="flex items-start gap-5 group relative">
                       <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
                         <Mail size={18} aria-hidden="true" />
                       </div>
-                      <div>
-                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Email Us</h3>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center mb-1">
+                          <h3 className="text-white font-bold text-sm uppercase tracking-wide">Email Us</h3>
+                          <button onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-white rounded" aria-label="Copy Email" title="Copy Email">
+                            <Copy size={14} />
+                          </button>
+                        </div>
                         <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-white transition-colors font-medium break-words text-sm">
                           {CONTACT_INFO.email}
                         </a>
@@ -227,12 +249,17 @@ const Contact: React.FC = () => {
                     </div>
 
                     {/* Phone */}
-                    <div className="flex items-start gap-5 group">
+                    <div className="flex items-start gap-5 group relative">
                       <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
                         <Phone size={18} aria-hidden="true" />
                       </div>
-                      <div>
-                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Call Us</h3>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center mb-1">
+                          <h3 className="text-white font-bold text-sm uppercase tracking-wide">Call Us</h3>
+                          <button onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-white rounded" aria-label="Copy Phone" title="Copy Phone">
+                            <Copy size={14} />
+                          </button>
+                        </div>
                         <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
                           {CONTACT_INFO.phone.display}
                         </a>
@@ -251,6 +278,21 @@ const Contact: React.FC = () => {
                         </p>
                       </div>
                     </div>
+
+                    {/* WhatsApp */}
+                    {CONTACT_INFO.social.whatsapp && (
+                      <div className="flex items-start gap-5 group">
+                        <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
+                          <MessageCircle size={18} aria-hidden="true" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">WhatsApp</h3>
+                          <a href={CONTACT_INFO.social.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
+                            Message Us
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -293,6 +335,7 @@ const Contact: React.FC = () => {
                     <FormField label="Name" name="name" required error={errors.name}>
                       <input
                         type="text"
+                        maxLength={80}
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
                         className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
@@ -303,6 +346,7 @@ const Contact: React.FC = () => {
                     <FormField label="Phone" name="phone" required error={errors.phone}>
                       <input
                         type="tel"
+                        maxLength={15}
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
                         className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
@@ -317,6 +361,7 @@ const Contact: React.FC = () => {
                     <FormField label="Email" name="email" required error={errors.email}>
                       <input
                         type="email"
+                        maxLength={254}
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
                         className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
@@ -328,6 +373,7 @@ const Contact: React.FC = () => {
                     <FormField label="Company Name" name="companyName">
                       <input
                         type="text"
+                        maxLength={120}
                         value={values.companyName}
                         onChange={(e) => handleChange('companyName', e.target.value)}
                         className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
@@ -347,12 +393,34 @@ const Contact: React.FC = () => {
                       onChange={(name, val) => handleChange(name as keyof ContactFormData, val)}
                       placeholder="Select a topic"
                     />
+                    
+                    {values.subject === 'Other' && (
+                      <div className="w-full mt-6">
+                        <FormField label="Please specify" name="subjectOther">
+                          <input
+                            type="text"
+                            maxLength={80}
+                            value={values.subjectOther}
+                            onChange={(e) => handleChange('subjectOther', e.target.value)}
+                            className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all"
+                            placeholder="What is your inquiry regarding?"
+                          />
+                        </FormField>
+                      </div>
+                    )}
                   </div>
 
                   {/* Row 4: Message */}
-                  <FormField label="Message" name="message" required error={errors.message}>
+                  <FormField 
+                    label="Message" 
+                    name="message" 
+                    required 
+                    error={errors.message}
+                    hint={`${values.message.length} / 2000`}
+                  >
                     <textarea
                       rows={4}
+                      maxLength={2000}
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
                       className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass transition-all resize-none"
@@ -360,21 +428,27 @@ const Contact: React.FC = () => {
                     ></textarea>
                   </FormField>
 
-                  <BigCTA
-                    type="submit"
-                    disabled={isSubmitting || !canSubmit}
-                    tone="brass" size="lg"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="animate-spin" size={20} aria-hidden="true" /> Sending...
-                      </>
-                    ) : (
-                      <>
-                        Send
-                      </>
-                    )}
-                  </BigCTA>
+                  <div className="pt-2">
+                    <BigCTA
+                      type="submit"
+                      disabled={isSubmitting || !canSubmit}
+                      tone="brass" size="lg"
+                      className="w-full"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="animate-spin" size={20} aria-hidden="true" /> Sending...
+                        </>
+                      ) : (
+                        <>
+                          Send
+                        </>
+                      )}
+                    </BigCTA>
+                    <div className="text-center mt-4">
+                      <p className="text-sm font-medium zone-text-muted">We typically reply within one business day.</p>
+                    </div>
+                  </div>
                 </form>
               )}
             </div>
