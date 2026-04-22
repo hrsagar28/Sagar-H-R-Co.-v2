@@ -1,13 +1,14 @@
 import Button from '../ui/Button';
 import FormField from '../ui/FormField';
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Check, User, Phone, Mail, BookOpen, Briefcase, Building, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
+import { ArrowRight, Check, Briefcase, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';
 import { useFormValidation, useToast, useRateLimit, useFormDraft } from '../../hooks';
 import { createFormSchema, required, email, indianPhone, minLength, maxLength } from '../../utils/formValidation';
 import { apiClient, ApiError } from '../../utils/api';
 import { CONTACT_INFO } from '../../constants';
+import { OPEN_ROLES } from '../../constants/careers';
 import { sanitizeInput } from '../../utils/sanitize';
 import { logger } from '../../utils/logger';
 
@@ -28,8 +29,9 @@ interface FormData {
   position: string;
 }
 
-const positionOptions = ['Audit Associate', 'Articled Assistant', 'General Application'];
+const positionOptions = [...OPEN_ROLES.map(role => role.role), 'General Application'];
 const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years'];
+const STEP_TRANSITION_MS = 300;
 
 // Define Validation Schema
 const careerSchema = createFormSchema<FormData>({
@@ -44,7 +46,7 @@ const careerSchema = createFormSchema<FormData>({
   // previousCompanies is optional
 });
 
-const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSuccess }) => {
+const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const { addToast } = useToast();
@@ -83,11 +85,15 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
   // Check for draft on mount
   useEffect(() => {
-    const saved = localStorage.getItem('career_form_draft');
-    if (saved && !values.fullName) {
-      setShowDraftBanner(true);
+    if (lastSaved && !values.fullName) {
+      const ageInDays = (Date.now() - lastSaved.getTime()) / (1000 * 60 * 60 * 24);
+      if (ageInDays > 14) {
+        clearDraft();
+      } else {
+        setShowDraftBanner(true);
+      }
     }
-  }, []);
+  }, [lastSaved, clearDraft, values.fullName]);
 
   const handleRestoreDraft = () => {
     const draft = loadDraft();
@@ -106,11 +112,14 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
 
   // Update position if initialPosition changes
   useEffect(() => {
-    if (initialPosition) {
+    if (initialPosition && values.position !== initialPosition) {
+      const isInitialLoad = values.position === '';
       setValues(prev => ({ ...prev, position: initialPosition }));
-      if (currentStep !== 1) setCurrentStep(1);
+      if (!isInitialLoad) {
+        addToast(`Switched position to ${initialPosition}`, "info");
+      }
     }
-  }, [initialPosition, setValues]);
+  }, [initialPosition, setValues, values.position, addToast]);
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     handleChange(e.target.name as keyof FormData, e.target.value);
@@ -126,6 +135,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     if (step === 1) fieldsToValidate = { fullName: values.fullName, fatherName: values.fatherName, dob: values.dob };
     if (step === 2) fieldsToValidate = { mobile: values.mobile, email: values.email };
     if (step === 3) fieldsToValidate = { position: values.position, qualification: values.qualification, experience: values.experience };
+    if (step === 4) return validate(careerSchema);
 
     // Create subset schema for current step
     const stepSchema: any = {};
@@ -140,14 +150,15 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
     if (isTransitioning) return;
     if (validateStep(currentStep)) {
       setIsTransitioning(true);
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       setTimeout(() => {
         setCurrentStep(prev => prev + 1);
         setIsTransitioning(false);
-      }, 300);
+      }, prefersReducedMotion ? 0 : STEP_TRANSITION_MS);
 
       if (window.innerWidth < 768) {
         const formHeader = document.getElementById('form-header');
-        formHeader?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        formHeader?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
       }
     } else {
       addToast("Please fill in all required fields correctly.", "error");
@@ -157,23 +168,24 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
   const handleBack = () => {
     if (isTransitioning) return;
     setIsTransitioning(true);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setTimeout(() => {
       setCurrentStep(prev => prev - 1);
       setIsTransitioning(false);
-    }, 300);
+    }, prefersReducedMotion ? 0 : STEP_TRANSITION_MS);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (currentStep !== 3) return;
+    if (currentStep !== 4) return;
     if (honeypot) return;
 
     if (!canSubmit) {
-      addToast(`Rate limit exceeded. Please wait ${timeUntilReset} seconds.`, "error");
+      addToast(`Still submitting — please wait ${timeUntilReset} seconds.`, "info");
       return;
     }
 
-    if (validateStep(3)) {
+    if (validateStep(4)) {
       setIsSubmitting(true);
       setSubmitStatus('idle');
 
@@ -220,8 +232,8 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
       const target = e.target as HTMLElement;
       if (target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') return;
       e.preventDefault();
-      if (currentStep < 3) handleNext();
-      else if (validateStep(3)) handleSubmit(e as unknown as React.FormEvent);
+      if (currentStep < 4) handleNext();
+      else if (validateStep(4)) handleSubmit(e as unknown as React.FormEvent);
     }
   };
 
@@ -237,7 +249,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
         </div>
         <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4 relative z-10">Application Submitted!</h2>
         <p className="text-xl text-brand-stone font-medium max-w-md mx-auto mb-8 relative z-10">
-          Thank you for applying. Our HR team will review your profile and contact you if your qualifications match our requirements.
+          Our team will review your profile and get in touch within 5 working days if your background matches the role.
         </p>
         <button
           onClick={() => {
@@ -268,25 +280,34 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
         {/* Draft Banner */}
         {showDraftBanner && (
           <div className="mb-8 p-4 bg-brand-moss/10 border border-brand-moss/20 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-fade-in-up">
-            <div className="flex items-center gap-3">
-              <AlertCircle size={20} className="text-brand-moss shrink-0" />
-              <p className="text-sm font-medium text-brand-dark">
-                We found an unsaved application. Would you like to resume?
-              </p>
+            <div className="flex items-start gap-3">
+              <AlertCircle size={20} className="text-brand-moss shrink-0 mt-0.5" />
+              <div className="flex flex-col">
+                <p className="text-sm font-medium text-brand-dark">
+                  We found an unsaved application. Would you like to resume?
+                </p>
+                {lastSaved && (
+                  <p className="text-xs text-brand-stone mt-1">
+                    Last saved {lastSaved.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}, {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex gap-2 w-full md:w-auto">
-              <Button variant="solid" className="flex-1 md:flex-none px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-brand-dark transition-colors flex items-center justify-center gap-2"
+              <Button 
+                variant="solid" 
+                className="flex-1 md:flex-none px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-brand-dark transition-colors flex items-center justify-center gap-2"
                 onClick={handleRestoreDraft}
-
               >
                 <RotateCcw size={14} /> Resume
               </Button>
-              <button
+              <Button
+                variant="outline"
                 onClick={handleDiscardDraft}
                 className="flex-1 md:flex-none px-4 py-2 bg-white border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center justify-center gap-2"
               >
                 <Trash2 size={14} /> Discard
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -295,20 +316,25 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
         <div className="text-center mb-8">
           <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Application Form</span>
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-dark mb-6">Submit Your Details</h2>
+          {values.position && (
+            <p className="text-lg text-brand-stone font-medium mt-2 animate-fade-in-up">
+              Applying for: <span className="text-brand-dark font-bold">{values.position}</span>
+            </p>
+          )}
         </div>
 
         {/* Progress Bar */}
         <div className="flex justify-between items-center mb-12 relative max-w-lg mx-auto z-base">
           <div className="absolute top-1/2 left-0 w-full h-1 bg-brand-border -z-10 rounded-full"></div>
-          <div className="absolute top-1/2 left-0 h-1 bg-brand-moss -z-10 transition-all duration-500 rounded-full" style={{ width: `${((currentStep - 1) / 2) * 100}%` }}></div>
+          <div className="absolute top-1/2 left-0 h-1 bg-brand-moss -z-10 transition-all duration-500 rounded-full" style={{ width: `${((currentStep - 1) / 3) * 100}%` }}></div>
 
-          {[1, 2, 3].map(step => {
-            const labels = ["Personal", "Contact", "Professional"];
+          {[1, 2, 3, 4].map(step => {
+            const labels = ["Personal", "Contact", "Professional", "Review"];
             const isActive = step <= currentStep;
             const isCurrent = step === currentStep;
             return (
               <div key={step} className="flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${isActive ? 'bg-brand-moss border-brand-moss text-white scale-110 shadow-lg shadow-brand-moss/30' : 'bg-brand-surface border-brand-border text-brand-stone'}">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${isActive ? 'bg-brand-moss border-brand-moss text-white scale-110 shadow-lg shadow-brand-moss/30' : 'bg-brand-surface border-brand-border text-brand-stone'}`}>
                   {isActive ? <Check size={16} /> : step}
                 </div>
                 <span className={`text-[10px] uppercase font-bold tracking-wider transition-colors ${isCurrent ? 'text-brand-moss' : 'text-brand-stone/60'}`}>
@@ -326,18 +352,21 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           onKeyDown={handleKeyDown}
         >
           {/* Honeypot Field */}
-          <input
-            type="text"
-            name="_honeypot"
-            style={{ display: 'none' }}
-            value={honeypot}
-            onChange={(e) => setHoneypot(e.target.value)}
-            tabIndex={-1}
-            autoComplete="off"
-          />
+          <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
+            <label>Leave this field empty
+              <input
+                type="text"
+                name="work_authorization_check"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </label>
+          </div>
 
           {/* STEP 1: PERSONAL DETAILS */}
-          <div className={`${currentStep === 1 ? 'block animate-fade-in-up' : 'hidden'}`}>
+          <div className={`${currentStep === 1 ? 'block animate-fade-in-up' : 'hidden'}`} aria-hidden={currentStep !== 1} inert={currentStep !== 1 ? true : undefined}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="md:col-span-2">
                 <FormField label="Full Name" name="fullName" required error={errors.fullName}>
@@ -346,7 +375,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                     value={values.fullName}
                     onChange={onInputChange}
                     placeholder="John Doe"
-                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                   />
                 </FormField>
               </div>
@@ -376,7 +405,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           </div>
 
           {/* STEP 2: CONTACT INFO */}
-          <div className={`${currentStep === 2 ? 'block animate-fade-in-up' : 'hidden'}`}>
+          <div className={`${currentStep === 2 ? 'block animate-fade-in-up' : 'hidden'}`} aria-hidden={currentStep !== 2} inert={currentStep !== 2 ? true : undefined}>
             <div className="grid grid-cols-1 gap-8">
               <div className="group">
                 <FormField label="Mobile Number" name="mobile" required error={errors.mobile}>
@@ -385,7 +414,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                     value={values.mobile}
                     onChange={onInputChange}
                     placeholder="+91 98765 43210"
-                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                   />
                 </FormField>
               </div>
@@ -397,7 +426,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                     value={values.email}
                     onChange={onInputChange}
                     placeholder="john@example.com"
-                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                   />
                 </FormField>
               </div>
@@ -405,7 +434,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           </div>
 
           {/* STEP 3: PROFESSIONAL DETAILS */}
-          <div className={`${currentStep === 3 ? 'block animate-fade-in-up' : 'hidden'}`}>
+          <div className={`${currentStep === 3 ? 'block animate-fade-in-up' : 'hidden'}`} aria-hidden={currentStep !== 3} inert={currentStep !== 3 ? true : undefined}>
             <div className="space-y-8">
 
               {/* Position */}
@@ -417,6 +446,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                 onChange={onCustomChange}
                 error={errors.position}
                 required
+                icon={<Briefcase size={14} className="text-brand-moss" />}
               />
 
               {/* Qualification */}
@@ -427,7 +457,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                     value={values.qualification}
                     onChange={onInputChange}
                     placeholder="e.g. B.Com, CA Inter, MBA"
-                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                   />
                 </FormField>
               </div>
@@ -452,10 +482,51 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
                     onChange={onInputChange}
                     rows={3}
                     placeholder="List your previous employers..."
-                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all resize-none"
+                    className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all resize-none"
                   ></textarea>
                 </FormField>
               </div>
+            </div>
+          </div>
+
+          {/* STEP 4: REVIEW */}
+          <div className={`${currentStep === 4 ? 'block animate-fade-in-up' : 'hidden'}`} aria-hidden={currentStep !== 4} inert={currentStep !== 4 ? true : undefined}>
+            <div className="space-y-6">
+               <div className="bg-brand-surface p-6 rounded-2xl border border-brand-border">
+                  <div className="flex justify-between items-center mb-4">
+                     <h3 className="font-heading font-bold text-brand-dark text-xl">Personal Details</h3>
+                     <button type="button" onClick={() => setCurrentStep(1)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                     <div><span className="text-brand-stone block mb-1">Full Name</span><span className="font-medium text-brand-dark">{values.fullName || '-'}</span></div>
+                     <div><span className="text-brand-stone block mb-1">Father's Name</span><span className="font-medium text-brand-dark">{values.fatherName || '-'}</span></div>
+                     <div><span className="text-brand-stone block mb-1">Date of Birth</span><span className="font-medium text-brand-dark">{values.dob || '-'}</span></div>
+                  </div>
+               </div>
+               
+               <div className="bg-brand-surface p-6 rounded-2xl border border-brand-border">
+                  <div className="flex justify-between items-center mb-4">
+                     <h3 className="font-heading font-bold text-brand-dark text-xl">Contact Information</h3>
+                     <button type="button" onClick={() => setCurrentStep(2)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                     <div><span className="text-brand-stone block mb-1">Mobile</span><span className="font-medium text-brand-dark">{values.mobile || '-'}</span></div>
+                     <div><span className="text-brand-stone block mb-1">Email</span><span className="font-medium text-brand-dark">{values.email || '-'}</span></div>
+                  </div>
+               </div>
+
+               <div className="bg-brand-surface p-6 rounded-2xl border border-brand-border">
+                  <div className="flex justify-between items-center mb-4">
+                     <h3 className="font-heading font-bold text-brand-dark text-xl">Professional Details</h3>
+                     <button type="button" onClick={() => setCurrentStep(3)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                     <div><span className="text-brand-stone block mb-1">Position</span><span className="font-medium text-brand-dark">{values.position || '-'}</span></div>
+                     <div><span className="text-brand-stone block mb-1">Qualification</span><span className="font-medium text-brand-dark">{values.qualification || '-'}</span></div>
+                     <div><span className="text-brand-stone block mb-1">Experience</span><span className="font-medium text-brand-dark">{values.experience || '-'}</span></div>
+                     {values.previousCompanies && <div className="md:col-span-2"><span className="text-brand-stone block mb-1">Previous Companies</span><span className="font-medium text-brand-dark break-words">{values.previousCompanies}</span></div>}
+                  </div>
+               </div>
             </div>
           </div>
 
@@ -469,25 +540,27 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
           {/* Navigation Buttons */}
           <div className="flex gap-4 pt-6 flex-col md:flex-row">
             {currentStep > 1 && !isSubmitting && (
-              <button
+              <Button
                 key="back-btn"
                 type="button"
+                variant="outline"
                 onClick={handleBack}
-                className="flex-1 py-5 bg-brand-surface border border-brand-border text-brand-dark font-heading font-bold text-lg rounded-full hover:bg-brand-bg transition-all duration-300"
+                className="flex-1 py-5 bg-brand-surface border-brand-border text-brand-dark font-heading font-bold text-lg rounded-full hover:bg-brand-bg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss"
               >
                 Back
-              </button>
+              </Button>
             )}
 
-            {currentStep < 3 ? (
-              <button
+            {currentStep < 4 ? (
+              <Button
                 key="next-btn"
                 type="button"
+                variant="solid"
                 onClick={handleNext}
-                className="flex-1 py-5 bg-brand-dark text-white font-heading font-bold text-lg rounded-full hover:bg-brand-moss transition-all duration-300 shadow-xl hover:shadow-brand-moss/30 flex justify-center items-center gap-2 group"
+                className="flex-1 py-5 bg-brand-dark text-white font-heading font-bold text-lg rounded-full hover:bg-brand-moss transition-all duration-300 shadow-xl hover:shadow-brand-moss/30 flex justify-center items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2"
               >
                 Next Step <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </button>
+              </Button>
             ) : (
               <Button
                 key="submit-btn"
@@ -520,7 +593,7 @@ const CareerForm: React.FC<CareerFormProps> = ({ initialPosition, onFormSubmitSu
               </span>
             )}
             <p className="text-xs text-brand-stone font-medium">
-              Protected by reCAPTCHA and our Privacy Policy.
+              Protected by reCAPTCHA and our <a href="/privacy-policy" className="underline hover:text-brand-moss transition-colors">Privacy Policy</a>.
             </p>
           </div>
         </form>

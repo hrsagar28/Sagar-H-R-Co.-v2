@@ -32,7 +32,7 @@ const FormField: React.FC<FormFieldProps> = ({
       }) : children}
       
       {hint && !error && <p id={`${name}-hint`} className="text-brand-stone text-xs mt-2">{hint}</p>}
-      {error && <p id={`${name}-error`} className="text-red-500 font-bold text-xs mt-2" role="alert">{error}</p>}
+      {error && <p id={`${name}-error`} className="text-red-500 font-bold text-xs mt-2" aria-live="polite">{error}</p>}
     </div>
   );
 };

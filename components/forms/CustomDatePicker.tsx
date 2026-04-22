@@ -196,6 +196,11 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 
   const labelId = `${name}-label`;
   const errorId = `${name}-error`;
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    setIsTouch(window.matchMedia('(pointer: coarse)').matches);
+  }, []);
 
   return (
     <div className="group relative z-dropdown" ref={calendarRef}>
@@ -206,24 +211,37 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         <Calendar size={14} className="text-brand-moss"/> {label} {required && <span className="text-red-500">*</span>}
       </label>
       
-      <button 
-        type="button"
-        id={`${name}-trigger`}
-        ref={triggerRef}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
-        aria-labelledby={labelId}
-        aria-invalid={!!error}
-        aria-describedby={error ? errorId : undefined}
-        onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={handleTriggerKeyDown}
-        className={`w-full bg-brand-bg border py-4 px-6 rounded-2xl text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-moss focus:border-brand-moss transition-all flex justify-between items-center group text-left ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'}`}
-      >
-        <span className={value ? "text-brand-dark font-medium" : "text-brand-stone/40 font-medium"}>
-          {formatDateDisplay(value)}
-        </span>
-        <Calendar size={20} className="text-brand-stone group-hover:text-brand-moss transition-colors" />
-      </button>
+      {isTouch ? (
+        <input 
+          type="date"
+          id={`${name}-trigger`}
+          value={value}
+          onChange={(e) => onChange(name, e.target.value)}
+          aria-labelledby={labelId}
+          aria-invalid={!!error}
+          aria-describedby={error ? errorId : undefined}
+          className={`w-full bg-brand-bg border py-4 px-6 rounded-2xl text-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:border-brand-moss transition-all ${error ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'}`}
+        />
+      ) : (
+        <button 
+          type="button"
+          id={`${name}-trigger`}
+          ref={triggerRef}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-labelledby={labelId}
+          aria-invalid={!!error}
+          aria-describedby={error ? errorId : undefined}
+          onClick={() => setIsOpen(!isOpen)}
+          onKeyDown={handleTriggerKeyDown}
+          className={`w-full bg-brand-bg border py-4 px-6 rounded-2xl text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-moss focus:border-brand-moss transition-all flex justify-between items-center group text-left ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'}`}
+        >
+          <span className={value ? "text-brand-dark font-medium" : "text-brand-stone/40 font-medium"}>
+            {formatDateDisplay(value)}
+          </span>
+          <Calendar size={20} className="text-brand-stone group-hover:text-brand-moss transition-colors" />
+        </button>
+      )}
       
       {error && <p id={errorId} className="text-red-500 text-xs mt-2 font-bold" role="alert" aria-live="polite">{error}</p>}
 
