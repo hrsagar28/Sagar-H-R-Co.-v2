@@ -104,15 +104,23 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
       case 'Enter':
       case ' ':
         e.preventDefault();
-        if (activeIndex >= 0) handleSelect(options[activeIndex]);
+        if (activeIndex >= 0 && options[activeIndex] !== '---') handleSelect(options[activeIndex]);
         break;
       case 'ArrowDown':
         e.preventDefault();
-        setActiveIndex(prev => (prev < options.length - 1 ? prev + 1 : 0));
+        setActiveIndex(prev => {
+          let next = prev < options.length - 1 ? prev + 1 : 0;
+          if (options[next] === '---') next = next < options.length - 1 ? next + 1 : 0;
+          return next;
+        });
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setActiveIndex(prev => (prev > 0 ? prev - 1 : options.length - 1));
+        setActiveIndex(prev => {
+          let next = prev > 0 ? prev - 1 : options.length - 1;
+          if (options[next] === '---') next = next > 0 ? next - 1 : options.length - 1;
+          return next;
+        });
         break;
       case 'Home':
         e.preventDefault();
@@ -197,7 +205,9 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             : 'opacity-0 scale-95 -translate-y-2 invisible pointer-events-none'}
         `}
       >
-        {options.map((option, idx) => (
+        {options.map((option, idx) => option === '---' ? (
+          <li key={`div-${idx}`} className="h-px bg-brand-border my-2 mx-4 pointer-events-none" aria-hidden="true" />
+        ) : (
           <li 
             key={idx}
             id={`${name}-option-${idx}`}

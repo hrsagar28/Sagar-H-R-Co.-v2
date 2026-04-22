@@ -15,10 +15,11 @@ const Careers = (): JSX.Element => {
   const handleApplyClick = (role: string) => {
     setSelectedPosition(role);
     setAnnouncement(`Application form opened for ${role}`);
+    setTimeout(() => setAnnouncement(''), 1000);
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     formSectionRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
     setTimeout(() => {
-      formSectionRef.current?.focus({ preventScroll: true });
+      document.getElementById('form-heading')?.focus({ preventScroll: true });
     }, 50);
   };
 
@@ -29,7 +30,7 @@ const Careers = (): JSX.Element => {
         title="Careers | Join Sagar H R & Co."
         description="Career opportunities for Chartered Accountants, Articles, and Audit Associates in Mysuru."
         canonicalUrl="https://casagar.co.in/careers"
-        image="https://casagar.co.in/og-careers.png"
+        ogImage="https://casagar.co.in/og-careers.png"
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Careers', url: '/careers' }
@@ -81,7 +82,7 @@ const Careers = (): JSX.Element => {
                        <h2 id="open-positions-heading" className="text-3xl font-heading font-bold text-brand-dark">Open Positions</h2>
                     </div>
                     
-                    <ul role="list" aria-labelledby="open-positions-heading" className="space-y-6">
+                    <ul aria-labelledby="open-positions-heading" className="space-y-6">
                       {OPEN_ROLES.map((job) => (
                         <li key={job.id} className="p-10 bg-brand-surface rounded-[2rem] border border-brand-border hover:border-brand-moss hover:shadow-xl focus-within:border-brand-moss focus-within:shadow-xl transition-all duration-300 group relative overflow-hidden">
                            <div className="flex justify-between items-start mb-4 relative z-10">
@@ -108,7 +109,7 @@ const Careers = (): JSX.Element => {
              
               <div className="lg:col-span-1 z-base">
                 <div 
-                  className="bg-brand-dark text-brand-surface p-10 rounded-[2rem] shadow-xl relative overflow-hidden sticky top-[120px]"
+                  className="bg-brand-dark text-brand-surface p-10 rounded-[2rem] shadow-xl relative overflow-hidden sticky top-32"
                 >
                   <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-moss/20 via-transparent to-transparent pointer-events-none"></div>
                   <div className="relative z-10">

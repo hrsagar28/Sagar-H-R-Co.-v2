@@ -1,6 +1,6 @@
 import React from 'react';
 
-type ButtonVariant = 'solid' | 'outline' | 'ghost';
+type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'dark' | 'surface-outline';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -22,6 +22,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         break;
       case 'ghost':
         variantStyles = 'text-brand-moss hover:underline underline-offset-4';
+        break;
+      case 'dark':
+        variantStyles = 'bg-brand-dark text-white hover:bg-brand-moss';
+        break;
+      case 'surface-outline':
+        variantStyles = 'bg-brand-surface border border-brand-border text-brand-dark hover:bg-brand-bg';
         break;
     }
     

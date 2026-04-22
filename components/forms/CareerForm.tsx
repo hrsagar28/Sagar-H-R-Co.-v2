@@ -1,6 +1,6 @@
 import Button from '../ui/Button';
 import FormField from '../ui/FormField';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Check, Briefcase, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';
@@ -29,9 +29,9 @@ interface FormData {
   position: string;
 }
 
-const positionOptions = [...OPEN_ROLES.map(role => role.role), 'General Application'];
+const positionOptions = [...OPEN_ROLES.map(role => role.role), '---', 'General Application'];
 const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years'];
-const STEP_TRANSITION_MS = 300;
+const STEP_TRANSITION_MS = 150;
 
 // Define Validation Schema
 const careerSchema = createFormSchema<FormData>({
@@ -43,7 +43,7 @@ const careerSchema = createFormSchema<FormData>({
   qualification: [required('Qualification is required')],
   experience: [required('Please select your experience level')],
   position: [required('Please select a position')],
-  // previousCompanies is optional
+  previousCompanies: [maxLength(1000, 'Maximum 1000 characters allowed')]
 });
 
 const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): JSX.Element => {
@@ -111,15 +111,15 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
   };
 
   // Update position if initialPosition changes
+  const prevInitialRef = useRef<string | undefined>(initialPosition);
   useEffect(() => {
-    if (initialPosition && values.position !== initialPosition) {
-      const isInitialLoad = values.position === '';
+    if (initialPosition && initialPosition !== prevInitialRef.current) {
+      const isInitialLoad = prevInitialRef.current === undefined || prevInitialRef.current === '';
       setValues(prev => ({ ...prev, position: initialPosition }));
-      if (!isInitialLoad) {
-        addToast(`Switched position to ${initialPosition}`, "info");
-      }
+      if (!isInitialLoad) addToast(`Switched position to ${initialPosition}`, "info");
+      prevInitialRef.current = initialPosition;
     }
-  }, [initialPosition, setValues, values.position, addToast]);
+  }, [initialPosition, setValues, addToast]);
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     handleChange(e.target.name as keyof FormData, e.target.value);
@@ -237,6 +237,18 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
     }
   };
 
+  const handleEditStep = (step: number) => {
+    setCurrentStep(step);
+    setTimeout(() => {
+      let selector = '';
+      if (step === 1) selector = 'input[name="fullName"]';
+      if (step === 2) selector = 'input[name="mobile"]';
+      if (step === 3) selector = 'button[aria-labelledby="position-label"]';
+      const el = document.querySelector(selector) as HTMLElement;
+      el?.focus();
+    }, 50);
+  };
+
   if (submitStatus === 'success') {
     return (
       <div id="form-header" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative flex flex-col items-center justify-center text-center min-h-[400px] animate-fade-in-up">
@@ -315,7 +327,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
         {/* Header */}
         <div className="text-center mb-8">
           <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Application Form</span>
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-dark mb-6">Submit Your Details</h2>
+          <h2 id="form-heading" tabIndex={-1} className="text-4xl md:text-5xl font-heading font-bold text-brand-dark mb-6 focus:outline-none">Submit Your Details</h2>
           {values.position && (
             <p className="text-lg text-brand-stone font-medium mt-2 animate-fade-in-up">
               Applying for: <span className="text-brand-dark font-bold">{values.position}</span>
@@ -375,6 +387,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
                     value={values.fullName}
                     onChange={onInputChange}
                     placeholder="John Doe"
+                    autoComplete="name"
                     className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                   />
                 </FormField>
@@ -411,6 +424,9 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
                 <FormField label="Mobile Number" name="mobile" required error={errors.mobile}>
                   <input
                     type="tel"
+                    inputMode="tel"
+                    maxLength={15}
+                    autoComplete="tel"
                     value={values.mobile}
                     onChange={onInputChange}
                     placeholder="+91 98765 43210"
@@ -426,6 +442,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
                     value={values.email}
                     onChange={onInputChange}
                     placeholder="john@example.com"
+                    autoComplete="email"
                     className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                   />
                 </FormField>
@@ -480,6 +497,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
                   <textarea
                     value={values.previousCompanies}
                     onChange={onInputChange}
+                    maxLength={1000}
                     rows={3}
                     placeholder="List your previous employers..."
                     className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all resize-none"
@@ -492,22 +510,28 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
           {/* STEP 4: REVIEW */}
           <div className={`${currentStep === 4 ? 'block animate-fade-in-up' : 'hidden'}`} aria-hidden={currentStep !== 4} inert={currentStep !== 4 ? true : undefined}>
             <div className="space-y-6">
-               <div className="bg-brand-surface p-6 rounded-2xl border border-brand-border">
+               <div className={`bg-brand-surface p-6 rounded-2xl border ${errors.fullName || errors.fatherName || errors.dob ? 'border-red-500 ring-2 ring-red-500' : 'border-brand-border'}`}>
                   <div className="flex justify-between items-center mb-4">
-                     <h3 className="font-heading font-bold text-brand-dark text-xl">Personal Details</h3>
-                     <button type="button" onClick={() => setCurrentStep(1)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
+                     <div className="flex items-center gap-3">
+                       <h3 className="font-heading font-bold text-brand-dark text-xl">Personal Details</h3>
+                       {(errors.fullName || errors.fatherName || errors.dob) && <span className="bg-red-100 text-red-600 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">Edit needed</span>}
+                     </div>
+                     <button type="button" onClick={() => handleEditStep(1)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                      <div><span className="text-brand-stone block mb-1">Full Name</span><span className="font-medium text-brand-dark">{values.fullName || '-'}</span></div>
                      <div><span className="text-brand-stone block mb-1">Father's Name</span><span className="font-medium text-brand-dark">{values.fatherName || '-'}</span></div>
-                     <div><span className="text-brand-stone block mb-1">Date of Birth</span><span className="font-medium text-brand-dark">{values.dob || '-'}</span></div>
+                     <div><span className="text-brand-stone block mb-1">Date of Birth</span><span className="font-medium text-brand-dark">{values.dob ? new Date(values.dob).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span></div>
                   </div>
                </div>
                
-               <div className="bg-brand-surface p-6 rounded-2xl border border-brand-border">
+               <div className={`bg-brand-surface p-6 rounded-2xl border ${errors.mobile || errors.email ? 'border-red-500 ring-2 ring-red-500' : 'border-brand-border'}`}>
                   <div className="flex justify-between items-center mb-4">
-                     <h3 className="font-heading font-bold text-brand-dark text-xl">Contact Information</h3>
-                     <button type="button" onClick={() => setCurrentStep(2)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
+                     <div className="flex items-center gap-3">
+                       <h3 className="font-heading font-bold text-brand-dark text-xl">Contact Information</h3>
+                       {(errors.mobile || errors.email) && <span className="bg-red-100 text-red-600 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">Edit needed</span>}
+                     </div>
+                     <button type="button" onClick={() => handleEditStep(2)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                      <div><span className="text-brand-stone block mb-1">Mobile</span><span className="font-medium text-brand-dark">{values.mobile || '-'}</span></div>
@@ -515,10 +539,13 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
                   </div>
                </div>
 
-               <div className="bg-brand-surface p-6 rounded-2xl border border-brand-border">
+               <div className={`bg-brand-surface p-6 rounded-2xl border ${errors.position || errors.qualification || errors.experience ? 'border-red-500 ring-2 ring-red-500' : 'border-brand-border'}`}>
                   <div className="flex justify-between items-center mb-4">
-                     <h3 className="font-heading font-bold text-brand-dark text-xl">Professional Details</h3>
-                     <button type="button" onClick={() => setCurrentStep(3)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
+                     <div className="flex items-center gap-3">
+                       <h3 className="font-heading font-bold text-brand-dark text-xl">Professional Details</h3>
+                       {(errors.position || errors.qualification || errors.experience) && <span className="bg-red-100 text-red-600 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">Edit needed</span>}
+                     </div>
+                     <button type="button" onClick={() => handleEditStep(3)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                      <div><span className="text-brand-stone block mb-1">Position</span><span className="font-medium text-brand-dark">{values.position || '-'}</span></div>
@@ -543,9 +570,9 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
               <Button
                 key="back-btn"
                 type="button"
-                variant="outline"
+                variant="surface-outline"
                 onClick={handleBack}
-                className="flex-1 py-5 bg-brand-surface border-brand-border text-brand-dark font-heading font-bold text-lg rounded-full hover:bg-brand-bg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss"
+                className="flex-1 py-5 font-heading font-bold text-lg"
               >
                 Back
               </Button>
@@ -555,11 +582,11 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
               <Button
                 key="next-btn"
                 type="button"
-                variant="solid"
+                variant="dark"
                 onClick={handleNext}
-                className="flex-1 py-5 bg-brand-dark text-white font-heading font-bold text-lg rounded-full hover:bg-brand-moss transition-all duration-300 shadow-xl hover:shadow-brand-moss/30 flex justify-center items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2"
+                className="flex-1 py-5 font-heading font-bold text-lg shadow-xl hover:shadow-brand-moss/30 group"
               >
-                Next Step <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                {currentStep === 3 ? "Review Application" : "Next Step"} <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Button>
             ) : (
               <Button
@@ -567,10 +594,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
                 type="submit"
                 disabled={isSubmitting || !canSubmit}
                 variant="solid"
-                className={`
-                  flex-1 py-5 shadow-xl flex justify-center items-center gap-2 group
-                  ${(isSubmitting || !canSubmit) ? 'opacity-80' : 'hover:shadow-brand-dark/30'}
-                `}
+                className={`flex-1 py-5 shadow-xl flex justify-center items-center gap-2 group ${(isSubmitting || !canSubmit) ? 'opacity-80' : 'hover:shadow-brand-dark/30'}`}
               >
                 {isSubmitting ? (
                   <>

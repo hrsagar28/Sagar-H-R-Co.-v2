@@ -217,6 +217,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
           id={`${name}-trigger`}
           value={value}
           onChange={(e) => onChange(name, e.target.value)}
+          autoComplete="bday"
           aria-labelledby={labelId}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : undefined}
