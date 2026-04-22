@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock } from 'lucide-react';
 import { PageHero } from '../components/hero';
 import SEO from '../components/SEO';
@@ -35,6 +35,13 @@ const Contact: React.FC = () => {
   const { addToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const successHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (isSuccess && successHeadingRef.current) {
+      successHeadingRef.current.focus();
+    }
+  }, [isSuccess]);
 
   const { canSubmit, recordAttempt, timeUntilReset } = useRateLimit({
     maxAttempts: 3,
@@ -112,7 +119,50 @@ const Contact: React.FC = () => {
     <div data-zone="editorial" className="zone-bg min-h-screen">
       <SEO
         title={`Contact Us | ${CONTACT_INFO.name}`}
-        description="Get in touch with us for expert financial advice. Visit our office in Mysuru or contact us via phone/email."
+        description="Contact Sagar H R & Co. in Mysuru for Audit, Tax, GST and Business Advisory. Visit our KR Mohalla office or reach us by phone, email or WhatsApp."
+        canonicalUrl="https://casagar.co.in/contact"
+        ogImage="https://casagar.co.in/og-contact.png"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Contact', url: '/contact' }
+        ]}
+        schema={[
+          {
+            "@context": "https://schema.org",
+            "@type": "AccountingService",
+            "@id": "https://casagar.co.in/#organization",
+            "name": CONTACT_INFO.name,
+            "image": "https://casagar.co.in/logo.png",
+            "telephone": CONTACT_INFO.phone.value,
+            "email": CONTACT_INFO.email,
+            "url": "https://casagar.co.in",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": CONTACT_INFO.address.street,
+              "addressLocality": CONTACT_INFO.address.city,
+              "addressRegion": CONTACT_INFO.address.state,
+              "postalCode": CONTACT_INFO.address.zip,
+              "addressCountry": "IN"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": CONTACT_INFO.geo.latitude,
+              "longitude": CONTACT_INFO.geo.longitude
+            },
+            "openingHours": CONTACT_INFO.hours.value,
+            "sameAs": [
+              CONTACT_INFO.social.linkedin,
+              CONTACT_INFO.social.whatsapp
+            ]
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ContactPage",
+            "url": "https://casagar.co.in/contact",
+            "name": "Contact Sagar H R & Co.",
+            "mainEntity": { "@id": "https://casagar.co.in/#organization" }
+          }
+        ]}
       />
 
       <PageHero
@@ -152,10 +202,10 @@ const Contact: React.FC = () => {
                     {/* Office */}
                     <div className="flex items-start gap-5 group">
                       <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
-                        <MapPin size={18} />
+                        <MapPin size={18} aria-hidden="true" />
                       </div>
                       <div>
-                        <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Our Office</h4>
+                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Our Office</h3>
                         <address className="not-italic text-gray-300 font-medium leading-relaxed text-sm">
                           {CONTACT_INFO.address.street},<br />
                           {CONTACT_INFO.address.city} - {CONTACT_INFO.address.zip}
@@ -166,11 +216,11 @@ const Contact: React.FC = () => {
                     {/* Email */}
                     <div className="flex items-start gap-5 group">
                       <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
-                        <Mail size={18} />
+                        <Mail size={18} aria-hidden="true" />
                       </div>
                       <div>
-                        <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Email Us</h4>
-                        <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-white transition-colors font-medium break-all text-sm">
+                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Email Us</h3>
+                        <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-white transition-colors font-medium break-words text-sm">
                           {CONTACT_INFO.email}
                         </a>
                       </div>
@@ -179,10 +229,10 @@ const Contact: React.FC = () => {
                     {/* Phone */}
                     <div className="flex items-start gap-5 group">
                       <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
-                        <Phone size={18} />
+                        <Phone size={18} aria-hidden="true" />
                       </div>
                       <div>
-                        <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Call Us</h4>
+                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Call Us</h3>
                         <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
                           {CONTACT_INFO.phone.display}
                         </a>
@@ -192,10 +242,10 @@ const Contact: React.FC = () => {
                     {/* Working Hours */}
                     <div className="flex items-start gap-5 group">
                       <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:zone-text transition-all duration-300 border border-white/5 shrink-0">
-                        <Clock size={18} />
+                        <Clock size={18} aria-hidden="true" />
                       </div>
                       <div>
-                        <h4 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Working Hours</h4>
+                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Working Hours</h3>
                         <p className="text-gray-300 font-medium text-sm">
                           {CONTACT_INFO.hours.display}
                         </p>
@@ -211,17 +261,17 @@ const Contact: React.FC = () => {
           <Reveal className="lg:col-span-8" delay={0.1} width="100%">
             <div className="zone-surface p-8 md:p-12 rounded-[2.5rem] border zone-border h-full shadow-lg flex flex-col justify-center">
               {isSuccess ? (
-                <div className="text-center py-10 animate-fade-in-up">
+                <div role="status" aria-live="polite" className="text-center py-10 animate-fade-in-up">
                   <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle size={40} />
+                    <CheckCircle size={40} aria-hidden="true" />
                   </div>
-                  <h3 className="text-3xl font-heading font-bold zone-text mb-4">Message Sent!</h3>
+                  <h3 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold zone-text mb-4">Message Sent!</h3>
                   <p className="zone-text-muted mb-8 text-lg font-medium">
                     Thank you for reaching out. Our team will get back to you shortly.
                   </p>
                   <button
                     onClick={() => setIsSuccess(false)}
-                    className="text-brand-moss font-bold hover:underline underline-offset-4"
+                    className="text-brand-moss font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2 rounded-md px-1"
                   >
                     Send another message
                   </button>
@@ -245,8 +295,9 @@ const Contact: React.FC = () => {
                         type="text"
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
+                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                         placeholder="Your Name"
+                        autoComplete="name"
                       />
                     </FormField>
                     <FormField label="Phone" name="phone" required error={errors.phone}>
@@ -254,8 +305,9 @@ const Contact: React.FC = () => {
                         type="tel"
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
+                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                         placeholder="Mobile Number"
+                        autoComplete="tel"
                       />
                     </FormField>
                   </div>
@@ -267,8 +319,9 @@ const Contact: React.FC = () => {
                         type="email"
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
+                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                         placeholder="email@company.com"
+                        autoComplete="email"
                       />
                     </FormField>
 
@@ -277,8 +330,9 @@ const Contact: React.FC = () => {
                         type="text"
                         value={values.companyName}
                         onChange={(e) => handleChange('companyName', e.target.value)}
-                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
+                        className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                         placeholder="Company Name"
+                        autoComplete="organization"
                       />
                     </FormField>
                   </div>
@@ -301,7 +355,7 @@ const Contact: React.FC = () => {
                       rows={4}
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all resize-none"
+                      className="w-full zone-bg border rounded-2xl p-4 focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all resize-none"
                       placeholder="How can we help you?"
                     ></textarea>
                   </FormField>
@@ -313,7 +367,7 @@ const Contact: React.FC = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="animate-spin" size={20} /> Sending...
+                        <Loader2 className="animate-spin" size={20} aria-hidden="true" /> Sending...
                       </>
                     ) : (
                       <>
@@ -341,6 +395,14 @@ const Contact: React.FC = () => {
               <h3 className="font-heading font-bold text-xl zone-text">{CONTACT_INFO.name}</h3>
             </div>
 
+            <a 
+              href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-white text-black p-3 rounded-xl shadow-lg font-bold"
+            >
+              Get directions on Google Maps
+            </a>
             <iframe
               title={`${CONTACT_INFO.name} Location`}
               width="100%"
