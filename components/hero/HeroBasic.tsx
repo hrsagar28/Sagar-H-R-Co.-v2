@@ -19,7 +19,7 @@ export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children
   const displayDesc = description || blurb;
   
   return (
-    <section className={`pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg relative overflow-hidden border-b border-brand-border/60 ${className}`}>
+    <section className={`pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg relative overflow-hidden ${className}`}>
         {/* Faded Grid Background */}
         <div 
           className="absolute inset-0 bg-grid pointer-events-none" 
