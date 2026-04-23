@@ -7,7 +7,7 @@ export const HeroDirectory: React.FC<DirectoryHeroProps> = ({ eyebrow, title, bl
   return (
     <section aria-labelledby="hero-directory-title" className="relative pt-32 md:pt-48 pb-32 px-4 md:px-12 zone-bg zone-text overflow-hidden min-h-[85vh] flex items-end">
       
-      <GhostWord position={{ bottom: '-10%', right: '-5%' }} className="text-[35vw]" color="var(--zone-accent)">
+      <GhostWord position={{ bottom: '-3%', right: '-2%' }} className="text-[18vw]" color="var(--zone-accent)">
          {ghostWord}
       </GhostWord>
       

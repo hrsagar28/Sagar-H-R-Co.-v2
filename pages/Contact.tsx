@@ -217,12 +217,12 @@ const Contact: React.FC = () => {
             <Reveal width="100%">
               <div className="zone-bg text-brand-surface p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl">
                 {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-moss opacity-30 rounded-full blur-[80px] pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent opacity-10 rounded-full blur-[80px] pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full blur-[60px] pointer-events-none"></div>
                 <div className="absolute inset-0 bg-noise opacity-[0.15] mix-blend-overlay pointer-events-none"></div>
 
                 <div className="relative z-10">
-                  <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
+                  <span className="text-brand-accent font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
                   <h2 className="text-2xl font-heading font-bold text-white mb-8">
                     Let's discuss your <br /> <span className="text-white/60">financial future.</span>
                   </h2>
@@ -230,7 +230,7 @@ const Contact: React.FC = () => {
                   <div className="space-y-6">
                     {/* Office */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <MapPin size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -244,13 +244,13 @@ const Contact: React.FC = () => {
 
                     {/* Email */}
                     <div className="flex items-start gap-5 group relative">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <Mail size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h3 className="text-white font-bold text-sm uppercase tracking-wide">Email Us</h3>
-                          <button onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss" aria-label="Copy Email" title="Copy Email">
+                          <button onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent" aria-label="Copy Email" title="Copy Email">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -262,13 +262,13 @@ const Contact: React.FC = () => {
 
                     {/* Phone */}
                     <div className="flex items-start gap-5 group relative">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <Phone size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h3 className="text-white font-bold text-sm uppercase tracking-wide">Call Us</h3>
-                          <button onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss" aria-label="Copy Phone" title="Copy Phone">
+                          <button onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent" aria-label="Copy Phone" title="Copy Phone">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -278,25 +278,10 @@ const Contact: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Working Hours */}
-                    <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
-                        <Clock size={18} aria-hidden="true" />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Working Hours</h3>
-                        <p className="text-gray-300 font-medium text-sm">
-                          {CONTACT_INFO.hours.display}
-                        </p>
-                      </div>
-                    </div>
-
-                  </div>
-
                     {/* WhatsApp */}
                     {CONTACT_INFO.social.whatsapp && (
                       <div className="flex items-start gap-5 group relative">
-                        <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                        <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                           <MessageCircle size={18} aria-hidden="true" />
                         </div>
                         <div className="flex-1">
@@ -309,17 +294,32 @@ const Contact: React.FC = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* Working Hours */}
+                    <div className="flex items-start gap-5 group">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                        <Clock size={18} aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Working Hours</h3>
+                        <p className="text-gray-300 font-medium text-sm">
+                          {CONTACT_INFO.hours.display}
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
               </div>
             </Reveal>
           </div>
 
-          {/* Right Column: Contact Form — inherits editorial zone (dark) */}
+          {/* Right Column: Contact Form — light (editorial-paper) zone to alternate with the dark side pane */}
           <Reveal className="lg:col-span-8" delay={0.1} width="100%">
-            <div className="zone-surface p-8 md:p-12 rounded-[2.5rem] border border-white/10 h-full shadow-2xl shadow-black/40 focus-within:border-brand-brass/30 focus-within:shadow-brand-brass/10 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
+            <div data-zone="editorial-paper" className="zone-surface p-8 md:p-12 rounded-[2.5rem] border zone-border h-full shadow-2xl shadow-brand-ink/10 focus-within:border-brand-moss/30 focus-within:shadow-brand-moss/10 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
               {isSuccess ? (
                 <div role="status" aria-live="polite" className="text-center py-10 animate-fade-in-up">
-                  <div className="w-20 h-20 bg-brand-brass/20 text-brand-brass rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-brand-moss/15 text-brand-moss rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle size={40} aria-hidden="true" />
                   </div>
                   <h3 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold zone-text mb-4">Message Sent!</h3>
@@ -328,7 +328,7 @@ const Contact: React.FC = () => {
                   </p>
                   <button
                     onClick={() => setIsSuccess(false)}
-                    className="text-brand-brass font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass focus-visible:ring-offset-2 rounded-md px-1"
+                    className="text-brand-moss font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2 rounded-md px-1"
                   >
                     Send another message
                   </button>
@@ -353,7 +353,7 @@ const Contact: React.FC = () => {
                         maxLength={80}
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
+                        className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
                         placeholder="Your Name"
                         autoComplete="name"
                       />
@@ -365,7 +365,7 @@ const Contact: React.FC = () => {
                         maxLength={15}
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
-                        className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
+                        className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
                         placeholder="Mobile Number"
                         autoComplete="tel"
                       />
@@ -380,7 +380,7 @@ const Contact: React.FC = () => {
                         maxLength={254}
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
-                        className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
+                        className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
                         placeholder="email@company.com"
                         autoComplete="email"
                       />
@@ -392,7 +392,7 @@ const Contact: React.FC = () => {
                         maxLength={120}
                         value={values.company}
                         onChange={(e) => handleChange('company', e.target.value)}
-                        className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
+                        className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
                         placeholder="Company Name"
                         autoComplete="organization"
                       />
@@ -418,7 +418,7 @@ const Contact: React.FC = () => {
                             maxLength={80}
                             value={values.subjectOther}
                             onChange={(e) => handleChange('subjectOther', e.target.value)}
-                            className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
+                            className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
                             placeholder="What is your inquiry regarding?"
                           />
                         </FormField>
@@ -441,7 +441,7 @@ const Contact: React.FC = () => {
                       maxLength={2000}
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200 resize-none leading-relaxed"
+                      className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200 resize-none leading-relaxed"
                       placeholder="How can we help you?"
                     ></textarea>
                   </FormField>
@@ -450,7 +450,7 @@ const Contact: React.FC = () => {
                     <BigCTA
                       type="submit"
                       disabled={isSubmitting || !canSubmit}
-                      tone="brass" size="lg"
+                      tone="moss" size="lg"
                       className="w-full"
                     >
                       {isSubmitting ? (

@@ -66,7 +66,7 @@ export function WordReveal({ children, delay = 0.15, stagger = 0.12, className =
       >
         {words.map((word, idx) => (
           <React.Fragment key={idx}>
-            <span className="inline-flex overflow-hidden pb-1 -mb-1 align-bottom">
+            <span className="inline-flex overflow-hidden pb-[0.25em] -mb-[0.25em] align-bottom">
               <m.span variants={itemVariants} className="inline-block whitespace-nowrap">
                 {word}
               </m.span>
