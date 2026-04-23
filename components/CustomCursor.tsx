@@ -53,7 +53,12 @@ const CustomCursor: React.FC = () => {
 
       // Check for elements that should hide the cursor (like maps/iframes)
       const target = e.target as HTMLElement;
-      if (target.closest('[data-hide-cursor="true"]')) {
+      const hideEl = target.closest('[data-hide-cursor="true"]');
+      const showEl = target.closest('[data-show-cursor="true"]');
+      
+      if (hideEl && showEl && hideEl.contains(showEl)) {
+        setForceHide(false);
+      } else if (hideEl) {
         setForceHide(true);
       } else {
         setForceHide(false);

@@ -314,16 +314,16 @@ const Contact: React.FC = () => {
             </Reveal>
           </div>
 
-          {/* Right Column: Contact Form — light (editorial-paper) zone to alternate with the dark side pane */}
+          {/* Right Column: Contact Form */}
           <Reveal className="lg:col-span-8" delay={0.1} width="100%">
-            <div data-zone="editorial-paper" className="zone-surface p-8 md:p-12 rounded-[2.5rem] border zone-border h-full shadow-2xl shadow-brand-ink/10 focus-within:border-brand-moss/30 focus-within:shadow-brand-moss/10 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
+            <div className="bg-brand-bg text-brand-dark p-8 md:p-12 rounded-[2.5rem] border border-brand-dark/10 h-full shadow-2xl shadow-brand-ink/10 focus-within:border-brand-moss/30 focus-within:shadow-brand-moss/10 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
               {isSuccess ? (
                 <div role="status" aria-live="polite" className="text-center py-10 animate-fade-in-up">
                   <div className="w-20 h-20 bg-brand-moss/15 text-brand-moss rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle size={40} aria-hidden="true" />
                   </div>
-                  <h3 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold zone-text mb-4">Message Sent!</h3>
-                  <p className="zone-text-muted mb-8 text-lg font-medium">
+                  <h3 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold mb-4">Message Sent!</h3>
+                  <p className="text-brand-stone mb-8 text-lg font-medium">
                     Thank you for reaching out. Our team will get back to you shortly.
                   </p>
                   <button
@@ -341,8 +341,8 @@ const Contact: React.FC = () => {
                   <input type="hidden" name="_template" value="table" />
 
                   <div className="mb-2">
-                    <h3 className="text-3xl font-heading font-bold zone-text">Send a Message</h3>
-                    <p className="zone-text-muted font-medium mt-2">Fill out the form below and we will get back to you.</p>
+                    <h3 className="text-3xl font-heading font-bold">Send a Message</h3>
+                    <p className="text-brand-stone font-medium mt-2">Fill out the form below and we will get back to you.</p>
                   </div>
 
                   {/* Row 1: Name & Phone */}
@@ -464,7 +464,7 @@ const Contact: React.FC = () => {
                       )}
                     </BigCTA>
                     <div className="text-center mt-4">
-                      <p className="text-sm font-medium zone-text-muted">We typically reply within one business day.</p>
+                      <p className="text-sm font-medium text-brand-stone">We typically reply within one business day.</p>
                     </div>
                   </div>
                 </form>
@@ -480,7 +480,7 @@ const Contact: React.FC = () => {
             className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full h-[280px] md:h-[350px] rounded-none md:rounded-[3rem] overflow-hidden shadow-2xl border-0 md:border zone-border grayscale-0 md:grayscale group relative transition-all duration-700 hover:grayscale-0 cursor-auto"
             data-hide-cursor="true"
           >
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 bg-black/70 backdrop-blur-xl px-4 py-3 md:px-6 md:py-4 rounded-2xl border border-white/10 shadow-lg pointer-events-auto max-w-[calc(100%-2rem)] w-max text-balance flex flex-col items-center md:items-start text-center md:text-left">
+            <div data-show-cursor="true" className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 bg-black/70 backdrop-blur-xl px-4 py-3 md:px-6 md:py-4 rounded-2xl border border-white/10 shadow-lg pointer-events-auto max-w-[calc(100%-2rem)] w-max text-balance flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-3 mb-1">
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 <span className="text-[10px] text-white/80 font-bold uppercase tracking-widest">Our Location</span>

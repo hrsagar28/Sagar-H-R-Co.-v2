@@ -116,8 +116,7 @@ const ChaosToOrder: React.FC = () => {
 
   return (
     <section
-      data-zone="editorial-paper"
-      className="relative overflow-hidden bg-[#f4f1ea] text-[#0a0908] py-20 md:py-28"
+      className="relative overflow-hidden bg-brand-bg text-[#0a0908] py-20 md:py-28"
       aria-labelledby="chaos-to-order-title"
     >
       {/* Soft paper tone & faint vertical brass rule on the left margin */}
