@@ -14,6 +14,8 @@ interface CustomDropdownProps {
   required?: boolean;
   buttonClassName?: string;
   labelClassName?: string;
+  accentClassName?: string;
+  listClassName?: string;
 }
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({
@@ -27,7 +29,9 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   error,
   required = false,
   buttonClassName = "",
-  labelClassName = ""
+  labelClassName = "",
+  accentClassName = "zone-accent",
+  listClassName = ""
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -179,8 +183,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         onKeyDown={handleKeyDown}
         className={`
           w-full zone-bg border py-4 px-6 rounded-2xl zone-text text-left
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--zone-accent)] focus-visible:border-[color:var(--zone-accent)] transition-all duration-200 flex justify-between items-center group
-          ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-[color:var(--zone-accent)] ring-1 ring-[color:var(--zone-accent)]' : 'zone-border'}
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-current transition-all duration-200 flex justify-between items-center group
+          ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-current ring-1 ring-current' : 'zone-border'}
           ${buttonClassName}
         `}
       >
@@ -209,6 +213,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
           ${isOpen
             ? 'opacity-100 scale-100 translate-y-0 visible pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-2 invisible pointer-events-none'}
+          ${listClassName}
         `}
       >
         {options.map((option, idx) => option === '---' ? (
@@ -221,7 +226,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             aria-selected={value === option}
             className={`
               px-6 py-3 cursor-pointer flex justify-between items-center transition-colors duration-150
-              ${activeIndex === idx ? 'zone-bg zone-accent' : 'zone-text'}
+              ${activeIndex === idx ? `zone-bg ${accentClassName}` : 'zone-text'}
               ${value === option ? 'font-bold' : ''}
             `}
             onClick={() => handleSelect(option)}
@@ -230,7 +235,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             <span className="text-base font-medium">
               {option}
             </span>
-            {value === option && <Check size={16} className="zone-accent" aria-hidden="true" />}
+            {value === option && <Check size={16} className={accentClassName} aria-hidden="true" />}
           </li>
         ))}
       </ul>
