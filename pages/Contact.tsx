@@ -353,7 +353,7 @@ const Contact: React.FC = () => {
                         maxLength={80}
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-white/10 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                         placeholder="Your Name"
                         autoComplete="name"
                       />
@@ -365,7 +365,7 @@ const Contact: React.FC = () => {
                         maxLength={15}
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
-                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-white/10 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                         placeholder="Mobile Number"
                         autoComplete="tel"
                       />
@@ -380,7 +380,7 @@ const Contact: React.FC = () => {
                         maxLength={254}
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
-                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-white/10 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                         placeholder="email@company.com"
                         autoComplete="email"
                       />
@@ -392,7 +392,7 @@ const Contact: React.FC = () => {
                         maxLength={120}
                         value={values.company}
                         onChange={(e) => handleChange('company', e.target.value)}
-                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-white/10 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                         placeholder="Company Name"
                         autoComplete="organization"
                       />
@@ -408,10 +408,10 @@ const Contact: React.FC = () => {
                       options={serviceOptions}
                       onChange={(name, val) => handleChange(name as keyof ContactFormData, val)}
                       placeholder="Select a topic"
-                      buttonClassName="bg-[#0d0c0b] text-white border-white/5 focus-visible:border-brand-accent focus-visible:ring-brand-accent/20 focus-visible:text-brand-accent"
+                      buttonClassName="bg-[#0d0c0b] text-white border-white/5 hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-brand-accent/20 focus-visible:text-brand-accent transition-colors duration-300"
                       labelClassName="text-white"
                       accentClassName="text-brand-accent"
-                      listClassName="bg-[#111111] border-white/10"
+                      listClassName="bg-[#0d0c0b] border-white/10"
                     />
 
                     {values.subject === 'Other' && (
@@ -422,7 +422,7 @@ const Contact: React.FC = () => {
                             maxLength={80}
                             value={values.subjectOther}
                             onChange={(e) => handleChange('subjectOther', e.target.value)}
-                            className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-white/10 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                            className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                             placeholder="What is your inquiry regarding?"
                           />
                         </FormField>
@@ -447,7 +447,7 @@ const Contact: React.FC = () => {
                       maxLength={2000}
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-white/10 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200 resize-none leading-relaxed"
+                      className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200 resize-none leading-relaxed"
                       placeholder="How can we help you?"
                     ></textarea>
                   </FormField>
