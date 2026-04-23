@@ -144,7 +144,7 @@ const CIICalculator: React.FC = () => {
                     <div className="relative z-10 space-y-8 animate-fade-in-up">
                         <div>
                             <span className="text-white/60 font-bold text-xs uppercase tracking-widest block mb-2">Indexed Cost</span>
-                            <span className="text-4xl md:text-5xl font-mono font-bold text-[#4ADE80]">
+                            <span className="text-4xl md:text-5xl font-mono font-bold text-brand-accent">
                                 ₹ {result.indexedCost.toLocaleString('en-IN')}
                             </span>
                         </div>
@@ -173,3 +173,4 @@ const CIICalculator: React.FC = () => {
 };
 
 export default CIICalculator;
+

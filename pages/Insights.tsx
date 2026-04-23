@@ -190,3 +190,4 @@ const Insights: React.FC = () => {
 };
 
 export default Insights;
+

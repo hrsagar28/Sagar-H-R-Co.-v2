@@ -57,6 +57,7 @@ export default {
           'rust': '#8b3a2f',
           'line': '#1a1814',
           'muted': '#7a7366',
+          'accent': '#4ADE80',
         },
       },
       transitionTimingFunction: {

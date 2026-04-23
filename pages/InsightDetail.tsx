@@ -425,3 +425,4 @@ const InsightDetail: React.FC = () => {
 };
 
 export default InsightDetail;
+

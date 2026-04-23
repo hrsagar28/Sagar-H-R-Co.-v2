@@ -17,3 +17,4 @@ const TaxCalculator: React.FC = () => {
 };
 
 export default TaxCalculator;
+

@@ -145,3 +145,4 @@ const HRACalculator: React.FC = () => {
 };
 
 export default HRACalculator;
+

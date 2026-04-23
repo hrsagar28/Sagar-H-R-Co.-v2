@@ -136,7 +136,7 @@ const Contact: React.FC = () => {
                 <div className="absolute inset-0 bg-noise opacity-[0.15] mix-blend-overlay pointer-events-none"></div>
 
                 <div className="relative z-10">
-                  <span className="text-[#4ADE80] font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
+                  <span className="text-brand-accent font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
                   <h2 className="text-2xl font-heading font-bold text-white mb-8">
                     Let's discuss your <br /> <span className="text-white/60">financial future.</span>
                   </h2>
@@ -144,7 +144,7 @@ const Contact: React.FC = () => {
                   <div className="space-y-6">
                     {/* Office */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
                         <MapPin size={18} />
                       </div>
                       <div>
@@ -158,7 +158,7 @@ const Contact: React.FC = () => {
 
                     {/* Email */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
                         <Mail size={18} />
                       </div>
                       <div>
@@ -171,7 +171,7 @@ const Contact: React.FC = () => {
 
                     {/* Phone */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
                         <Phone size={18} />
                       </div>
                       <div>
@@ -184,7 +184,7 @@ const Contact: React.FC = () => {
 
                     {/* Working Hours */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-[#4ADE80] group-hover:bg-[#4ADE80] group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-dark transition-all duration-300 border border-white/5 shrink-0">
                         <Clock size={18} />
                       </div>
                       <div>
@@ -357,3 +357,4 @@ const Contact: React.FC = () => {
 };
 
 export default Contact;
+

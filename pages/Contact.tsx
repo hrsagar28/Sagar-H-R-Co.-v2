@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock, MessageCircle, Copy, ArrowUpRight } from 'lucide-react';
 import { PageHero } from '../components/hero';
+import { useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
 import { CONTACT_INFO, SERVICES } from '../constants';
@@ -19,11 +20,26 @@ interface ContactFormData {
   name: string;
   email: string;
   phone: string;
-  companyName: string;
+  company: string;
   subject: string;
   subjectOther: string;
   message: string;
 }
+
+const INITIAL_CONTACT: ContactFormData = {
+  name: '',
+  email: '',
+  phone: '',
+  company: '',
+  subject: '',
+  subjectOther: '',
+  message: ''
+};
+
+const serviceOptions = [
+  ...SERVICES.map(s => s.title),
+  "Other"
+];
 
 const contactSchema = createFormSchema<ContactFormData>({
   name: [required('Name is required')],
@@ -50,17 +66,16 @@ const Contact: React.FC = () => {
     storageKey: 'contact_form_limit'
   });
 
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialSubject = queryParams.get('subject') || '';
+
   const { values, handleChange, errors, validate, setValues } = useFormValidation<ContactFormData>({
-    name: '',
-    email: '',
-    phone: '',
-    companyName: '',
-    subject: '',
-    subjectOther: '',
-    message: ''
+    ...INITIAL_CONTACT,
+    subject: initialSubject
   }, {
     validationSchema: contactSchema,
-    validateOnChange: true
+    validateOnChange: true // 4.3: High-priority forms can use onBlur, but kept onChange here for immediacy
   });
 
   const { loadDraft, clearDraft, lastSaved } = useFormDraft('contact_form_draft', values);
@@ -89,34 +104,37 @@ const Contact: React.FC = () => {
       setIsSubmitting(true);
 
       try {
-        const formElement = e.target as HTMLFormElement;
+        const formElement = e.currentTarget as HTMLFormElement;
         const formData = new FormData(formElement);
 
         await apiClient.post(CONTACT_INFO.formEndpoint, {
           name: sanitizeInput(values.name),
           email: sanitizeInput(values.email),
           phone: sanitizeInput(values.phone),
-          company: sanitizeInput(values.companyName),
+          company: sanitizeInput(values.company),
           subject: sanitizeInput(values.subject === 'Other' ? values.subjectOther || 'Other' : values.subject) || 'Contact Form Inquiry',
           message: sanitizeInput(values.message),
           _subject: `New Inquiry: ${sanitizeInput(values.name)}`,
-          _honey: formData.get('_honey') || '',
-          _captcha: formData.get('_captcha') || 'false',
-          _template: formData.get('_template') || 'table'
+          _honey: (formData.get('_honey') as string) || '',
+          _captcha: 'false',
+          _template: 'table'
         });
 
         setIsSuccess(true);
         recordAttempt();
         clearDraft();
-        setValues({ name: '', email: '', phone: '', companyName: '', subject: '', subjectOther: '', message: '' });
+        setValues({ ...INITIAL_CONTACT });
         addToast('Message sent successfully!', 'success');
 
       } catch (error) {
-        logger.error('Contact form error', error);
+        logger.error('Contact form error', { error, form: 'contact', attempt: recordAttempt ? 'with_rate_limit' : 'no_limit' });
         let msg = 'Failed to send message. Please try again.';
         if (error instanceof ApiError) {
           if (error.code === 'NETWORK_ERROR') msg = "Network unavailable. Please check your connection.";
           else if (error.code === 'TIMEOUT') msg = "Request timed out.";
+          else msg = `Server error. Please email us directly at ${CONTACT_INFO.email}`;
+        } else {
+          msg = `An error occurred. Please email us directly at ${CONTACT_INFO.email}`;
         }
         addToast(msg, 'error');
       } finally {
@@ -126,11 +144,6 @@ const Contact: React.FC = () => {
       addToast('Please correct the errors in the form.', 'error');
     }
   };
-
-  const serviceOptions = [
-    ...SERVICES.map(s => s.title),
-    "Other"
-  ];
 
   return (
     <div data-zone="editorial" className="zone-bg min-h-screen">
@@ -361,6 +374,7 @@ const Contact: React.FC = () => {
                     <FormField label="Phone" name="phone" required error={errors.phone}>
                       <input
                         type="tel"
+                        inputMode="tel"
                         maxLength={15}
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
@@ -385,12 +399,12 @@ const Contact: React.FC = () => {
                       />
                     </FormField>
 
-                    <FormField label="Company Name" name="companyName">
+                    <FormField label="Company Name" name="company">
                       <input
                         type="text"
                         maxLength={120}
-                        value={values.companyName}
-                        onChange={(e) => handleChange('companyName', e.target.value)}
+                        value={values.company}
+                        onChange={(e) => handleChange('company', e.target.value)}
                         className="w-full bg-white/[0.04] text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:bg-white/[0.06] hover:border-white/20 focus-visible:bg-white/[0.06] focus-visible:border-brand-brass focus-visible:ring-2 focus-visible:ring-brand-brass/50 transition-all duration-200"
                         placeholder="Company Name"
                         autoComplete="organization"
@@ -473,17 +487,21 @@ const Contact: React.FC = () => {
         </div>
 
         {/* Map Section */}
+        {/* data-hide-cursor="true" is consumed by CustomCursor.tsx to prevent custom rendering over the map */}
         <Reveal variant="scale" delay={0.2} width="100%">
           <div
             className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full h-[280px] md:h-[350px] rounded-none md:rounded-[3rem] overflow-hidden shadow-2xl border-0 md:border zone-border grayscale-0 md:grayscale group relative transition-all duration-700 hover:grayscale-0"
             data-hide-cursor="true"
           >
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 zone-surface/90 backdrop-blur-md px-6 py-4 rounded-2xl border zone-border/50 shadow-lg pointer-events-none w-max">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 zone-surface/90 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-2xl border zone-border/50 shadow-lg pointer-events-auto max-w-[calc(100%-2rem)] w-max text-balance flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-3 mb-1">
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 <span className="text-[10px] font-bold uppercase tracking-widest zone-text">Our Location</span>
               </div>
               <h3 className="font-heading font-bold text-xl zone-text">{CONTACT_INFO.name}</h3>
+              <a href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-brand-brass hover:underline transition-all">
+                Get Directions ↗
+              </a>
             </div>
 
             <a 
@@ -498,14 +516,14 @@ const Contact: React.FC = () => {
               title={`${CONTACT_INFO.name} Location`}
               width="100%"
               height="100%"
-              frameBorder="0"
-              scrolling="no"
-              marginHeight={0}
-              marginWidth={0}
               src={CONTACT_INFO.geo.mapEmbedUrl}
               className="w-full h-full border-0"
               loading="lazy"
-            ></iframe>
+            >
+              <a href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`} className="flex items-center justify-center h-full w-full bg-brand-surface text-brand-dark font-bold underline">
+                View our office on Google Maps
+              </a>
+            </iframe>
 
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-brand-dark/20 to-transparent opacity-50"></div>
           </div>
@@ -517,5 +535,6 @@ const Contact: React.FC = () => {
 };
 
 export default Contact;
+
 
 

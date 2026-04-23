@@ -116,14 +116,14 @@ const ComplianceCalendar: React.FC = () => {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-moss opacity-30 rounded-full blur-[40px] pointer-events-none"></div>
                 <div className="relative z-10 flex items-start gap-4">
                     <div className="p-3 bg-white/10 rounded-xl shrink-0 animate-pulse">
-                        <Clock className="text-[#4ADE80]" size={24} />
+                        <Clock className="text-brand-accent" size={24} />
                     </div>
                     <div>
                         <span className="text-xs font-bold uppercase tracking-widest text-brand-stone/80 mb-1 block">Next Compliance Deadline</span>
                         <h3 className="text-xl font-bold mb-1">{nextDeadline.event.desc}</h3>
                         <p className="text-white/70 text-sm font-medium">
                             Due on {nextDeadline.date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            <span className="ml-2 px-2 py-0.5 bg-[#4ADE80] text-black text-[10px] font-bold rounded-full uppercase">
+                            <span className="ml-2 px-2 py-0.5 bg-brand-accent text-black text-[10px] font-bold rounded-full uppercase">
                                 {Math.ceil((nextDeadline.date.getTime() - new Date().setHours(0,0,0,0)) / (1000 * 3600 * 24))} Days left
                             </span>
                         </p>
@@ -265,3 +265,4 @@ const ComplianceCalendar: React.FC = () => {
 };
 
 export default ComplianceCalendar;
+

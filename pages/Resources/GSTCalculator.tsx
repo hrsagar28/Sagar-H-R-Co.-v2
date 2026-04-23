@@ -115,7 +115,7 @@ const GSTCalculator: React.FC = () => {
               </div>
               <div className="flex justify-between items-end border-b border-white/10 pb-4">
                  <span className="text-white/60 font-medium">GST ({rate}%)</span>
-                 <span className="text-xl font-mono font-bold text-[#4ADE80]">+ ₹ {gst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                 <span className="text-xl font-mono font-bold text-brand-accent">+ ₹ {gst.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
               </div>
               <div className="pt-2">
                  <span className="text-xs font-bold uppercase tracking-widest text-white/40 block mb-1">Total Amount</span>
@@ -138,3 +138,4 @@ const GSTCalculator: React.FC = () => {
 };
 
 export default GSTCalculator;
+

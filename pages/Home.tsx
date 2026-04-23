@@ -95,7 +95,7 @@ const Home: React.FC = () => {
             <Reveal delay={0.05} variant="fade-up">
               <div className="flex flex-col gap-2 mb-8">
                 <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl text-xs font-bold uppercase tracking-[0.2em] text-white/90 w-fit">
-                  <div className="w-2 h-2 bg-[#4ADE80] rounded-full animate-pulse shadow-[0_0_12px_#4ADE80]"></div>
+                  <div className="w-2 h-2 bg-brand-accent rounded-full animate-pulse shadow-[0_0_12px_brand-accent]"></div>
                   <span>Mysuru</span>
                 </div>
                 <h2 className="text-xl md:text-2xl font-bold text-white/80 tracking-wide font-heading">
@@ -125,7 +125,7 @@ const Home: React.FC = () => {
 
             <div className="flex flex-col items-start gap-8">
               <Reveal delay={0.4}>
-                <div className="flex items-center gap-4 text-white/80 text-lg md:text-xl font-medium border-l-2 border-[#4ADE80] pl-4 md:pl-6">
+                <div className="flex items-center gap-4 text-white/80 text-lg md:text-xl font-medium border-l-2 border-brand-accent pl-4 md:pl-6">
                   <span className="block">Chartered Accountants based in Mysuru. Providing services in Audit, Taxation, and Regulatory Compliance.</span>
                 </div>
               </Reveal>
@@ -193,17 +193,17 @@ const Home: React.FC = () => {
             <Link
               key={service.id}
               to={service.link}
-              className="shrink-0 w-[300px] md:w-[400px] aspect-[4/5] bg-brand-dark border border-white/5 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between hover:border-[#4ADE80]/50 hover:bg-brand-surface-dark-hover transition-all duration-500 group snap-center relative overflow-hidden"
+              className="shrink-0 w-[300px] md:w-[400px] aspect-[4/5] bg-brand-dark border border-white/5 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between hover:border-brand-accent/50 hover:bg-brand-surface-dark-hover transition-all duration-500 group snap-center relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
               <div className="relative z-10 flex flex-col h-full">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-[#4ADE80] group-hover:scale-110 transition-transform duration-500 mb-8 border border-white/5 shadow-lg shadow-black/20">
+                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-brand-accent group-hover:scale-110 transition-transform duration-500 mb-8 border border-white/5 shadow-lg shadow-black/20">
                   {React.cloneElement(service.icon as React.ReactElement<{ size?: number }>, { size: 32 })}
                 </div>
 
                 <div className="mb-auto">
-                  <h3 className="text-2xl md:text-3xl font-heading font-bold leading-tight text-white group-hover:text-[#4ADE80] transition-colors mb-4">
+                  <h3 className="text-2xl md:text-3xl font-heading font-bold leading-tight text-white group-hover:text-brand-accent transition-colors mb-4">
                     {service.title}
                   </h3>
                   <p className="text-white/65 text-base font-medium leading-relaxed line-clamp-3 group-hover:text-white/80 transition-colors">
@@ -213,7 +213,7 @@ const Home: React.FC = () => {
 
                 <div className="flex items-center justify-between border-t border-white/10 pt-8 mt-8">
                   <span className="text-xs font-bold uppercase tracking-widest text-amber-300 group-hover:text-white transition-colors">View Details</span>
-                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#4ADE80] group-hover:text-black group-hover:border-[#4ADE80] transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0)] group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
+                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-brand-accent group-hover:text-black group-hover:border-brand-accent transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0)] group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
                     <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
                   </div>
                 </div>
@@ -225,7 +225,7 @@ const Home: React.FC = () => {
               <div className="w-24 h-24 rounded-full border border-white/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-white group-hover:text-black transition-all duration-500">
                 <ArrowRight size={32} />
               </div>
-              <h3 className="text-3xl font-heading font-bold text-white group-hover:text-[#4ADE80] transition-colors">
+              <h3 className="text-3xl font-heading font-bold text-white group-hover:text-brand-accent transition-colors">
                 View All Services
               </h3>
             </Link>
@@ -300,7 +300,7 @@ const Home: React.FC = () => {
                   >
                     <article className="h-full relative bg-brand-bg border border-brand-border rounded-[2rem] overflow-hidden hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10 transition-all duration-500 hover:-translate-y-2 flex flex-col">
 
-                      <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-brand-moss to-[#4ADE80] transition-all duration-700" />
+                      <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-brand-moss to-brand-accent transition-all duration-700" />
 
                       <div className="p-6 md:p-8 flex flex-col flex-grow">
                         <div className="flex items-center justify-between mb-6">
@@ -357,3 +357,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
