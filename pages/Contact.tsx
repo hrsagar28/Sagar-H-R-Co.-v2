@@ -205,7 +205,6 @@ const Contact: React.FC = () => {
           { label: "By Voice", value: CONTACT_INFO.phone.value, href: `tel:${CONTACT_INFO.phone.value}` },
           { label: "By Visit", value: `${CONTACT_INFO.address.street}, ${CONTACT_INFO.address.city} - ${CONTACT_INFO.address.zip}` }
         ]}
-        ghostWord="Engage."
       />
 
       <div className="container mx-auto max-w-7xl px-4 md:px-6 py-12 md:py-20">
@@ -218,12 +217,12 @@ const Contact: React.FC = () => {
             <Reveal width="100%">
               <div className="zone-bg text-brand-surface p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl">
                 {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-brass opacity-20 rounded-full blur-[80px] pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-moss opacity-30 rounded-full blur-[80px] pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full blur-[60px] pointer-events-none"></div>
                 <div className="absolute inset-0 bg-noise opacity-[0.15] mix-blend-overlay pointer-events-none"></div>
 
                 <div className="relative z-10">
-                  <span className="text-brand-brass font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
+                  <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
                   <h2 className="text-2xl font-heading font-bold text-white mb-8">
                     Let's discuss your <br /> <span className="text-white/60">financial future.</span>
                   </h2>
@@ -231,7 +230,7 @@ const Contact: React.FC = () => {
                   <div className="space-y-6">
                     {/* Office */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <MapPin size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -245,13 +244,13 @@ const Contact: React.FC = () => {
 
                     {/* Email */}
                     <div className="flex items-start gap-5 group relative">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <Mail size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h3 className="text-white font-bold text-sm uppercase tracking-wide">Email Us</h3>
-                          <button onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass" aria-label="Copy Email" title="Copy Email">
+                          <button onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss" aria-label="Copy Email" title="Copy Email">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -263,13 +262,13 @@ const Contact: React.FC = () => {
 
                     {/* Phone */}
                     <div className="flex items-start gap-5 group relative">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <Phone size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h3 className="text-white font-bold text-sm uppercase tracking-wide">Call Us</h3>
-                          <button onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass" aria-label="Copy Phone" title="Copy Phone">
+                          <button onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss" aria-label="Copy Phone" title="Copy Phone">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -281,7 +280,7 @@ const Contact: React.FC = () => {
 
                     {/* Working Hours */}
                     <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
                         <Clock size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -294,34 +293,22 @@ const Contact: React.FC = () => {
 
                   </div>
 
-                  {/* Primary WhatsApp CTA — full-card clickable */}
-                  {CONTACT_INFO.social.whatsapp && (
-                    <a
-                      href={CONTACT_INFO.social.whatsapp}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Chat with us on WhatsApp — opens in a new tab"
-                      className="mt-8 relative overflow-hidden flex items-center gap-4 bg-white/[0.04] hover:bg-brand-brass/15 border border-white/10 hover:border-brand-brass/40 rounded-2xl p-4 group transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--zone-bg)]"
-                    >
-                      <span aria-hidden="true" className="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-[900ms] ease-out-expo bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-                      <div className="relative w-12 h-12 bg-brand-brass/20 rounded-xl flex items-center justify-center text-brand-brass group-hover:bg-brand-brass group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 shrink-0">
-                        <MessageCircle size={22} aria-hidden="true" />
-                      </div>
-                      <div className="relative flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white font-bold text-[0.95rem] tracking-tight">Chat on WhatsApp</span>
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-brand-brass bg-brand-brass/10 border border-brand-brass/30 px-2 py-0.5 rounded-full">
-                            <span className="w-1.5 h-1.5 bg-brand-brass rounded-full animate-pulse" />
-                            Fastest
-                          </span>
+                    {/* WhatsApp */}
+                    {CONTACT_INFO.social.whatsapp && (
+                      <div className="flex items-start gap-5 group relative">
+                        <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                          <MessageCircle size={18} aria-hidden="true" />
                         </div>
-                        <p className="text-gray-400 group-hover:text-gray-200 transition-colors text-xs font-medium mt-0.5">
-                          Typical reply in under an hour.
-                        </p>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-center mb-1">
+                            <h3 className="text-white font-bold text-sm uppercase tracking-wide">WhatsApp Us</h3>
+                          </div>
+                          <a href={CONTACT_INFO.social.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
+                            Chat on WhatsApp
+                          </a>
+                        </div>
                       </div>
-                      <ArrowUpRight size={18} className="relative text-gray-500 group-hover:text-brand-brass group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 shrink-0" aria-hidden="true" />
-                    </a>
-                  )}
+                    )}
                 </div>
               </div>
             </Reveal>
@@ -490,16 +477,16 @@ const Contact: React.FC = () => {
         {/* data-hide-cursor="true" is consumed by CustomCursor.tsx to prevent custom rendering over the map */}
         <Reveal variant="scale" delay={0.2} width="100%">
           <div
-            className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full h-[280px] md:h-[350px] rounded-none md:rounded-[3rem] overflow-hidden shadow-2xl border-0 md:border zone-border grayscale-0 md:grayscale group relative transition-all duration-700 hover:grayscale-0"
+            className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full h-[280px] md:h-[350px] rounded-none md:rounded-[3rem] overflow-hidden shadow-2xl border-0 md:border zone-border grayscale-0 md:grayscale group relative transition-all duration-700 hover:grayscale-0 cursor-auto"
             data-hide-cursor="true"
           >
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 zone-surface/90 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-2xl border zone-border/50 shadow-lg pointer-events-auto max-w-[calc(100%-2rem)] w-max text-balance flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 bg-black/70 backdrop-blur-xl px-4 py-3 md:px-6 md:py-4 rounded-2xl border border-white/10 shadow-lg pointer-events-auto max-w-[calc(100%-2rem)] w-max text-balance flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-3 mb-1">
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-[10px] font-bold uppercase tracking-widest zone-text">Our Location</span>
+                <span className="text-[10px] text-white/80 font-bold uppercase tracking-widest">Our Location</span>
               </div>
-              <h3 className="font-heading font-bold text-xl zone-text">{CONTACT_INFO.name}</h3>
-              <a href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-brand-brass hover:underline transition-all">
+              <h3 className="font-heading font-bold text-xl text-white">{CONTACT_INFO.name}</h3>
+              <a href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-white hover:text-white/80 hover:underline transition-all">
                 Get Directions ↗
               </a>
             </div>
