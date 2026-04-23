@@ -12,6 +12,8 @@ interface CustomDropdownProps {
   icon?: React.ReactNode;
   error?: string;
   required?: boolean;
+  buttonClassName?: string;
+  labelClassName?: string;
 }
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({
@@ -23,7 +25,9 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   placeholder = "Select an option",
   icon,
   error,
-  required = false
+  required = false,
+  buttonClassName = "",
+  labelClassName = ""
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -154,7 +158,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
     <div className="flex flex-col gap-2 relative z-dropdown" ref={dropdownRef}>
       <label
         id={labelId}
-        className="flex items-center gap-2 text-xs font-bold zone-text uppercase tracking-widest mb-1 ml-1"
+        className={`flex items-center gap-2 text-xs font-bold zone-text uppercase tracking-widest mb-1 ml-1 ${labelClassName}`}
       >
         {icon} {label} {required && <span className="text-red-500" aria-hidden="true">*</span>}
         {required && <span className="sr-only"> (required)</span>}
@@ -177,6 +181,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
           w-full zone-bg border py-4 px-6 rounded-2xl zone-text text-left
           focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--zone-accent)] focus-visible:border-[color:var(--zone-accent)] transition-all duration-200 flex justify-between items-center group
           ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-[color:var(--zone-accent)] ring-1 ring-[color:var(--zone-accent)]' : 'zone-border'}
+          ${buttonClassName}
         `}
       >
         <span className={value ? "zone-text font-medium" : "zone-text-muted font-medium opacity-70"}>

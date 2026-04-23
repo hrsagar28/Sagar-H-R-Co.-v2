@@ -7,7 +7,7 @@ const { Link } = ReactRouterDOM;
 export interface BigCTAProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   to?: string;
   href?: string;
-  tone?: 'moss' | 'ink' | 'paper' | 'brass';
+  tone?: 'moss' | 'ink' | 'paper' | 'brass' | 'accent';
   size?: 'md' | 'lg';
   children: React.ReactNode;
   ariaLabel?: string;
@@ -27,6 +27,12 @@ export function BigCTA({
 }: BigCTAProps) {
   const getToneClasses = () => {
     switch (tone) {
+      case 'accent':
+        return {
+          container: 'border-brand-accent text-brand-accent',
+          fillBg: 'bg-brand-accent',
+          labelOnFill: 'group-hover:text-brand-ink',
+        };
       case 'moss':
         return {
           container: 'border-brand-moss text-brand-moss',

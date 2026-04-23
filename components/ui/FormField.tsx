@@ -7,6 +7,8 @@ interface FormFieldProps {
   hint?: string;
   required?: boolean;
   children: React.ReactNode;
+  labelClassName?: string;
+  hintClassName?: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -15,11 +17,13 @@ const FormField: React.FC<FormFieldProps> = ({
   error,
   hint,
   required,
-  children
+  children,
+  labelClassName = "",
+  hintClassName = ""
 }) => {
   return (
     <div className="mb-6">
-      <label htmlFor={name} className="block text-sm font-semibold zone-text mb-2">
+      <label htmlFor={name} className={`block text-sm font-semibold zone-text mb-2 ${labelClassName}`}>
         {label} {required && <span className="text-red-500" aria-hidden="true">*</span>}
         {required && <span className="sr-only"> (required)</span>}
       </label>
@@ -32,7 +36,7 @@ const FormField: React.FC<FormFieldProps> = ({
         className: `${children.props.className || ''} ${error ? 'border-red-500 ring-1 ring-red-500' : ''}`.trim()
       }) : children}
 
-      {hint && !error && <p id={`${name}-hint`} className="zone-text-muted text-xs mt-2 text-right tabular-nums">{hint}</p>}
+      {hint && !error && <p id={`${name}-hint`} className={`zone-text-muted text-xs mt-2 text-right tabular-nums ${hintClassName}`}>{hint}</p>}
       {error && <p id={`${name}-error`} className="text-red-500 font-bold text-xs mt-2" aria-live="polite">{error}</p>}
     </div>
   );

@@ -316,19 +316,19 @@ const Contact: React.FC = () => {
 
           {/* Right Column: Contact Form */}
           <Reveal className="lg:col-span-8" delay={0.1} width="100%">
-            <div className="bg-brand-bg text-brand-dark p-8 md:p-12 rounded-[2.5rem] border border-brand-dark/10 h-full shadow-2xl shadow-brand-ink/10 focus-within:border-brand-moss/30 focus-within:shadow-brand-moss/10 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
+            <div className="bg-black text-white p-8 md:p-12 rounded-[2.5rem] border-none h-full focus-within:shadow-brand-accent/5 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
               {isSuccess ? (
                 <div role="status" aria-live="polite" className="text-center py-10 animate-fade-in-up">
-                  <div className="w-20 h-20 bg-brand-moss/15 text-brand-moss rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-brand-accent/10 text-brand-accent rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle size={40} aria-hidden="true" />
                   </div>
-                  <h3 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold mb-4">Message Sent!</h3>
-                  <p className="text-brand-stone mb-8 text-lg font-medium">
+                  <h3 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold mb-4 text-white">Message Sent!</h3>
+                  <p className="text-white/60 mb-8 text-lg font-medium">
                     Thank you for reaching out. Our team will get back to you shortly.
                   </p>
                   <button
                     onClick={() => setIsSuccess(false)}
-                    className="text-brand-moss font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2 rounded-md px-1"
+                    className="text-brand-accent font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 rounded-md px-1"
                   >
                     Send another message
                   </button>
@@ -341,31 +341,31 @@ const Contact: React.FC = () => {
                   <input type="hidden" name="_template" value="table" />
 
                   <div className="mb-2">
-                    <h3 className="text-3xl font-heading font-bold">Send a Message</h3>
-                    <p className="text-brand-stone font-medium mt-2">Fill out the form below and we will get back to you.</p>
+                    <h3 className="text-3xl font-heading font-bold text-white">Send a Message</h3>
+                    <p className="text-white/60 font-medium mt-2">Fill out the form below and we will get back to you.</p>
                   </div>
 
                   {/* Row 1: Name & Phone */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField label="Name" name="name" required error={errors.name}>
+                    <FormField label="Name" name="name" required error={errors.name} labelClassName="text-white">
                       <input
                         type="text"
                         maxLength={80}
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
+                        className="w-full bg-black text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:border-white/20 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                         placeholder="Your Name"
                         autoComplete="name"
                       />
                     </FormField>
-                    <FormField label="Phone" name="phone" required error={errors.phone}>
+                    <FormField label="Phone" name="phone" required error={errors.phone} labelClassName="text-white">
                       <input
                         type="tel"
                         inputMode="tel"
                         maxLength={15}
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
-                        className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
+                        className="w-full bg-black text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:border-white/20 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                         placeholder="Mobile Number"
                         autoComplete="tel"
                       />
@@ -374,25 +374,25 @@ const Contact: React.FC = () => {
 
                   {/* Row 2: Email & Company Name */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField label="Email" name="email" required error={errors.email}>
+                    <FormField label="Email" name="email" required error={errors.email} labelClassName="text-white">
                       <input
                         type="email"
                         maxLength={254}
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
-                        className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
+                        className="w-full bg-black text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:border-white/20 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                         placeholder="email@company.com"
                         autoComplete="email"
                       />
                     </FormField>
 
-                    <FormField label="Company Name" name="company">
+                    <FormField label="Company Name" name="company" labelClassName="text-white">
                       <input
                         type="text"
                         maxLength={120}
                         value={values.company}
                         onChange={(e) => handleChange('company', e.target.value)}
-                        className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
+                        className="w-full bg-black text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:border-white/20 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                         placeholder="Company Name"
                         autoComplete="organization"
                       />
@@ -408,17 +408,19 @@ const Contact: React.FC = () => {
                       options={serviceOptions}
                       onChange={(name, val) => handleChange(name as keyof ContactFormData, val)}
                       placeholder="Select a topic"
+                      buttonClassName="bg-black text-white border-white/10 focus-visible:border-brand-accent focus-visible:ring-brand-accent/20"
+                      labelClassName="text-white"
                     />
 
                     {values.subject === 'Other' && (
                       <div className="w-full mt-6">
-                        <FormField label="Please specify" name="subjectOther">
+                        <FormField label="Please specify" name="subjectOther" labelClassName="text-white">
                           <input
                             type="text"
                             maxLength={80}
                             value={values.subjectOther}
                             onChange={(e) => handleChange('subjectOther', e.target.value)}
-                            className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200"
+                            className="w-full bg-black text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:border-white/20 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
                             placeholder="What is your inquiry regarding?"
                           />
                         </FormField>
@@ -432,6 +434,8 @@ const Contact: React.FC = () => {
                     name="message"
                     required
                     error={errors.message}
+                    labelClassName="text-white"
+                    hintClassName="text-white/40"
                     hint={values.message.length > 1800
                       ? `${values.message.length} / 2000 — approaching limit`
                       : `${values.message.length} / 2000`}
@@ -441,7 +445,7 @@ const Contact: React.FC = () => {
                       maxLength={2000}
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className="w-full bg-white text-brand-ink placeholder:text-brand-stone/60 border border-brand-ink/10 rounded-2xl p-4 focus:outline-none hover:border-brand-ink/20 focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss/30 transition-all duration-200 resize-none leading-relaxed"
+                      className="w-full bg-black text-white placeholder:text-white/30 border border-white/10 rounded-2xl p-4 focus:outline-none hover:border-white/20 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200 resize-none leading-relaxed"
                       placeholder="How can we help you?"
                     ></textarea>
                   </FormField>
@@ -450,7 +454,7 @@ const Contact: React.FC = () => {
                     <BigCTA
                       type="submit"
                       disabled={isSubmitting || !canSubmit}
-                      tone="moss" size="lg"
+                      tone="accent" size="lg"
                       className="w-full"
                     >
                       {isSubmitting ? (
@@ -464,7 +468,7 @@ const Contact: React.FC = () => {
                       )}
                     </BigCTA>
                     <div className="text-center mt-4">
-                      <p className="text-sm font-medium text-brand-stone">We typically reply within one business day.</p>
+                      <p className="text-sm font-medium text-white/40">We typically reply within one business day.</p>
                     </div>
                   </div>
                 </form>
