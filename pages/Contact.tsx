@@ -409,7 +409,7 @@ const Contact: React.FC = () => {
                       onChange={(name, val) => handleChange(name as keyof ContactFormData, val)}
                       placeholder="Select a topic"
                     />
-                    
+
                     {values.subject === 'Other' && (
                       <div className="w-full mt-6">
                         <FormField label="Please specify" name="subjectOther">
@@ -491,10 +491,10 @@ const Contact: React.FC = () => {
               </a>
             </div>
 
-            <a 
-              href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-white text-black p-3 rounded-xl shadow-lg font-bold"
             >
               Get directions on Google Maps
