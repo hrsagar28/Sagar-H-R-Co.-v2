@@ -102,14 +102,14 @@ const Careers = (): JSX.Element => {
                 </div>
 
                 {/* APPLICATION FORM SECTION */}
-                <div className="pt-10 scroll-mt-32 outline-none" ref={formSectionRef} tabIndex={-1}>
+                <div className="pt-10 scroll-mt-[var(--sticky-offset)] outline-none" ref={formSectionRef} tabIndex={-1}>
                     <CareerForm initialPosition={selectedPosition} />
                 </div>
              </div>
              
               <div className="lg:col-span-1 z-base">
                 <div 
-                  className="bg-brand-dark text-brand-surface p-10 rounded-[2rem] shadow-xl relative overflow-hidden sticky top-32"
+                  className="bg-brand-dark text-brand-surface p-10 rounded-[2rem] shadow-xl relative overflow-hidden sticky top-[var(--sticky-offset)]"
                 >
                   <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-moss/20 via-transparent to-transparent pointer-events-none"></div>
                   <div className="relative z-10">

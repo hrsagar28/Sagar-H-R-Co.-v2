@@ -300,6 +300,7 @@ html {
 
 @layer base {
   :root {
+    --sticky-offset: 8rem;
     /* zone-resolved tokens (default = moss zone) */
     --zone-bg: #F2F2F0;
     --zone-surface: #FFFFFF;

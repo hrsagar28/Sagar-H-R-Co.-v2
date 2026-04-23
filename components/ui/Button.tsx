@@ -55,6 +55,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           ...props,
         });
       }
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn("Button with asChild={true} requires a single React element child.");
+      }
       return null;
     }
     

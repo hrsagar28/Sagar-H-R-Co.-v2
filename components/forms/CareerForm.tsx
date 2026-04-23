@@ -42,7 +42,7 @@ const careerSchema = createFormSchema<FormData>({
   dob: [required('Date of Birth is required')],
   qualification: [required('Qualification is required')],
   experience: [required('Please select your experience level')],
-  position: [required('Please select a position')],
+  position: [required('Please select a position'), (v: string) => v === '---' ? 'Please select a valid position' : undefined],
   previousCompanies: [maxLength(1000, 'Maximum 1000 characters allowed')]
 });
 
@@ -233,7 +233,6 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
       if (target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') return;
       e.preventDefault();
       if (currentStep < 4) handleNext();
-      else if (validateStep(4)) handleSubmit(e as unknown as React.FormEvent);
     }
   };
 
@@ -241,17 +240,26 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
     setCurrentStep(step);
     setTimeout(() => {
       let selector = '';
-      if (step === 1) selector = 'input[name="fullName"]';
-      if (step === 2) selector = 'input[name="mobile"]';
-      if (step === 3) selector = 'button[aria-labelledby="position-label"]';
+      if (step === 1) selector = '[data-step-focus="1"]';
+      if (step === 2) selector = '[data-step-focus="2"]';
+      if (step === 3) selector = '[data-step-focus="3"] button, [data-step-focus="3"] input';
       const el = document.querySelector(selector) as HTMLElement;
       el?.focus();
     }, 50);
   };
 
+  useEffect(() => {
+    if (submitStatus === 'success') {
+      setTimeout(() => {
+        const el = document.getElementById('success-heading');
+        if (el) el.focus();
+      }, 50);
+    }
+  }, [submitStatus]);
+
   if (submitStatus === 'success') {
     return (
-      <div id="form-header" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative flex flex-col items-center justify-center text-center min-h-[400px] animate-fade-in-up">
+      <div id="form-header" role="status" aria-live="polite" className="bg-brand-surface p-8 md:p-12 rounded-[2.5rem] border border-brand-border shadow-2xl relative flex flex-col items-center justify-center text-center min-h-[400px] animate-fade-in-up">
         <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden pointer-events-none">
           <div className="absolute inset-0 bg-grid opacity-30"></div>
         </div>
@@ -259,7 +267,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
         <div className="w-24 h-24 bg-brand-moss text-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-brand-moss/30 relative z-10">
           <Check size={48} />
         </div>
-        <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4 relative z-10">Application Submitted!</h2>
+        <h2 id="success-heading" tabIndex={-1} className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-4 relative z-10 focus:outline-none">Application Submitted!</h2>
         <p className="text-xl text-brand-stone font-medium max-w-md mx-auto mb-8 relative z-10">
           Our team will review your profile and get in touch within 5 working days if your background matches the role.
         </p>
@@ -359,7 +367,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
 
         {/* Form */}
         <form
-          className="space-y-8 relative z-20"
+          className="relative z-20"
           onSubmit={handleSubmit}
           onKeyDown={handleKeyDown}
         >
@@ -377,12 +385,14 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
             </label>
           </div>
 
-          {/* STEP 1: PERSONAL DETAILS */}
-          <div className={`${currentStep === 1 ? 'block animate-fade-in-up' : 'hidden'}`} aria-hidden={currentStep !== 1} inert={currentStep !== 1 ? true : undefined}>
+          <div className="space-y-8">
+            {/* STEP 1: PERSONAL DETAILS */}
+            <div className={`${currentStep === 1 ? 'block animate-fade-in-up' : 'hidden'}`} aria-hidden={currentStep !== 1} inert={currentStep !== 1 ? true : undefined}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="md:col-span-2">
                 <FormField label="Full Name" name="fullName" required error={errors.fullName}>
                   <input
+                    data-step-focus="1"
                     type="text"
                     value={values.fullName}
                     onChange={onInputChange}
@@ -399,7 +409,8 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
                   value={values.fatherName}
                   onChange={onInputChange}
                   placeholder="Father's Full Name"
-                  className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:border-brand-moss focus:ring-1 focus:ring-brand-moss focus:outline-none transition-all"
+                  autoComplete="off"
+                  className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
                 />
               </FormField>
 
@@ -423,6 +434,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
               <div className="group">
                 <FormField label="Mobile Number" name="mobile" required error={errors.mobile}>
                   <input
+                    data-step-focus="2"
                     type="tel"
                     inputMode="tel"
                     maxLength={15}
@@ -455,16 +467,18 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
             <div className="space-y-8">
 
               {/* Position */}
-              <CustomDropdown
-                label="Position Applying For"
-                name="position"
-                value={values.position}
-                options={positionOptions}
-                onChange={onCustomChange}
-                error={errors.position}
-                required
-                icon={<Briefcase size={14} className="text-brand-moss" />}
-              />
+              <div data-step-focus="3">
+                <CustomDropdown
+                  label="Position Applying For"
+                  name="position"
+                  value={values.position}
+                  options={positionOptions}
+                  onChange={onCustomChange}
+                  error={errors.position}
+                  required
+                  icon={<Briefcase size={14} className="text-brand-moss" />}
+                />
+              </div>
 
               {/* Qualification */}
               <div className="group">
@@ -551,10 +565,10 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
                      <div><span className="text-brand-stone block mb-1">Position</span><span className="font-medium text-brand-dark">{values.position || '-'}</span></div>
                      <div><span className="text-brand-stone block mb-1">Qualification</span><span className="font-medium text-brand-dark">{values.qualification || '-'}</span></div>
                      <div><span className="text-brand-stone block mb-1">Experience</span><span className="font-medium text-brand-dark">{values.experience || '-'}</span></div>
-                     {values.previousCompanies && <div className="md:col-span-2"><span className="text-brand-stone block mb-1">Previous Companies</span><span className="font-medium text-brand-dark break-words">{values.previousCompanies}</span></div>}
-                  </div>
-               </div>
-            </div>
+                   </div>
+                </div>
+             </div>
+           </div>
           </div>
 
           {submitStatus === 'error' && (
