@@ -10,6 +10,8 @@ interface CustomDatePickerProps {
   onChange: (name: string, value: string) => void;
   error?: string;
   required?: boolean;
+  min?: string;
+  max?: string;
 }
 
 const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
@@ -18,7 +20,9 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   value,
   onChange,
   error,
-  required = false
+  required = false,
+  min,
+  max
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
@@ -35,6 +39,34 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const daysOfWeek = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
   const fullDaysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  const parseDateString = (dateString?: string) => {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split('-').map(Number);
+    if (!year || !month || !day) return null;
+    const parsedDate = new Date(year, month - 1, day);
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+  };
+
+  const minDate = parseDateString(min);
+  const maxDate = parseDateString(max);
+  const clampDate = (date: Date) => {
+    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    if (minDate && normalizedDate < minDate) {
+      return new Date(minDate);
+    }
+
+    if (maxDate && normalizedDate > maxDate) {
+      return new Date(maxDate);
+    }
+
+    return normalizedDate;
+  };
+  const isDateDisabled = (date: Date) => {
+    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    return (minDate !== null && normalizedDate < minDate) || (maxDate !== null && normalizedDate > maxDate);
+  };
   
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
@@ -55,15 +87,16 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         }
       }
 
-      const initialDate = value ? new Date(value) : new Date();
+      const initialDate = value ? parseDateString(value) ?? new Date() : new Date();
+      const boundedDate = clampDate(initialDate);
       if (isNaN(initialDate.getTime())) {
           // Handle invalid date string gracefully
-          const now = new Date();
+          const now = clampDate(new Date());
           setViewDate(now);
           setFocusedDate(now);
       } else {
-          setViewDate(initialDate);
-          setFocusedDate(initialDate);
+          setViewDate(boundedDate);
+          setFocusedDate(boundedDate);
       }
       setCalendarView('days');
       
@@ -97,6 +130,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 
   const handleDateSelect = (day: number) => {
     const selectedDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
+    if (isDateDisabled(selectedDate)) return;
     // Adjust for timezone to ensure we get YYYY-MM-DD correctly in local time
     const offset = selectedDate.getTimezoneOffset();
     const adjustedDate = new Date(selectedDate.getTime() - (offset * 60 * 1000));
@@ -109,33 +143,37 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   };
 
   const changeMonth = (offset: number) => {
-    const newDate = new Date(viewDate);
+    const newDate = clampDate(new Date(viewDate));
     newDate.setMonth(newDate.getMonth() + offset);
-    setViewDate(newDate);
+    const boundedDate = clampDate(newDate);
+    setViewDate(boundedDate);
     // Update focus to same day in new month, or last day if not exists
-    const daysInNewMonth = getDaysInMonth(newDate.getFullYear(), newDate.getMonth());
-    const newFocus = new Date(newDate);
+    const daysInNewMonth = getDaysInMonth(boundedDate.getFullYear(), boundedDate.getMonth());
+    const newFocus = new Date(boundedDate);
     newFocus.setDate(Math.min(focusedDate.getDate(), daysInNewMonth));
-    setFocusedDate(newFocus);
+    const boundedFocus = clampDate(newFocus);
+    setFocusedDate(boundedFocus);
     
-    announce(`${months[newDate.getMonth()]} ${newDate.getFullYear()}`);
+    announce(`${months[boundedDate.getMonth()]} ${boundedDate.getFullYear()}`);
   };
 
   const selectYear = (year: number) => {
     const newDate = new Date(viewDate);
     newDate.setFullYear(year);
-    setViewDate(newDate);
+    const boundedDate = clampDate(newDate);
+    setViewDate(boundedDate);
     setCalendarView('days');
-    setFocusedDate(newDate);
-    announce(`${months[newDate.getMonth()]} ${year}`);
+    setFocusedDate(boundedDate);
+    announce(`${months[boundedDate.getMonth()]} ${boundedDate.getFullYear()}`);
     // Return focus to grid
     setTimeout(() => gridRef.current?.focus(), 50);
   };
 
   const generateYearRange = () => {
-    const currentYear = new Date().getFullYear();
+    const startYear = minDate?.getFullYear() ?? 1960;
+    const endYear = maxDate?.getFullYear() ?? new Date().getFullYear();
     const years = [];
-    for (let i = 1960; i <= currentYear; i++) years.push(i);
+    for (let i = startYear; i <= endYear; i++) years.push(i);
     return years;
   };
 
@@ -185,11 +223,12 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 
       if (handled) {
         e.preventDefault();
-        setFocusedDate(newFocus);
-        if (newFocus.getMonth() !== viewDate.getMonth()) {
-            setViewDate(newFocus);
+        const boundedFocus = clampDate(newFocus);
+        setFocusedDate(boundedFocus);
+        if (boundedFocus.getMonth() !== viewDate.getMonth() || boundedFocus.getFullYear() !== viewDate.getFullYear()) {
+            setViewDate(boundedFocus);
         }
-        announce(newFocus.toLocaleDateString());
+        announce(boundedFocus.toLocaleDateString());
       }
     }
   };
@@ -218,6 +257,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
           value={value}
           onChange={(e) => onChange(name, e.target.value)}
           autoComplete="bday"
+          min={min}
+          max={max}
           aria-labelledby={labelId}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : undefined}
@@ -293,10 +334,11 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                   const day = i + 1;
                   const currentDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
                   const currentDateString = currentDate.toDateString();
-                  const selectedDateString = value ? new Date(value).toDateString() : '';
+                  const selectedDateString = value ? (parseDateString(value)?.toDateString() ?? '') : '';
                   const isSelected = currentDateString === selectedDateString;
                   const isFocused = currentDate.toDateString() === focusedDate.toDateString();
                   const isToday = currentDate.toDateString() === new Date().toDateString();
+                  const isDisabled = isDateDisabled(currentDate);
 
                   return (
                     <button 
@@ -305,14 +347,17 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                         role="gridcell"
                         tabIndex={-1} // Handled by container keyboard nav
                         aria-selected={isSelected}
+                        aria-disabled={isDisabled}
                         aria-label={`${day} ${months[viewDate.getMonth()]} ${viewDate.getFullYear()}`}
                         aria-current={isToday ? 'date' : undefined}
+                        disabled={isDisabled}
                         onClick={() => handleDateSelect(day)} 
                         className={`
                             w-10 h-10 rounded-full text-sm font-medium flex items-center justify-center mx-auto transition-all focus:outline-none
                             ${isSelected ? 'bg-brand-moss text-white shadow-md' : ''}
+                            ${isDisabled ? 'cursor-not-allowed text-brand-stone/30 hover:bg-transparent hover:text-brand-stone/30' : ''}
                             ${!isSelected && isFocused ? 'bg-brand-bg text-brand-dark ring-2 ring-brand-moss' : ''}
-                            ${!isSelected && !isFocused ? 'text-brand-dark hover:bg-brand-bg hover:text-brand-moss' : ''}
+                            ${!isSelected && !isFocused && !isDisabled ? 'text-brand-dark hover:bg-brand-bg hover:text-brand-moss' : ''}
                         `}
                     >
                       {day}

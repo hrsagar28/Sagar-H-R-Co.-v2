@@ -1,34 +1,51 @@
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Briefcase, ArrowRight } from 'lucide-react';
 import CareerForm from '../components/forms/CareerForm';
 import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
-import { OPEN_ROLES } from '../constants/careers';
+import { CONTACT_INFO } from '../constants';
+import { CAREERS_APPLY_URL, OPEN_ROLES } from '../constants/careers';
+import { useAnnounce } from '../hooks';
+
+const EMPLOYMENT_TYPE_MAP = {
+  'Full Time': 'FULL_TIME',
+  'Part Time': 'PART_TIME',
+  Internship: 'INTERN',
+  Contract: 'CONTRACTOR'
+} as const;
+
+const buildJobPostingDescription = (role: typeof OPEN_ROLES[number]) => {
+  const responsibilities = role.responsibilities.map((item) => `<li>${item}</li>`).join('');
+  const skills = role.skills.map((item) => `<li>${item}</li>`).join('');
+  const residenceRequirement = role.residenceRequirement ? `<p>${role.residenceRequirement}</p>` : '';
+
+  return [
+    `<p>${role.description}</p>`,
+    residenceRequirement,
+    '<h4>Responsibilities</h4>',
+    `<ul>${responsibilities}</ul>`,
+    '<h4>Skills</h4>',
+    `<ul>${skills}</ul>`
+  ].join('');
+};
 
 const Careers = (): JSX.Element => {
-  const formSectionRef = useRef<HTMLDivElement>(null);
-  
   const [selectedPosition, setSelectedPosition] = useState<string>('');
-  const [announcement, setAnnouncement] = useState('');
+  const { announce } = useAnnounce();
+  const careersMetaDescription = `${OPEN_ROLES.length} open roles - Audit Associate (full-time) and Articled Assistant (internship) at a Mysuru-based CA firm.`;
 
   const handleApplyClick = (role: string) => {
     setSelectedPosition(role);
-    setAnnouncement(`Application form opened for ${role}`);
-    setTimeout(() => setAnnouncement(''), 1000);
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    formSectionRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
-    setTimeout(() => {
-      document.getElementById('form-heading')?.focus({ preventScroll: true });
-    }, 50);
+    announce(`Application form opened for ${role}`);
+    document.getElementById('form-heading')?.focus();
   };
 
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
-      <div aria-live="polite" className="sr-only">{announcement}</div>
       <SEO 
         title="Careers | Join Sagar H R & Co."
-        description="Career opportunities for Chartered Accountants, Articles, and Audit Associates in Mysuru."
+        description={careersMetaDescription}
         canonicalUrl="https://casagar.co.in/careers"
         ogImage="https://casagar.co.in/og-careers.png"
         breadcrumbs={[
@@ -39,13 +56,17 @@ const Careers = (): JSX.Element => {
           "@context": "https://schema.org",
           "@type": "JobPosting",
           "title": r.role,
-          "description": `<p>${r.description}</p>`,
+          "description": buildJobPostingDescription(r),
           "datePosted": r.datePosted,
-          "validThrough": r.applicationDeadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          "employmentType": r.type === 'Internship' ? 'INTERN' : 'FULL_TIME',
+          "validThrough": r.applicationDeadline,
+          "employmentType": EMPLOYMENT_TYPE_MAP[r.type],
+          "url": `https://casagar.co.in/careers#${r.id}`,
+          "directApply": true,
+          "applyUrl": CAREERS_APPLY_URL,
           "hiringOrganization": {
             "@type": "Organization",
             "name": "Sagar H R & Co.",
+            "url": "https://casagar.co.in",
             "sameAs": "https://casagar.co.in",
             "logo": "https://casagar.co.in/logo.png"
           },
@@ -53,12 +74,23 @@ const Careers = (): JSX.Element => {
             "@type": "Place",
             "address": {
               "@type": "PostalAddress",
-              "addressLocality": "Mysuru",
-              "addressRegion": "Karnataka",
+              "streetAddress": CONTACT_INFO.address.street,
+              "addressLocality": CONTACT_INFO.address.city,
+              "addressRegion": CONTACT_INFO.address.state,
+              "postalCode": CONTACT_INFO.address.zip,
               "addressCountry": "IN"
             }
           },
-          "applicantLocationRequirements": { "@type": "Country", "name": "IN" }
+          ...(r.workMode !== 'On-site' ? { "jobLocationType": "TELECOMMUTE" } : {}),
+          "applicantLocationRequirements": r.applicantLocationType === 'City'
+            ? {
+                "@type": "City",
+                "name": r.applicantLocationName
+              }
+            : {
+                "@type": "Country",
+                "name": "IN"
+              }
         }))}
       />
 
@@ -84,25 +116,26 @@ const Careers = (): JSX.Element => {
                     
                     <ul aria-labelledby="open-positions-heading" className="space-y-6">
                       {OPEN_ROLES.map((job) => (
-                        <li key={job.id} className="p-10 bg-brand-surface rounded-[2rem] border border-brand-border hover:border-brand-moss hover:shadow-xl focus-within:border-brand-moss focus-within:shadow-xl transition-all duration-300 group relative overflow-hidden">
+                        <li id={job.id} key={job.id} className="p-10 bg-brand-surface rounded-[2rem] border border-brand-border hover:border-brand-moss hover:shadow-xl focus-within:border-brand-moss focus-within:shadow-xl transition-all duration-300 group relative overflow-hidden">
                            <div className="flex justify-between items-start mb-4 relative z-10">
                               <h3 className="text-2xl text-brand-dark font-heading font-bold group-hover:text-brand-moss group-focus-within:text-brand-moss transition-colors">{job.role}</h3>
                               <span className="px-4 py-1 bg-brand-bg rounded-full text-brand-stone text-[0.8rem] font-bold uppercase tracking-widest border border-brand-border group-hover:bg-brand-moss group-hover:text-white group-focus-within:bg-brand-moss group-focus-within:text-white transition-colors">{job.type}</span>
                            </div>
                            <p className="text-brand-stone text-base mb-8 font-medium relative z-10">{job.location} • {job.experience.toLowerCase() === 'fresher' ? 'Fresher' : `${job.experience} of experience`}</p>
-                           <button 
-                              onClick={() => handleApplyClick(job.role)}
-                              className="flex items-center gap-2 text-brand-dark font-bold text-sm group-hover:gap-4 group-focus-visible:gap-4 transition-all relative z-10 hover:text-brand-moss focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-4 focus-visible:ring-offset-brand-surface rounded-md"
-                           >
-                             Apply Now <ArrowRight size={16} />
-                           </button>
+                            <button
+                               type="button"
+                               onClick={() => handleApplyClick(job.role)}
+                               className="flex items-center gap-2 text-brand-dark font-bold text-sm group-hover:gap-4 group-focus-visible:gap-4 transition-all relative z-10 hover:text-brand-moss focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-4 focus-visible:ring-offset-brand-bg rounded-md"
+                            >
+                              Apply Now <ArrowRight size={16} />
+                            </button>
                         </li>
                       ))}
                     </ul>
                 </div>
 
                 {/* APPLICATION FORM SECTION */}
-                <div className="pt-10 scroll-mt-[var(--sticky-offset)] outline-none" ref={formSectionRef} tabIndex={-1}>
+                <div id="apply" className="pt-10 scroll-mt-[var(--sticky-offset)] outline-none">
                     <CareerForm initialPosition={selectedPosition} />
                 </div>
              </div>

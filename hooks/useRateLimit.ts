@@ -25,7 +25,6 @@ interface UseRateLimitReturn {
  */
 export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimitOptions): UseRateLimitReturn => {
   const [attempts, setAttempts] = useState<number[]>([]);
-  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     const stored = localStorage.getItem(storageKey);
@@ -42,6 +41,7 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
     }
   }, [storageKey, windowMs]);
 
+  const now = Date.now();
   const recentAttempts = attempts.filter(timestamp => now - timestamp < windowMs);
   const canSubmit = recentAttempts.length < maxAttempts;
   const attemptsRemaining = Math.max(0, maxAttempts - recentAttempts.length);
@@ -50,28 +50,33 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
   const timeUntilReset = resetTime ? Math.max(0, Math.ceil((resetTime.getTime() - now) / 1000)) : 0;
 
   useEffect(() => {
-    if (canSubmit) return;
+    if (canSubmit || !resetTime) return;
 
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, [canSubmit]);
+    const timeoutMs = Math.max(0, resetTime.getTime() - Date.now()) + 50;
+    const timeout = setTimeout(() => {
+      setAttempts(prev => prev.filter(timestamp => Date.now() - timestamp < windowMs));
+    }, timeoutMs);
+
+    return () => clearTimeout(timeout);
+  }, [canSubmit, resetTime, windowMs]);
 
   const recordAttempt = useCallback(() => {
     const newTimestamp = Date.now();
-    // Refresh list based on current state to ensure accuracy
-    const currentValid = attempts.filter(ts => Date.now() - ts < windowMs);
-    const newAttempts = [...currentValid, newTimestamp];
-    setAttempts(newAttempts);
-    
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(newAttempts));
-    } catch (e) {
-      if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
-        logger.warn('Failed to update rate limit: localStorage quota exceeded');
-        // In case of quota error, we just proceed in memory, risk is low for rate limiting persistence
+    setAttempts(prev => {
+      const currentValid = prev.filter(ts => newTimestamp - ts < windowMs);
+      const newAttempts = [...currentValid, newTimestamp];
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(newAttempts));
+      } catch (e) {
+        if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+          logger.warn('Failed to update rate limit: localStorage quota exceeded');
+        }
       }
-    }
-  }, [attempts, windowMs, storageKey]);
+
+      return newAttempts;
+    });
+  }, [windowMs, storageKey]);
 
   return { canSubmit, attemptsRemaining, resetTime, recordAttempt, timeUntilReset };
 };
