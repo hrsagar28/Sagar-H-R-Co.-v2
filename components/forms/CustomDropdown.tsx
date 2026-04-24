@@ -183,8 +183,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         onKeyDown={handleKeyDown}
         className={`
           w-full zone-bg border py-4 px-6 rounded-2xl zone-text text-left
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-current transition-all duration-200 flex justify-between items-center group
-          ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-current ring-1 ring-current' : 'zone-border'}
+          focus:outline-none focus-visible:border-[var(--zone-accent)] focus-visible:ring-2 focus-visible:ring-[var(--zone-accent)] transition-all duration-200 flex justify-between items-center group
+          ${error ? 'border-red-500 ring-1 ring-red-500 focus-visible:border-red-500 focus-visible:ring-red-500' : isOpen ? 'border-[var(--zone-accent)] ring-1 ring-[var(--zone-accent)]' : 'zone-border'}
           ${buttonClassName}
         `}
       >
@@ -205,6 +205,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         role="listbox"
         ref={listboxRef}
         aria-labelledby={labelId}
+        aria-hidden={!isOpen}
+        inert={!isOpen ? true : undefined}
         tabIndex={-1}
         className={`
           absolute top-full left-0 w-full mt-2 zone-surface border zone-border rounded-2xl shadow-xl

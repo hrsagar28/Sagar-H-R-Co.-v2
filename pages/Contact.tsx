@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, Building, Clock, MessageCircle, Copy, ArrowUpRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Loader2, CheckCircle, Clock, MessageCircle, Copy } from 'lucide-react';
 import { PageHero } from '../components/hero';
 import { useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
@@ -12,7 +12,6 @@ import { apiClient, ApiError } from '../utils/api';
 import { sanitizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
 import CustomDropdown from '../components/forms/CustomDropdown';
-import Button from '../components/ui/Button';
 import FormField from '../components/ui/FormField';
 import { BigCTA } from '../components/ui/BigCTA';
 
@@ -56,7 +55,24 @@ const Contact: React.FC = () => {
 
   useEffect(() => {
     if (isSuccess && successHeadingRef.current) {
-      successHeadingRef.current.focus();
+      const heading = successHeadingRef.current;
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      try {
+        heading.focus({ preventScroll: true });
+      } catch {
+        heading.focus();
+      }
+
+      const { top, bottom } = heading.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      if (top < 0 || bottom > viewportHeight) {
+        heading.scrollIntoView({
+          block: 'start',
+          behavior: prefersReducedMotion ? 'auto' : 'smooth'
+        });
+      }
     }
   }, [isSuccess]);
 
@@ -78,7 +94,7 @@ const Contact: React.FC = () => {
     validateOnChange: true // 4.3: High-priority forms can use onBlur, but kept onChange here for immediacy
   });
 
-  const { loadDraft, clearDraft, lastSaved } = useFormDraft('contact_form_draft', values);
+  const { loadDraft, clearDraft } = useFormDraft('contact_form_draft', values);
 
   useEffect(() => {
     const draft = loadDraft();
@@ -144,6 +160,10 @@ const Contact: React.FC = () => {
       addToast('Please correct the errors in the form.', 'error');
     }
   };
+
+  const successAnnouncement = isSuccess
+    ? 'Message sent! Thank you for reaching out. Our team will get back to you shortly.'
+    : '';
 
   return (
     <div data-zone="editorial" className="zone-bg min-h-screen">
@@ -250,7 +270,7 @@ const Contact: React.FC = () => {
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h3 className="text-white font-bold text-sm uppercase tracking-wide">Email Us</h3>
-                          <button onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent" aria-label="Copy Email" title="Copy Email">
+                          <button type="button" onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-all duration-200 hover:text-white active:scale-90 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent shrink-0" aria-label="Copy Email" title="Copy Email">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -268,7 +288,7 @@ const Contact: React.FC = () => {
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h3 className="text-white font-bold text-sm uppercase tracking-wide">Call Us</h3>
-                          <button onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 p-1 text-gray-400 hover:text-white active:scale-90 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent" aria-label="Copy Phone" title="Copy Phone">
+                          <button type="button" onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-all duration-200 hover:text-white active:scale-90 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent shrink-0" aria-label="Copy Phone" title="Copy Phone">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -317,33 +337,42 @@ const Contact: React.FC = () => {
           {/* Right Column: Contact Form */}
           <Reveal className="lg:col-span-8" delay={0.1} width="100%">
             <div className="bg-transparent text-white p-8 md:p-12 rounded-[2.5rem] border-none h-full focus-within:shadow-brand-accent/5 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
-              {isSuccess ? (
-                <div role="status" aria-live="polite" className="text-center py-10 animate-fade-in-up">
-                  <div className="w-20 h-20 bg-brand-accent/10 text-brand-accent rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle size={40} aria-hidden="true" />
-                  </div>
-                  <h3 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold mb-4 text-white">Message Sent!</h3>
-                  <p className="text-white/60 mb-8 text-lg font-medium">
-                    Thank you for reaching out. Our team will get back to you shortly.
-                  </p>
-                  <button
-                    onClick={() => setIsSuccess(false)}
-                    className="text-brand-accent font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 rounded-md px-1"
-                  >
-                    Send another message
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* FormSubmit Config & Honeypot */}
-                  <input type="text" name="_honey" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }} />
-                  <input type="hidden" name="_captcha" value="false" />
-                  <input type="hidden" name="_template" value="table" />
+              <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+                {successAnnouncement}
+              </div>
 
-                  <div className="mb-2">
-                    <h3 className="text-3xl font-heading font-bold text-white">Send a Message</h3>
-                    <p className="text-white/60 font-medium mt-2">Fill out the form below and we will get back to you.</p>
-                  </div>
+              <div hidden={!isSuccess} aria-hidden={!isSuccess} className="text-center py-10 animate-fade-in-up">
+                <div className="w-20 h-20 bg-brand-accent/10 text-brand-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle size={40} aria-hidden="true" />
+                </div>
+                <h2 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold mb-4 text-white">Message Sent!</h2>
+                <p className="text-white/60 mb-8 text-lg font-medium">
+                  Thank you for reaching out. Our team will get back to you shortly.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsSuccess(false)}
+                  className="text-brand-accent font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 rounded-md px-1"
+                >
+                  Send another message
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} noValidate hidden={isSuccess} aria-hidden={isSuccess} className="space-y-6">
+                {/* FormSubmit Config & Honeypot */}
+                <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
+                  <label>
+                    Leave this field empty
+                    <input type="text" name="_honey" tabIndex={-1} autoComplete="off" inputMode="none" />
+                  </label>
+                </div>
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_template" value="table" />
+
+                <div className="mb-2">
+                  <h2 className="text-3xl font-heading font-bold text-white">Send a Message</h2>
+                  <p className="text-white/60 font-medium mt-2">Fill out the form below and we will get back to you.</p>
+                </div>
 
                   {/* Row 1: Name & Phone */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -358,11 +387,20 @@ const Contact: React.FC = () => {
                         autoComplete="name"
                       />
                     </FormField>
-                    <FormField label="Phone" name="phone" required error={errors.phone} labelClassName="text-white">
+                    <FormField
+                      label="Phone"
+                      name="phone"
+                      required
+                      error={errors.phone}
+                      hint="10-digit mobile, India"
+                      labelClassName="text-white"
+                      hintClassName="text-left text-white/40"
+                    >
                       <input
                         type="tel"
                         inputMode="tel"
                         maxLength={15}
+                        pattern="[+0-9 ]*"
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
                         className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
@@ -408,7 +446,7 @@ const Contact: React.FC = () => {
                       options={serviceOptions}
                       onChange={(name, val) => handleChange(name as keyof ContactFormData, val)}
                       placeholder="Select a topic"
-                      buttonClassName="bg-[#0d0c0b] text-white border-white/5 hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-brand-accent/20 focus-visible:text-brand-accent transition-colors duration-300"
+                      buttonClassName="bg-[#0d0c0b] text-white border-white/5 hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:text-brand-accent transition-colors duration-300"
                       labelClassName="text-white"
                       accentClassName="text-brand-accent"
                       listClassName="bg-[#0d0c0b] border-white/10"
@@ -473,8 +511,7 @@ const Contact: React.FC = () => {
                       <p className="text-sm font-medium text-white/40">We typically reply within one business day.</p>
                     </div>
                   </div>
-                </form>
-              )}
+              </form>
             </div>
           </Reveal>
         </div>
@@ -512,11 +549,11 @@ const Contact: React.FC = () => {
               src={CONTACT_INFO.geo.mapEmbedUrl}
               className="w-full h-full border-0"
               loading="lazy"
-            >
-              <a href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`} className="flex items-center justify-center h-full w-full bg-brand-surface text-brand-dark font-bold underline">
-                View our office on Google Maps
-              </a>
-            </iframe>
+              referrerPolicy="no-referrer-when-downgrade"
+              allow="geolocation 'none'"
+              sandbox="allow-scripts allow-same-origin allow-popups"
+              allowFullScreen
+            />
 
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-brand-dark/20 to-transparent opacity-50"></div>
           </div>
