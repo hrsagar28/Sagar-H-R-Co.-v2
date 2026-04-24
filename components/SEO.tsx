@@ -26,6 +26,12 @@ interface SEOProps {
   faqs?: Array<{ question: string; answer: string }>;
 }
 
+const getDefaultCanonicalUrl = () => {
+  const siteUrl = ((import.meta as any).env?.VITE_SITE_URL || 'https://casagar.co.in').replace(/\/$/, '');
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+  return `${siteUrl}${pathname}`;
+};
+
 /**
  * SEO Component
  * 
@@ -43,7 +49,7 @@ const SEO: React.FC<SEOProps> = ({
   title,
   description,
   keywords = "Chartered Accountant, Mysuru, Audit, Tax, GST, Business Advisory, CA Firm",
-  canonicalUrl = window.location.href,
+  canonicalUrl = getDefaultCanonicalUrl(),
   ogType = 'website',
   ogImage = 'https://casagar.co.in/og-image.jpg',
   schema,

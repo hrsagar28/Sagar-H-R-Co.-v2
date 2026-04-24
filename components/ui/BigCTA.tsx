@@ -23,6 +23,7 @@ export function BigCTA({
   ariaLabel,
   icon,
   className = '',
+  disabled,
   ...buttonProps
 }: BigCTAProps) {
   const getToneClasses = () => {
@@ -66,15 +67,19 @@ export function BigCTA({
   };
 
   const tones = getToneClasses();
-  const classes = `group relative inline-flex items-center justify-center gap-3 rounded-full overflow-hidden border font-serif italic transition-colors duration-500 ease-out-expo ${tones.container} ${getSizeClasses()} ${className}`;
+  const isDisabled = Boolean(disabled);
+  const interactiveClasses = isDisabled ? 'cursor-not-allowed opacity-70' : '';
+  const hoverFillClass = isDisabled ? 'scale-0' : 'group-hover:scale-100';
+  const hoverLabelClass = isDisabled ? '' : tones.labelOnFill;
+  const hoverIconClass = isDisabled ? '' : 'group-hover:translate-x-1';
+  const classes = `group relative inline-flex items-center justify-center gap-3 rounded-full overflow-hidden border font-serif italic transition-colors duration-500 ease-out-expo disabled:cursor-not-allowed disabled:opacity-70 ${interactiveClasses} ${tones.container} ${getSizeClasses()} ${className}`;
   const fillBgClass = tones.fillBg;
-  const labelOnFillClass = tones.labelOnFill;
 
   const InnerContent = () => (
     <>
-      <span aria-hidden className={`absolute inset-0 scale-0 rounded-full transition-transform duration-500 ease-out-expo group-hover:scale-100 ${fillBgClass}`} />
-      <span className={`relative z-10 transition-colors duration-500 ease-out-expo ${labelOnFillClass}`}>{children}</span>
-      <span className={`relative z-10 transition-transform duration-500 ease-out-expo group-hover:translate-x-1 ${labelOnFillClass}`}>
+      <span aria-hidden className={`absolute inset-0 scale-0 rounded-full transition-transform duration-500 ease-out-expo ${hoverFillClass} ${fillBgClass}`} />
+      <span className={`relative z-10 transition-colors duration-500 ease-out-expo ${hoverLabelClass}`}>{children}</span>
+      <span className={`relative z-10 transition-transform duration-500 ease-out-expo ${hoverIconClass} ${hoverLabelClass}`}>
         {icon ?? <ArrowRight size={size === 'md' ? 16 : 20} strokeWidth={1.5} />}
       </span>
     </>
@@ -97,7 +102,7 @@ export function BigCTA({
   }
 
   return (
-    <button className={classes} aria-label={ariaLabel} {...buttonProps}>
+    <button className={classes} aria-label={ariaLabel} disabled={disabled} {...buttonProps}>
       <InnerContent />
     </button>
   );

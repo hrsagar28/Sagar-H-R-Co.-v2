@@ -4,12 +4,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Check, Briefcase, Loader2, AlertCircle, Save, RotateCcw, Trash2 } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomDatePicker from './CustomDatePicker';
+import Honeypot from './Honeypot';
 import { useFormValidation, useToast, useRateLimit, useFormDraft } from '../../hooks';
 import { createFormSchema, required, email, indianPhone, minLength, maxLength } from '../../utils/formValidation';
 import { apiClient, ApiError } from '../../utils/api';
 import { CONTACT_INFO } from '../../constants';
 import { OPEN_ROLES } from '../../constants/careers';
-import { sanitizeInput } from '../../utils/sanitize';
+import { headerSafe, normalizeInput } from '../../utils/sanitize';
 import { logger } from '../../utils/logger';
 
 interface CareerFormProps {
@@ -191,16 +192,16 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
 
       try {
         await apiClient.post(CONTACT_INFO.formEndpoint, {
-          fullName: sanitizeInput(values.fullName),
-          fatherName: sanitizeInput(values.fatherName),
-          mobile: sanitizeInput(values.mobile),
-          email: sanitizeInput(values.email),
-          dob: sanitizeInput(values.dob),
-          qualification: sanitizeInput(values.qualification),
-          experience: sanitizeInput(values.experience),
-          previousCompanies: sanitizeInput(values.previousCompanies),
-          position: sanitizeInput(values.position),
-          _subject: `Job Application: ${sanitizeInput(values.fullName)} - ${sanitizeInput(values.position) || 'General'}`
+          fullName: normalizeInput(values.fullName),
+          fatherName: normalizeInput(values.fatherName),
+          mobile: headerSafe(values.mobile, 30),
+          email: headerSafe(values.email, 254),
+          dob: headerSafe(values.dob, 30),
+          qualification: normalizeInput(values.qualification),
+          experience: headerSafe(values.experience, 80),
+          previousCompanies: normalizeInput(values.previousCompanies, { preserveLineBreaks: true }),
+          position: headerSafe(values.position),
+          _subject: `Job Application: ${headerSafe(values.fullName)} - ${headerSafe(values.position) || 'General'}`
         });
 
         setSubmitStatus('success');
@@ -372,18 +373,7 @@ const CareerForm = ({ initialPosition, onFormSubmitSuccess }: CareerFormProps): 
           onKeyDown={handleKeyDown}
         >
           {/* Honeypot Field */}
-          <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
-            <label>Leave this field empty
-              <input
-                type="text"
-                name="work_authorization_check"
-                value={honeypot}
-                onChange={(e) => setHoneypot(e.target.value)}
-                tabIndex={-1}
-                autoComplete="off"
-              />
-            </label>
-          </div>
+          <Honeypot name="work_authorization_check" value={honeypot} onChange={setHoneypot} />
 
           <div className="space-y-8">
             {/* STEP 1: PERSONAL DETAILS */}

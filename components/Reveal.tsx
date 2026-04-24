@@ -1,6 +1,28 @@
 import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
+type RevealCallback = () => void;
+
+const revealCallbacks = new Map<Element, RevealCallback>();
+let sharedObserver: IntersectionObserver | null = null;
+
+const getSharedObserver = () => {
+  if (!sharedObserver) {
+    sharedObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        const callback = revealCallbacks.get(entry.target);
+        if (callback) callback();
+        revealCallbacks.delete(entry.target);
+        sharedObserver?.unobserve(entry.target);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  }
+
+  return sharedObserver;
+};
+
 interface RevealProps {
   /** The content to be animated */
   children: ReactNode;
@@ -40,23 +62,23 @@ const Reveal: React.FC<RevealProps> = ({
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      // Trigger when even 10% of the element is visible
-      if (entry.isIntersecting) {
-        setIsVisible(true);
-        // Once visible, we can stop observing to prevent re-triggering
-        if (ref.current) observer.unobserve(ref.current);
-      }
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    const element = ref.current;
+    if (!element) return;
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (shouldReduceMotion) {
+      setIsVisible(true);
+      return;
     }
 
+    const observer = getSharedObserver();
+    revealCallbacks.set(element, () => setIsVisible(true));
+    observer.observe(element);
+
     return () => {
-      observer.disconnect();
+      revealCallbacks.delete(element);
+      observer.unobserve(element);
     };
-  }, []);
+  }, [shouldReduceMotion]);
 
   // Define transition styles based on visibility
   const getTransformStyle = () => {

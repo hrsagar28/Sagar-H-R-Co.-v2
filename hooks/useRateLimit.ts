@@ -42,17 +42,19 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
     }
   }, [storageKey, windowMs]);
 
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   const recentAttempts = attempts.filter(timestamp => now - timestamp < windowMs);
   const canSubmit = recentAttempts.length < maxAttempts;
   const attemptsRemaining = Math.max(0, maxAttempts - recentAttempts.length);
   const oldestAttempt = recentAttempts.length > 0 ? recentAttempts[0] : null;
   const resetTime = oldestAttempt ? new Date(oldestAttempt + windowMs) : null;
   const timeUntilReset = resetTime ? Math.max(0, Math.ceil((resetTime.getTime() - now) / 1000)) : 0;
+
+  useEffect(() => {
+    if (canSubmit) return;
+
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [canSubmit]);
 
   const recordAttempt = useCallback(() => {
     const newTimestamp = Date.now();

@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mail, Phone, MapPin, Loader2, CheckCircle, Clock, MessageCircle, Copy } from 'lucide-react';
+import { Mail, Phone, MapPin, Loader2, CheckCircle, Clock, MessageCircle, Copy, Save } from 'lucide-react';
 import { PageHero } from '../components/hero';
 import { useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
@@ -9,11 +9,13 @@ import { CONTACT_INFO, SERVICES } from '../constants';
 import { useFormValidation, useToast, useRateLimit, useFormDraft } from '../hooks';
 import { createFormSchema, required, email, indianPhone } from '../utils/formValidation';
 import { apiClient, ApiError } from '../utils/api';
-import { sanitizeInput } from '../utils/sanitize';
+import { headerSafe, normalizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
 import CustomDropdown from '../components/forms/CustomDropdown';
+import Honeypot from '../components/forms/Honeypot';
 import FormField from '../components/ui/FormField';
 import { BigCTA } from '../components/ui/BigCTA';
+import { darkInputClass } from '../components/ui/formClasses';
 
 interface ContactFormData {
   name: string;
@@ -39,6 +41,27 @@ const serviceOptions = [
   ...SERVICES.map(s => s.title),
   "Other"
 ];
+const allowedSubjectOptions = new Set(serviceOptions);
+
+const getAllowedSubject = (subject?: string | null) => {
+  const value = subject || '';
+  return allowedSubjectOptions.has(value) ? value : '';
+};
+
+const normalizeContactValues = (
+  data: Partial<ContactFormData>,
+  fallback?: ContactFormData
+): ContactFormData => {
+  const subject = getAllowedSubject(data.subject) || getAllowedSubject(fallback?.subject);
+
+  return {
+    ...INITIAL_CONTACT,
+    ...fallback,
+    ...data,
+    subject,
+    subjectOther: subject === 'Other' ? (data.subjectOther || fallback?.subjectOther || '') : ''
+  };
+};
 
 const contactSchema = createFormSchema<ContactFormData>({
   name: [required('Name is required')],
@@ -49,8 +72,11 @@ const contactSchema = createFormSchema<ContactFormData>({
 
 const Contact: React.FC = () => {
   const { addToast } = useToast();
+  const location = useLocation();
+  const [initialSubject] = useState(() => getAllowedSubject(new URLSearchParams(location.search).get('subject')));
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(() => new URLSearchParams(location.search).get('sent') === '1');
+  const [honeypot, setHoneypot] = useState('');
   const successHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -82,11 +108,7 @@ const Contact: React.FC = () => {
     storageKey: 'contact_form_limit'
   });
 
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const initialSubject = queryParams.get('subject') || '';
-
-  const { values, handleChange, errors, validate, setValues } = useFormValidation<ContactFormData>({
+  const { values, handleChange, errors, validate, setValues, setErrors } = useFormValidation<ContactFormData>({
     ...INITIAL_CONTACT,
     subject: initialSubject
   }, {
@@ -94,70 +116,143 @@ const Contact: React.FC = () => {
     validateOnChange: true // 4.3: High-priority forms can use onBlur, but kept onChange here for immediacy
   });
 
-  const { loadDraft, clearDraft } = useFormDraft('contact_form_draft', values);
+  const { loadDraft, clearDraft, lastSaved } = useFormDraft('contact_form_draft', values, 1000, {
+    ttlDays: 7
+  });
 
+  const restoredDraft = useRef(false);
   useEffect(() => {
+    if (restoredDraft.current) return;
     const draft = loadDraft();
-    if (draft && !values.name && !values.email && !values.phone) {
-      setValues(draft);
+    restoredDraft.current = true;
+    if (draft) {
+      setValues(prev => normalizeContactValues(draft, prev));
     }
-  }, []); // Run once on mount
+  }, [loadDraft, setValues]);
 
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    addToast(`${label} copied to clipboard!`, 'success');
+  const updateSentParam = (sent: boolean) => {
+    const params = new URLSearchParams(window.location.search);
+    if (sent) {
+      params.set('sent', '1');
+    } else {
+      params.delete('sent');
+    }
+    const nextSearch = params.toString();
+    const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;
+    window.history.replaceState(window.history.state, '', nextUrl);
+  };
+
+  const handleSendAnother = () => {
+    updateSentParam(false);
+    setIsSuccess(false);
+  };
+
+  const handleContactChange = (name: keyof ContactFormData, value: string) => {
+    if (name === 'subject') {
+      const subject = getAllowedSubject(value);
+      setValues(prev => ({
+        ...prev,
+        subject,
+        subjectOther: subject === 'Other' ? prev.subjectOther : ''
+      }));
+      if (subject !== 'Other') {
+        setErrors(prev => {
+          const next = { ...prev };
+          delete next.subjectOther;
+          return next;
+        });
+      }
+      return;
+    }
+
+    handleChange(name, value);
+    if (name === 'subjectOther' && value.trim()) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next.subjectOther;
+        return next;
+      });
+    }
+  };
+
+  const handleCopy = async (text: string, label: string) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+      }
+      addToast(`${label} copied to clipboard!`, 'success');
+    } catch {
+      addToast(`Could not copy ${label}.`, 'error');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (honeypot) return;
 
     if (!canSubmit) {
       addToast(`Please wait ${timeUntilReset}s before retrying.`, 'error');
       return;
     }
 
-    if (validate()) {
-      setIsSubmitting(true);
+    recordAttempt();
 
-      try {
-        const formElement = e.currentTarget as HTMLFormElement;
-        const formData = new FormData(formElement);
+    const hasMissingOtherSubject = values.subject === 'Other' && !values.subjectOther.trim();
+    const isFormValid = validate();
 
-        await apiClient.post(CONTACT_INFO.formEndpoint, {
-          name: sanitizeInput(values.name),
-          email: sanitizeInput(values.email),
-          phone: sanitizeInput(values.phone),
-          company: sanitizeInput(values.company),
-          subject: sanitizeInput(values.subject === 'Other' ? values.subjectOther || 'Other' : values.subject) || 'Contact Form Inquiry',
-          message: sanitizeInput(values.message),
-          _subject: `New Inquiry: ${sanitizeInput(values.name)}`,
-          _honey: (formData.get('_honey') as string) || '',
-          _captcha: 'false',
-          _template: 'table'
-        });
-
-        setIsSuccess(true);
-        recordAttempt();
-        clearDraft();
-        setValues({ ...INITIAL_CONTACT });
-        addToast('Message sent successfully!', 'success');
-
-      } catch (error) {
-        logger.error('Contact form error', { error, form: 'contact', attempt: recordAttempt ? 'with_rate_limit' : 'no_limit' });
-        let msg = 'Failed to send message. Please try again.';
-        if (error instanceof ApiError) {
-          if (error.code === 'NETWORK_ERROR') msg = "Network unavailable. Please check your connection.";
-          else if (error.code === 'TIMEOUT') msg = "Request timed out.";
-          else msg = `Server error. Please email us directly at ${CONTACT_INFO.email}`;
-        } else {
-          msg = `An error occurred. Please email us directly at ${CONTACT_INFO.email}`;
-        }
-        addToast(msg, 'error');
-      } finally {
-        setIsSubmitting(false);
+    if (!isFormValid || hasMissingOtherSubject) {
+      if (hasMissingOtherSubject) {
+        setErrors(prev => ({ ...prev, subjectOther: 'Please specify your subject' }));
       }
-    } else {
       addToast('Please correct the errors in the form.', 'error');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await apiClient.post(CONTACT_INFO.formEndpoint, {
+        name: normalizeInput(values.name),
+        email: headerSafe(values.email, 254),
+        phone: headerSafe(values.phone, 30),
+        company: normalizeInput(values.company),
+        subject: headerSafe(values.subject === 'Other' ? values.subjectOther : values.subject) || 'Contact Form Inquiry',
+        message: normalizeInput(values.message, { preserveLineBreaks: true }),
+        _subject: `New Inquiry: ${headerSafe(values.name)}`,
+        _honey: honeypot,
+        _template: 'table'
+      });
+
+      updateSentParam(true);
+      setIsSuccess(true);
+      clearDraft();
+      setValues({ ...INITIAL_CONTACT });
+      addToast('Message sent successfully!', 'success');
+
+    } catch (error) {
+      logger.error('Contact form error', { error, form: 'contact', canSubmit, timeUntilReset });
+      let msg = 'Failed to send message. Please try again.';
+      if (error instanceof ApiError) {
+        if (error.code === 'NETWORK_ERROR') msg = "Network unavailable. Please check your connection.";
+        else if (error.code === 'TIMEOUT') msg = "Request timed out.";
+        else msg = `Server error. Please email us directly at ${CONTACT_INFO.email}`;
+      } else {
+        msg = `An error occurred. Please email us directly at ${CONTACT_INFO.email}`;
+      }
+      addToast(msg, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -185,6 +280,20 @@ const Contact: React.FC = () => {
             "image": "https://casagar.co.in/logo.png",
             "telephone": CONTACT_INFO.phone.value,
             "email": CONTACT_INFO.email,
+            "contactPoint": [
+              {
+                "@type": "ContactPoint",
+                "telephone": CONTACT_INFO.phone.display.replace(/\s+/g, '-'),
+                "contactType": "customer support",
+                "areaServed": "IN",
+                "availableLanguage": ["en", "hi", "kn"]
+              },
+              {
+                "@type": "ContactPoint",
+                "email": CONTACT_INFO.email,
+                "contactType": "customer support"
+              }
+            ],
             "url": "https://casagar.co.in",
             "address": {
               "@type": "PostalAddress",
@@ -199,7 +308,14 @@ const Contact: React.FC = () => {
               "latitude": CONTACT_INFO.geo.latitude,
               "longitude": CONTACT_INFO.geo.longitude
             },
-            "openingHours": CONTACT_INFO.hours.value,
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                "opens": "10:00",
+                "closes": "20:00"
+              }
+            ],
             "sameAs": [
               CONTACT_INFO.social.linkedin,
               CONTACT_INFO.social.whatsapp
@@ -233,9 +349,9 @@ const Contact: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 mb-12 md:mb-20 items-start">
 
           {/* Left Column: Contact Info (Dark Theme) - Sticky */}
-          <div className="lg:col-span-4 lg:sticky lg:top-32">
+          <div className="lg:col-span-4 xl:sticky xl:top-32">
             <Reveal width="100%">
-              <div className="zone-bg text-brand-surface p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl">
+              <div className="zone-bg text-brand-surface p-6 md:p-8 rounded-[2.5rem] relative overflow-x-hidden xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto xl:overscroll-contain shadow-2xl">
                 {/* Decorative Elements */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent opacity-10 rounded-full blur-[80px] pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full blur-[60px] pointer-events-none"></div>
@@ -351,7 +467,7 @@ const Contact: React.FC = () => {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setIsSuccess(false)}
+                  onClick={handleSendAnother}
                   className="text-brand-accent font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 rounded-md px-1"
                 >
                   Send another message
@@ -360,13 +476,7 @@ const Contact: React.FC = () => {
 
               <form onSubmit={handleSubmit} noValidate hidden={isSuccess} aria-hidden={isSuccess} className="space-y-6">
                 {/* FormSubmit Config & Honeypot */}
-                <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
-                  <label>
-                    Leave this field empty
-                    <input type="text" name="_honey" tabIndex={-1} autoComplete="off" inputMode="none" />
-                  </label>
-                </div>
-                <input type="hidden" name="_captcha" value="false" />
+                <Honeypot name="_honey" value={honeypot} onChange={setHoneypot} />
                 <input type="hidden" name="_template" value="table" />
 
                 <div className="mb-2">
@@ -382,7 +492,7 @@ const Contact: React.FC = () => {
                         maxLength={80}
                         value={values.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                        className={darkInputClass}
                         placeholder="Your Name"
                         autoComplete="name"
                       />
@@ -403,7 +513,7 @@ const Contact: React.FC = () => {
                         pattern="[+0-9 ]*"
                         value={values.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
-                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                        className={darkInputClass}
                         placeholder="Mobile Number"
                         autoComplete="tel"
                       />
@@ -418,7 +528,7 @@ const Contact: React.FC = () => {
                         maxLength={254}
                         value={values.email}
                         onChange={(e) => handleChange('email', e.target.value)}
-                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                        className={darkInputClass}
                         placeholder="email@company.com"
                         autoComplete="email"
                       />
@@ -430,7 +540,7 @@ const Contact: React.FC = () => {
                         maxLength={120}
                         value={values.company}
                         onChange={(e) => handleChange('company', e.target.value)}
-                        className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                        className={darkInputClass}
                         placeholder="Company Name"
                         autoComplete="organization"
                       />
@@ -444,23 +554,23 @@ const Contact: React.FC = () => {
                       name="subject"
                       value={values.subject}
                       options={serviceOptions}
-                      onChange={(name, val) => handleChange(name as keyof ContactFormData, val)}
+                      onChange={(name, val) => handleContactChange(name as keyof ContactFormData, val)}
                       placeholder="Select a topic"
-                      buttonClassName="bg-[#0d0c0b] text-white border-white/5 hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:text-brand-accent transition-colors duration-300"
+                      buttonClassName="bg-brand-ink-deep text-white border-white/5 hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:text-brand-accent transition-colors duration-300"
                       labelClassName="text-white"
                       accentClassName="text-brand-accent"
-                      listClassName="bg-[#0d0c0b] border-white/10"
+                      listClassName="bg-brand-ink-deep border-white/10"
                     />
 
                     {values.subject === 'Other' && (
                       <div className="w-full mt-6">
-                        <FormField label="Please specify" name="subjectOther" labelClassName="text-white">
+                        <FormField label="Please specify" name="subjectOther" required error={errors.subjectOther} labelClassName="text-white">
                           <input
                             type="text"
                             maxLength={80}
                             value={values.subjectOther}
-                            onChange={(e) => handleChange('subjectOther', e.target.value)}
-                            className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200"
+                            onChange={(e) => handleContactChange('subjectOther', e.target.value)}
+                            className={darkInputClass}
                             placeholder="What is your inquiry regarding?"
                           />
                         </FormField>
@@ -485,7 +595,7 @@ const Contact: React.FC = () => {
                       maxLength={2000}
                       value={values.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className="w-full bg-[#0d0c0b] text-white placeholder:text-white/20 border border-white/5 rounded-2xl p-4 focus:outline-none hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/20 transition-all duration-200 resize-none leading-relaxed"
+                      className={`${darkInputClass} resize-none leading-relaxed`}
                       placeholder="How can we help you?"
                     ></textarea>
                   </FormField>
@@ -507,8 +617,16 @@ const Contact: React.FC = () => {
                         </>
                       )}
                     </BigCTA>
-                    <div className="text-center mt-4">
+                    <div className="text-center mt-4 space-y-2">
+                      {lastSaved && (
+                        <p className="inline-flex items-center justify-center gap-1 text-[10px] uppercase tracking-wider text-white/40">
+                          <Save size={12} aria-hidden="true" /> Draft saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
                       <p className="text-sm font-medium text-white/40">We typically reply within one business day.</p>
+                      <p className="text-xs font-medium text-white/40">
+                        By submitting, you agree to our <a href="/privacy" className="underline underline-offset-2 hover:text-brand-accent transition-colors">Privacy Policy</a>. We only use your details to reply to this enquiry.
+                      </p>
                     </div>
                   </div>
               </form>
@@ -520,9 +638,13 @@ const Contact: React.FC = () => {
         {/* data-hide-cursor="true" is consumed by CustomCursor.tsx to prevent custom rendering over the map */}
         <Reveal variant="scale" delay={0.2} width="100%">
           <div
+            role="figure"
+            aria-labelledby="map-caption"
             className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full h-[280px] md:h-[350px] rounded-none md:rounded-[3rem] overflow-hidden shadow-2xl border-0 md:border zone-border grayscale-0 md:grayscale group relative transition-all duration-700 hover:grayscale-0 cursor-auto"
             data-hide-cursor="true"
           >
+            <h2 id="map-caption" className="sr-only">Our Location on the Map</h2>
+            {/* Desktop grayscale, border, and shadow are retained as a deliberate map treatment. */}
             <div data-show-cursor="true" className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 bg-black/70 backdrop-blur-xl px-4 py-3 md:px-6 md:py-4 rounded-2xl border border-white/10 shadow-lg pointer-events-auto max-w-[calc(100%-2rem)] w-max text-balance flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-3 mb-1">
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
@@ -551,7 +673,7 @@ const Contact: React.FC = () => {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allow="geolocation 'none'"
-              sandbox="allow-scripts allow-same-origin allow-popups"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
               allowFullScreen
             />
 

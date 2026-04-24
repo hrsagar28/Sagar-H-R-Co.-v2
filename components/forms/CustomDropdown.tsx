@@ -206,7 +206,6 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         ref={listboxRef}
         aria-labelledby={labelId}
         aria-hidden={!isOpen}
-        inert={!isOpen ? true : undefined}
         tabIndex={-1}
         className={`
           absolute top-full left-0 w-full mt-2 zone-surface border zone-border rounded-2xl shadow-xl

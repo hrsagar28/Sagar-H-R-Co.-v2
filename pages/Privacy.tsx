@@ -104,6 +104,9 @@ const Privacy: React.FC = () => {
                 <strong>First-party cookies:</strong> The Site uses strictly necessary first-party cookies to enable technical functionality (e.g., remembering your session state or consent choices).
               </p>
               <p className="mb-4">
+                <strong>Local form drafts:</strong> If you accept optional cookies, contact and application forms may temporarily save draft details such as name, email, phone number, company, and message content in your browser localStorage so you can resume an incomplete form. Contact form drafts expire after 7 days. If you decline optional cookies, we do not store these drafts and any unsaved draft data may be cleared when you leave the page.
+              </p>
+              <p className="mb-4">
                 You can opt-out of Google Analytics tracking across all websites by installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-brand-moss hover:underline font-bold">Google Analytics Opt-out Browser Add-on</a>.
               </p>
             </section>

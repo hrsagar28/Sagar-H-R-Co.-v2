@@ -41,7 +41,7 @@ export const CONTACT_INFO = {
     full: "1479, 2nd Floor, Thyagaraja Road, KR Mohalla, Mysuru - 570004"
   },
   hours: {
-    display: "Mon - Sat: 10:00 AM - 8:00 PM",
+    display: "Mon - Sat: 10:00 AM - 8:00 PM (IST)",
     value: "Mo-Sa 10:00-20:00"
   },
   social: {

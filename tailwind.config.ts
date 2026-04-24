@@ -49,6 +49,7 @@ export default {
           'surface-dark': '#1e1e1e',
           'surface-dark-hover': '#161616',
           'ink': '#0a0908',
+          'ink-deep': '#0d0c0b',
           'ink-soft': '#252321',
           'paper': '#f4f1ea',
           'cream': '#eae5d9',
