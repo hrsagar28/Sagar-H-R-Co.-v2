@@ -6,6 +6,11 @@
   force = true
 
 [[redirects]]
+  from = "/faq"
+  to = "/faqs"
+  status = 301
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

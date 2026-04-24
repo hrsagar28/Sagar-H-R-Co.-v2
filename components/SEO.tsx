@@ -23,7 +23,7 @@ interface SEOProps {
   /** Service schema */
   service?: { name: string; description: string; areaServed?: string };
   /** FAQPage schema */
-  faqs?: Array<{ question: string; answer: string }>;
+  faqs?: Array<{ question: string; answer: string; dateModified?: string }>;
 }
 
 const getDefaultCanonicalUrl = () => {
@@ -180,15 +180,22 @@ const SEO: React.FC<SEOProps> = ({
     }
 
     if (faqs && faqs.length > 0) {
+      const faqPageDateModified = faqs
+        .map((faq) => faq.dateModified)
+        .filter((date): date is string => Boolean(date))
+        .sort((left, right) => new Date(right).getTime() - new Date(left).getTime())[0];
+
       addSchema('faqs', {
         "@context": "https://schema.org",
         "@type": "FAQPage",
+        ...(faqPageDateModified ? { "dateModified": faqPageDateModified } : {}),
         "mainEntity": faqs.map(faq => ({
           "@type": "Question",
           "name": faq.question,
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": faq.answer
+            "text": faq.answer,
+            ...(faq.dateModified ? { "dateModified": faq.dateModified } : {})
           }
         }))
       });

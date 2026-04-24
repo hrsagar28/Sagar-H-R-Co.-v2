@@ -37,9 +37,11 @@ export interface InsightItem {
 }
 
 export interface FAQItem {
+  id: string;
   question: string;
   answer: string;
   category: string;
+  lastUpdated?: string;
 }
 
 export interface SubService {
