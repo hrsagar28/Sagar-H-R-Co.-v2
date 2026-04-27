@@ -2,12 +2,12 @@ import React from 'react';
 import { WordReveal } from '../motion/WordReveal';
 import type { FolioHeroProps } from './types';
 
-export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, number, sideText, accentTone }) => {
+export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, number, sideText, accentTone, compact = false }) => {
   const accentClass = accentTone ? `text-brand-${accentTone}` : 'zone-accent';
   const accentAltClass = accentTone ? `text-brand-${accentTone}` : 'zone-accent-alt'; 
   
   return (
-    <section aria-labelledby="hero-folio-title" className="relative pt-32 md:pt-48 pb-20 px-4 md:px-12 zone-bg zone-text overflow-hidden">
+    <section aria-labelledby="hero-folio-title" className={`relative ${compact ? 'pt-12 md:pt-20' : 'pt-32 md:pt-48'} pb-20 px-4 md:px-12 zone-bg zone-text overflow-hidden`}>
       <div className="container mx-auto max-w-7xl relative z-10 flex flex-col md:flex-row items-stretch">
          
          <div

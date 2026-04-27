@@ -38,12 +38,14 @@ const CookieConsent: React.FC = () => {
 
   const handleAccept = () => {
     localStorage.setItem('cookie_consent', 'granted');
+    window.dispatchEvent(new CustomEvent('cookie-consent-change', { detail: { key: 'cookie_consent', value: 'granted' } }));
     setIsVisible(false);
     loadGoogleAnalytics();
   };
 
   const handleDecline = () => {
     localStorage.setItem('cookie_consent', 'declined');
+    window.dispatchEvent(new CustomEvent('cookie-consent-change', { detail: { key: 'cookie_consent', value: 'declined' } }));
     setIsVisible(false);
   };
 

@@ -10,6 +10,7 @@ import { Principal } from './about/Principal';
 import { Snapshot } from './about/Snapshot';
 import { Values } from './about/Values';
 import { ABOUT_OG_IMAGE, aboutBreadcrumbs, buildAboutSchema } from './about/schema';
+import { warmContactRoute } from './about/warmContact';
 
 const ordinalSuffix = (value: number) => {
   const mod100 = value % 100;
@@ -39,21 +40,30 @@ const About: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const existing = document.querySelector<HTMLLinkElement>('link[rel="prefetch"][href="/contact"]');
-    if (existing) return undefined;
+    let cancelled = false;
 
-    const link = document.createElement('link');
-    link.rel = 'prefetch';
-    link.href = '/contact';
-    document.head.appendChild(link);
+    const warmContactChunk = () => {
+      if (!cancelled) warmContactRoute();
+    };
+
+    if ('requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(warmContactChunk, { timeout: 2000 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(idleId);
+      };
+    }
+
+    const timeoutId = window.setTimeout(warmContactChunk, 1500);
 
     return () => {
-      link.remove();
+      cancelled = true;
+      window.clearTimeout(timeoutId);
     };
   }, []);
 
   return (
-    <div className="min-h-screen zone-bg zone-text selection:bg-brand-moss selection:text-zone-text">
+    <>
       <SEO
         title={`${CONTACT_INFO.name} - Chartered Accountants in Mysuru | About the Firm & Principal`}
         description={`${CONTACT_INFO.founder.name}, ACA, leads ${CONTACT_INFO.name} from Mysuru - a small practice in audit, tax, GST and ROC compliance. Read about how we work.`}
@@ -63,7 +73,7 @@ const About: React.FC = () => {
         breadcrumbs={aboutBreadcrumbs}
       />
 
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 pt-28 md:pt-32">
+      <div className="container mx-auto max-w-7xl px-4 md:px-6 pt-24 md:pt-28">
         <Breadcrumbs items={[{ label: 'About' }]} />
       </div>
 
@@ -75,6 +85,7 @@ const About: React.FC = () => {
         blurb={heroBlurb}
         sideText="Mysuru - Est. MMXXIII"
         accentTone="brass"
+        compact
       />
 
       <Snapshot />
@@ -83,7 +94,7 @@ const About: React.FC = () => {
       <Principal />
       <Office />
       <Cta />
-    </div>
+    </>
   );
 };
 

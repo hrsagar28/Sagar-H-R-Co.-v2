@@ -1,5 +1,6 @@
 import React, { Children, isValidElement } from 'react';
-import { m, useReducedMotion, LazyMotion, domAnimation } from 'framer-motion';
+import { m, LazyMotion, domAnimation } from 'framer-motion';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 export interface WordRevealProps {
   children: React.ReactNode;

@@ -25,17 +25,17 @@ const values = [
 ];
 
 export const Values: React.FC = () => (
-  <section className="py-24 px-4 md:px-6 zone-bg zone-surface relative overflow-hidden">
+  <section id="values" aria-labelledby="values-heading" className="py-24 px-4 md:px-6 zone-bg zone-surface relative overflow-hidden">
     <div className="absolute inset-0 bg-noise opacity-[0.08]" aria-hidden="true"></div>
     <div className="container mx-auto max-w-7xl relative z-10">
       <div className="flex flex-col md:flex-row justify-between items-start gap-16">
         <div className="md:w-1/3">
           <span className="text-zone-accent font-bold tracking-widest uppercase text-xs mb-4 block">Our Values</span>
-          <h2 className="text-4xl md:text-6xl font-heading font-bold zone-text leading-tight">
+          <h2 id="values-heading" className="text-4xl md:text-6xl font-heading font-bold zone-text leading-tight">
             Professional <br /> Ethics.
           </h2>
         </div>
-        <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-white/10 pt-12">
+        <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-12 border-t zone-border pt-12">
           {values.map(({ icon: Icon, title, body }) => (
             <div key={title}>
               <h3 className="text-xl font-bold zone-text mb-4 flex items-center gap-3">

@@ -20,6 +20,7 @@ export interface FolioHeroProps extends BaseHeroProps {
   variant: 'folio';
   number: string;               // e.g. "I.", "II."
   sideText?: string;
+  compact?: boolean;
 }
 export interface LedgerHeroProps extends BaseHeroProps {
   variant: 'ledger';

@@ -51,7 +51,8 @@ export const CONTACT_INFO = {
   geo: {
     latitude: 12.3051,
     longitude: 76.6551,
-    mapEmbedUrl: "https://maps.google.com/maps?q=12.300430367886586,76.65174852128196&t=&z=15&ie=UTF8&iwloc=&output=embed"
+    mapEmbedUrl: "https://maps.google.com/maps?q=12.300430367886586,76.65174852128196&t=&z=15&ie=UTF8&iwloc=&output=embed",
+    mapShareUrl: "https://www.google.com/maps?q=12.300430,76.651748"
   },
   tagline: "Chartered Accountants",
   languages: ["English", "Kannada", "Hindi"],

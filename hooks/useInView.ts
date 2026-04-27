@@ -13,9 +13,9 @@ interface UseInViewOptions {
  * @param {UseInViewOptions} [options] - IntersectionObserver options.
  * @returns {[RefObject<HTMLElement | null>, boolean]} A ref to attach to the element and a boolean visibility state.
  */
-export function useInView(options: UseInViewOptions = {}): [RefObject<HTMLElement | null>, boolean] {
+export function useInView<E extends HTMLElement = HTMLElement>(options: UseInViewOptions = {}): [RefObject<E | null>, boolean] {
   const { threshold = 0.1, rootMargin = '0px', triggerOnce = false } = options;
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<E>(null);
   const [isInView, setIsInView] = useState(false);
   
   // Memoize options to prevent unnecessary re-subscriptions

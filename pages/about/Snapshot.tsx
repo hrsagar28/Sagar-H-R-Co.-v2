@@ -2,6 +2,10 @@ import React from 'react';
 import { CONTACT_INFO } from '../../constants';
 import { useCountUp } from '../../hooks/useCountUp';
 
+type Stat =
+  | { kind: 'count'; label: string; value: string }
+  | { kind: 'static'; label: string; value: string };
+
 const parseCountValue = (value: string) => {
   const match = value.match(/^(\d+)(.*)$/);
   return {
@@ -12,36 +16,55 @@ const parseCountValue = (value: string) => {
 
 const CountUpStat: React.FC<{ label: string; value: string }> = ({ label, value }) => {
   const { end, suffix } = parseCountValue(value);
-  const { count, ref } = useCountUp(end, 1.4);
+  const { count, ref } = useCountUp<HTMLDivElement>(end, 1.4);
 
   return (
-    <div ref={ref as React.RefObject<HTMLDivElement>}>
+    <div ref={ref}>
       <dt className="text-eyebrow font-mono uppercase tracking-[0.2em] text-zone-text-muted/80">
         {label}
       </dt>
       <dd className="font-heading text-2xl mt-1 text-zone-text">
-        {count.toLocaleString('en-IN')}
-        {suffix}
+        <span aria-hidden="true">
+          {count.toLocaleString('en-IN')}
+          {suffix}
+        </span>
+        <span className="sr-only">
+          {end.toLocaleString('en-IN')}
+          {suffix}
+        </span>
       </dd>
     </div>
   );
 };
 
+const StaticStat: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div>
+    <dt className="text-eyebrow font-mono uppercase tracking-[0.2em] text-zone-text-muted/80">
+      {label}
+    </dt>
+    <dd className="font-heading text-2xl mt-1 text-zone-text">{value}</dd>
+  </div>
+);
+
+const stats: Stat[] = [
+  { kind: 'static', label: 'Established', value: CONTACT_INFO.stats.established },
+  { kind: 'count', label: 'Engagements', value: CONTACT_INFO.stats.consultations },
+  { kind: 'count', label: 'Industries', value: CONTACT_INFO.stats.industriesServed },
+  { kind: 'static', label: 'Office', value: CONTACT_INFO.address.city },
+];
+
 export const Snapshot: React.FC = () => (
-  <section className="container mx-auto max-w-7xl px-4 md:px-6 pb-24">
+  <section id="snapshot" aria-labelledby="snapshot-heading" className="container mx-auto max-w-7xl px-4 md:px-6 pb-24">
+    <h2 id="snapshot-heading" className="sr-only">Practice at a glance</h2>
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
       <div className="lg:col-span-7">
         <div className="relative rounded-bento overflow-hidden border zone-border zone-surface p-8 md:p-12 shadow-2xl">
           <dl className="grid grid-cols-2 gap-x-8 gap-y-6">
-            <CountUpStat label="Established" value={CONTACT_INFO.stats.established} />
-            <CountUpStat label="Engagements" value={CONTACT_INFO.stats.consultations} />
-            <CountUpStat label="Industries" value={CONTACT_INFO.stats.industriesServed} />
-            <div>
-              <dt className="text-eyebrow font-mono uppercase tracking-[0.2em] text-zone-text-muted/80">
-                Office
-              </dt>
-              <dd className="font-heading text-2xl mt-1 text-zone-text">{CONTACT_INFO.address.city}</dd>
-            </div>
+            {stats.map((stat) => (
+              stat.kind === 'count'
+                ? <CountUpStat key={stat.label} label={stat.label} value={stat.value} />
+                : <StaticStat key={stat.label} label={stat.label} value={stat.value} />
+            ))}
           </dl>
         </div>
       </div>

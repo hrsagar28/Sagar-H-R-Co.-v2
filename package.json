@@ -25,6 +25,7 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@axe-core/react": "^4.11.2",
     "@testing-library/jest-dom": "^6.4.0",
     "@testing-library/react": "^14.2.0",
     "@types/dompurify": "^3.0.5",
@@ -39,6 +40,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.13",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "vitest-axe": "^0.1.0"
   }
 }

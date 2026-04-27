@@ -7,7 +7,7 @@ export const Principal: React.FC = () => {
   const { founder } = CONTACT_INFO;
 
   return (
-    <section className="py-24 px-4 md:px-6 zone-bg">
+    <section id="principal" aria-labelledby="principal-heading" className="py-24 px-4 md:px-6 zone-bg">
       <div className="container mx-auto max-w-7xl">
         <div className="zone-surface rounded-bento border zone-border overflow-hidden flex flex-col lg:flex-row">
           <div className="lg:w-2/5 p-10 flex items-center justify-center border-b lg:border-b-0 lg:border-r zone-border">
@@ -30,7 +30,7 @@ export const Principal: React.FC = () => {
 
           <div className="lg:w-3/5 p-10 md:p-16 flex flex-col justify-center">
             <span className="text-zone-accent font-bold tracking-widest uppercase text-xs mb-4 block">Principal Partner</span>
-            <h2 className="text-4xl md:text-6xl font-heading font-bold zone-text mb-2">{founder.name}</h2>
+            <h2 id="principal-heading" className="text-4xl md:text-6xl font-heading font-bold zone-text mb-2">{founder.name}</h2>
             <p className="text-zone-text-muted font-bold text-sm uppercase tracking-widest mb-8">ACA</p>
 
             <div className="space-y-6 text-lg text-zone-text-muted/90 font-medium leading-relaxed max-w-prose">

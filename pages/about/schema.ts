@@ -2,8 +2,8 @@ import { CONTACT_INFO } from '../../constants';
 
 type ContactInfo = typeof CONTACT_INFO;
 
-const SITE_URL = 'https://casagar.co.in';
-const OG_IMAGE = `${SITE_URL}/og-contact.png`;
+const SITE_URL = ((import.meta as any).env?.VITE_SITE_URL ?? 'https://casagar.co.in').replace(/\/$/, '');
+const OG_IMAGE = `${SITE_URL}/og-about.png`;
 
 export const aboutBreadcrumbs = [
   { name: 'Home', url: '/' },
@@ -14,10 +14,14 @@ export const buildAboutSchema = (contact: ContactInfo): object[] => [
   {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
+    '@id': `${SITE_URL}/about#webpage`,
     url: `${SITE_URL}/about`,
     name: `About ${contact.name}`,
     description: `Profile of ${contact.name}, a Chartered Accountancy practice in Mysuru, Karnataka.`,
-    primaryImageOfPage: OG_IMAGE,
+    primaryImageOfPage: `${SITE_URL}/images/founder.jpg`,
+    about: { '@id': `${SITE_URL}/#founder` },
+    mainEntity: { '@id': `${SITE_URL}/#organization` },
+    isPartOf: { '@id': `${SITE_URL}/#website` },
   },
   {
     '@context': 'https://schema.org',
@@ -28,14 +32,14 @@ export const buildAboutSchema = (contact: ContactInfo): object[] => [
     telephone: contact.phone.value,
     email: contact.email,
     image: OG_IMAGE,
-    priceRange: 'INR',
+    priceRange: '₹₹',
     address: {
       '@type': 'PostalAddress',
       streetAddress: contact.address.street,
       addressLocality: contact.address.city,
       addressRegion: contact.address.state,
       postalCode: contact.address.zip,
-      addressCountry: contact.address.country,
+      addressCountry: 'IN',
     },
     geo: {
       '@type': 'GeoCoordinates',

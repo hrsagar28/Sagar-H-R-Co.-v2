@@ -13,3 +13,4 @@ export * from './useTaxConfig';
 export * from './useInsights';
 export * from './useScrollPosition';
 export * from './useCountUp';
+export * from './useConsent';

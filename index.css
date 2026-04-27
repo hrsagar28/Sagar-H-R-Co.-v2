@@ -346,6 +346,11 @@ html {
   }
 
   ::selection { background: #b8924c; color: #f4f1ea; }
+
+  [data-zone="editorial"] ::selection {
+    background-color: rgb(var(--zone-accent-rgb) / 0.35);
+    color: var(--zone-text);
+  }
 }
 
 @layer utilities {
