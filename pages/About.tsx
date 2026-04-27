@@ -74,7 +74,7 @@ const About: React.FC = () => {
         breadcrumbs={aboutBreadcrumbs}
       />
 
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 pt-20 md:pt-24">
+      <div className="container mx-auto max-w-7xl px-4 md:px-6 pt-24 md:pt-28">
         <Breadcrumbs items={[{ label: 'About' }]} />
       </div>
 
