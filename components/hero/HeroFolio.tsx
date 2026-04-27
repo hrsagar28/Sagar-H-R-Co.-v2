@@ -7,7 +7,12 @@ export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, num
   const accentAltClass = accentTone ? `text-brand-${accentTone}` : 'zone-accent-alt'; 
   
   return (
-    <section aria-labelledby="hero-folio-title" className={`relative ${compact ? 'pt-12 md:pt-20' : 'pt-32 md:pt-48'} pb-20 px-4 md:px-12 zone-bg zone-text overflow-hidden`}>
+    <section
+      aria-labelledby="hero-folio-title"
+      className={`relative ${
+        compact ? 'pt-8 md:pt-12 pb-12 md:pb-14' : 'pt-32 md:pt-48 pb-20'
+      } px-4 md:px-12 zone-bg zone-text overflow-hidden`}
+    >
       <div className="container mx-auto max-w-7xl relative z-10 flex flex-col md:flex-row items-stretch">
          
          <div
@@ -54,7 +59,7 @@ export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, num
          </div>
       </div>
       
-      <div className="container mx-auto max-w-7xl relative mt-20">
+      <div className={`container mx-auto max-w-7xl relative ${compact ? 'mt-10 md:mt-12' : 'mt-20'}`}>
          <div className="h-px w-full zone-hairline flex items-center justify-between" aria-hidden="true">
            <div className={`w-2 h-2 rounded-full ${accentAltClass.replace('text-', 'bg-')} -translate-x-1`} style={!accentTone ? { backgroundColor: 'var(--zone-accent-alt)' } : {}}></div>
            <div className={`w-2 h-2 rounded-full ${accentAltClass.replace('text-', 'bg-')} translate-x-1`} style={!accentTone ? { backgroundColor: 'var(--zone-accent-alt)' } : {}}></div>
