@@ -32,7 +32,7 @@ export const Values: React.FC = () => (
         <div className="md:w-1/3">
           <span className="text-zone-accent font-bold tracking-widest uppercase text-xs mb-4 block">Our Values</span>
           <h2 id="values-heading" className="text-4xl md:text-6xl font-heading font-bold zone-text leading-tight">
-            Professional <br /> Ethics.
+            The standards we hold ourselves to.
           </h2>
         </div>
         <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-12 border-t zone-border pt-12">

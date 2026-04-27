@@ -40,8 +40,8 @@ export function useConsent(key: ConsentKey) {
   };
 
   const revoke = () => {
-    localStorage.removeItem(key);
-    setValue(null);
+    localStorage.setItem(key, 'revoked');
+    setValue('revoked');
     window.dispatchEvent(new CustomEvent('cookie-consent-change', { detail: { key, value: 'revoked' } }));
   };
 

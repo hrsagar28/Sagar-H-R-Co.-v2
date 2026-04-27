@@ -10,7 +10,7 @@ import { Principal } from './about/Principal';
 import { Snapshot } from './about/Snapshot';
 import { Values } from './about/Values';
 import { ABOUT_OG_IMAGE, aboutBreadcrumbs, buildAboutSchema } from './about/schema';
-import { prefetchRoute } from './about/warmContact';
+import { warmContactRoute } from './about/warmContact';
 
 const ordinalSuffix = (value: number) => {
   const mod100 = value % 100;
@@ -45,10 +45,7 @@ const About: React.FC = () => {
     const warmCommonChunks = () => {
       if (cancelled) return;
 
-      prefetchRoute('contact');
-      prefetchRoute('resources');
-      prefetchRoute('hraCalculator');
-      prefetchRoute('gstCalculator');
+      warmContactRoute();
     };
 
     if ('requestIdleCallback' in window) {

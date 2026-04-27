@@ -9,7 +9,7 @@ export const Office: React.FC = () => {
   const globalConsent = useConsent('cookie_consent');
   const mapConsent = useConsent('maps_embed_consent');
   const [idleChecked, setIdleChecked] = useState(false);
-  const canLoadMap = globalConsent.value === 'declined'
+  const canLoadMap = globalConsent.value === 'declined' || globalConsent.value === 'revoked'
     ? false
     : globalConsent.granted || mapConsent.granted;
 

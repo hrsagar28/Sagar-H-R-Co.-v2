@@ -71,7 +71,7 @@ export const CONTACT_INFO = {
     qualifications: ["Chartered Accountant"],
     icaiMembershipNo: "273511",
     specializations: ["Direct Tax", "GST", "Audit", "Business Advisory"],
-    bio: "With a passion for simplifying complex financial matters, CA Sagar H R founded the firm with a vision to provide personalized, technology-driven accounting services to businesses in Mysuru and beyond.",
+    bio: "Sagar H R qualified as a CA in 2023 after planning for it most of his life. His working habit is to read the law before answering. It may take longer. It also means the advice is less likely to be wrong. He believes in building long term client relationships he expects to last years. Outside the office: teaching, finance writing, fiction, and cricket.",
     quote: "Our approach is to provide practical solutions that align with regulatory requirements while understanding the client's business context."
   }
 };

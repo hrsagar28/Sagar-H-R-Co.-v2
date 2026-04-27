@@ -9,9 +9,9 @@ export const Cta: React.FC = () => (
         <div className="absolute inset-0 bg-noise opacity-20 mix-blend-multiply" aria-hidden="true"></div>
 
         <div className="relative z-10 max-w-3xl mx-auto">
-          <h2 id="contact-cta-heading" className="text-4xl md:text-7xl font-heading font-bold text-white mb-8">Talk to the principal.</h2>
+          <h2 id="contact-cta-heading" className="text-4xl md:text-7xl font-heading font-bold text-white mb-8">Start a conversation</h2>
           <p className="text-white/85 text-xl mb-12 leading-relaxed font-medium">
-            Share the matter, timeline, and records available. The first response will clarify scope, documents needed, and the right engagement format.
+            You don't need to have everything organised before reaching out. Share what you have. We'll figure out the rest from there.
           </p>
           <Link
             to="/contact"
@@ -19,7 +19,7 @@ export const Cta: React.FC = () => (
             onFocus={warmContactRoute}
             className="inline-block px-10 py-4 bg-white text-brand-moss font-bold rounded-full text-lg hover:bg-brand-dark hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zone-accent focus-visible:ring-offset-2 focus-visible:ring-offset-brand-moss transition-all duration-300 shadow-lg motion-reduce:transition-none"
           >
-            Book Consultation
+            Reach Out
           </Link>
         </div>
       </div>

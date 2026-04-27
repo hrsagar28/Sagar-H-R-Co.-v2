@@ -73,14 +73,14 @@ describe('About', () => {
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: /breadcrumb/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /book consultation/i })).toHaveAttribute('href', '/contact');
+    expect(screen.getByRole('link', { name: /reach out/i })).toHaveAttribute('href', '/contact');
     expect(screen.getByText('2023')).toBeInTheDocument();
     expect(screen.getByText('Mysuru')).toBeInTheDocument();
   });
 
   it('warms the Contact route chunk when the CTA is hovered or focused', () => {
     renderAbout();
-    const cta = screen.getByRole('link', { name: /book consultation/i });
+    const cta = screen.getByRole('link', { name: /reach out/i });
 
     fireEvent.mouseEnter(cta);
     expect(mocks.warmContactRoute).toHaveBeenCalledTimes(1);
