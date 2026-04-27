@@ -79,6 +79,70 @@ const RouteHandler = () => {
   return null;
 };
 
+const MainContent = () => {
+  const { pathname } = useLocation();
+  const mainZone = pathname === '/about' ? 'editorial' : undefined;
+
+  return (
+    <main
+      id="main-content"
+      data-zone={mainZone}
+      className={`flex-grow relative z-base w-full ${mainZone ? 'zone-bg zone-text' : ''}`}
+      tabIndex={-1}
+    >
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<RouteErrorBoundary><Home /></RouteErrorBoundary>} />
+          <Route path="/about" element={<RouteErrorBoundary><About /></RouteErrorBoundary>} />
+          <Route path="/services" element={<RouteErrorBoundary><Services /></RouteErrorBoundary>} />
+          <Route path="/services/:slug" element={
+            <RouteErrorBoundary>
+              <Suspense fallback={<ServiceDetailSkeleton />}>
+                <ServiceDetail />
+              </Suspense>
+            </RouteErrorBoundary>
+          } />
+          <Route path="/insights" element={<RouteErrorBoundary><Insights /></RouteErrorBoundary>} />
+          <Route path="/insights/:slug" element={
+            <RouteErrorBoundary>
+              <Suspense fallback={<InsightDetailSkeleton />}>
+                <InsightDetail />
+              </Suspense>
+            </RouteErrorBoundary>
+          } />
+          <Route path="/faqs" element={
+            <RouteErrorBoundary>
+              <Suspense fallback={<FAQSkeleton />}>
+                <FAQ />
+              </Suspense>
+            </RouteErrorBoundary>
+          } />
+          <Route path="/resources" element={
+            <RouteErrorBoundary>
+              <Suspense fallback={<ResourcesSkeleton />}>
+                <Resources />
+              </Suspense>
+            </RouteErrorBoundary>
+          } />
+          <Route path="/resources/checklist/:slug" element={<RouteErrorBoundary><ChecklistDetail /></RouteErrorBoundary>} />
+          <Route path="/careers" element={<RouteErrorBoundary><Careers /></RouteErrorBoundary>} />
+          <Route path="/contact" element={
+            <RouteErrorBoundary>
+              <Suspense fallback={<ContactSkeleton />}>
+                <Contact />
+              </Suspense>
+            </RouteErrorBoundary>
+          } />
+          <Route path="/disclaimer" element={<RouteErrorBoundary><Disclaimer /></RouteErrorBoundary>} />
+          <Route path="/privacy" element={<RouteErrorBoundary><Privacy /></RouteErrorBoundary>} />
+          <Route path="/terms" element={<RouteErrorBoundary><Terms /></RouteErrorBoundary>} />
+          <Route path="*" element={<RouteErrorBoundary><NotFound /></RouteErrorBoundary>} />
+        </Routes>
+      </Suspense>
+    </main>
+  );
+};
+
 const App: React.FC = () => {
   const [showCursor, setShowCursor] = React.useState(false);
 
@@ -122,57 +186,7 @@ const App: React.FC = () => {
 
           {/* Main Layout */}
           <div className="relative z-base flex flex-col min-h-screen bg-brand-bg w-full print:bg-white">
-            <main id="main-content" className="flex-grow relative z-base w-full" tabIndex={-1}>
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route path="/" element={<RouteErrorBoundary><Home /></RouteErrorBoundary>} />
-                  <Route path="/about" element={<RouteErrorBoundary><About /></RouteErrorBoundary>} />
-                  <Route path="/services" element={<RouteErrorBoundary><Services /></RouteErrorBoundary>} />
-                  <Route path="/services/:slug" element={
-                    <RouteErrorBoundary>
-                      <Suspense fallback={<ServiceDetailSkeleton />}>
-                        <ServiceDetail />
-                      </Suspense>
-                    </RouteErrorBoundary>
-                  } />
-                  <Route path="/insights" element={<RouteErrorBoundary><Insights /></RouteErrorBoundary>} />
-                  <Route path="/insights/:slug" element={
-                    <RouteErrorBoundary>
-                      <Suspense fallback={<InsightDetailSkeleton />}>
-                        <InsightDetail />
-                      </Suspense>
-                    </RouteErrorBoundary>
-                  } />
-                  <Route path="/faqs" element={
-                    <RouteErrorBoundary>
-                      <Suspense fallback={<FAQSkeleton />}>
-                        <FAQ />
-                      </Suspense>
-                    </RouteErrorBoundary>
-                  } />
-                  <Route path="/resources" element={
-                    <RouteErrorBoundary>
-                      <Suspense fallback={<ResourcesSkeleton />}>
-                        <Resources />
-                      </Suspense>
-                    </RouteErrorBoundary>
-                  } />
-                  <Route path="/resources/checklist/:slug" element={<RouteErrorBoundary><ChecklistDetail /></RouteErrorBoundary>} />
-                  <Route path="/careers" element={<RouteErrorBoundary><Careers /></RouteErrorBoundary>} />
-                  <Route path="/contact" element={
-                    <RouteErrorBoundary>
-                      <Suspense fallback={<ContactSkeleton />}>
-                        <Contact />
-                      </Suspense>
-                    </RouteErrorBoundary>
-                  } />
-                  <Route path="/disclaimer" element={<RouteErrorBoundary><Disclaimer /></RouteErrorBoundary>} />
-                  <Route path="/privacy" element={<RouteErrorBoundary><Privacy /></RouteErrorBoundary>} />
-                  <Route path="/terms" element={<RouteErrorBoundary><Terms /></RouteErrorBoundary>} />
-                  <Route path="*" element={<RouteErrorBoundary><NotFound /></RouteErrorBoundary>} />
-                </Routes>
-              </Suspense>
-            </main>
+            <MainContent />
 
             <div className="print:hidden">
               <Footer />

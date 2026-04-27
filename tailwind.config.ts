@@ -36,6 +36,9 @@ export default {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
+        'zone-text': 'rgb(var(--zone-text-rgb) / <alpha-value>)',
+        'zone-text-muted': 'rgb(var(--zone-text-muted-rgb) / <alpha-value>)',
+        'zone-accent': 'rgb(var(--zone-accent-rgb) / <alpha-value>)',
         brand: {
           bg: '#F2F2F0',
           surface: '#FFFFFF',
@@ -60,6 +63,10 @@ export default {
           'muted': '#7a7366',
           'accent': '#4ADE80',
         },
+      },
+      borderRadius: {
+        card: '2rem',
+        bento: '3rem',
       },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.23, 1, 0.32, 1)',

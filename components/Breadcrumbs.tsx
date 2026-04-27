@@ -1,9 +1,7 @@
 
 import React, { useEffect } from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
-
-const { Link } = ReactRouterDOM;
 
 interface BreadcrumbItem {
   label: string;
@@ -63,10 +61,10 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' }) => {
         <li>
           <Link 
             to="/" 
-            className="flex items-center gap-1 text-brand-stone hover:text-brand-moss transition-colors"
+            className="flex items-center gap-1 text-zone-text-muted hover:text-zone-accent transition-colors"
             title="Home"
           >
-            <Home size={14} />
+            <Home size={14} aria-hidden="true" focusable="false" />
           </Link>
         </li>
         
@@ -75,16 +73,16 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' }) => {
           
           return (
             <li key={index} className="flex items-center gap-2">
-              <ChevronRight size={14} className="text-brand-stone/50" />
+              <ChevronRight size={14} className="text-zone-text-muted/50" aria-hidden="true" focusable="false" />
               {item.path && !isLast ? (
                 <Link 
                   to={item.path}
-                  className="text-brand-stone hover:text-brand-moss transition-colors whitespace-nowrap"
+                  className="text-zone-text-muted hover:text-zone-accent transition-colors whitespace-nowrap"
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-brand-dark font-bold whitespace-nowrap" aria-current="page">
+                <span className="text-zone-text font-bold whitespace-nowrap" aria-current="page">
                   {item.label}
                 </span>
               )}

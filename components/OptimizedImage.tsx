@@ -13,6 +13,10 @@ interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
   fallbackSrc?: string;
   /** CSS aspect-ratio property (e.g., "16/9") */
   aspectRatio?: string;
+  /** Intrinsic image width, forwarded to the img element */
+  width?: number | string;
+  /** Intrinsic image height, forwarded to the img element */
+  height?: number | string;
   /** Responsive image sources */
   srcSet?: string;
   /** Responsive image sizes */
@@ -51,6 +55,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   priority = false,
   fallbackSrc,
   aspectRatio,
+  width,
+  height,
   srcSet,
   sizes,
   generateSrcSet = false,
@@ -143,8 +149,10 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
             srcSet={calculatedSrcSet}
             sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
             alt={alt}
+            width={width}
+            height={height}
             loading={priority ? "eager" : "lazy"}
-            fetchPriority={priority ? "high" : "auto"}
+            {...({ fetchpriority: priority ? "high" : "auto" } as React.ImgHTMLAttributes<HTMLImageElement>)}
             decoding={priority ? "sync" : "async"}
             onLoad={handleLoad}
             onError={handleError}
@@ -160,8 +168,10 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           srcSet={calculatedSrcSet}
           sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
           alt={alt}
+          width={width}
+          height={height}
           loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : "auto"}
+          {...({ fetchpriority: priority ? "high" : "auto" } as React.ImgHTMLAttributes<HTMLImageElement>)}
           decoding={priority ? "sync" : "async"}
           onLoad={handleLoad}
           onError={handleError}

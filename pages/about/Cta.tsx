@@ -1,0 +1,25 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+export const Cta: React.FC = () => (
+  <section className="py-24 px-4 md:px-6 zone-bg">
+    <div className="container mx-auto max-w-7xl">
+      <div className="bg-brand-moss rounded-bento p-12 md:p-24 text-center relative overflow-hidden shadow-2xl">
+        <div className="absolute inset-0 bg-noise opacity-20 mix-blend-multiply" aria-hidden="true"></div>
+
+        <div className="relative z-10 max-w-3xl mx-auto">
+          <h2 className="text-4xl md:text-7xl font-heading font-bold text-white mb-8">Talk to the principal.</h2>
+          <p className="text-white/85 text-xl mb-12 leading-relaxed font-medium">
+            Share the matter, timeline, and records available. The first response will clarify scope, documents needed, and the right engagement format.
+          </p>
+          <Link
+            to="/contact"
+            className="inline-block px-10 py-4 bg-white text-brand-moss font-bold rounded-full text-lg hover:bg-brand-dark hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white transition-all duration-300 shadow-lg motion-reduce:transition-none"
+          >
+            Book Consultation
+          </Link>
+        </div>
+      </div>
+    </div>
+  </section>
+);

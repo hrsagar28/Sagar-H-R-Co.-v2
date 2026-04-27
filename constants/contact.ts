@@ -54,6 +54,7 @@ export const CONTACT_INFO = {
     mapEmbedUrl: "https://maps.google.com/maps?q=12.300430367886586,76.65174852128196&t=&z=15&ie=UTF8&iwloc=&output=embed"
   },
   tagline: "Chartered Accountants",
+  languages: ["English", "Kannada", "Hindi"],
   assessmentYear: CURRENT_AY,
   financialYear: CURRENT_FY,
   formEndpoint: getEnv('VITE_FORM_ENDPOINT') || "/api/contact",
@@ -67,8 +68,9 @@ export const CONTACT_INFO = {
     name: "CA Sagar H R",
     title: "Founder & Principal",
     qualifications: ["Chartered Accountant"],
-    icaiMembershipNo: "Member of ICAI", 
+    icaiMembershipNo: "273511",
     specializations: ["Direct Tax", "GST", "Audit", "Business Advisory"],
-    bio: "With a passion for simplifying complex financial matters, CA Sagar H R founded the firm with a vision to provide personalized, technology-driven accounting services to businesses in Mysuru and beyond."
+    bio: "With a passion for simplifying complex financial matters, CA Sagar H R founded the firm with a vision to provide personalized, technology-driven accounting services to businesses in Mysuru and beyond.",
+    quote: "Our approach is to provide practical solutions that align with regulatory requirements while understanding the client's business context."
   }
 };
