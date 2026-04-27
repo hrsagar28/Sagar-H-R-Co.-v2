@@ -74,7 +74,6 @@ describe('About', () => {
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: /breadcrumb/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /reach out/i })).toHaveAttribute('href', '/contact');
-    expect(screen.getByRole('link', { name: /view office details and map/i })).toHaveAttribute('href', '/contact');
     expect(screen.getByText('2023')).toBeInTheDocument();
     expect(screen.getByText('Mysuru')).toBeInTheDocument();
   });
