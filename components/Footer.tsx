@@ -43,7 +43,7 @@ const Footer: React.FC = React.memo(() => {
 
                      {/* Column 2: Explore (Main Pages) */}
                      <div className="md:col-span-2 lg:col-span-2">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Explore</h3>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-8">Explore</h3>
                         <ul className="space-y-4">
                            {[
                               { name: "Home", path: "/" },
@@ -62,7 +62,7 @@ const Footer: React.FC = React.memo(() => {
 
                      {/* Column 3: Resources */}
                      <div className="md:col-span-3 lg:col-span-2">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Resources</h3>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-8">Resources</h3>
                         <ul className="space-y-4">
                            {[
                               { name: "Client Resources", path: "/resources" },
@@ -83,7 +83,7 @@ const Footer: React.FC = React.memo(() => {
 
                   {/* Column 4: Quick Contact */}
                   <div className="md:col-span-3 lg:col-span-3">
-                     <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Contact</h3>
+                     <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-8">Contact</h3>
                      <ul className="space-y-6">
                         <li>
                            <span className="block text-sm text-zinc-400 mb-1">Email</span>
@@ -106,8 +106,8 @@ const Footer: React.FC = React.memo(() => {
             {/* Bottom Section: Legal */}
             <div className="px-6 md:px-20 pb-10 relative z-10">
                <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
-                  <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-500">
-                     <div className="flex flex-col gap-1 text-zinc-500 mr-4">
+                  <div className="flex flex-wrap justify-center md:justify-start gap-8 text-sm font-medium text-zinc-300">
+                     <div className="flex flex-col gap-1 text-zinc-300 mr-4">
                         <span>
                            &copy; {new Date().getFullYear() === 2023 ? 'MMXXIII' : `MMXXIII–${toRomanNumeral(new Date().getFullYear())}`} · Sagar H R & Co.
                         </span>

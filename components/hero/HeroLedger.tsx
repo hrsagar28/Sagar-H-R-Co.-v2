@@ -1,5 +1,5 @@
 import React from 'react';
-import { WordReveal } from '../motion/WordReveal';
+import { WordReveal } from '../Reveal';
 import type { LedgerHeroProps } from './types';
 import * as ReactRouterDOM from 'react-router-dom';
 

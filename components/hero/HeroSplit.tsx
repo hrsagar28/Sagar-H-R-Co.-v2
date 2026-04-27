@@ -1,5 +1,5 @@
 import React from 'react';
-import { WordReveal } from '../motion/WordReveal';
+import { WordReveal } from '../Reveal';
 import type { SplitHeroProps } from './types';
 import { Crosshair } from '../ui/Crosshair';
 

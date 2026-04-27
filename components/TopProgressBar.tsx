@@ -36,8 +36,8 @@ const TopProgressBar: React.FC = () => {
   return (
     <div className="fixed top-0 left-0 w-full h-1 z-[2000] pointer-events-none">
       <div 
-        className="h-full bg-brand-moss shadow-[0_0_10px_#1A4D2E] transition-all duration-300 ease-out"
-        style={{ width: `${progress}%` }}
+        className="h-full w-full origin-left bg-brand-moss shadow-[0_0_10px_#1A4D2E] transition-transform duration-300 ease-out"
+        style={{ transform: `scaleX(${progress / 100})` }}
       />
     </div>
   );

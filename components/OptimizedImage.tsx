@@ -29,8 +29,12 @@ interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
   onError?: () => void;
   /** Optional AVIF source for picture element */
   srcAvif?: string;
+  /** Optional responsive AVIF sources for picture element */
+  srcAvifSet?: string;
   /** Optional WebP source for picture element */
   srcWebp?: string;
+  /** Optional responsive WebP sources for picture element */
+  srcWebpSet?: string;
 }
 
 /**
@@ -63,7 +67,9 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   onLoad,
   onError,
   srcAvif,
+  srcAvifSet,
   srcWebp,
+  srcWebpSet,
   ...props 
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -139,10 +145,10 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
       />
       
       {/* Actual Image */}
-      {srcAvif || srcWebp ? (
+      {srcAvif || srcWebp || srcAvifSet || srcWebpSet ? (
         <picture>
-          {srcAvif && <source srcSet={srcAvif} type="image/avif" />}
-          {srcWebp && <source srcSet={srcWebp} type="image/webp" />}
+          {(srcAvifSet || srcAvif) && <source srcSet={srcAvifSet || srcAvif} type="image/avif" sizes={sizes} />}
+          {(srcWebpSet || srcWebp) && <source srcSet={srcWebpSet || srcWebp} type="image/webp" sizes={sizes} />}
           <img
             ref={imgRef}
             src={currentSrc}
@@ -157,7 +163,9 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
             onLoad={handleLoad}
             onError={handleError}
             className={`block w-full h-full object-cover transition-all duration-700 ease-in-out relative z-0 ${
-              isLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-sm scale-105'
+              priority && (srcAvif || srcWebp || srcAvifSet || srcWebpSet)
+                ? 'opacity-100 scale-100'
+                : isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
             } ${imgClassName}`}
           />
         </picture>
@@ -176,7 +184,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           onLoad={handleLoad}
           onError={handleError}
           className={`block w-full h-full object-cover transition-all duration-700 ease-in-out relative z-0 ${
-            isLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-sm scale-105'
+            isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
           } ${imgClassName}`}
         />
       )}

@@ -13,15 +13,18 @@ export const Principal: React.FC = () => {
           <div className="lg:w-2/5 p-10 flex items-center justify-center border-b lg:border-b-0 lg:border-r zone-border">
             <div className="w-32 h-40 relative rounded-card border zone-border shadow-sm overflow-hidden zone-bg">
               <OptimizedImage
-                src="/images/founder.jpg"
-                srcWebp="/images/founder.webp"
-                srcAvif="/images/founder.avif"
+                src="/images/founder/founder-480.jpg"
+                srcWebp="/images/founder/founder-480.webp"
+                srcWebpSet="/images/founder/founder-320.webp 320w, /images/founder/founder-480.webp 480w, /images/founder/founder-640.webp 640w"
+                srcAvif="/images/founder/founder-480.avif"
+                srcAvifSet="/images/founder/founder-320.avif 320w, /images/founder/founder-480.avif 480w, /images/founder/founder-640.avif 640w"
+                srcSet="/images/founder/founder-320.jpg 320w, /images/founder/founder-480.jpg 480w, /images/founder/founder-640.jpg 640w"
+                sizes="(min-width: 1024px) 240px, (min-width: 640px) 200px, 160px"
                 alt="Portrait of CA Sagar H R, Principal Partner."
-                width={320}
-                height={400}
+                width={480}
+                height={600}
                 aspectRatio="4/5"
                 priority
-                generateSrcSet
                 className="w-full h-full"
                 imgClassName="object-cover"
               />

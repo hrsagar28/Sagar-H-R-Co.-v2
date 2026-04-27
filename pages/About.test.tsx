@@ -9,6 +9,7 @@ import About from './About';
 
 const mocks = vi.hoisted(() => ({
   warmContactRoute: vi.fn(),
+  prefetchRoute: vi.fn(),
 }));
 
 expect.extend(matchers);
@@ -33,6 +34,7 @@ vi.mock('../hooks/useCountUp', () => ({
 
 vi.mock('./about/warmContact', () => ({
   warmContactRoute: mocks.warmContactRoute,
+  prefetchRoute: mocks.prefetchRoute,
 }));
 
 const mockMotionPreference = (matches: boolean) => {
@@ -61,6 +63,7 @@ describe('About', () => {
   beforeEach(() => {
     localStorage.clear();
     mocks.warmContactRoute.mockClear();
+    mocks.prefetchRoute.mockClear();
     mockMotionPreference(false);
   });
 

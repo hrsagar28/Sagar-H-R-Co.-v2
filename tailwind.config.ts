@@ -32,7 +32,7 @@ export default {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
         heading: ['Fraunces', 'Georgia', 'serif'],
-        serif: ['"Playfair Display"', 'serif'],
+        serif: ['Fraunces', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
@@ -100,7 +100,7 @@ export default {
           '100%': { transform: 'translate(0px, 0px) scale(1)' },
         },
         fadeInUp: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '0%': { opacity: '1', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         scaleIn: {
@@ -108,8 +108,8 @@ export default {
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
         expandWidth: {
-          '0%': { width: '0' },
-          '100%': { width: '6rem' },
+          '0%': { transform: 'scaleX(0)' },
+          '100%': { transform: 'scaleX(1)' },
         },
       },
     },

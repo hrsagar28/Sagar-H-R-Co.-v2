@@ -1,5 +1,5 @@
 import React from 'react';
-import { WordReveal } from '../motion/WordReveal';
+import { WordReveal } from '../Reveal';
 import type { FrontispieceHeroProps } from './types';
 import { SectionSymbol } from '../ui/SectionSymbol';
 

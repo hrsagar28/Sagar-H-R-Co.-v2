@@ -10,7 +10,7 @@ const Preloader: React.FC = () => {
 
   useEffect(() => {
     // If reduced motion is preferred, we skip the preloader entirely to avoid transition sickness
-    if (shouldReduceMotion) {
+    if (shouldReduceMotion || sessionStorage.getItem('preloader_done') === '1') {
       setHidden(true);
       return;
     }
@@ -25,11 +25,13 @@ const Preloader: React.FC = () => {
 
     const cleanup = setTimeout(() => {
       setHidden(true);
+      sessionStorage.setItem('preloader_done', '1');
     }, 2000);
 
     return () => {
       clearTimeout(timer);
       clearTimeout(cleanup);
+      sessionStorage.setItem('preloader_done', '1');
     };
   }, [shouldReduceMotion]);
 
@@ -47,7 +49,7 @@ const Preloader: React.FC = () => {
           <span className="font-normal">H R & Co.</span>
         </h1>
         
-        <div className="h-[1px] w-0 bg-white/30 animate-expand-width rounded-full mb-6"></div>
+        <div className="h-[1px] w-24 origin-left scale-x-0 bg-white/30 animate-expand-width rounded-full mb-6"></div>
         
         <p className="text-white/70 text-xs md:text-sm font-sans font-bold uppercase tracking-[0.4em] animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           {CONTACT_INFO.tagline}

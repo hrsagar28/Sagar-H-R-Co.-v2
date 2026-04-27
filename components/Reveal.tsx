@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, ReactNode } from 'react';
+import React, { Children, isValidElement, useRef, useEffect, useState, ReactNode } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 type RevealCallback = () => void;
@@ -36,6 +36,13 @@ interface RevealProps {
   className?: string;
   /** Animation style variant. Default: 'fade-up' */
   variant?: 'fade-up' | 'slide-up' | 'scale' | 'reveal-mask';
+}
+
+interface WordRevealProps {
+  children: ReactNode;
+  delay?: number;
+  stagger?: number;
+  className?: string;
 }
 
 /**
@@ -123,6 +130,91 @@ const Reveal: React.FC<RevealProps> = ({
     <div ref={ref} className={className} style={{ width, ...style }}>
       {children}
     </div>
+  );
+};
+
+export const WordReveal: React.FC<WordRevealProps> = ({
+  children,
+  delay = 0.15,
+  stagger = 0.12,
+  className = '',
+}) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    if (shouldReduceMotion) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = getSharedObserver();
+    revealCallbacks.set(element, () => setIsVisible(true));
+    observer.observe(element);
+
+    return () => {
+      revealCallbacks.delete(element);
+      observer.unobserve(element);
+    };
+  }, [shouldReduceMotion]);
+
+  if (shouldReduceMotion) {
+    return <span className={className}>{children}</span>;
+  }
+
+  const words: ReactNode[] = [];
+
+  const extractWords = (node: ReactNode) => {
+    if (typeof node === 'string') {
+      node.split(/\s+/).filter(Boolean).forEach((part) => words.push(part));
+      return;
+    }
+
+    if (Array.isArray(node)) {
+      node.forEach(extractWords);
+      return;
+    }
+
+    if (isValidElement(node)) {
+      if (node.type === React.Fragment) {
+        extractWords(node.props.children);
+        return;
+      }
+
+      words.push(node);
+      return;
+    }
+
+    if (node !== null && node !== undefined) {
+      words.push(String(node));
+    }
+  };
+
+  Children.forEach(children, extractWords);
+
+  return (
+    <span ref={ref} className={`inline-block ${className}`}>
+      {words.map((word, index) => (
+        <React.Fragment key={index}>
+          <span className="inline-flex overflow-hidden pb-[0.25em] -mb-[0.25em] align-bottom">
+            <span
+              className="inline-block whitespace-nowrap transition-transform duration-700 ease-out motion-reduce:transition-none"
+              style={{
+                transform: isVisible ? 'translateY(0)' : 'translateY(40%)',
+                transitionDelay: isVisible ? `${delay + index * stagger}s` : '0s',
+              }}
+            >
+              {word}
+            </span>
+          </span>
+          {index < words.length - 1 && ' '}
+        </React.Fragment>
+      ))}
+    </span>
   );
 };
 

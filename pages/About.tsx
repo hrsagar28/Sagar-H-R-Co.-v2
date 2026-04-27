@@ -10,7 +10,7 @@ import { Principal } from './about/Principal';
 import { Snapshot } from './about/Snapshot';
 import { Values } from './about/Values';
 import { ABOUT_OG_IMAGE, aboutBreadcrumbs, buildAboutSchema } from './about/schema';
-import { warmContactRoute } from './about/warmContact';
+import { prefetchRoute } from './about/warmContact';
 
 const ordinalSuffix = (value: number) => {
   const mod100 = value % 100;
@@ -42,19 +42,24 @@ const About: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
 
-    const warmContactChunk = () => {
-      if (!cancelled) warmContactRoute();
+    const warmCommonChunks = () => {
+      if (cancelled) return;
+
+      prefetchRoute('contact');
+      prefetchRoute('resources');
+      prefetchRoute('hraCalculator');
+      prefetchRoute('gstCalculator');
     };
 
     if ('requestIdleCallback' in window) {
-      const idleId = window.requestIdleCallback(warmContactChunk, { timeout: 2000 });
+      const idleId = window.requestIdleCallback(warmCommonChunks, { timeout: 2000 });
       return () => {
         cancelled = true;
         window.cancelIdleCallback(idleId);
       };
     }
 
-    const timeoutId = window.setTimeout(warmContactChunk, 1500);
+    const timeoutId = window.setTimeout(warmCommonChunks, 1500);
 
     return () => {
       cancelled = true;

@@ -17,6 +17,23 @@ export const Office: React.FC = () => {
     setIdleChecked(true);
   }, []);
 
+  useEffect(() => {
+    if (!canLoadMap) return undefined;
+
+    const existing = document.querySelector<HTMLLinkElement>('link[rel="preconnect"][href="https://maps.google.com"]');
+    if (existing) return undefined;
+
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = 'https://maps.google.com';
+    link.crossOrigin = '';
+    document.head.appendChild(link);
+
+    return () => {
+      link.remove();
+    };
+  }, [canLoadMap]);
+
   const handleLoadMap = () => {
     mapConsent.grant();
   };
