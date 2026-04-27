@@ -5,7 +5,7 @@ import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
 import { Cta } from './about/Cta';
 import { HowWeWork } from './about/HowWeWork';
-import { Office } from './about/Office';
+import { Locale } from './about/Locale';
 import { Principal } from './about/Principal';
 import { Snapshot } from './about/Snapshot';
 import { Values } from './about/Values';
@@ -94,7 +94,7 @@ const About: React.FC = () => {
       <HowWeWork />
       <Values />
       <Principal />
-      <Office />
+      <Locale />
       <Cta />
     </>
   );

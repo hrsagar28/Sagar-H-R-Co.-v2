@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-type ConsentKey = 'cookie_consent' | 'maps_embed_consent';
+type ConsentKey = 'cookie_consent';
 
 const getGranted = (key: ConsentKey) => (
   typeof window !== 'undefined' && window.localStorage.getItem(key) === 'granted'
