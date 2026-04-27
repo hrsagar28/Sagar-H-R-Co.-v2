@@ -3,7 +3,7 @@ import React from 'react';
 const workCards = [
   {
     title: 'Single point of contact',
-    body: 'The proprietor leads every engagement - quotes, working papers, certificates, and the call you make at 7 PM. No relationship managers, no junior hand-offs.',
+    body: 'When you have a question, you call Sagar. When a document needs signing, Sagar signs it. The same person who understood the brief at the start is the one who closes it out.',
   },
   {
     title: 'Retainer or assignment',
@@ -11,7 +11,7 @@ const workCards = [
   },
   {
     title: 'Working from Mysuru, India-wide',
-    body: 'Filings, e-assessments and ITAT representations are handled remotely; physical attendance is offered across Karnataka and to ICAI-member panels nationwide.',
+    body: "The office is in Mysuru, but geography hasn't been a constraint since assessments and hearings moved online. Clients across India are taken on for remote work; Karnataka clients have the option of in-person meetings.",
   },
 ];
 
