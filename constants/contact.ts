@@ -62,8 +62,8 @@ export const CONTACT_INFO = {
   stats: {
     established: "2023",
     clientsServed: "500+",
-    industriesServed: "15+",
-    consultations: "1000+"
+    industriesServed: "10+",
+    consultations: "500+"
   },
   founder: {
     name: "CA Sagar H R",

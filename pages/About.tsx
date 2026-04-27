@@ -32,10 +32,10 @@ const About: React.FC = () => {
   const heroBlurb = useMemo(() => {
     const establishedYear = Number(CONTACT_INFO.stats.established);
     const yearsInPractice = Number.isFinite(establishedYear)
-      ? Math.max(new Date().getFullYear() - establishedYear, 1)
+      ? Math.max(new Date().getFullYear() - establishedYear + 1, 1)
       : 1;
 
-    return `Sagar H R practises as the sole proprietor of the firm. ACA member of the ICAI; ${yearsInPractice}${ordinalSuffix(yearsInPractice)} year of practice. He reads every working paper and signs every certificate.`;
+    return `Sagar H R practises as the sole proprietor of the firm. ACA member of the ICAI; ${yearsInPractice}${ordinalSuffix(yearsInPractice)} year of practice.`;
   }, []);
 
   useEffect(() => {
