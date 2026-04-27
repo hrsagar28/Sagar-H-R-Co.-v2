@@ -100,7 +100,7 @@ export default {
           '100%': { transform: 'translate(0px, 0px) scale(1)' },
         },
         fadeInUp: {
-          '0%': { opacity: '1', transform: 'translateY(8px)' },
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         scaleIn: {

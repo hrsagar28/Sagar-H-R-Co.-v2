@@ -202,8 +202,9 @@ export const WordReveal: React.FC<WordRevealProps> = ({
         <React.Fragment key={index}>
           <span className="inline-flex overflow-hidden pb-[0.25em] -mb-[0.25em] align-bottom">
             <span
-              className="inline-block whitespace-nowrap transition-transform duration-700 ease-out motion-reduce:transition-none"
+              className="inline-block whitespace-nowrap transition-all duration-700 ease-out motion-reduce:transition-none"
               style={{
+                opacity: isVisible ? 1 : 0,
                 transform: isVisible ? 'translateY(0)' : 'translateY(40%)',
                 transitionDelay: isVisible ? `${delay + index * stagger}s` : '0s',
               }}
