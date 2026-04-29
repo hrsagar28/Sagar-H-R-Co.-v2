@@ -42,8 +42,8 @@ const seedBack = (w: number, h: number, n: number): Star[] =>
   Array.from({ length: n }, () => ({
     x: rand(0, w),
     y: rand(0, h),
-    r: rand(0.3, 0.8),
-    o: rand(0.2, 0.5),
+    r: rand(0.6, 1.2),
+    o: rand(0.35, 0.7),
     vx: rand(0.02, 0.06),
     vy: rand(0.01, 0.04),
   }));
@@ -52,7 +52,7 @@ const seedMid = (w: number, h: number, n: number): MidStar[] =>
   Array.from({ length: n }, () => ({
     x: rand(0, w),
     y: rand(0, h),
-    r: rand(0.8, 1.4),
+    r: rand(1.0, 1.8),
     o: 0,
     vx: rand(0.03, 0.07),
     vy: rand(0.015, 0.05),
@@ -86,8 +86,8 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     ctx.fillRect(0, 0, w, h);
 
     const isMobile = w < MOBILE_BP;
-    const backStars = seedBack(w, h, isMobile ? 110 : 180);
-    const midStars = seedMid(w, h, isMobile ? 24 : 40);
+    const backStars = seedBack(w, h, isMobile ? 90 : 180);
+    const midStars = seedMid(w, h, isMobile ? 20 : 40);
 
     for (const s of backStars) {
       ctx.beginPath();
@@ -111,17 +111,49 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    // save-data fallback
     const nav = navigator as any;
-    if (nav.connection?.saveData) {
-      canvas.style.display = 'none';
-      container.style.background = `radial-gradient(ellipse at 50% 30%, rgba(90,110,180,0.08), ${BG} 70%)`;
-      return;
-    }
+    const connection = nav.connection;
+    const liteMode = Boolean(
+      connection?.saveData ||
+      connection?.effectiveType === 'slow-2g' ||
+      connection?.effectiveType === '2g'
+    );
 
-    if (reducedMotion) {
-      drawStatic(canvas);
-      return;
+    let staticRafId = 0;
+    const scheduleStaticDraw = (attempt = 0) => {
+      staticRafId = requestAnimationFrame(() => {
+        if ((canvas.clientWidth === 0 || canvas.clientHeight === 0) && attempt < 5) {
+          scheduleStaticDraw(attempt + 1);
+          return;
+        }
+
+        drawStatic(canvas);
+      });
+    };
+
+    if (reducedMotion || liteMode) {
+      scheduleStaticDraw();
+      let resizeTimer: ReturnType<typeof setTimeout>;
+      const redrawTimer = setTimeout(() => {
+        cancelAnimationFrame(staticRafId);
+        scheduleStaticDraw();
+      }, 600);
+
+      const ro = new ResizeObserver(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          cancelAnimationFrame(staticRafId);
+          scheduleStaticDraw();
+        }, 150);
+      });
+      ro.observe(container);
+
+      return () => {
+        cancelAnimationFrame(staticRafId);
+        clearTimeout(redrawTimer);
+        clearTimeout(resizeTimer);
+        ro.disconnect();
+      };
     }
 
     const ctx = canvas.getContext('2d')!;
@@ -133,13 +165,13 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     let shooting: ShootingStar | null = null;
     let mouseX = 0;
     let mouseY = 0;
-    let isTouch = 'ontouchstart' in window;
     let visible = true;
     let rafId = 0;
     let lastFrame = 0;
     let nebulaX = 0;
     let nebulaY = 0;
     let resizeTimer: ReturnType<typeof setTimeout>;
+    const isTouch = 'ontouchstart' in window;
 
     const resize = () => {
       dpr = window.devicePixelRatio || 1;
@@ -149,9 +181,13 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const isMobile = w < MOBILE_BP;
-      backStars = seedBack(w, h, isMobile ? 110 : 180);
-      midStars = seedMid(w, h, isMobile ? 24 : 40);
+      backStars = seedBack(w, h, isMobile ? 90 : 180);
+      midStars = seedMid(w, h, isMobile ? 20 : 40);
     };
+
+    const redrawTimer = setTimeout(() => {
+      resize();
+    }, 600);
 
     resize();
 
@@ -289,6 +325,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       io.disconnect();
       ro.disconnect();
       container.removeEventListener('mousemove', onMouseMove);
+      clearTimeout(redrawTimer);
       clearTimeout(resizeTimer);
     };
   }, [reducedMotion, drawStatic]);
