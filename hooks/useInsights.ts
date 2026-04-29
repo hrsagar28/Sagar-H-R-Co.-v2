@@ -3,15 +3,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { InsightItem } from '../types';
 import { logger } from '../utils/logger';
 import { apiClient, ApiError } from '../utils/api';
+import { parseInsights } from '../utils/insightValidation';
 
 let insightsPromise: Promise<InsightItem[]> | null = null;
-
-const isValidInsight = (item: unknown): item is InsightItem => {
-  if (!item || typeof item !== 'object') return false;
-  const candidate = item as Record<string, unknown>;
-  return ['id', 'title', 'category', 'date', 'summary', 'slug', 'author', 'readTime']
-    .every((key) => typeof candidate[key] === 'string' && candidate[key]);
-};
 
 const getInsightsUrl = () => {
   const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
@@ -22,10 +16,11 @@ const getInsightsUrl = () => {
 const fetchInsights = () => {
   if (!insightsPromise) {
     insightsPromise = apiClient.get<unknown[]>(getInsightsUrl()).then((data) => {
-      if (!Array.isArray(data) || !data.every(isValidInsight)) {
-        throw new ApiError('Invalid insights payload.', 0, 'INVALID_RESPONSE');
+      try {
+        return parseInsights(data);
+      } catch (error) {
+        throw new ApiError(error instanceof Error ? error.message : 'Invalid insights payload.', 0, 'INVALID_RESPONSE');
       }
-      return data;
     });
   }
   return insightsPromise;
@@ -37,23 +32,24 @@ export const useInsights = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
 
     const loadInsights = async () => {
       try {
         const data = await fetchInsights();
-        if (isMounted) {
+        if (!controller.signal.aborted) {
           setInsights(data);
           setError(null);
           setLoading(false);
         }
       } catch (err) {
-        if (isMounted) {
+        if (!controller.signal.aborted) {
           logger.error('Error fetching insights:', err);
           let msg = 'Unable to load insights.';
           if (err instanceof ApiError) {
              if (err.code === 'NETWORK_ERROR') msg = 'Network error. Please check your connection.';
              else if (err.code === 'TIMEOUT') msg = 'Request timed out.';
+             else if (err.code === 'INVALID_RESPONSE') msg = 'Insights data is invalid.';
           }
           setError(msg);
           setLoading(false);
@@ -64,7 +60,7 @@ export const useInsights = () => {
     loadInsights();
 
     return () => {
-      isMounted = false;
+      controller.abort();
     };
   }, []);
 

@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { stringifyJsonLd } from '../utils/jsonLd';
+import { SITE_URL } from '../config/site';
 
 interface SEOProps {
   /** Page title - appears in browser tab and search results */
@@ -25,12 +26,13 @@ interface SEOProps {
   service?: { name: string; description: string; areaServed?: string };
   /** FAQPage schema */
   faqs?: Array<{ question: string; answer: string; dateModified?: string }>;
+  /** Alternate feed/document links */
+  alternates?: Array<{ rel?: string; type?: string; title?: string; href: string }>;
 }
 
 const getDefaultCanonicalUrl = () => {
-  const siteUrl = ((import.meta as any).env?.VITE_SITE_URL || 'https://casagar.co.in').replace(/\/$/, '');
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-  return `${siteUrl}${pathname}`;
+  return `${SITE_URL}${pathname}`;
 };
 
 /**
@@ -52,12 +54,13 @@ const SEO: React.FC<SEOProps> = ({
   keywords = "Chartered Accountant, Mysuru, Audit, Tax, GST, Business Advisory, CA Firm",
   canonicalUrl = getDefaultCanonicalUrl(),
   ogType = 'website',
-  ogImage = 'https://casagar.co.in/og-image.jpg',
+  ogImage = `${SITE_URL}/og-image.jpg`,
   schema,
   breadcrumbs,
   article,
   service,
-  faqs
+  faqs,
+  alternates
 }) => {
   useEffect(() => {
     // Update Title
@@ -105,6 +108,17 @@ const SEO: React.FC<SEOProps> = ({
       link.setAttribute('href', canonicalUrl);
     }
 
+    document.querySelectorAll('link[data-dynamic-alternate]').forEach((alternate) => alternate.remove());
+    alternates?.forEach((alternate) => {
+      const alternateLink = document.createElement('link');
+      alternateLink.setAttribute('data-dynamic-alternate', 'true');
+      alternateLink.setAttribute('rel', alternate.rel || 'alternate');
+      if (alternate.type) alternateLink.setAttribute('type', alternate.type);
+      if (alternate.title) alternateLink.setAttribute('title', alternate.title);
+      alternateLink.setAttribute('href', alternate.href.startsWith('http') ? alternate.href : `${SITE_URL}${alternate.href.startsWith('/') ? '' : '/'}${alternate.href}`);
+      document.head.appendChild(alternateLink);
+    });
+
     // Clean up all existing dynamic JSON-LD tags
     const existingScripts = document.querySelectorAll('script[data-dynamic-schema]');
     existingScripts.forEach(script => script.remove());
@@ -130,7 +144,7 @@ const SEO: React.FC<SEOProps> = ({
           "@type": "ListItem",
           "position": index + 1,
           "name": item.name,
-          "item": item.url.startsWith('http') ? item.url : `https://casagar.co.in${item.url.startsWith('/') ? '' : '/'}${item.url}`
+          "item": item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url.startsWith('/') ? '' : '/'}${item.url}`
         }))
       });
     }
@@ -149,7 +163,7 @@ const SEO: React.FC<SEOProps> = ({
           "name": "Sagar H R & Co.",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://casagar.co.in/logo.png"
+            "url": `${SITE_URL}/logo.png`
           }
         },
         "datePublished": article.datePublished,
@@ -169,7 +183,7 @@ const SEO: React.FC<SEOProps> = ({
         "name": service.name,
         "description": service.description,
         "provider": {
-          "@id": "https://casagar.co.in/#organization"
+          "@id": `${SITE_URL}/#organization`
         },
         ...(service.areaServed ? {
           "areaServed": {
@@ -204,8 +218,9 @@ const SEO: React.FC<SEOProps> = ({
 
     return () => {
         document.querySelectorAll('script[data-dynamic-schema]').forEach(s => s.remove());
+        document.querySelectorAll('link[data-dynamic-alternate]').forEach(s => s.remove());
     };
-  }, [title, description, keywords, canonicalUrl, ogType, ogImage, schema, breadcrumbs, article, service, faqs]);
+  }, [title, description, keywords, canonicalUrl, ogType, ogImage, schema, breadcrumbs, article, service, faqs, alternates]);
 
   return null;
 };

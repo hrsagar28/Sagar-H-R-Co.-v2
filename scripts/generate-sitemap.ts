@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Import data from project constants
 import { SERVICES } from '../constants/services.tsx';
 import { INSIGHTS_MOCK } from '../constants/insights.ts';
 import { CHECKLIST_DATA } from '../constants/resources.ts';
@@ -18,24 +17,28 @@ interface SitemapEntry {
   changefreq: string;
 }
 
+const escapeXml = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+
+const stripHtml = (value: string): string => value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
 const generateSitemap = (): void => {
   const entries: SitemapEntry[] = [];
   const today = new Date().toISOString().split('T')[0];
 
-  // ── 1. Home page ──────────────────────────────────────────────
   entries.push({ loc: BASE_URL, priority: '1.0', changefreq: 'weekly' });
-
-  // ── 2. Index pages (services & insights) ──────────────────────
   entries.push({ loc: `${BASE_URL}/services`, priority: '0.9', changefreq: 'weekly' });
   entries.push({ loc: `${BASE_URL}/insights`, priority: '0.9', changefreq: 'weekly' });
 
-  // ── 3. Other static pages ─────────────────────────────────────
-  const staticPages = ['/about', '/resources', '/faqs', '/careers', '/contact'];
-  for (const page of staticPages) {
+  for (const page of ['/about', '/resources', '/faqs', '/careers', '/contact']) {
     entries.push({ loc: `${BASE_URL}${page}`, priority: '0.8', changefreq: 'monthly' });
   }
 
-  // ── 4. Service detail pages (from constants) ──────────────────
   for (const service of SERVICES) {
     entries.push({
       loc: `${BASE_URL}${service.link}`,
@@ -44,7 +47,6 @@ const generateSitemap = (): void => {
     });
   }
 
-  // ── 5. Insight detail pages (from constants) ──────────────────
   for (const insight of INSIGHTS_MOCK) {
     entries.push({
       loc: `${BASE_URL}/insights/${insight.slug}`,
@@ -53,7 +55,6 @@ const generateSitemap = (): void => {
     });
   }
 
-  // ── 6. Checklist detail pages (from constants) ────────────────
   for (const slug of Object.keys(CHECKLIST_DATA)) {
     entries.push({
       loc: `${BASE_URL}/resources/checklist/${slug}`,
@@ -62,38 +63,79 @@ const generateSitemap = (): void => {
     });
   }
 
-  // ── 7. Legal pages ────────────────────────────────────────────
-  const legalPages = ['/disclaimer', '/privacy', '/terms'];
-  for (const page of legalPages) {
+  for (const page of ['/disclaimer', '/privacy', '/terms']) {
     entries.push({ loc: `${BASE_URL}${page}`, priority: '0.5', changefreq: 'yearly' });
   }
 
-  // ── Build XML ─────────────────────────────────────────────────
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${entries
   .map(
-    (e) => `  <url>
-    <loc>${e.loc}</loc>
+    (entry) => `  <url>
+    <loc>${entry.loc}</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>${e.changefreq}</changefreq>
-    <priority>${e.priority}</priority>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
   </url>`
   )
   .join('\n')}
 </urlset>
 `;
 
-  // ── Write file ────────────────────────────────────────────────
   const publicDir = path.resolve(__dirname, '..', 'public');
   if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
   }
 
-  const outputPath = path.join(publicDir, 'sitemap.xml');
-  fs.writeFileSync(outputPath, xml, 'utf-8');
+  const sortedInsights = [...INSIGHTS_MOCK].sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${escapeXml('Sagar H R & Co. Insights')}</title>
+    <link>${BASE_URL}/insights</link>
+    <description>${escapeXml('Tax, GST, audit, and business compliance insights from Sagar H R & Co.')}</description>
+    <language>en-IN</language>
+    <atom:link href="${BASE_URL}/rss.xml" rel="self" type="application/rss+xml" />
+${sortedInsights
+  .map((insight) => `    <item>
+      <title>${escapeXml(insight.title)}</title>
+      <link>${BASE_URL}/insights/${insight.slug}</link>
+      <guid>${BASE_URL}/insights/${insight.slug}</guid>
+      <pubDate>${new Date(insight.date).toUTCString()}</pubDate>
+      <author>${escapeXml(insight.author)}</author>
+      <category>${escapeXml(insight.category)}</category>
+      <description>${escapeXml(stripHtml(insight.summary))}</description>
+    </item>`)
+  .join('\n')}
+  </channel>
+</rss>
+`;
 
-  console.log(`✅ Sitemap generated with ${entries.length} URLs → ${outputPath}`);
+  const jsonFeed = {
+    version: 'https://jsonfeed.org/version/1.1',
+    title: 'Sagar H R & Co. Insights',
+    home_page_url: `${BASE_URL}/insights`,
+    feed_url: `${BASE_URL}/feed.json`,
+    language: 'en-IN',
+    items: sortedInsights.map((insight) => ({
+      id: `${BASE_URL}/insights/${insight.slug}`,
+      url: `${BASE_URL}/insights/${insight.slug}`,
+      title: insight.title,
+      summary: stripHtml(insight.summary),
+      date_published: new Date(insight.date).toISOString(),
+      authors: [{ name: insight.author }],
+      tags: [insight.category],
+    })),
+  };
+
+  const sitemapPath = path.join(publicDir, 'sitemap.xml');
+  fs.writeFileSync(sitemapPath, xml, 'utf-8');
+  fs.writeFileSync(path.join(publicDir, 'rss.xml'), rss, 'utf-8');
+  fs.writeFileSync(path.join(publicDir, 'feed.json'), `${JSON.stringify(jsonFeed, null, 2)}\n`, 'utf-8');
+
+  console.log(`Sitemap generated with ${entries.length} URLs -> ${sitemapPath}`);
+  console.log(`Feeds generated -> ${path.join(publicDir, 'rss.xml')} and ${path.join(publicDir, 'feed.json')}`);
 };
 
 generateSitemap();
+

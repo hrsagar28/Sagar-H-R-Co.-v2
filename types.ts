@@ -30,10 +30,16 @@ export interface InsightItem {
   title: string;
   category: string;
   date: string;
+  dateModified?: string;
   summary: string;
   slug: string;
   author: string;
   readTime: string;
+  tags?: string[];
+  serviceId?: string;
+  featured?: boolean;
+  image?: string;
+  wordCount?: number;
 }
 
 export interface FAQItem {

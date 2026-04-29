@@ -1,15 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-import { AlertCircle, ArrowUpRight, Calendar, Search, X } from 'lucide-react';
+import { AlertCircle, ArrowUpRight, Calendar, Check, Clock, Rss, Search, User, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
-import { useInsights } from '../hooks';
+import { useAnnounce, useInsights } from '../hooks';
 import Skeleton from '../components/Skeleton';
 import { formatArchiveDate } from '../utils/formatArchiveDate';
+import { formatLongDate, toISODate } from '../utils/insightDates';
+import { normalizeSearch } from '../utils/normalizeSearch';
+import { SITE_URL } from '../config/site';
 
 const { Link, useSearchParams } = ReactRouterDOM;
-const SITE = ((import.meta as any).env?.VITE_SITE_URL || 'https://casagar.co.in').replace(/\/$/, '');
 
 const HERO_PLACEHOLDERS = Array.from({ length: 4 }, (_, index) => ({
   num: String(index + 1).padStart(2, '0'),
@@ -18,24 +20,41 @@ const HERO_PLACEHOLDERS = Array.from({ length: 4 }, (_, index) => ({
   href: '#insights-results',
 }));
 
+const SERVICE_LINKS: Record<string, { label: string; href: string }> = {
+  'GST & Compliance': { label: 'GST Services', href: '/services/gst' },
+  'Income Tax': { label: 'Income Tax Services', href: '/services/income-tax' },
+  'Income Tax Updates': { label: 'Income Tax Services', href: '/services/income-tax' },
+  'Real Estate Taxation': { label: 'Advisory Services', href: '/services/advisory' },
+  'Economic Analysis': { label: 'Business Advisory', href: '/services/advisory' },
+};
+
 const sortByNewest = <T extends { date: string }>(items: T[]) => (
   [...items].sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
 );
 
+const getCanonicalCategory = (category: string) => (
+  category === 'Income Tax Updates' ? 'Income Tax' : category
+);
+
 const Insights: React.FC = () => {
   const { insights, loading, error } = useInsights();
+  const { announce } = useAnnounce();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [subscriptionEmail, setSubscriptionEmail] = useState('');
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
   const searchTerm = searchParams.get('q') || '';
   const selectedCategory = searchParams.get('cat') || 'All';
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   const sortedInsights = useMemo(() => sortByNewest(insights), [insights]);
 
   const categories = useMemo(() => {
-    const cats = new Set(insights.map((insight) => insight.category));
+    const cats = new Set(insights.map((insight) => getCanonicalCategory(insight.category)));
     return ['All', ...Array.from(cats).sort((left, right) => left.localeCompare(right))];
   }, [insights]);
 
-  const updateFilters = (next: { q?: string; cat?: string }) => {
+  const updateFilters = useCallback((next: { q?: string; cat?: string }) => {
     const params = new URLSearchParams(searchParams);
     const nextQuery = next.q ?? searchTerm;
     const nextCategory = next.cat ?? selectedCategory;
@@ -47,22 +66,39 @@ const Insights: React.FC = () => {
     else params.delete('cat');
 
     setSearchParams(params, { replace: true });
-  };
+  }, [searchParams, searchTerm, selectedCategory, setSearchParams]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearchParams({}, { replace: true });
+  }, [setSearchParams]);
+
+  const onCategoryKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    const nextIndex = (() => {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') return (index + 1) % categories.length;
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') return (index - 1 + categories.length) % categories.length;
+      if (event.key === 'Home') return 0;
+      if (event.key === 'End') return categories.length - 1;
+      return null;
+    })();
+
+    if (nextIndex === null) return;
+    event.preventDefault();
+    const nextCategory = categories[nextIndex];
+    updateFilters({ cat: nextCategory });
+    window.requestAnimationFrame(() => {
+      document.getElementById(`insights-category-${nextCategory.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`)?.focus();
+    });
   };
 
   const filteredInsights = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
+    const query = normalizeSearch(deferredSearchTerm);
     return sortedInsights.filter((item) => {
-      const matchesSearch = !query ||
-        item.title.toLowerCase().includes(query) ||
-        item.summary.toLowerCase().includes(query);
-      const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+      const searchableText = normalizeSearch(`${item.title} ${item.summary} ${item.category} ${item.author}`);
+      const matchesSearch = !query || searchableText.includes(query);
+      const matchesCategory = selectedCategory === 'All' || getCanonicalCategory(item.category) === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [sortedInsights, searchTerm, selectedCategory]);
+  }, [sortedInsights, deferredSearchTerm, selectedCategory]);
 
   const heroItems = useMemo(() => {
     if (loading && sortedInsights.length === 0) return HERO_PLACEHOLDERS;
@@ -79,46 +115,81 @@ const Insights: React.FC = () => {
   const schema = useMemo(() => ({
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    '@id': `${SITE}/insights`,
+    '@id': `${SITE_URL}/insights`,
     name: `${CONTACT_INFO.name} - Insights`,
-    description: 'Analysis, regulatory updates, and strategic commentary from our research desk.',
-    publisher: {
-      '@type': 'Organization',
-      name: CONTACT_INFO.name,
-    },
+    description: 'Analysis on Income Tax, GST, audit, and Companies Act updates from a Mysuru CA practice.',
+    publisher: { '@id': `${SITE_URL}/#organization` },
     blogPost: sortedInsights.map((insight) => ({
       '@type': 'BlogPosting',
-      '@id': `${SITE}/insights/${insight.slug}`,
-      url: `${SITE}/insights/${insight.slug}`,
+      '@id': `${SITE_URL}/insights/${insight.slug}`,
+      url: `${SITE_URL}/insights/${insight.slug}`,
       headline: insight.title,
+      abstract: insight.summary,
       description: insight.summary,
-      datePublished: new Date(insight.date).toISOString(),
+      datePublished: toISODate(insight.date),
+      dateModified: toISODate(insight.dateModified || insight.date),
       author: {
         '@type': 'Person',
         name: insight.author,
       },
+      articleSection: getCanonicalCategory(insight.category),
+      ...(insight.wordCount ? { wordCount: insight.wordCount } : {}),
+      image: insight.image || `${SITE_URL}/og-image.jpg`,
     })),
   }), [sortedInsights]);
 
   const resultsLabel = loading
     ? 'Loading insights'
     : error
-      ? 'Insights could not be loaded'
+      ? `Error: ${error}`
       : `${filteredInsights.length} ${filteredInsights.length === 1 ? 'article' : 'articles'} found`;
+
+  useEffect(() => {
+    announce(resultsLabel, error ? 'assertive' : 'polite');
+  }, [announce, resultsLabel, error]);
+
+  const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubscriptionStatus('submitting');
+
+    try {
+      const response = await fetch(CONTACT_INFO.formEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'insights_subscription',
+          email: subscriptionEmail,
+          source: 'insights',
+        }),
+      });
+
+      if (!response.ok) throw new Error('Subscription request failed');
+      setSubscriptionStatus('success');
+      setSubscriptionEmail('');
+      announce('Subscription request sent.', 'polite');
+    } catch {
+      setSubscriptionStatus('error');
+      announce('Subscription request could not be sent.', 'assertive');
+    }
+  };
 
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO
         title={`Insights & Tax Updates from Mysuru | ${CONTACT_INFO.name}`}
-        description="Stay ahead with the latest updates on Income Tax, GST, and economic trends. Expert analysis and commentary from CA Sagar H R."
+        description="Analysis on Income Tax, GST, audit, and Companies Act updates from a Mysuru CA practice, written when something genuinely useful crosses the desk."
         schema={schema}
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Insights', url: '/insights' },
         ]}
+        alternates={[
+          { type: 'application/rss+xml', title: `${CONTACT_INFO.name} Insights RSS`, href: '/rss.xml' },
+          { type: 'application/feed+json', title: `${CONTACT_INFO.name} JSON Feed`, href: '/feed.json' },
+        ]}
       />
 
-      <main>
+      <div id="main">
         <PageHero
           variant="archive"
           eyebrow="§ Resources / 03"
@@ -132,37 +203,55 @@ const Insights: React.FC = () => {
           <div className="container mx-auto max-w-7xl">
             {!loading && !error && (
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 animate-fade-in-up">
-                <div role="tablist" aria-label="Filter insights by category" className="flex flex-wrap gap-2">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      role="tab"
-                      aria-selected={selectedCategory === cat}
-                      aria-controls="insights-results"
-                      onClick={() => updateFilters({ cat })}
-                      className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                        selectedCategory === cat
-                          ? 'bg-brand-moss text-white shadow-md'
-                          : 'bg-white border border-brand-border text-brand-stone hover:border-brand-moss'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
+                <div
+                  role="tablist"
+                  aria-label="Filter insights by category"
+                  className="flex w-full md:w-auto flex-nowrap md:flex-wrap gap-2 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0"
+                >
+                  {categories.map((cat, index) => {
+                    const selected = selectedCategory === cat;
+                    const id = `insights-category-${cat.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
+                    return (
+                      <button
+                        key={cat}
+                        id={id}
+                        type="button"
+                        role="tab"
+                        aria-selected={selected}
+                        aria-controls="insights-results"
+                        tabIndex={selected ? 0 : -1}
+                        data-analytics="insights_category_filter"
+                        data-category={cat}
+                        onClick={() => updateFilters({ cat })}
+                        onKeyDown={(event) => onCategoryKeyDown(event, index)}
+                        className={`snap-start shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-brand-moss focus:ring-offset-2 ${
+                          selected
+                            ? 'bg-brand-moss text-white shadow-md'
+                            : 'bg-white border border-brand-border text-brand-stone hover:border-brand-moss'
+                        }`}
+                      >
+                        {selected && <Check size={12} aria-hidden="true" />}
+                        {cat}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="relative w-full md:w-80">
                   <label htmlFor="insights-search" className="sr-only">Search insights</label>
-                  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-stone" />
+                  <Search size={18} aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-stone" />
                   <input
                     id="insights-search"
-                    type="text"
+                    type="search"
+                    enterKeyHint="search"
+                    inputMode="search"
+                    autoComplete="off"
                     placeholder="Search articles..."
                     value={searchTerm}
                     onChange={(event) => updateFilters({ q: event.target.value })}
                     aria-controls="insights-results"
                     aria-describedby="insights-results-count"
+                    data-analytics="insights_search"
                     className="w-full pl-11 pr-10 py-3 bg-white border border-brand-border rounded-full text-sm font-medium focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
                   />
                   {searchTerm && (
@@ -172,7 +261,7 @@ const Insights: React.FC = () => {
                       aria-label="Clear insights search"
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-brand-stone hover:text-brand-dark"
                     >
-                      <X size={14} />
+                      <X size={14} aria-hidden="true" />
                     </button>
                   )}
                 </div>
@@ -180,23 +269,32 @@ const Insights: React.FC = () => {
             )}
 
             <h2 id="insights-results-heading" className="sr-only">Insights archive results</h2>
-            <p id="insights-results-count" className="sr-only" aria-live="polite">{resultsLabel}</p>
+            <p id="insights-results-count" role="status" aria-live="polite" className="sr-only">{resultsLabel}</p>
 
             {loading && (
-              <div className="grid gap-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border h-64 flex flex-col justify-center gap-4">
-                    <Skeleton variant="text" width={100} height={20} />
-                    <Skeleton variant="text" width="60%" height={40} />
-                    <Skeleton variant="text" width="90%" height={20} />
+              <div className="grid gap-6" aria-label="Loading insights">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border flex flex-col md:flex-row gap-8 md:gap-12 items-start">
+                    <div className="md:w-1/4 w-full">
+                      <Skeleton variant="text" width={120} height={24} className="mb-4" />
+                      <Skeleton variant="text" width={160} height={18} />
+                    </div>
+                    <div className="md:w-2/4 w-full">
+                      <Skeleton variant="text" width="80%" height={36} className="mb-5" />
+                      <Skeleton variant="text" width="100%" height={18} className="mb-3" />
+                      <Skeleton variant="text" width="72%" height={18} />
+                    </div>
+                    <div className="md:w-1/4 w-full flex md:justify-end">
+                      <Skeleton variant="circular" width={56} height={56} />
+                    </div>
                   </div>
                 ))}
               </div>
             )}
 
             {error && (
-              <div className="text-center py-20">
-                <AlertCircle size={48} className="mx-auto text-brand-stone mb-4 opacity-50" />
+              <div className="text-center py-20" role="alert">
+                <AlertCircle size={48} aria-hidden="true" className="mx-auto text-brand-stone mb-4 opacity-50" />
                 <h3 className="text-2xl font-bold text-brand-dark mb-2">Unable to load insights</h3>
                 <p className="text-brand-stone">{error}</p>
               </div>
@@ -206,32 +304,58 @@ const Insights: React.FC = () => {
               <>
                 {filteredInsights.length > 0 ? (
                   <div id="insights-results" className="grid gap-6">
-                    {filteredInsights.map((insight) => (
-                      <Link to={`/insights/${insight.slug}`} key={insight.id} className="group bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border hover:border-brand-moss hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col md:flex-row gap-8 md:gap-12 items-start relative overflow-hidden">
-                        <div className="absolute inset-0 bg-brand-moss/0 group-hover:bg-brand-moss/[0.02] transition-colors" />
+                    {filteredInsights.map((insight) => {
+                      const serviceLink = SERVICE_LINKS[insight.category] || SERVICE_LINKS[getCanonicalCategory(insight.category)];
+                      return (
+                        <article key={insight.slug} className="group bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border hover:border-brand-moss hover:shadow-xl motion-reduce:hover:shadow-none transition-all duration-300 flex flex-col md:flex-row gap-8 md:gap-12 items-start relative overflow-hidden">
+                          <div className="absolute inset-0 bg-brand-moss/0 group-hover:bg-brand-moss/[0.02] transition-colors" />
 
-                        <div className="md:w-1/4 relative z-10">
-                          <span className="inline-block px-4 py-1 rounded-full bg-brand-bg border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">{insight.category}</span>
-                          <div className="flex items-center gap-2 text-brand-stone text-sm font-bold">
-                            <Calendar size={14} aria-hidden="true" />
-                            {insight.date}
+                          <div className="md:w-1/4 relative z-10 order-3 md:order-1">
+                            <span className="inline-block px-4 py-1 rounded-full bg-brand-bg border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">{getCanonicalCategory(insight.category)}</span>
+                            <div className="flex items-center gap-2 text-brand-stone text-sm font-bold">
+                              <Calendar size={14} aria-hidden="true" />
+                              <time dateTime={toISODate(insight.date)}>{formatLongDate(insight.date)}</time>
+                            </div>
+                            <div className="mt-3 grid gap-2 text-brand-stone text-xs font-bold">
+                              <span className="inline-flex items-center gap-2">
+                                <User size={12} aria-hidden="true" />
+                                {insight.author}
+                              </span>
+                              <span className="inline-flex items-center gap-2">
+                                <Clock size={12} aria-hidden="true" />
+                                {insight.readTime}
+                              </span>
+                            </div>
+                            {serviceLink && (
+                              <Link
+                                to={serviceLink.href}
+                                data-analytics="insights_service_crosslink"
+                                className="inline-flex mt-5 items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-moss hover:text-brand-dark"
+                              >
+                                {serviceLink.label}
+                                <ArrowUpRight size={14} aria-hidden="true" />
+                              </Link>
+                            )}
                           </div>
-                        </div>
-                        <div className="md:w-2/4 relative z-10">
-                          <h2 className="text-2xl md:text-3xl text-brand-dark font-heading font-bold mb-4 group-hover:text-brand-moss transition-colors leading-tight">
-                            {insight.title}
-                          </h2>
-                          <p className="text-brand-stone leading-relaxed font-medium">
-                            {insight.summary}
-                          </p>
-                        </div>
-                        <div className="md:w-1/4 flex justify-start md:justify-end w-full relative z-10">
-                          <div className="w-14 h-14 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center text-brand-dark group-hover:bg-brand-moss group-hover:text-brand-inverse group-hover:scale-110 transition-all duration-300">
-                            <ArrowUpRight size={20} aria-hidden="true" />
+                          <div className="md:w-2/4 relative z-10 order-1 md:order-2">
+                            <h3 className="text-2xl md:text-3xl text-brand-dark font-heading font-bold mb-4 group-hover:text-brand-moss transition-colors leading-tight">
+                              <Link to={`/insights/${insight.slug}`} data-analytics="insights_card_click">
+                                <span className="absolute inset-0 z-0" aria-hidden="true" />
+                                <span className="relative z-10">{insight.title}</span>
+                              </Link>
+                            </h3>
+                            <p className="text-brand-stone leading-relaxed font-medium relative z-10">
+                              {insight.summary}
+                            </p>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                          <div className="md:w-1/4 flex justify-start md:justify-end w-full relative z-10 order-2 md:order-3">
+                            <div className="w-14 h-14 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center text-brand-dark group-hover:bg-brand-moss group-hover:text-brand-inverse group-hover:scale-110 motion-reduce:group-hover:scale-100 transition-all duration-300">
+                              <ArrowUpRight size={20} aria-hidden="true" />
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div id="insights-results" className="text-center py-20 bg-white rounded-[2rem] border border-brand-border px-6">
@@ -249,7 +373,7 @@ const Insights: React.FC = () => {
                         <div className="grid gap-3">
                           {sortedInsights.slice(0, 3).map((insight) => (
                             <Link
-                              key={insight.id}
+                              key={insight.slug}
                               to={`/insights/${insight.slug}`}
                               onClick={clearFilters}
                               className="flex items-center justify-between gap-4 rounded-2xl border border-brand-border bg-brand-bg px-5 py-4 font-bold text-brand-dark hover:border-brand-moss hover:text-brand-moss transition-colors"
@@ -267,7 +391,52 @@ const Insights: React.FC = () => {
             )}
           </div>
         </section>
-      </main>
+
+        {!loading && !error && (
+          <section className="px-4 md:px-6 pb-24" aria-labelledby="insights-subscribe-heading">
+            <div className="container mx-auto max-w-7xl border-t border-brand-border pt-12 grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
+              <div>
+                <h2 id="insights-subscribe-heading" className="text-2xl md:text-3xl font-heading font-bold text-brand-dark mb-3">Follow new insights</h2>
+                <p className="text-brand-stone max-w-2xl">Get updates when the firm publishes practical notes on tax, GST, audit, and business compliance.</p>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <a href="/rss.xml" className="inline-flex items-center gap-2 text-sm font-bold text-brand-moss hover:text-brand-dark" data-analytics="insights_rss">
+                    <Rss size={16} aria-hidden="true" />
+                    RSS
+                  </a>
+                  <a href="/feed.json" className="inline-flex items-center gap-2 text-sm font-bold text-brand-moss hover:text-brand-dark" data-analytics="insights_json_feed">
+                    JSON Feed
+                    <ArrowUpRight size={16} aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+              <form onSubmit={handleSubscribe} className="w-full md:w-[360px] grid gap-3">
+                <label htmlFor="insights-subscribe-email" className="sr-only">Email address for insights subscription</label>
+                <div className="flex rounded-full border border-brand-border bg-white p-1 focus-within:ring-2 focus-within:ring-brand-moss">
+                  <input
+                    id="insights-subscribe-email"
+                    type="email"
+                    required
+                    value={subscriptionEmail}
+                    onChange={(event) => setSubscriptionEmail(event.target.value)}
+                    placeholder="Email address"
+                    className="min-w-0 flex-1 rounded-full px-4 py-3 text-sm font-medium focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={subscriptionStatus === 'submitting'}
+                    data-analytics="insights_subscribe"
+                    className="rounded-full bg-brand-moss px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
+                  >
+                    {subscriptionStatus === 'submitting' ? 'Sending' : 'Subscribe'}
+                  </button>
+                </div>
+                {subscriptionStatus === 'success' && <p className="text-sm font-bold text-brand-moss">Subscription request sent.</p>}
+                {subscriptionStatus === 'error' && <p className="text-sm font-bold text-red-700">Unable to send right now. Please try again later.</p>}
+              </form>
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 };

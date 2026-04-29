@@ -1,6 +1,9 @@
 export function formatArchiveDate(input: string | Date): string {
-  const d = typeof input === 'string' ? new Date(input) : input;
-  const month = d.toLocaleString('en-GB', { month: 'short' });   // Jan, Feb...
-  const year = String(d.getFullYear()).slice(2);                 // "26"
+  const date = typeof input === 'string' ? new Date(input) : input;
+  if (Number.isNaN(date.getTime())) return String(input);
+
+  const month = date.toLocaleString('en-IN', { month: 'short' });
+  const year = String(date.getFullYear()).slice(2);
   return `${month} · ${year}`;
 }
+

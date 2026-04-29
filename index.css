@@ -427,6 +427,7 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .animate-blob,
   .animate-fade-in-up,
+  .animate-pulse,
   [data-animate] {
     animation: none !important;
     transition: none !important;
@@ -440,6 +441,10 @@ html {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+[hidden] .animate-pulse {
+  animation: none !important;
 }
 
 

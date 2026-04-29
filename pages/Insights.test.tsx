@@ -2,17 +2,24 @@ import React from 'react';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { axe } from 'vitest-axe';
+import * as matchers from 'vitest-axe/matchers';
 import Insights from './Insights';
 
 const seoMock = vi.hoisted(() => vi.fn(() => null));
+expect.extend(matchers);
+
+beforeAll(() => {
+  HTMLCanvasElement.prototype.getContext = vi.fn(() => null);
+});
 
 const mockInsights = [
   {
     id: 'older-gst',
     title: 'GST Compliance Updates',
     category: 'GST & Compliance',
-    date: 'August 14, 2025',
+    date: '2025-08-14',
     summary: 'MFA and e-invoicing changes for GST taxpayers.',
     slug: 'gst-compliance-updates',
     author: 'CA Sagar H R',
@@ -21,8 +28,8 @@ const mockInsights = [
   {
     id: 'newer-tax',
     title: 'New Income Tax Bill',
-    category: 'Income Tax Updates',
-    date: 'August 18, 2025',
+    category: 'Income Tax',
+    date: '2025-08-18',
     summary: 'A simpler direct tax law for individuals and businesses.',
     slug: 'new-income-tax-bill-2025',
     author: 'CA Sagar H R',
@@ -32,7 +39,7 @@ const mockInsights = [
     id: 'middle-economy',
     title: 'S&P Rating Upgrade',
     category: 'Economic Analysis',
-    date: 'August 15, 2025',
+    date: '2025-08-15',
     summary: 'India receives a sovereign credit rating upgrade.',
     slug: 'sp-rating-upgrade',
     author: 'CA Sagar H R',
@@ -55,6 +62,9 @@ vi.mock('../components/hero', () => ({
 }));
 
 vi.mock('../hooks', () => ({
+  useAnnounce: () => ({
+    announce: vi.fn(),
+  }),
   useInsights: () => ({
     insights: mockInsights,
     loading: false,
@@ -108,5 +118,11 @@ describe('Insights', () => {
 
     expect(screen.getByRole('heading', { name: 'New Income Tax Bill' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'GST Compliance Updates' })).toBeInTheDocument();
+  });
+
+  it('renders no axe violations for the loaded archive', async () => {
+    const { container } = renderInsights();
+
+    expect(await axe(container)).toHaveNoViolations();
   });
 });
