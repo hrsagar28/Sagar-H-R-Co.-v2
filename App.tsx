@@ -82,6 +82,7 @@ const RouteHandler = () => {
 const MainContent = () => {
   const { pathname } = useLocation();
   const mainZone = pathname === '/about' ? 'editorial' : undefined;
+  const loaderTone = pathname === '/' ? 'ink' : 'paper';
 
   return (
     <main
@@ -90,7 +91,7 @@ const MainContent = () => {
       className={`flex-grow relative z-base w-full ${mainZone ? 'zone-bg zone-text' : ''}`}
       tabIndex={-1}
     >
-      <Suspense fallback={<PageLoader />}>
+      <Suspense fallback={<PageLoader tone={loaderTone} />}>
         <Routes>
           <Route path="/" element={<RouteErrorBoundary><Home /></RouteErrorBoundary>} />
           <Route path="/about" element={<RouteErrorBoundary><About /></RouteErrorBoundary>} />
