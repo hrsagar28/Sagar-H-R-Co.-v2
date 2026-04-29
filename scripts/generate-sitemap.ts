@@ -17,16 +17,6 @@ interface SitemapEntry {
   changefreq: string;
 }
 
-const escapeXml = (value: string): string =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-
-const stripHtml = (value: string): string => value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-
 const generateSitemap = (): void => {
   const entries: SitemapEntry[] = [];
   const today = new Date().toISOString().split('T')[0];
@@ -87,55 +77,10 @@ ${entries
     fs.mkdirSync(publicDir, { recursive: true });
   }
 
-  const sortedInsights = [...INSIGHTS_MOCK].sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
-  const rss = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>${escapeXml('Sagar H R & Co. Insights')}</title>
-    <link>${BASE_URL}/insights</link>
-    <description>${escapeXml('Tax, GST, audit, and business compliance insights from Sagar H R & Co.')}</description>
-    <language>en-IN</language>
-    <atom:link href="${BASE_URL}/rss.xml" rel="self" type="application/rss+xml" />
-${sortedInsights
-  .map((insight) => `    <item>
-      <title>${escapeXml(insight.title)}</title>
-      <link>${BASE_URL}/insights/${insight.slug}</link>
-      <guid>${BASE_URL}/insights/${insight.slug}</guid>
-      <pubDate>${new Date(insight.date).toUTCString()}</pubDate>
-      <author>${escapeXml(insight.author)}</author>
-      <category>${escapeXml(insight.category)}</category>
-      <description>${escapeXml(stripHtml(insight.summary))}</description>
-    </item>`)
-  .join('\n')}
-  </channel>
-</rss>
-`;
-
-  const jsonFeed = {
-    version: 'https://jsonfeed.org/version/1.1',
-    title: 'Sagar H R & Co. Insights',
-    home_page_url: `${BASE_URL}/insights`,
-    feed_url: `${BASE_URL}/feed.json`,
-    language: 'en-IN',
-    items: sortedInsights.map((insight) => ({
-      id: `${BASE_URL}/insights/${insight.slug}`,
-      url: `${BASE_URL}/insights/${insight.slug}`,
-      title: insight.title,
-      summary: stripHtml(insight.summary),
-      date_published: new Date(insight.date).toISOString(),
-      authors: [{ name: insight.author }],
-      tags: [insight.category],
-    })),
-  };
-
   const sitemapPath = path.join(publicDir, 'sitemap.xml');
   fs.writeFileSync(sitemapPath, xml, 'utf-8');
-  fs.writeFileSync(path.join(publicDir, 'rss.xml'), rss, 'utf-8');
-  fs.writeFileSync(path.join(publicDir, 'feed.json'), `${JSON.stringify(jsonFeed, null, 2)}\n`, 'utf-8');
 
   console.log(`Sitemap generated with ${entries.length} URLs -> ${sitemapPath}`);
-  console.log(`Feeds generated -> ${path.join(publicDir, 'rss.xml')} and ${path.join(publicDir, 'feed.json')}`);
 };
 
 generateSitemap();
-

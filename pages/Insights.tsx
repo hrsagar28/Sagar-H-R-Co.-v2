@@ -1,6 +1,6 @@
-import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useDeferredValue, useEffect, useMemo } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-import { AlertCircle, ArrowUpRight, Calendar, Check, Clock, Rss, Search, User, X } from 'lucide-react';
+import { AlertCircle, ArrowUpRight, Calendar, Check, Clock, Search, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
@@ -40,8 +40,6 @@ const Insights: React.FC = () => {
   const { insights, loading, error } = useInsights();
   const { announce } = useAnnounce();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [subscriptionEmail, setSubscriptionEmail] = useState('');
-  const [subscriptionStatus, setSubscriptionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
   const searchTerm = searchParams.get('q') || '';
   const selectedCategory = searchParams.get('cat') || 'All';
@@ -148,31 +146,6 @@ const Insights: React.FC = () => {
     announce(resultsLabel, error ? 'assertive' : 'polite');
   }, [announce, resultsLabel, error]);
 
-  const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSubscriptionStatus('submitting');
-
-    try {
-      const response = await fetch(CONTACT_INFO.formEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'insights_subscription',
-          email: subscriptionEmail,
-          source: 'insights',
-        }),
-      });
-
-      if (!response.ok) throw new Error('Subscription request failed');
-      setSubscriptionStatus('success');
-      setSubscriptionEmail('');
-      announce('Subscription request sent.', 'polite');
-    } catch {
-      setSubscriptionStatus('error');
-      announce('Subscription request could not be sent.', 'assertive');
-    }
-  };
-
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO
@@ -182,10 +155,6 @@ const Insights: React.FC = () => {
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Insights', url: '/insights' },
-        ]}
-        alternates={[
-          { type: 'application/rss+xml', title: `${CONTACT_INFO.name} Insights RSS`, href: '/rss.xml' },
-          { type: 'application/feed+json', title: `${CONTACT_INFO.name} JSON Feed`, href: '/feed.json' },
         ]}
       />
 
@@ -318,10 +287,6 @@ const Insights: React.FC = () => {
                             </div>
                             <div className="mt-3 grid gap-2 text-brand-stone text-xs font-bold">
                               <span className="inline-flex items-center gap-2">
-                                <User size={12} aria-hidden="true" />
-                                {insight.author}
-                              </span>
-                              <span className="inline-flex items-center gap-2">
                                 <Clock size={12} aria-hidden="true" />
                                 {insight.readTime}
                               </span>
@@ -391,51 +356,6 @@ const Insights: React.FC = () => {
             )}
           </div>
         </section>
-
-        {!loading && !error && (
-          <section className="px-4 md:px-6 pb-24" aria-labelledby="insights-subscribe-heading">
-            <div className="container mx-auto max-w-7xl border-t border-brand-border pt-12 grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
-              <div>
-                <h2 id="insights-subscribe-heading" className="text-2xl md:text-3xl font-heading font-bold text-brand-dark mb-3">Follow new insights</h2>
-                <p className="text-brand-stone max-w-2xl">Get updates when the firm publishes practical notes on tax, GST, audit, and business compliance.</p>
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <a href="/rss.xml" className="inline-flex items-center gap-2 text-sm font-bold text-brand-moss hover:text-brand-dark" data-analytics="insights_rss">
-                    <Rss size={16} aria-hidden="true" />
-                    RSS
-                  </a>
-                  <a href="/feed.json" className="inline-flex items-center gap-2 text-sm font-bold text-brand-moss hover:text-brand-dark" data-analytics="insights_json_feed">
-                    JSON Feed
-                    <ArrowUpRight size={16} aria-hidden="true" />
-                  </a>
-                </div>
-              </div>
-              <form onSubmit={handleSubscribe} className="w-full md:w-[360px] grid gap-3">
-                <label htmlFor="insights-subscribe-email" className="sr-only">Email address for insights subscription</label>
-                <div className="flex rounded-full border border-brand-border bg-white p-1 focus-within:ring-2 focus-within:ring-brand-moss">
-                  <input
-                    id="insights-subscribe-email"
-                    type="email"
-                    required
-                    value={subscriptionEmail}
-                    onChange={(event) => setSubscriptionEmail(event.target.value)}
-                    placeholder="Email address"
-                    className="min-w-0 flex-1 rounded-full px-4 py-3 text-sm font-medium focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    disabled={subscriptionStatus === 'submitting'}
-                    data-analytics="insights_subscribe"
-                    className="rounded-full bg-brand-moss px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
-                  >
-                    {subscriptionStatus === 'submitting' ? 'Sending' : 'Subscribe'}
-                  </button>
-                </div>
-                {subscriptionStatus === 'success' && <p className="text-sm font-bold text-brand-moss">Subscription request sent.</p>}
-                {subscriptionStatus === 'error' && <p className="text-sm font-bold text-red-700">Unable to send right now. Please try again later.</p>}
-              </form>
-            </div>
-          </section>
-        )}
       </div>
     </div>
   );
