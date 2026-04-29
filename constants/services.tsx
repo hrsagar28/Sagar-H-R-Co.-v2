@@ -9,57 +9,57 @@ import {
 export const SERVICES: ServiceItem[] = [
   {
     id: 'gst',
-    title: 'GST Services',
-    description: 'Services for Goods and Services Tax registration and return filing.',
+    title: 'GST Registration & Filing',
+    description: 'Registration, monthly returns, GSTR-9/9C, e-invoicing for >= Rs. 10 cr, and notice replies.',
     icon: <FileText className="w-6 h-6" />,
     link: '/services/gst'
   },
   {
     id: 'income-tax',
-    title: 'Income Tax',
-    description: 'Filing of Income Tax Returns and tax compliance services.',
+    title: 'Income Tax Services',
+    description: 'ITR-1 to ITR-7, tax-audit support u/s 44AB, faceless assessment defence, and TDS/TCS.',
     icon: <Calculator className="w-6 h-6" />,
     link: '/services/income-tax'
   },
   {
     id: 'company-law',
-    title: 'Company Law',
-    description: 'Company law compliance services including incorporation and annual filings.',
+    title: 'Company Law & ROC',
+    description: 'AOC-4, MGT-7, DIR-3 KYC, board-meeting documentation, and event-based filings.',
     icon: <Building2 className="w-6 h-6" />,
     link: '/services/company-law'
   },
   {
     id: 'litigation',
     title: 'Litigation Support',
-    description: 'Representation in tax scrutiny, appeals, and proceedings.',
+    description: 'Notice replies (DRC-01, ASMT-10, 142(1)), CIT(A)/NFAC appeals, and ITAT representation.',
     icon: <Gavel className="w-6 h-6" />,
     link: '/services/litigation'
   },
   {
     id: 'advisory',
     title: 'Business Advisory',
-    description: 'Guidance on business setup and financial reporting.',
+    description: 'Entity choice, project reports, CMA data for bank funding, and 15CB certifications.',
     icon: <Briefcase className="w-6 h-6" />,
     link: '/services/advisory'
   },
   {
     id: 'audit',
     title: 'Audit & Assurance',
-    description: 'Statutory and tax audits as per regulatory requirements.',
+    description: 'Statutory audits under Companies Act, tax audits u/s 44AB, internal audits, and net-worth certificates.',
     icon: <ShieldCheck className="w-6 h-6" />,
     link: '/services/audit'
   },
   {
     id: 'bookkeeping',
-    title: 'Bookkeeping',
-    description: 'Bookkeeping and accounting services.',
+    title: 'Bookkeeping & Accounting',
+    description: 'Tally / Zoho Books data entry, monthly bank reconciliation, GL hygiene, and quarterly financials.',
     icon: <BookOpen className="w-6 h-6" />,
     link: '/services/bookkeeping'
   },
   {
     id: 'payroll',
-    title: 'Payroll',
-    description: 'Payroll processing and compliance management.',
+    title: 'Payroll Management',
+    description: 'Salary processing, TDS on salary u/s 192, PF/ESI returns, payslips, and Form-16 issuance.',
     icon: <Users className="w-6 h-6" />,
     link: '/services/payroll'
   }

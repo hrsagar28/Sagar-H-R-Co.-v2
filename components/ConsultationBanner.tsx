@@ -10,7 +10,7 @@ const { Link } = ReactRouterDOM;
 
 const ConsultationBanner: React.FC = () => {
   return (
-    <section className="py-20 px-4 md:px-6 bg-gradient-to-br from-brand-moss to-[#0f2e1b] relative overflow-hidden print:hidden">
+    <section className="py-20 px-4 md:px-6 bg-card-moss-deep relative overflow-hidden print:hidden">
       {/* Decorative Background */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-black/20 rounded-full blur-[80px] translate-y-1/4 -translate-x-1/4 pointer-events-none"></div>

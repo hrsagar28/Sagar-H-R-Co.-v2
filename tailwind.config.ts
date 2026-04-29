@@ -68,6 +68,10 @@ export default {
         card: '2rem',
         bento: '3rem',
       },
+      backgroundImage: {
+        'card-moss-deep': 'linear-gradient(135deg, #1A4D2E 0%, #0f2e1b 100%)',
+        'card-moss-cta': 'linear-gradient(135deg, #1A4D2E 0%, #15803d 100%)',
+      },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.23, 1, 0.32, 1)',
         'out-quart': 'cubic-bezier(0.25, 1, 0.5, 1)',

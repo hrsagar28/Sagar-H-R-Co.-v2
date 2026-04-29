@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "tsx scripts/generate-sitemap.ts && vite build",
     "sitemap": "tsx scripts/generate-sitemap.ts",
+    "lint:schema": "tsx scripts/validate-services-schema.ts",
     "preview": "vite preview",
     "test": "vitest"
   },

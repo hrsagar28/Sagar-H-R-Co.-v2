@@ -1,6 +1,7 @@
 
 export * from './constants/navigation';
 export * from './constants/services';
+export * from './constants/servicesSchema';
 export * from './constants/industries';
 export * from './constants/insights';
 export * from './constants/faq';

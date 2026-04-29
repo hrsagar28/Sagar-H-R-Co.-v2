@@ -1,43 +1,26 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import ServiceBento from '../components/ServiceBento';
-import IndustrySpotlight from '../components/IndustrySpotlight';
+import { IndustryGridDark } from '../components/IndustrySpotlight';
 import { SERVICES, CONTACT_INFO } from '../constants';
+import { buildServicesSchema } from '../constants/servicesSchema';
 import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
 import ConsultationBanner from '../components/ConsultationBanner';
 
 const Services: React.FC = () => {
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Financial Services",
-    "description": "Comprehensive suite of financial services including GST, Income Tax, Audit, and Advisory.",
-    "provider": {
-      "@type": "AccountingService",
-      "name": CONTACT_INFO.name
-    },
-    "mainEntity": {
-      "@type": "ItemList",
-      "itemListElement": SERVICES.map((service, index) => ({
-        "@type": "ListItem",
-        "position": index + 1,
-        "item": {
-          "@type": "Service",
-          "name": service.title,
-          "description": service.description,
-          "url": `https://casagar.co.in/services/${service.id}`
-        }
-      }))
-    }
-  };
+  const schema = useMemo(() => buildServicesSchema(), []);
 
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
       <SEO 
-        title="Professional CA Services in Mysuru | Audit, Tax & Advisory"
-        description="Comprehensive financial services including GST, Income Tax Filing, Company Law, Auditing, and Business Advisory. Expert solutions for individuals and businesses."
+        title={`Services - Audit · Tax · GST · Advisory | ${CONTACT_INFO.name}`}
+        description="Eight disciplines of chartered-accountancy practice from Mysuru: GST, Income Tax, Company Law, Litigation, Advisory, Audit, Bookkeeping, and Payroll. Engagement options: retainer or assignment."
         schema={schema}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Services', url: '/services' },
+        ]}
       />
       
       {/* 1. HERO SECTION */}
@@ -73,7 +56,7 @@ const Services: React.FC = () => {
       </section>
 
       {/* 3. INDUSTRIES - Consolidated Component */}
-      <IndustrySpotlight />
+      <IndustryGridDark />
 
       {/* 4. CTA */}
       <ConsultationBanner />

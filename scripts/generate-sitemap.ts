@@ -38,7 +38,7 @@ const generateSitemap = (): void => {
   // ── 4. Service detail pages (from constants) ──────────────────
   for (const service of SERVICES) {
     entries.push({
-      loc: `${BASE_URL}/services/${service.id}`,
+      loc: `${BASE_URL}${service.link}`,
       priority: '0.8',
       changefreq: 'monthly',
     });

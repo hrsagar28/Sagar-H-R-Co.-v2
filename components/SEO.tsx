@@ -1,5 +1,6 @@
 
 import React, { useEffect } from 'react';
+import { stringifyJsonLd } from '../utils/jsonLd';
 
 interface SEOProps {
   /** Page title - appears in browser tab and search results */
@@ -31,23 +32,6 @@ const getDefaultCanonicalUrl = () => {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
   return `${siteUrl}${pathname}`;
 };
-
-const sanitizeJsonLd = (value: unknown): unknown => {
-  if (typeof value === 'function' || value instanceof Date) return undefined;
-  if (Array.isArray(value)) return value.map(sanitizeJsonLd);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value)
-        .map(([key, entry]) => [key, sanitizeJsonLd(entry)] as const)
-        .filter(([, entry]) => entry !== undefined)
-    );
-  }
-  return value;
-};
-
-const stringifyJsonLd = (data: object) => (
-  JSON.stringify(sanitizeJsonLd(data)).replace(/</g, '\\u003c')
-);
 
 /**
  * SEO Component

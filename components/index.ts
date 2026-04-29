@@ -5,6 +5,7 @@ export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as Footer } from './Footer';
 export { default as HorizontalScroll } from './HorizontalScroll';
 export { default as IndustrySpotlight } from './IndustrySpotlight';
+export { IndustryChips, IndustryGridDark } from './IndustrySpotlight';
 export { default as LiveRegion } from './LiveRegion';
 export { default as MagneticButton } from './MagneticButton';
 export { default as Marquee } from './Marquee';
