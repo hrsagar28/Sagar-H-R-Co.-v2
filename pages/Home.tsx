@@ -84,10 +84,11 @@ const Home: React.FC = () => {
           Dark ink background with a quiet star field; no photographic layer.
           Animation timings are tighter than before so the headline lands inside
           ~0.6s and the CTA is interactive by ~1s.
-          `min-h-[100dvh]` handles iOS Safari's collapsing URL bar — without it
-          the hero's "min-h-screen" locks to the larger 100vh and content jumps
-          when the bar retracts. Desktop/Firefox fall through to min-h-screen. */}
-      <section className="relative min-h-screen min-h-[100dvh] flex flex-col justify-center px-4 md:px-6 overflow-hidden pt-20">
+          Mobile uses 100svh so Android in-app browsers / custom tabs do not
+          recenter the hero when their chrome reports a changing dynamic
+          viewport. Larger viewports can use dvh for the fuller cinematic
+          frame. */}
+      <section className="relative min-h-screen min-h-[100svh] md:min-h-[100dvh] flex flex-col justify-start md:justify-center px-4 md:px-6 overflow-hidden pt-32 md:pt-20 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] md:pb-0">
         <StarField />
 
         <div className="container mx-auto max-w-7xl relative z-20 mt-12 md:mt-0">
