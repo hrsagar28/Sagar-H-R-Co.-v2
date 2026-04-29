@@ -1,7 +1,6 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-import { ArrowUpRight, Calendar, AlertCircle, Search, X } from 'lucide-react';
+import { AlertCircle, ArrowUpRight, Calendar, Search, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
@@ -9,185 +8,268 @@ import { useInsights } from '../hooks';
 import Skeleton from '../components/Skeleton';
 import { formatArchiveDate } from '../utils/formatArchiveDate';
 
-const { Link } = ReactRouterDOM;
+const { Link, useSearchParams } = ReactRouterDOM;
+const SITE = ((import.meta as any).env?.VITE_SITE_URL || 'https://casagar.co.in').replace(/\/$/, '');
+
+const HERO_PLACEHOLDERS = Array.from({ length: 4 }, (_, index) => ({
+  num: String(index + 1).padStart(2, '0'),
+  title: <span className="inline-block h-5 w-40 rounded-full bg-current opacity-10" aria-hidden="true" />,
+  date: '',
+  href: '#insights-results',
+}));
+
+const sortByNewest = <T extends { date: string }>(items: T[]) => (
+  [...items].sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
+);
 
 const Insights: React.FC = () => {
   const { insights, loading, error } = useInsights();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') || '';
+  const selectedCategory = searchParams.get('cat') || 'All';
+
+  const sortedInsights = useMemo(() => sortByNewest(insights), [insights]);
 
   const categories = useMemo(() => {
-    const cats = new Set(insights.map(i => i.category));
-    return ['All', ...Array.from(cats)];
+    const cats = new Set(insights.map((insight) => insight.category));
+    return ['All', ...Array.from(cats).sort((left, right) => left.localeCompare(right))];
   }, [insights]);
 
+  const updateFilters = (next: { q?: string; cat?: string }) => {
+    const params = new URLSearchParams(searchParams);
+    const nextQuery = next.q ?? searchTerm;
+    const nextCategory = next.cat ?? selectedCategory;
+
+    if (nextQuery.trim()) params.set('q', nextQuery);
+    else params.delete('q');
+
+    if (nextCategory && nextCategory !== 'All') params.set('cat', nextCategory);
+    else params.delete('cat');
+
+    setSearchParams(params, { replace: true });
+  };
+
+  const clearFilters = () => {
+    setSearchParams({}, { replace: true });
+  };
+
   const filteredInsights = useMemo(() => {
-    return insights.filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            item.summary.toLowerCase().includes(searchTerm.toLowerCase());
+    const query = searchTerm.trim().toLowerCase();
+    return sortedInsights.filter((item) => {
+      const matchesSearch = !query ||
+        item.title.toLowerCase().includes(query) ||
+        item.summary.toLowerCase().includes(query);
       const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [insights, searchTerm, selectedCategory]);
+  }, [sortedInsights, searchTerm, selectedCategory]);
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Insights & Knowledge Base",
-    "description": "Analysis, regulatory updates, and strategic commentary from our research desk.",
-    "publisher": {
-      "@type": "Organization",
-      "name": CONTACT_INFO.name
+  const heroItems = useMemo(() => {
+    if (loading && sortedInsights.length === 0) return HERO_PLACEHOLDERS;
+    return sortedInsights.slice(0, 4).map((insight, idx) => ({
+      num: String(idx + 1).padStart(2, '0'),
+      title: insight.title.includes(' ')
+        ? <>{insight.title.split(' ')[0]} <em>{insight.title.substring(insight.title.indexOf(' ') + 1)}</em></>
+        : <><em>{insight.title}</em></>,
+      date: formatArchiveDate(insight.date),
+      href: `/insights/${insight.slug}`,
+    }));
+  }, [loading, sortedInsights]);
+
+  const schema = useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': `${SITE}/insights`,
+    name: `${CONTACT_INFO.name} - Insights`,
+    description: 'Analysis, regulatory updates, and strategic commentary from our research desk.',
+    publisher: {
+      '@type': 'Organization',
+      name: CONTACT_INFO.name,
     },
-    "mainEntity": {
-      "@type": "ItemList",
-      "itemListElement": filteredInsights.map((insight, index) => ({
-        "@type": "ListItem",
-        "position": index + 1,
-        "url": `https://casagar.co.in/insights/${insight.slug}`,
-        "name": insight.title
-      }))
-    }
-  };
+    blogPost: sortedInsights.map((insight) => ({
+      '@type': 'BlogPosting',
+      '@id': `${SITE}/insights/${insight.slug}`,
+      url: `${SITE}/insights/${insight.slug}`,
+      headline: insight.title,
+      description: insight.summary,
+      datePublished: new Date(insight.date).toISOString(),
+      author: {
+        '@type': 'Person',
+        name: insight.author,
+      },
+    })),
+  }), [sortedInsights]);
+
+  const resultsLabel = loading
+    ? 'Loading insights'
+    : error
+      ? 'Insights could not be loaded'
+      : `${filteredInsights.length} ${filteredInsights.length === 1 ? 'article' : 'articles'} found`;
 
   return (
     <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
-      <SEO 
-        title={`Insights & Updates | ${CONTACT_INFO.name}`}
+      <SEO
+        title={`Insights & Tax Updates from Mysuru | ${CONTACT_INFO.name}`}
         description="Stay ahead with the latest updates on Income Tax, GST, and economic trends. Expert analysis and commentary from CA Sagar H R."
         schema={schema}
-      />
-      
-      {/* UNIFIED HERO SECTION */}
-      <PageHero
-        variant="archive"
-        eyebrow="§ Resources / 03"
-        title={<>Notes from <em>practice</em>.</>}
-        blurb="A working library of the firm's writing on tax, audit, and corporate law. Updated when something genuinely useful crosses the desk — never on a content schedule."
-        items={insights.slice(0, 4).map((insight, idx) => ({
-          num: String(idx + 1).padStart(2, '0'),
-          title: insight.title.includes(' ') ? <>{insight.title.split(' ')[0]} <em>{insight.title.substring(insight.title.indexOf(' ') + 1)}</em></> : <><em>{insight.title}</em></>,
-          date: formatArchiveDate(insight.date),
-          href: `/insights/${insight.slug}`
-        }))}
-        totalLabel={`${insights.length} in Archive`}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Insights', url: '/insights' },
+        ]}
       />
 
-      {/* Insights Grid */}
-      <section className="py-20 px-4 md:px-6">
-        <div className="container mx-auto max-w-7xl">
-          
-          {/* Controls */}
-          {!loading && !error && (
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 animate-fade-in-up">
-               {/* Category Filter */}
-               <div className="flex flex-wrap gap-2">
-                  {categories.map(cat => (
+      <main>
+        <PageHero
+          variant="archive"
+          eyebrow="§ Resources / 03"
+          title={<>Notes from <em>practice</em>.</>}
+          blurb="A working library of the firm's writing on tax, audit, and corporate law. Updated when something genuinely useful crosses the desk - never on a content schedule."
+          items={heroItems}
+          totalLabel={`${insights.length} in Archive`}
+        />
+
+        <section className="py-20 px-4 md:px-6" aria-labelledby="insights-results-heading">
+          <div className="container mx-auto max-w-7xl">
+            {!loading && !error && (
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 animate-fade-in-up">
+                <div role="tablist" aria-label="Filter insights by category" className="flex flex-wrap gap-2">
+                  {categories.map((cat) => (
                     <button
                       key={cat}
-                      onClick={() => setSelectedCategory(cat)}
+                      type="button"
+                      role="tab"
+                      aria-selected={selectedCategory === cat}
+                      aria-controls="insights-results"
+                      onClick={() => updateFilters({ cat })}
                       className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                        selectedCategory === cat 
-                        ? 'bg-brand-moss text-white shadow-md' 
-                        : 'bg-white border border-brand-border text-brand-stone hover:border-brand-moss'
+                        selectedCategory === cat
+                          ? 'bg-brand-moss text-white shadow-md'
+                          : 'bg-white border border-brand-border text-brand-stone hover:border-brand-moss'
                       }`}
                     >
                       {cat}
                     </button>
                   ))}
-               </div>
+                </div>
 
-               {/* Search */}
-               <div className="relative w-full md:w-80">
+                <div className="relative w-full md:w-80">
+                  <label htmlFor="insights-search" className="sr-only">Search insights</label>
                   <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-stone" />
-                  <input 
-                    type="text" 
-                    placeholder="Search articles..." 
+                  <input
+                    id="insights-search"
+                    type="text"
+                    placeholder="Search articles..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(event) => updateFilters({ q: event.target.value })}
+                    aria-controls="insights-results"
+                    aria-describedby="insights-results-count"
                     className="w-full pl-11 pr-10 py-3 bg-white border border-brand-border rounded-full text-sm font-medium focus:outline-none focus:border-brand-moss focus:ring-1 focus:ring-brand-moss transition-all"
                   />
                   {searchTerm && (
-                    <button 
-                      onClick={() => setSearchTerm('')}
+                    <button
+                      type="button"
+                      onClick={() => updateFilters({ q: '' })}
+                      aria-label="Clear insights search"
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-brand-stone hover:text-brand-dark"
                     >
                       <X size={14} />
                     </button>
                   )}
-               </div>
-            </div>
-          )}
+                </div>
+              </div>
+            )}
 
-          {loading && (
-             <div className="grid gap-6">
-               {[1, 2, 3].map(i => (
-                 <div key={i} className="bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border h-64 flex flex-col justify-center gap-4">
+            <h2 id="insights-results-heading" className="sr-only">Insights archive results</h2>
+            <p id="insights-results-count" className="sr-only" aria-live="polite">{resultsLabel}</p>
+
+            {loading && (
+              <div className="grid gap-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border h-64 flex flex-col justify-center gap-4">
                     <Skeleton variant="text" width={100} height={20} />
                     <Skeleton variant="text" width="60%" height={40} />
                     <Skeleton variant="text" width="90%" height={20} />
-                 </div>
-               ))}
-             </div>
-          )}
+                  </div>
+                ))}
+              </div>
+            )}
 
-          {error && (
-            <div className="text-center py-20">
-               <AlertCircle size={48} className="mx-auto text-brand-stone mb-4 opacity-50" />
-               <h3 className="text-2xl font-bold text-brand-dark mb-2">Unable to load insights</h3>
-               <p className="text-brand-stone">{error}</p>
-            </div>
-          )}
+            {error && (
+              <div className="text-center py-20">
+                <AlertCircle size={48} className="mx-auto text-brand-stone mb-4 opacity-50" />
+                <h3 className="text-2xl font-bold text-brand-dark mb-2">Unable to load insights</h3>
+                <p className="text-brand-stone">{error}</p>
+              </div>
+            )}
 
-          {!loading && !error && (
-            <>
-              {filteredInsights.length > 0 ? (
-                <div className="grid gap-6">
-                  {filteredInsights.map((insight) => (
-                    <Link to={`/insights/${insight.slug}`} key={insight.id} className="group bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border hover:border-brand-moss hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col md:flex-row gap-8 md:gap-12 items-start relative overflow-hidden">
-                      <div className="absolute inset-0 bg-brand-moss/0 group-hover:bg-brand-moss/[0.02] transition-colors"></div>
-                      
-                      <div className="md:w-1/4 relative z-10">
-                        <span className="inline-block px-4 py-1 rounded-full bg-brand-bg border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">{insight.category}</span>
-                        <div className="flex items-center gap-2 text-brand-stone text-sm font-bold">
-                          <Calendar size={14} />
-                          {insight.date}
+            {!loading && !error && (
+              <>
+                {filteredInsights.length > 0 ? (
+                  <div id="insights-results" className="grid gap-6">
+                    {filteredInsights.map((insight) => (
+                      <Link to={`/insights/${insight.slug}`} key={insight.id} className="group bg-brand-surface rounded-[2rem] p-8 md:p-12 border border-brand-border hover:border-brand-moss hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col md:flex-row gap-8 md:gap-12 items-start relative overflow-hidden">
+                        <div className="absolute inset-0 bg-brand-moss/0 group-hover:bg-brand-moss/[0.02] transition-colors" />
+
+                        <div className="md:w-1/4 relative z-10">
+                          <span className="inline-block px-4 py-1 rounded-full bg-brand-bg border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">{insight.category}</span>
+                          <div className="flex items-center gap-2 text-brand-stone text-sm font-bold">
+                            <Calendar size={14} aria-hidden="true" />
+                            {insight.date}
+                          </div>
+                        </div>
+                        <div className="md:w-2/4 relative z-10">
+                          <h2 className="text-2xl md:text-3xl text-brand-dark font-heading font-bold mb-4 group-hover:text-brand-moss transition-colors leading-tight">
+                            {insight.title}
+                          </h2>
+                          <p className="text-brand-stone leading-relaxed font-medium">
+                            {insight.summary}
+                          </p>
+                        </div>
+                        <div className="md:w-1/4 flex justify-start md:justify-end w-full relative z-10">
+                          <div className="w-14 h-14 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center text-brand-dark group-hover:bg-brand-moss group-hover:text-brand-inverse group-hover:scale-110 transition-all duration-300">
+                            <ArrowUpRight size={20} aria-hidden="true" />
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div id="insights-results" className="text-center py-20 bg-white rounded-[2rem] border border-brand-border px-6">
+                    <p className="text-xl text-brand-stone font-medium">No articles found matching your criteria.</p>
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="mt-4 text-brand-moss font-bold hover:underline"
+                    >
+                      Clear Filters
+                    </button>
+                    {sortedInsights.length > 0 && (
+                      <div className="mt-10 mx-auto max-w-2xl text-left">
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-stone mb-4">Recent insights</p>
+                        <div className="grid gap-3">
+                          {sortedInsights.slice(0, 3).map((insight) => (
+                            <Link
+                              key={insight.id}
+                              to={`/insights/${insight.slug}`}
+                              onClick={clearFilters}
+                              className="flex items-center justify-between gap-4 rounded-2xl border border-brand-border bg-brand-bg px-5 py-4 font-bold text-brand-dark hover:border-brand-moss hover:text-brand-moss transition-colors"
+                            >
+                              <span>{insight.title}</span>
+                              <ArrowUpRight size={16} aria-hidden="true" />
+                            </Link>
+                          ))}
                         </div>
                       </div>
-                      <div className="md:w-2/4 relative z-10">
-                        <h2 className="text-2xl md:text-3xl text-brand-dark font-heading font-bold mb-4 group-hover:text-brand-moss transition-colors leading-tight">
-                          {insight.title}
-                        </h2>
-                        <p className="text-brand-stone leading-relaxed font-medium">
-                          {insight.summary}
-                        </p>
-                      </div>
-                      <div className="md:w-1/4 flex justify-start md:justify-end w-full relative z-10">
-                        <div className="w-14 h-14 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center text-brand-dark group-hover:bg-brand-moss group-hover:text-brand-inverse group-hover:scale-110 transition-all duration-300">
-                          <ArrowUpRight size={20} />
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20 bg-white rounded-[2rem] border border-brand-border">
-                   <p className="text-xl text-brand-stone font-medium">No articles found matching your criteria.</p>
-                   <button 
-                     onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}
-                     className="mt-4 text-brand-moss font-bold hover:underline"
-                   >
-                     Clear Filters
-                   </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </section>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+      </main>
     </div>
   );
 };
 
 export default Insights;
-

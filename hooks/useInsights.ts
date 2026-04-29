@@ -4,6 +4,33 @@ import { InsightItem } from '../types';
 import { logger } from '../utils/logger';
 import { apiClient, ApiError } from '../utils/api';
 
+let insightsPromise: Promise<InsightItem[]> | null = null;
+
+const isValidInsight = (item: unknown): item is InsightItem => {
+  if (!item || typeof item !== 'object') return false;
+  const candidate = item as Record<string, unknown>;
+  return ['id', 'title', 'category', 'date', 'summary', 'slug', 'author', 'readTime']
+    .every((key) => typeof candidate[key] === 'string' && candidate[key]);
+};
+
+const getInsightsUrl = () => {
+  const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
+  if (typeof window === 'undefined') return `${baseUrl.replace(/\/$/, '')}/data/insights.json`;
+  return new URL('data/insights.json', new URL(baseUrl, window.location.origin)).toString();
+};
+
+const fetchInsights = () => {
+  if (!insightsPromise) {
+    insightsPromise = apiClient.get<unknown[]>(getInsightsUrl()).then((data) => {
+      if (!Array.isArray(data) || !data.every(isValidInsight)) {
+        throw new ApiError('Invalid insights payload.', 0, 'INVALID_RESPONSE');
+      }
+      return data;
+    });
+  }
+  return insightsPromise;
+};
+
 export const useInsights = () => {
   const [insights, setInsights] = useState<InsightItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -12,15 +39,12 @@ export const useInsights = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchInsights = async () => {
-      // Construct robust path using Vite's BASE_URL or fallback to relative
-      const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
-      const url = `${baseUrl}data/insights.json`.replace('//', '/');
-
+    const loadInsights = async () => {
       try {
-        const data = await apiClient.get<InsightItem[]>(url);
+        const data = await fetchInsights();
         if (isMounted) {
           setInsights(data);
+          setError(null);
           setLoading(false);
         }
       } catch (err) {
@@ -37,7 +61,7 @@ export const useInsights = () => {
       }
     };
 
-    fetchInsights();
+    loadInsights();
 
     return () => {
       isMounted = false;
