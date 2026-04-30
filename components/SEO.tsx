@@ -14,6 +14,8 @@ interface SEOProps {
   canonicalUrl?: string;
   /** Open Graph type (e.g., 'website', 'article'). Default: 'website' */
   ogType?: 'website' | 'article' | 'profile';
+  /** Prevent search engines from indexing the current client-rendered route. */
+  noindex?: boolean;
   /** URL for the social share image. Default provided. */
   ogImage?: string;
   /** Structured Data (JSON-LD) object(s) */
@@ -21,7 +23,18 @@ interface SEOProps {
   /** Breadcrumb navigation schema */
   breadcrumbs?: Array<{ name: string; url: string }>;
   /** Article / BlogPosting schema */
-  article?: { headline: string; author: string; datePublished: string; dateModified?: string; image?: string };
+  article?: {
+    headline: string;
+    author: string;
+    authorUrl?: string;
+    authorSameAs?: string[];
+    datePublished: string;
+    dateModified?: string;
+    image?: string;
+    section?: string;
+    tags?: string[];
+    wordCount?: number;
+  };
   /** Service schema */
   service?: { name: string; description: string; areaServed?: string };
   /** FAQPage schema */
@@ -34,6 +47,8 @@ const getDefaultCanonicalUrl = () => {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
   return `${SITE_URL}${pathname}`;
 };
+
+const toAbsoluteUrl = (url: string) => url.startsWith('http') ? url : `${SITE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 
 /**
  * SEO Component
@@ -54,6 +69,7 @@ const SEO: React.FC<SEOProps> = ({
   keywords = "Chartered Accountant, Mysuru, Audit, Tax, GST, Business Advisory, CA Firm",
   canonicalUrl = getDefaultCanonicalUrl(),
   ogType = 'website',
+  noindex = false,
   ogImage = `${SITE_URL}/og-image.jpg`,
   schema,
   breadcrumbs,
@@ -83,6 +99,7 @@ const SEO: React.FC<SEOProps> = ({
     // Standard Meta
     updateMeta('name', 'description', description);
     updateMeta('name', 'keywords', keywords);
+    updateMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow');
 
     // Open Graph
     updateMeta('property', 'og:title', title);
@@ -90,12 +107,32 @@ const SEO: React.FC<SEOProps> = ({
     updateMeta('property', 'og:url', canonicalUrl);
     updateMeta('property', 'og:type', ogType);
     updateMeta('property', 'og:image', ogImage);
+    updateMeta('property', 'og:locale', 'en_IN');
+
+    document.querySelectorAll('meta[data-dynamic-article-meta]').forEach((articleMeta) => articleMeta.remove());
+    if (article) {
+      const addArticleMeta = (property: string, content: string) => {
+        const articleMeta = document.createElement('meta');
+        articleMeta.setAttribute('data-dynamic-article-meta', 'true');
+        articleMeta.setAttribute('property', property);
+        articleMeta.setAttribute('content', content);
+        document.head.appendChild(articleMeta);
+      };
+
+      addArticleMeta('article:published_time', article.datePublished);
+      addArticleMeta('article:modified_time', article.dateModified || article.datePublished);
+      addArticleMeta('article:author', article.author);
+      if (article.section) addArticleMeta('article:section', article.section);
+      article.tags?.forEach((tag) => addArticleMeta('article:tag', tag));
+    }
 
     // Twitter Card
     updateMeta('name', 'twitter:card', 'summary_large_image');
     updateMeta('name', 'twitter:title', title);
     updateMeta('name', 'twitter:description', description);
     updateMeta('name', 'twitter:image', ogImage);
+    updateMeta('name', 'twitter:site', '@casagarhr');
+    updateMeta('name', 'twitter:creator', '@casagarhr');
 
     // Canonical Link
     let link = document.querySelector('link[rel="canonical"]');
@@ -154,9 +191,12 @@ const SEO: React.FC<SEOProps> = ({
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": article.headline,
+        "inLanguage": "en-IN",
         "author": {
           "@type": "Person",
-          "name": article.author
+          "name": article.author,
+          ...(article.authorUrl ? { "url": article.authorUrl } : {}),
+          ...(article.authorSameAs?.length ? { "sameAs": article.authorSameAs } : {})
         },
         "publisher": {
           "@type": "Organization",
@@ -168,7 +208,10 @@ const SEO: React.FC<SEOProps> = ({
         },
         "datePublished": article.datePublished,
         ...(article.dateModified ? { "dateModified": article.dateModified } : {}),
-        "image": article.image || ogImage,
+        ...(article.section ? { "articleSection": article.section } : {}),
+        ...(article.tags?.length ? { "keywords": article.tags.join(', ') } : {}),
+        ...(article.wordCount ? { "wordCount": article.wordCount } : {}),
+        "image": article.image ? toAbsoluteUrl(article.image) : ogImage,
         "mainEntityOfPage": {
           "@type": "WebPage",
           "@id": canonicalUrl
@@ -219,8 +262,9 @@ const SEO: React.FC<SEOProps> = ({
     return () => {
         document.querySelectorAll('script[data-dynamic-schema]').forEach(s => s.remove());
         document.querySelectorAll('link[data-dynamic-alternate]').forEach(s => s.remove());
+        document.querySelectorAll('meta[data-dynamic-article-meta]').forEach(s => s.remove());
     };
-  }, [title, description, keywords, canonicalUrl, ogType, ogImage, schema, breadcrumbs, article, service, faqs, alternates]);
+  }, [title, description, keywords, canonicalUrl, ogType, noindex, ogImage, schema, breadcrumbs, article, service, faqs, alternates]);
 
   return null;
 };

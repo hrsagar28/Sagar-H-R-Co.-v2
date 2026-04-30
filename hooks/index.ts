@@ -11,6 +11,7 @@ export * from './useReturnFocus';
 export * from './useToast';
 export * from './useTaxConfig';
 export * from './useInsights';
+export * from './useArticleBody';
 export * from './useScrollPosition';
 export * from './useCountUp';
 export * from './useConsent';

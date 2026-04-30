@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Sagar H R &amp; Co. Insights</title>
+  <link href="https://casagar.co.in/insights"/>
+  <link rel="self" href="https://casagar.co.in/atom.xml"/>
+  <id>https://casagar.co.in/insights</id>
+  <updated>2026-04-30T00:00:00.000Z</updated>
+  <entry>
+    <title>Key Highlights of the New Income Tax Bill, 2025</title>
+    <link href="https://casagar.co.in/insights/new-income-tax-bill-2025"/>
+    <id>https://casagar.co.in/insights/new-income-tax-bill-2025</id>
+    <updated>2026-04-30T00:00:00.000Z</updated>
+    <published>2025-08-18T00:00:00.000Z</published>
+    <summary>The new bill aims to simplify direct tax law, making it easier to read, understand, and implement for taxpayers and professionals alike.</summary>
+    <author><name>CA Sagar H R</name></author>
+  </entry>
+  <entry>
+    <title>GST 2.0: Major Reforms on the Horizon</title>
+    <link href="https://casagar.co.in/insights/gst-reforms-2.0"/>
+    <id>https://casagar.co.in/insights/gst-reforms-2.0</id>
+    <updated>2026-04-30T00:00:00.000Z</updated>
+    <published>2025-08-17T00:00:00.000Z</published>
+    <summary>&quot;GST 2.0&quot; aims to simplify the tax structure by reducing tax slabs and streamlining compliance, potentially boosting economic growth.</summary>
+    <author><name>CA Sagar H R</name></author>
+  </entry>
+  <entry>
+    <title>TDS and TCS Changes from April 2025</title>
+    <link href="https://casagar.co.in/insights/tds-tcs-changes-2025"/>
+    <id>https://casagar.co.in/insights/tds-tcs-changes-2025</id>
+    <updated>2026-04-30T00:00:00.000Z</updated>
+    <published>2025-08-16T00:00:00.000Z</published>
+    <summary>Significant changes in TDS and TCS provisions will come into effect, aiming to reduce compliance burdens while ensuring better tax collection.</summary>
+    <author><name>CA Sagar H R</name></author>
+  </entry>
+  <entry>
+    <title>Clarity on Income from House Property</title>
+    <link href="https://casagar.co.in/insights/house-property-income"/>
+    <id>https://casagar.co.in/insights/house-property-income</id>
+    <updated>2026-04-30T00:00:00.000Z</updated>
+    <published>2025-08-15T00:00:00.000Z</published>
+    <summary>The revised Bill has clarified key provisions related to calculating income from house property, providing much-needed clarity for taxpayers.</summary>
+    <author><name>CA Sagar H R</name></author>
+  </entry>
+  <entry>
+    <title>Upcoming GST Compliance Changes in 2025</title>
+    <link href="https://casagar.co.in/insights/gst-compliance-updates"/>
+    <id>https://casagar.co.in/insights/gst-compliance-updates</id>
+    <updated>2026-04-30T00:00:00.000Z</updated>
+    <published>2025-08-14T00:00:00.000Z</published>
+    <summary>Businesses need to be aware of several changes, including mandatory multi-factor authentication (MFA) and enhanced e-invoicing requirements.</summary>
+    <author><name>CA Sagar H R</name></author>
+  </entry>
+  <entry>
+    <title>S&amp;P Upgrades India&apos;s Sovereign Credit Rating</title>
+    <link href="https://casagar.co.in/insights/sp-rating-upgrade"/>
+    <id>https://casagar.co.in/insights/sp-rating-upgrade</id>
+    <updated>2026-04-30T00:00:00.000Z</updated>
+    <published>2025-08-13T00:00:00.000Z</published>
+    <summary>S&amp;P Global Ratings has raised India&apos;s long-term sovereign credit rating to &quot;BBB&quot; from &quot;BBB-&quot;, citing strong economic fundamentals and growth prospects.</summary>
+    <author><name>CA Sagar H R</name></author>
+  </entry>
+</feed>

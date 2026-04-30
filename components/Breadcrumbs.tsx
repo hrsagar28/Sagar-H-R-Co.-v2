@@ -21,9 +21,9 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' }) => {
           <Link 
             to="/" 
             className="flex items-center gap-1 text-zone-text-muted hover:text-zone-accent transition-colors"
-            title="Home"
           >
             <Home size={14} aria-hidden="true" focusable="false" />
+            <span className="sr-only">Home</span>
           </Link>
         </li>
         

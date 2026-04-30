@@ -332,8 +332,8 @@ html {
   }
   
   .article-wrapper ul:not(.summary-card ul) li::before {
-    content: '';
-    @apply absolute left-0 top-[0.6em] w-1.5 h-1.5 bg-brand-moss rounded-full;
+    content: '-';
+    @apply absolute left-0 top-0 text-brand-moss font-bold bg-transparent;
   }
 
   .article-wrapper strong {

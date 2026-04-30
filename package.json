@@ -15,20 +15,20 @@
     "test": "vitest"
   },
   "dependencies": {
-    "dompurify": "^3.1.5",
     "lucide-react": "^0.379.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.23.1",
     "rehype-sanitize": "^6.0.0",
-    "remark-gfm": "^4.0.1"
+    "remark-directive": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@axe-core/react": "^4.11.2",
     "@testing-library/jest-dom": "^6.4.0",
     "@testing-library/react": "^14.2.0",
-    "@types/dompurify": "^3.0.5",
     "@types/node": "^20.14.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

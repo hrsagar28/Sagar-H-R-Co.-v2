@@ -34,6 +34,7 @@ export interface InsightItem {
   summary: string;
   slug: string;
   author: string;
+  authorId: string;
   readTime: string;
   tags?: string[];
   serviceId?: string;

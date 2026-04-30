@@ -28,7 +28,8 @@ export default defineConfig(({ mode }) => {
           output: {
             manualChunks: {
               'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-              'ui-vendor': ['lucide-react', 'dompurify', 'react-markdown'],
+              'ui-vendor': ['lucide-react'],
+              'markdown-vendor': ['react-markdown', 'remark-gfm', 'remark-directive', 'rehype-sanitize', 'unist-util-visit'],
             }
           }
         }
