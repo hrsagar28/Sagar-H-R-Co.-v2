@@ -4,7 +4,6 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { SERVICE_DETAILS } from '../constants';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
-import Breadcrumbs from '../components/Breadcrumbs';
 import { CONTACT_INFO } from '../constants';
 import { PageHero } from '../components/hero';
 import { SERVICE_HERO_META } from '../constants/serviceHeroMeta';
@@ -45,21 +44,11 @@ const ServiceDetail: React.FC = () => {
 
       <div className="container mx-auto max-w-7xl print:max-w-full print:p-0">
         
-        {/* Breadcrumb Navigation - Hidden in print */}
-        <div className="mb-12 print:hidden">
-          <Breadcrumbs 
-            items={[
-              { label: 'Services', path: '/services' },
-              { label: service.title }
-            ]} 
-          />
-        </div>
-
         {/* Header */}
         <div className="mb-12">
           <PageHero
             variant="split"
-            eyebrow={`§ Practice / 02 · ${slug?.toUpperCase()}`}
+            eyebrow={slug ? `Practice · ${slug.toUpperCase()}` : 'Practice'}
             title={service.title.includes(' ') ? <>{service.title.split(' ')[0]} <em>{service.title.substring(service.title.indexOf(' ') + 1)}</em></> : <><em>{service.title}</em></>}
             blurb={service.shortDescription}
             meta={SERVICE_HERO_META[slug || ''] || []}

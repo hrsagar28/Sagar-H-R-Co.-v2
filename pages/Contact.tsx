@@ -333,7 +333,7 @@ const Contact: React.FC = () => {
 
       <PageHero
         variant="directory"
-        eyebrow="§ Contact / 06 · Direct Lines"
+        eyebrow="Contact · Direct Lines"
         title={<>Begin a <em>conversation.</em></>}
         coordinates="12.3004° N · 76.6518° E"
         contacts={[

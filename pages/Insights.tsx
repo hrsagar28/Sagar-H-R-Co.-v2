@@ -161,9 +161,9 @@ const Insights: React.FC = () => {
       <div id="main">
         <PageHero
           variant="archive"
-          eyebrow="§ Resources / 03"
+          eyebrow="Insights"
           title={<>Notes from <em>practice</em>.</>}
-          blurb="A working library of the firm's writing on tax, audit, and corporate law. Updated when something genuinely useful crosses the desk - never on a content schedule."
+          blurb="A working library of the firm's writing on tax, audit, and corporate law."
           items={heroItems}
           totalLabel={`${insights.length} in Archive`}
         />

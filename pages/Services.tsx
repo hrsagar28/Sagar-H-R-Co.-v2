@@ -25,16 +25,9 @@ const Services: React.FC = () => {
       
       {/* 1. HERO SECTION */}
       <PageHero
-        variant="split"
-        eyebrow="§ Practice / 02"
+        tag="Services"
         title={<>Four disciplines, one <em>practice</em>.</>}
-        blurb="A small practice across tax, audit, corporate, and advisory — each engagement led by the proprietor."
-        meta={[
-          { label: "Scope", value: "Tax · Audit · Corporate · Advisory" },
-          { label: "Engagement", value: "Retainer · Assignment" },
-          { label: "Principal", value: <>Sagar H R · <em>ACA</em></> },
-          { label: "Practice", value: "Mysuru · MMXXIII" }
-        ]}
+        description="A small practice across tax, audit, corporate, and advisory - each engagement led by the proprietor."
       />
 
       {/* 2. SERVICES LIST - BENTO GRID */}

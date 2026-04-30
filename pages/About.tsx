@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react';
-import Breadcrumbs from '../components/Breadcrumbs';
 import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
@@ -64,7 +63,7 @@ const About: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <div data-zone="editorial" className="zone-bg min-h-screen">
       <SEO
         title={`${CONTACT_INFO.name} - Chartered Accountants in Mysuru | About the Firm & Principal`}
         description={`${CONTACT_INFO.founder.name}, ACA, leads ${CONTACT_INFO.name} from Mysuru - a small practice in audit, tax, GST and ROC compliance. Read about how we work.`}
@@ -74,19 +73,19 @@ const About: React.FC = () => {
         breadcrumbs={aboutBreadcrumbs}
       />
 
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 pt-24 md:pt-28">
-        <Breadcrumbs items={[{ label: 'About' }]} />
-      </div>
-
       <PageHero
-        variant="folio"
-        number="I."
-        eyebrow="Principal / 01"
+        variant="directory"
+        eyebrow="About"
         title={<>On the principal, <em>briefly</em>.</>}
         blurb={heroBlurb}
-        sideText="Mysuru - Est. MMXXIII"
+        coordinates="Mysuru - Est. MMXXIII"
+        ghostWord="Firm."
+        contacts={[
+          { label: 'Principal', value: CONTACT_INFO.founder.name },
+          { label: 'Credential', value: 'ACA' },
+          { label: 'Office', value: CONTACT_INFO.address.city },
+        ]}
         accentTone="brass"
-        compact
       />
 
       <Snapshot />
@@ -94,7 +93,7 @@ const About: React.FC = () => {
       <Values />
       <Principal />
       <Cta />
-    </>
+    </div>
   );
 };
 
