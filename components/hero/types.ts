@@ -30,7 +30,7 @@ export interface LedgerHeroProps extends BaseHeroProps {
 export interface FrontispieceHeroProps extends BaseHeroProps {
   variant: 'frontispiece';
   metaStrip?: string[];
-  ornament?: string;                          // default "§"
+  ornament?: string;
 }
 export interface ArchiveHeroProps extends BaseHeroProps {
   variant: 'archive';

@@ -8,10 +8,10 @@ interface EyebrowProps {
 }
 
 const toneMap = {
-  moss: { text: 'text-brand-moss', slug: 'bg-brand-moss' },
-  brass: { text: 'text-brand-brass', slug: 'bg-brand-brass' },
-  rust: { text: 'text-brand-rust', slug: 'bg-brand-rust' },
-  stone: { text: 'text-brand-stone', slug: 'bg-brand-stone' }
+  moss: 'text-brand-moss',
+  brass: 'text-brand-brass',
+  rust: 'text-brand-rust',
+  stone: 'text-brand-stone'
 };
 
 export const Eyebrow: React.FC<EyebrowProps> = ({
@@ -20,10 +20,8 @@ export const Eyebrow: React.FC<EyebrowProps> = ({
   className = '',
   as: As = 'div'
 }) => {
-  const { text, slug } = toneMap[tone];
   return (
-    <As className={`inline-flex items-center gap-3 font-mono uppercase tracking-[0.2em] text-[0.7rem] ${text} ${className}`}>
-      <span aria-hidden="true" className={`w-6 h-[1px] md:w-8 ${slug}`}></span>
+    <As className={`inline-flex items-center font-mono uppercase tracking-[0.2em] text-[0.7rem] ${toneMap[tone]} ${className}`}>
       {children}
     </As>
   );

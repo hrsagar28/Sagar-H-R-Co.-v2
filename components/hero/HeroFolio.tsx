@@ -3,7 +3,6 @@ import { WordReveal } from '../Reveal';
 import type { FolioHeroProps } from './types';
 
 export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, number, sideText, accentTone, compact = false }) => {
-  const accentClass = accentTone ? `text-brand-${accentTone}` : 'zone-accent';
   const accentAltClass = accentTone ? `text-brand-${accentTone}` : 'zone-accent-alt'; 
   
   return (
@@ -25,11 +24,6 @@ export const HeroFolio: React.FC<FolioHeroProps> = ({ eyebrow, title, blurb, num
          <div className="w-full md:w-2/4 flex flex-col justify-center">
             {eyebrow && (
                <div className="font-mono text-eyebrow uppercase tracking-[0.2em] mb-8 animate-fade-in-up">
-                  <span
-                    className={`inline-block w-6 h-px mr-3 align-middle ${accentClass.replace('text-', 'bg-').replace('zone-accent', '')}`}
-                    style={!accentTone ? { backgroundColor: 'var(--zone-accent)'} : {}}
-                    aria-hidden="true"
-                  ></span>
                   {eyebrow}
                </div>
             )}

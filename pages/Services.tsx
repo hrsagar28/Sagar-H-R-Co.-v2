@@ -26,8 +26,7 @@ const Services: React.FC = () => {
       {/* 1. HERO SECTION */}
       <PageHero
         tag="Services"
-        title={<>Four disciplines, one <em>practice</em>.</>}
-        description="A small practice across tax, audit, corporate, and advisory - each engagement led by the proprietor."
+        title={<>Our <em>Services.</em></>}
       />
 
       {/* 2. SERVICES LIST - BENTO GRID */}

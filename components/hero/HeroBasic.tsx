@@ -2,7 +2,6 @@ import React from 'react';
 import { WordReveal } from '../Reveal';
 import { Eyebrow } from '../ui/Eyebrow';
 import { AccentTitle } from '../ui/AccentTitle';
-import { SectionSymbol } from '../ui/SectionSymbol';
 import type { BasicHeroProps } from './types';
 
 export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children?: React.ReactNode }> = ({ 
@@ -32,7 +31,7 @@ export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children
            <div className="max-w-5xl">
               {displayTag && (
                 <Eyebrow className="mb-8 animate-fade-in-up">
-                  {typeof displayTag === 'string' && !displayTag.startsWith('§') ? <><SectionSymbol /> {displayTag}</> : displayTag}
+                  {displayTag}
                 </Eyebrow>
               )}
               <AccentTitle className="text-6xl md:text-8xl lg:text-9xl text-brand-dark mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>

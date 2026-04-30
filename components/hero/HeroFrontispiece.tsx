@@ -1,11 +1,9 @@
 import React from 'react';
 import { WordReveal } from '../Reveal';
 import type { FrontispieceHeroProps } from './types';
-import { SectionSymbol } from '../ui/SectionSymbol';
 
-export const HeroFrontispiece: React.FC<FrontispieceHeroProps> = ({ eyebrow, title, blurb, metaStrip, ornament = "§", accentTone = 'rust' }) => {
+export const HeroFrontispiece: React.FC<FrontispieceHeroProps> = ({ eyebrow, title, blurb, metaStrip, accentTone = 'rust' }) => {
   const accentClass = `text-brand-${accentTone}`; 
-  const accentAltClass = `text-brand-${accentTone}`;
   
   return (
     <section aria-labelledby="hero-frontispiece-title" className="relative pt-40 md:pt-56 pb-24 px-4 md:px-12 overflow-hidden flex flex-col items-center justify-center text-center">
@@ -20,10 +18,6 @@ export const HeroFrontispiece: React.FC<FrontispieceHeroProps> = ({ eyebrow, tit
       </div>
       
       <div className="container mx-auto max-w-4xl relative z-10 flex flex-col items-center">
-         <div className={`text-2xl mb-8 animate-fade-in-up ${accentAltClass}`}>
-            <SectionSymbol color="inherit" />
-         </div>
-
          {eyebrow && (
            <div className="font-mono text-eyebrow uppercase tracking-[0.2em] mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               {eyebrow}

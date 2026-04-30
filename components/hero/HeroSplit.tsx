@@ -22,7 +22,6 @@ export const HeroSplit: React.FC<SplitHeroProps> = ({ eyebrow, title, blurb, met
               <div className="md:w-1/2 pr-0 md:pr-16 pb-12 md:pb-0 mb-12 md:mb-0 border-b md:border-b-0 zone-border relative">
                  {eyebrow && (
                     <div className="font-mono text-eyebrow uppercase tracking-[0.2em] mb-8 animate-fade-in-up">
-                       <span className={`inline-block w-6 h-px mr-3 align-middle ${accentClass.replace('text-', 'bg-').replace('zone-accent', 'zone-accent')}`} style={accentTone ? {} : { backgroundColor: 'var(--zone-accent)' }}></span>
                        {eyebrow}
                     </div>
                  )}
