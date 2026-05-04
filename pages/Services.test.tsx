@@ -42,7 +42,7 @@ const renderServices = () =>
   render(
     <MemoryRouter initialEntries={['/services']}>
       <Services />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 
 describe('Services', () => {
@@ -63,14 +63,17 @@ describe('Services', () => {
     renderServices();
 
     expect(screen.getByTestId('services-hero')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/four disciplines, one practice/i);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/our services/i);
   });
 
   it('renders all service cards with expected links', () => {
     renderServices();
 
     SERVICES.forEach((service) => {
-      expect(screen.getByRole('link', { name: `View details for ${service.title}` })).toHaveAttribute('href', service.link);
+      expect(screen.getByRole('link', { name: `View details for ${service.title}` })).toHaveAttribute(
+        'href',
+        service.link,
+      );
     });
   });
 
@@ -79,7 +82,10 @@ describe('Services', () => {
 
     expect(screen.getByRole('heading', { name: /industries we serve/i })).toBeInTheDocument();
     INDUSTRIES.forEach((industry) => {
-      expect(screen.getByRole('link', { name: `Discuss ${industry.title} services` })).toHaveAttribute('href', '/contact');
+      expect(screen.getByRole('link', { name: `Discuss ${industry.title} services` })).toHaveAttribute(
+        'href',
+        '/contact',
+      );
     });
   });
 

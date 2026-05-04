@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useRef, useState, useCallback } from 'react';
 import LiveRegion from '../components/LiveRegion';
 
 interface AnnounceContextType {
@@ -10,13 +10,16 @@ const AnnounceContext = createContext<AnnounceContextType | undefined>(undefined
 export const AnnounceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [message, setMessage] = useState('');
   const [politeness, setPoliteness] = useState<'polite' | 'assertive'>('polite');
+  const lastMessage = useRef('');
+  const clearTimer = useRef<number | null>(null);
 
   const announce = useCallback((msg: string, pol: 'polite' | 'assertive' = 'polite') => {
-    setMessage(msg);
+    const nextMessage = msg === lastMessage.current ? `${msg}\u200B` : msg;
+    lastMessage.current = nextMessage;
+    setMessage(nextMessage);
     setPoliteness(pol);
-    // Clear message after a short delay so it can be announced again if needed
-    // The screen reader picks it up when the DOM updates
-    setTimeout(() => setMessage(''), 3000);
+    if (clearTimer.current) window.clearTimeout(clearTimer.current);
+    clearTimer.current = window.setTimeout(() => setMessage(''), 7000);
   }, []);
 
   return (

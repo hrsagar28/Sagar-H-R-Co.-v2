@@ -20,7 +20,7 @@ export interface CareerFormValues {
 export type CareerFormErrors = Partial<Record<keyof CareerFormValues, string>>;
 
 type TextChangeHandler = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-type CustomChangeHandler = (name: keyof CareerFormValues, value: string) => void;
+type CustomChangeHandler = (name: string, value: string) => void;
 
 interface StepPersonalProps {
   values: CareerFormValues;
@@ -33,11 +33,11 @@ interface StepPersonalProps {
 
 export const StepPersonal = React.forwardRef<HTMLInputElement, StepPersonalProps>(function StepPersonal(
   { values, errors, onInputChange, onCustomChange, dobMinDate, dobMaxDate },
-  ref
+  ref,
 ) {
   return (
     <div className="animate-fade-in-up">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div className="md:col-span-2">
           <FormField label="Full Name" name="fullName" required error={errors.fullName}>
             <input
@@ -47,7 +47,7 @@ export const StepPersonal = React.forwardRef<HTMLInputElement, StepPersonalProps
               onChange={onInputChange}
               placeholder="John Doe"
               autoComplete="name"
-              className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
             />
           </FormField>
         </div>
@@ -59,7 +59,7 @@ export const StepPersonal = React.forwardRef<HTMLInputElement, StepPersonalProps
             onChange={onInputChange}
             placeholder="Father's Full Name"
             autoComplete="off"
-            className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+            className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
           />
         </FormField>
 
@@ -88,7 +88,7 @@ interface StepContactProps {
 
 export const StepContact = React.forwardRef<HTMLInputElement, StepContactProps>(function StepContact(
   { values, errors, onInputChange },
-  ref
+  ref,
 ) {
   return (
     <div className="animate-fade-in-up">
@@ -104,7 +104,7 @@ export const StepContact = React.forwardRef<HTMLInputElement, StepContactProps>(
               value={values.mobile}
               onChange={onInputChange}
               placeholder="+91 98765 43210"
-              className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
             />
           </FormField>
         </div>
@@ -117,7 +117,7 @@ export const StepContact = React.forwardRef<HTMLInputElement, StepContactProps>(
               onChange={onInputChange}
               placeholder="john@example.com"
               autoComplete="email"
-              className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
             />
           </FormField>
         </div>
@@ -143,7 +143,7 @@ export const StepProfessional: React.FC<StepProfessionalProps> = ({
   onInputChange,
   onCustomChange,
   positionOptions,
-  experienceOptions
+  experienceOptions,
 }) => (
   <div className="animate-fade-in-up">
     <div className="space-y-8">
@@ -167,7 +167,7 @@ export const StepProfessional: React.FC<StepProfessionalProps> = ({
             value={values.qualification}
             onChange={onInputChange}
             placeholder="e.g. B.Com, CA Inter, MBA"
-            className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all"
+            className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
           />
         </FormField>
       </div>
@@ -192,7 +192,7 @@ export const StepProfessional: React.FC<StepProfessionalProps> = ({
             maxLength={1000}
             rows={3}
             placeholder="List your previous employers..."
-            className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all resize-none"
+            className="w-full resize-none rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
           ></textarea>
         </FormField>
       </div>
@@ -206,7 +206,7 @@ export const StepProfessional: React.FC<StepProfessionalProps> = ({
             maxLength={1500}
             rows={4}
             placeholder="Tell us what draws you to this role or firm..."
-            className="w-full bg-brand-bg border rounded-2xl py-4 px-6 text-brand-dark focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss transition-all resize-none"
+            className="w-full resize-none rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
           ></textarea>
         </FormField>
       </div>
@@ -231,19 +231,29 @@ export const REVIEW_FIELDS = {
   personal: [
     { label: 'Full Name', key: 'fullName' },
     { label: "Father's Name", key: 'fatherName' },
-    { label: 'Date of Birth', key: 'dob', render: formatDateValue }
+    { label: 'Date of Birth', key: 'dob', render: formatDateValue },
   ],
   contact: [
     { label: 'Mobile', key: 'mobile' },
-    { label: 'Email', key: 'email' }
+    { label: 'Email', key: 'email' },
   ],
   professional: [
     { label: 'Position', key: 'position' },
     { label: 'Qualification', key: 'qualification' },
     { label: 'Experience', key: 'experience' },
-    { label: 'Previous Companies', key: 'previousCompanies', className: 'md:col-span-2', render: (value) => <span className="whitespace-pre-line">{value || '-'}</span> },
-    { label: 'Why Do You Want To Join?', key: 'whyJoin', className: 'md:col-span-2', render: (value) => <span className="whitespace-pre-line">{value || '-'}</span> }
-  ]
+    {
+      label: 'Previous Companies',
+      key: 'previousCompanies',
+      className: 'md:col-span-2',
+      render: (value) => <span className="whitespace-pre-line">{value || '-'}</span>,
+    },
+    {
+      label: 'Why Do You Want To Join?',
+      key: 'whyJoin',
+      className: 'md:col-span-2',
+      render: (value) => <span className="whitespace-pre-line">{value || '-'}</span>,
+    },
+  ],
 } satisfies Record<string, ReviewFieldConfig[]>;
 
 const REVIEW_SECTIONS = [
@@ -252,22 +262,28 @@ const REVIEW_SECTIONS = [
     headingId: 'review-personal-heading',
     editStep: 1,
     errorKeys: ['fullName', 'fatherName', 'dob'] as (keyof CareerFormValues)[],
-    fields: REVIEW_FIELDS.personal
+    fields: REVIEW_FIELDS.personal,
   },
   {
     heading: 'Contact Information',
     headingId: 'review-contact-heading',
     editStep: 2,
     errorKeys: ['mobile', 'email'] as (keyof CareerFormValues)[],
-    fields: REVIEW_FIELDS.contact
+    fields: REVIEW_FIELDS.contact,
   },
   {
     heading: 'Professional Details',
     headingId: 'review-professional-heading',
     editStep: 3,
-    errorKeys: ['position', 'qualification', 'experience', 'previousCompanies', 'whyJoin'] as (keyof CareerFormValues)[],
-    fields: REVIEW_FIELDS.professional
-  }
+    errorKeys: [
+      'position',
+      'qualification',
+      'experience',
+      'previousCompanies',
+      'whyJoin',
+    ] as (keyof CareerFormValues)[],
+    fields: REVIEW_FIELDS.professional,
+  },
 ] as const;
 
 const ReviewField: React.FC<{ field: ReviewFieldConfig; values: CareerFormValues }> = ({ field, values }) => {
@@ -276,7 +292,7 @@ const ReviewField: React.FC<{ field: ReviewFieldConfig; values: CareerFormValues
 
   return (
     <div className={field.className}>
-      <span className="text-brand-stone block mb-1">{field.label}</span>
+      <span className="mb-1 block text-brand-stone">{field.label}</span>
       <span className="font-medium text-brand-dark">{content}</span>
     </div>
   );
@@ -298,16 +314,28 @@ export const StepReview: React.FC<StepReviewProps> = ({ values, errors, onEditSt
           <section
             key={section.headingId}
             aria-labelledby={section.headingId}
-            className={`bg-brand-surface p-6 rounded-2xl border ${hasErrors ? 'border-red-500 ring-2 ring-red-500' : 'border-brand-border'}`}
+            className={`rounded-2xl border bg-brand-surface p-6 ${hasErrors ? 'border-red-500 ring-2 ring-red-500' : 'border-brand-border'}`}
           >
-            <div className="flex justify-between items-center mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h3 id={section.headingId} className="font-heading font-bold text-brand-dark text-xl">{section.heading}</h3>
-                {hasErrors && <span className="bg-red-100 text-red-600 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">Edit needed</span>}
+                <h3 id={section.headingId} className="font-heading text-xl font-bold text-brand-dark">
+                  {section.heading}
+                </h3>
+                {hasErrors && (
+                  <span className="rounded bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-600 sm:text-xs">
+                    Edit needed
+                  </span>
+                )}
               </div>
-              <button type="button" onClick={() => onEditStep(section.editStep)} className="text-brand-moss text-sm font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss rounded-sm px-1">Edit</button>
+              <button
+                type="button"
+                onClick={() => onEditStep(section.editStep)}
+                className="rounded-sm px-1 text-sm font-bold text-brand-moss hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss"
+              >
+                Edit
+              </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
               {section.fields.map((field) => (
                 <ReviewField key={field.label} field={field} values={values} />
               ))}

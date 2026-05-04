@@ -99,9 +99,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       const o = 0.35 + (0.9 - 0.35) * 0.5;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = s.warm
-        ? `rgba(255,244,224,${o})`
-        : `rgba(255,255,255,${o})`;
+      ctx.fillStyle = s.warm ? `rgba(255,244,224,${o})` : `rgba(255,255,255,${o})`;
       ctx.fill();
     }
   }, []);
@@ -114,9 +112,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     const nav = navigator as any;
     const connection = nav.connection;
     const liteMode = Boolean(
-      connection?.saveData ||
-      connection?.effectiveType === 'slow-2g' ||
-      connection?.effectiveType === '2g'
+      connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g',
     );
 
     let staticRafId = 0;
@@ -202,8 +198,10 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
 
     // visibility
     const io = new IntersectionObserver(
-      ([entry]) => { visible = entry.intersectionRatio >= 0.1; },
-      { threshold: 0.1 }
+      ([entry]) => {
+        visible = Boolean(entry?.intersectionRatio && entry.intersectionRatio >= 0.1);
+      },
+      { threshold: 0.1 },
     );
     io.observe(container);
 
@@ -234,7 +232,10 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       if (!shooting) return;
       const age = now - shooting.birth;
       const totalLife = SHOOT_FADE_IN + SHOOT_TRAVEL + SHOOT_FADE_OUT;
-      if (age > totalLife) { shooting = null; return; }
+      if (age > totalLife) {
+        shooting = null;
+        return;
+      }
 
       let alpha: number;
       if (age < SHOOT_FADE_IN) alpha = age / SHOOT_FADE_IN;
@@ -272,7 +273,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       ctx.fillRect(0, 0, w, h);
 
       // nebula drifts in upper third on 60s cycle
-      const nebulaT = (now % 60_000) / 60_000 * Math.PI * 2;
+      const nebulaT = ((now % 60_000) / 60_000) * Math.PI * 2;
       nebulaX = w * 0.5 + Math.sin(nebulaT) * w * 0.12;
       nebulaY = h * 0.2 + Math.cos(nebulaT * 0.7) * h * 0.08;
       const nebGrad = ctx.createRadialGradient(nebulaX, nebulaY, 0, nebulaX, nebulaY, w * 0.45);
@@ -308,9 +309,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
         const o = 0.35 + (0.9 - 0.35) * (breathe * 0.5 + 0.5);
         ctx.beginPath();
         ctx.arc(s.x + midPx, s.y + midPy, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = s.warm
-          ? `rgba(255,244,224,${o})`
-          : `rgba(255,255,255,${o})`;
+        ctx.fillStyle = s.warm ? `rgba(255,244,224,${o})` : `rgba(255,255,255,${o})`;
         ctx.fill();
       }
 
@@ -337,10 +336,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
       style={{ background: BG }}
     >
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-      />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
     </div>
   );
 };

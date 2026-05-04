@@ -18,7 +18,7 @@ const renderFaq = (initialEntry = '/faqs') =>
   render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <FAQ />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 
 describe('FAQ', () => {
@@ -116,6 +116,10 @@ describe('FAQ', () => {
     const firstButton = buttons[0];
     const secondButton = buttons[1];
     const lastButton = buttons[buttons.length - 1];
+    expect(firstButton).toBeDefined();
+    expect(secondButton).toBeDefined();
+    expect(lastButton).toBeDefined();
+    if (!firstButton || !secondButton || !lastButton) return;
 
     firstButton.focus();
     fireEvent.keyDown(firstButton, { key: 'ArrowDown' });

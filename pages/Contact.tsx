@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Mail, Phone, MapPin, Loader2, CheckCircle, Clock, MessageCircle, Copy, Save } from 'lucide-react';
 import { PageHero } from '../components/hero';
@@ -11,6 +10,7 @@ import { createFormSchema, required, email, indianPhone } from '../utils/formVal
 import { apiClient, ApiError } from '../utils/api';
 import { headerSafe, normalizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
+import { getBotpoisonSolution } from '../utils/botpoison';
 import CustomDropdown from '../components/forms/CustomDropdown';
 import Honeypot from '../components/forms/Honeypot';
 import FormField from '../components/ui/FormField';
@@ -34,13 +34,10 @@ const INITIAL_CONTACT: ContactFormData = {
   company: '',
   subject: '',
   subjectOther: '',
-  message: ''
+  message: '',
 };
 
-const serviceOptions = [
-  ...SERVICES.map(s => s.title),
-  "Other"
-];
+const serviceOptions = [...SERVICES.map((s) => s.title), 'Other'];
 const allowedSubjectOptions = new Set(serviceOptions);
 
 const getAllowedSubject = (subject?: string | null) => {
@@ -48,10 +45,7 @@ const getAllowedSubject = (subject?: string | null) => {
   return allowedSubjectOptions.has(value) ? value : '';
 };
 
-const normalizeContactValues = (
-  data: Partial<ContactFormData>,
-  fallback?: ContactFormData
-): ContactFormData => {
+const normalizeContactValues = (data: Partial<ContactFormData>, fallback?: ContactFormData): ContactFormData => {
   const subject = getAllowedSubject(data.subject) || getAllowedSubject(fallback?.subject);
 
   return {
@@ -59,7 +53,7 @@ const normalizeContactValues = (
     ...fallback,
     ...data,
     subject,
-    subjectOther: subject === 'Other' ? (data.subjectOther || fallback?.subjectOther || '') : ''
+    subjectOther: subject === 'Other' ? data.subjectOther || fallback?.subjectOther || '' : '',
   };
 };
 
@@ -67,7 +61,7 @@ const contactSchema = createFormSchema<ContactFormData>({
   name: [required('Name is required')],
   email: [required('Email is required'), email()],
   phone: [required('Phone is required'), indianPhone()],
-  message: [required('Message is required')]
+  message: [required('Message is required')],
 });
 
 const Contact: React.FC = () => {
@@ -96,7 +90,7 @@ const Contact: React.FC = () => {
       if (top < 0 || bottom > viewportHeight) {
         heading.scrollIntoView({
           block: 'start',
-          behavior: prefersReducedMotion ? 'auto' : 'smooth'
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
         });
       }
     }
@@ -105,29 +99,33 @@ const Contact: React.FC = () => {
   const { canSubmit, recordAttempt, timeUntilReset } = useRateLimit({
     maxAttempts: 3,
     windowMs: 60 * 1000,
-    storageKey: 'contact_form_limit'
+    storageKey: 'contact_form_limit',
   });
 
-  const { values, handleChange, errors, validate, setValues, setErrors } = useFormValidation<ContactFormData>({
-    ...INITIAL_CONTACT,
-    subject: initialSubject
-  }, {
-    validationSchema: contactSchema,
-    validateOnChange: true // 4.3: High-priority forms can use onBlur, but kept onChange here for immediacy
-  });
+  const { values, handleChange, errors, validate, setValues, setErrors } = useFormValidation<ContactFormData>(
+    {
+      ...INITIAL_CONTACT,
+      subject: initialSubject,
+    },
+    {
+      validationSchema: contactSchema,
+      validateOnChange: true, // 4.3: High-priority forms can use onBlur, but kept onChange here for immediacy
+    },
+  );
 
   const { loadDraft, clearDraft, lastSaved } = useFormDraft('contact_form_draft', values, 1000, {
-    ttlDays: 7
+    ttlDays: 7,
   });
 
   const restoredDraft = useRef(false);
   useEffect(() => {
     if (restoredDraft.current) return;
-    const draft = loadDraft();
     restoredDraft.current = true;
-    if (draft) {
-      setValues(prev => normalizeContactValues(draft, prev));
-    }
+    void Promise.resolve(loadDraft()).then((draft) => {
+      if (draft) {
+        setValues((prev) => normalizeContactValues(draft, prev));
+      }
+    });
   }, [loadDraft, setValues]);
 
   const updateSentParam = (sent: boolean) => {
@@ -150,13 +148,13 @@ const Contact: React.FC = () => {
   const handleContactChange = (name: keyof ContactFormData, value: string) => {
     if (name === 'subject') {
       const subject = getAllowedSubject(value);
-      setValues(prev => ({
+      setValues((prev) => ({
         ...prev,
         subject,
-        subjectOther: subject === 'Other' ? prev.subjectOther : ''
+        subjectOther: subject === 'Other' ? prev.subjectOther : '',
       }));
       if (subject !== 'Other') {
-        setErrors(prev => {
+        setErrors((prev) => {
           const next = { ...prev };
           delete next.subjectOther;
           return next;
@@ -167,7 +165,7 @@ const Contact: React.FC = () => {
 
     handleChange(name, value);
     if (name === 'subjectOther' && value.trim()) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const next = { ...prev };
         delete next.subjectOther;
         return next;
@@ -213,7 +211,7 @@ const Contact: React.FC = () => {
 
     if (!isFormValid || hasMissingOtherSubject) {
       if (hasMissingOtherSubject) {
-        setErrors(prev => ({ ...prev, subjectOther: 'Please specify your subject' }));
+        setErrors((prev) => ({ ...prev, subjectOther: 'Please specify your subject' }));
       }
       addToast('Please correct the errors in the form.', 'error');
       return;
@@ -222,16 +220,19 @@ const Contact: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      const botpoisonSolution = await getBotpoisonSolution();
       await apiClient.post(CONTACT_INFO.formEndpoint, {
         name: normalizeInput(values.name),
         email: headerSafe(values.email, 254),
         phone: headerSafe(values.phone, 30),
         company: normalizeInput(values.company),
-        subject: headerSafe(values.subject === 'Other' ? values.subjectOther : values.subject) || 'Contact Form Inquiry',
+        subject:
+          headerSafe(values.subject === 'Other' ? values.subjectOther : values.subject) || 'Contact Form Inquiry',
         message: normalizeInput(values.message, { preserveLineBreaks: true }),
         _subject: `New Inquiry: ${headerSafe(values.name)}`,
         _honey: honeypot,
-        _template: 'table'
+        _botpoison: botpoisonSolution,
+        _template: 'table',
       });
 
       updateSentParam(true);
@@ -239,13 +240,12 @@ const Contact: React.FC = () => {
       clearDraft();
       setValues({ ...INITIAL_CONTACT });
       addToast('Message sent successfully!', 'success');
-
     } catch (error) {
       logger.error('Contact form error', { error, form: 'contact', canSubmit, timeUntilReset });
       let msg = 'Failed to send message. Please try again.';
       if (error instanceof ApiError) {
-        if (error.code === 'NETWORK_ERROR') msg = "Network unavailable. Please check your connection.";
-        else if (error.code === 'TIMEOUT') msg = "Request timed out.";
+        if (error.code === 'NETWORK_ERROR') msg = 'Network unavailable. Please check your connection.';
+        else if (error.code === 'TIMEOUT') msg = 'Request timed out.';
         else msg = `Server error. Please email us directly at ${CONTACT_INFO.email}`;
       } else {
         msg = `An error occurred. Please email us directly at ${CONTACT_INFO.email}`;
@@ -269,109 +269,113 @@ const Contact: React.FC = () => {
         ogImage="https://casagar.co.in/og-contact.png"
         breadcrumbs={[
           { name: 'Home', url: '/' },
-          { name: 'Contact', url: '/contact' }
+          { name: 'Contact', url: '/contact' },
         ]}
         schema={[
           {
-            "@context": "https://schema.org",
-            "@type": "AccountingService",
-            "@id": "https://casagar.co.in/#organization",
-            "name": CONTACT_INFO.name,
-            "image": "https://casagar.co.in/logo.png",
-            "telephone": CONTACT_INFO.phone.value,
-            "email": CONTACT_INFO.email,
-            "contactPoint": [
+            '@context': 'https://schema.org',
+            '@type': 'AccountingService',
+            '@id': 'https://casagar.co.in/#organization',
+            name: CONTACT_INFO.name,
+            image: 'https://casagar.co.in/logo.png',
+            telephone: CONTACT_INFO.phone.value,
+            email: CONTACT_INFO.email,
+            contactPoint: [
               {
-                "@type": "ContactPoint",
-                "telephone": CONTACT_INFO.phone.display.replace(/\s+/g, '-'),
-                "contactType": "customer support",
-                "areaServed": "IN",
-                "availableLanguage": ["en", "hi", "kn"]
+                '@type': 'ContactPoint',
+                telephone: CONTACT_INFO.phone.display.replace(/\s+/g, '-'),
+                contactType: 'customer support',
+                areaServed: 'IN',
+                availableLanguage: ['en', 'hi', 'kn'],
               },
               {
-                "@type": "ContactPoint",
-                "email": CONTACT_INFO.email,
-                "contactType": "customer support"
-              }
+                '@type': 'ContactPoint',
+                email: CONTACT_INFO.email,
+                contactType: 'customer support',
+              },
             ],
-            "url": "https://casagar.co.in",
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": CONTACT_INFO.address.street,
-              "addressLocality": CONTACT_INFO.address.city,
-              "addressRegion": CONTACT_INFO.address.state,
-              "postalCode": CONTACT_INFO.address.zip,
-              "addressCountry": "IN"
+            url: 'https://casagar.co.in',
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: CONTACT_INFO.address.street,
+              addressLocality: CONTACT_INFO.address.city,
+              addressRegion: CONTACT_INFO.address.state,
+              postalCode: CONTACT_INFO.address.zip,
+              addressCountry: 'IN',
             },
-            "geo": {
-              "@type": "GeoCoordinates",
-              "latitude": CONTACT_INFO.geo.latitude,
-              "longitude": CONTACT_INFO.geo.longitude
+            geo: {
+              '@type': 'GeoCoordinates',
+              latitude: CONTACT_INFO.geo.latitude,
+              longitude: CONTACT_INFO.geo.longitude,
             },
-            "openingHoursSpecification": [
+            openingHoursSpecification: [
               {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-                "opens": "10:00",
-                "closes": "20:00"
-              }
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                opens: '10:00',
+                closes: '20:00',
+              },
             ],
-            "sameAs": [
-              CONTACT_INFO.social.linkedin,
-              CONTACT_INFO.social.whatsapp
-            ]
+            sameAs: [CONTACT_INFO.social.linkedin, CONTACT_INFO.social.whatsapp],
           },
           {
-            "@context": "https://schema.org",
-            "@type": "ContactPage",
-            "url": "https://casagar.co.in/contact",
-            "name": "Contact Sagar H R & Co.",
-            "mainEntity": { "@id": "https://casagar.co.in/#organization" }
-          }
+            '@context': 'https://schema.org',
+            '@type': 'ContactPage',
+            url: 'https://casagar.co.in/contact',
+            name: 'Contact Sagar H R & Co.',
+            mainEntity: { '@id': 'https://casagar.co.in/#organization' },
+          },
         ]}
       />
 
       <PageHero
         variant="directory"
         eyebrow="Contact · Direct Lines"
-        title={<>Begin a <em>conversation.</em></>}
+        title={
+          <>
+            Begin a <em>conversation.</em>
+          </>
+        }
         coordinates="12.3004° N · 76.6518° E"
         contacts={[
-          { label: "By Letter", value: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}` },
-          { label: "By Voice", value: CONTACT_INFO.phone.value, href: `tel:${CONTACT_INFO.phone.value}` },
-          { label: "By Visit", value: `${CONTACT_INFO.address.street}, ${CONTACT_INFO.address.city} - ${CONTACT_INFO.address.zip}` }
+          { label: 'By Letter', value: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}` },
+          { label: 'By Voice', value: CONTACT_INFO.phone.value, href: `tel:${CONTACT_INFO.phone.value}` },
+          {
+            label: 'By Visit',
+            value: `${CONTACT_INFO.address.street}, ${CONTACT_INFO.address.city} - ${CONTACT_INFO.address.zip}`,
+          },
         ]}
       />
 
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 py-12 md:py-20">
-
+      <div className="container mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-20">
         {/* Main Grid: Info Card & Form Card */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 mb-12 md:mb-20 items-start">
-
+        <div className="mb-12 grid grid-cols-1 items-start gap-8 md:mb-20 lg:grid-cols-12 lg:gap-10">
           {/* Left Column: Contact Info (Dark Theme) - Sticky */}
           <div className="lg:col-span-4 xl:sticky xl:top-32">
             <Reveal width="100%">
-              <div className="zone-bg text-brand-surface p-6 md:p-8 rounded-[2.5rem] relative overflow-x-hidden xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto xl:overscroll-contain shadow-2xl">
+              <div className="zone-bg relative overflow-x-hidden rounded-[2.5rem] p-6 text-brand-surface shadow-2xl md:p-8 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto xl:overscroll-contain">
                 {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent opacity-10 rounded-full blur-[80px] pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full blur-[60px] pointer-events-none"></div>
-                <div className="absolute inset-0 bg-noise opacity-[0.15] mix-blend-overlay pointer-events-none"></div>
+                <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-brand-accent opacity-10 blur-[80px]"></div>
+                <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-white opacity-5 blur-[60px]"></div>
+                <div className="bg-noise pointer-events-none absolute inset-0 opacity-[0.15] mix-blend-overlay"></div>
 
                 <div className="relative z-10">
-                  <span className="text-brand-accent font-bold tracking-widest uppercase text-xs mb-4 block">Contact Details</span>
-                  <h2 className="text-2xl font-heading font-bold text-white mb-8">
+                  <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-brand-accent">
+                    Contact Details
+                  </span>
+                  <h2 className="mb-8 font-heading text-2xl font-bold text-white">
                     Let's discuss your <br /> <span className="text-white/60">financial future.</span>
                   </h2>
 
                   <div className="space-y-6">
                     {/* Office */}
-                    <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                    <div className="group flex items-start gap-5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                         <MapPin size={18} aria-hidden="true" />
                       </div>
                       <div>
-                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Our Office</h3>
-                        <address className="not-italic text-gray-300 font-medium leading-relaxed text-sm">
+                        <h3 className="mb-1 text-sm font-bold uppercase tracking-wide text-white">Our Office</h3>
+                        <address className="text-sm font-medium not-italic leading-relaxed text-gray-300">
                           {CONTACT_INFO.address.street},<br />
                           {CONTACT_INFO.address.city} - {CONTACT_INFO.address.zip}
                         </address>
@@ -379,36 +383,54 @@ const Contact: React.FC = () => {
                     </div>
 
                     {/* Email */}
-                    <div className="flex items-start gap-5 group relative">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                    <div className="group relative flex items-start gap-5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                         <Mail size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h3 className="text-white font-bold text-sm uppercase tracking-wide">Email Us</h3>
-                          <button type="button" onClick={() => handleCopy(CONTACT_INFO.email, 'Email')} className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-all duration-200 hover:text-white active:scale-90 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent shrink-0" aria-label="Copy Email" title="Copy Email">
+                        <div className="mb-1 flex items-center justify-between">
+                          <h3 className="text-sm font-bold uppercase tracking-wide text-white">Email Us</h3>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(CONTACT_INFO.email, 'Email')}
+                            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-all duration-200 hover:text-white focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent active:scale-90 group-hover:opacity-100"
+                            aria-label="Copy Email"
+                            title="Copy Email"
+                          >
                             <Copy size={14} />
                           </button>
                         </div>
-                        <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-white transition-colors font-medium break-words text-sm">
+                        <a
+                          href={`mailto:${CONTACT_INFO.email}`}
+                          className="break-words text-sm font-medium text-gray-300 transition-colors hover:text-white"
+                        >
                           {CONTACT_INFO.email}
                         </a>
                       </div>
                     </div>
 
                     {/* Phone */}
-                    <div className="flex items-start gap-5 group relative">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                    <div className="group relative flex items-start gap-5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                         <Phone size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h3 className="text-white font-bold text-sm uppercase tracking-wide">Call Us</h3>
-                          <button type="button" onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')} className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-all duration-200 hover:text-white active:scale-90 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent shrink-0" aria-label="Copy Phone" title="Copy Phone">
+                        <div className="mb-1 flex items-center justify-between">
+                          <h3 className="text-sm font-bold uppercase tracking-wide text-white">Call Us</h3>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')}
+                            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-all duration-200 hover:text-white focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent active:scale-90 group-hover:opacity-100"
+                            aria-label="Copy Phone"
+                            title="Copy Phone"
+                          >
                             <Copy size={14} />
                           </button>
                         </div>
-                        <a href={`tel:${CONTACT_INFO.phone.value}`} className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
+                        <a
+                          href={`tel:${CONTACT_INFO.phone.value}`}
+                          className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+                        >
                           {CONTACT_INFO.phone.display}
                         </a>
                       </div>
@@ -416,15 +438,21 @@ const Contact: React.FC = () => {
 
                     {/* WhatsApp */}
                     {CONTACT_INFO.social.whatsapp && (
-                      <div className="flex items-start gap-5 group relative">
-                        <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                      <div className="group relative flex items-start gap-5">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                           <MessageCircle size={18} aria-hidden="true" />
                         </div>
                         <div className="flex-1">
-                          <div className="flex justify-between items-center mb-1">
-                            <h3 className="text-white font-bold text-sm uppercase tracking-wide">WhatsApp Us</h3>
+                          <div className="mb-1 flex items-center justify-between">
+                            <h3 className="text-sm font-bold uppercase tracking-wide text-white">WhatsApp Us</h3>
                           </div>
-                          <a href={CONTACT_INFO.social.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors font-medium text-sm">
+                          <a
+                            href={CONTACT_INFO.social.whatsapp}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Chat on WhatsApp (opens in new window)"
+                            className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+                          >
                             Chat on WhatsApp
                           </a>
                         </div>
@@ -432,18 +460,15 @@ const Contact: React.FC = () => {
                     )}
 
                     {/* Working Hours */}
-                    <div className="flex items-start gap-5 group">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-brand-ink group-hover:scale-110 transition-all duration-300 border border-white/5 shrink-0">
+                    <div className="group flex items-start gap-5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                         <Clock size={18} aria-hidden="true" />
                       </div>
                       <div>
-                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">Working Hours</h3>
-                        <p className="text-gray-300 font-medium text-sm">
-                          {CONTACT_INFO.hours.display}
-                        </p>
+                        <h3 className="mb-1 text-sm font-bold uppercase tracking-wide text-white">Working Hours</h3>
+                        <p className="text-sm font-medium text-gray-300">{CONTACT_INFO.hours.display}</p>
                       </div>
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -452,23 +477,25 @@ const Contact: React.FC = () => {
 
           {/* Right Column: Contact Form */}
           <Reveal className="lg:col-span-8" delay={0.1} width="100%">
-            <div className="bg-transparent text-white p-8 md:p-12 rounded-[2.5rem] border-none h-full focus-within:shadow-brand-accent/5 transition-all duration-500 flex flex-col justify-center relative overflow-hidden">
+            <div className="relative flex h-full flex-col justify-center overflow-hidden rounded-[2.5rem] border-none bg-transparent p-8 text-white transition-all duration-500 focus-within:shadow-brand-accent/5 md:p-12">
               <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
                 {successAnnouncement}
               </div>
 
-              <div hidden={!isSuccess} aria-hidden={!isSuccess} className="text-center py-10 animate-fade-in-up">
-                <div className="w-20 h-20 bg-brand-accent/10 text-brand-accent rounded-full flex items-center justify-center mx-auto mb-6">
+              <div hidden={!isSuccess} aria-hidden={!isSuccess} className="animate-fade-in-up py-10 text-center">
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-brand-accent/10 text-brand-accent">
                   <CheckCircle size={40} aria-hidden="true" />
                 </div>
-                <h2 ref={successHeadingRef} tabIndex={-1} className="text-3xl font-heading font-bold mb-4 text-white">Message Sent!</h2>
-                <p className="text-white/60 mb-8 text-lg font-medium">
+                <h2 ref={successHeadingRef} tabIndex={-1} className="mb-4 font-heading text-3xl font-bold text-white">
+                  Message Sent!
+                </h2>
+                <p className="mb-8 text-lg font-medium text-white/60">
                   Thank you for reaching out. Our team will get back to you shortly.
                 </p>
                 <button
                   type="button"
                   onClick={handleSendAnother}
-                  className="text-brand-accent font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 rounded-md px-1"
+                  className="rounded-md px-1 font-bold text-brand-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2"
                 >
                   Send another message
                 </button>
@@ -480,155 +507,170 @@ const Contact: React.FC = () => {
                 <input type="hidden" name="_template" value="table" />
 
                 <div className="mb-2">
-                  <h2 className="text-3xl font-heading font-bold text-white">Send a Message</h2>
-                  <p className="text-white/60 font-medium mt-2">Fill out the form below and we will get back to you.</p>
+                  <h2 className="font-heading text-3xl font-bold text-white">Send a Message</h2>
+                  <p className="mt-2 font-medium text-white/60">Fill out the form below and we will get back to you.</p>
                 </div>
 
-                  {/* Row 1: Name & Phone */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField label="Name" name="name" required error={errors.name} labelClassName="text-white">
-                      <input
-                        type="text"
-                        maxLength={80}
-                        value={values.name}
-                        onChange={(e) => handleChange('name', e.target.value)}
-                        className={darkInputClass}
-                        placeholder="Your Name"
-                        autoComplete="name"
-                      />
-                    </FormField>
-                    <FormField
-                      label="Phone"
-                      name="phone"
-                      required
-                      error={errors.phone}
-                      hint="10-digit mobile, India"
-                      labelClassName="text-white"
-                      hintClassName="text-left text-white/40"
-                    >
-                      <input
-                        type="tel"
-                        inputMode="tel"
-                        maxLength={15}
-                        pattern="[+0-9 ]*"
-                        value={values.phone}
-                        onChange={(e) => handleChange('phone', e.target.value)}
-                        className={darkInputClass}
-                        placeholder="Mobile Number"
-                        autoComplete="tel"
-                      />
-                    </FormField>
-                  </div>
-
-                  {/* Row 2: Email & Company Name */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField label="Email" name="email" required error={errors.email} labelClassName="text-white">
-                      <input
-                        type="email"
-                        maxLength={254}
-                        value={values.email}
-                        onChange={(e) => handleChange('email', e.target.value)}
-                        className={darkInputClass}
-                        placeholder="email@company.com"
-                        autoComplete="email"
-                      />
-                    </FormField>
-
-                    <FormField label="Company Name" name="company" labelClassName="text-white">
-                      <input
-                        type="text"
-                        maxLength={120}
-                        value={values.company}
-                        onChange={(e) => handleChange('company', e.target.value)}
-                        className={darkInputClass}
-                        placeholder="Company Name"
-                        autoComplete="organization"
-                      />
-                    </FormField>
-                  </div>
-
-                  {/* Row 3: Subject (Full Width) */}
-                  <div className="w-full">
-                    <CustomDropdown
-                      label="Subject"
-                      name="subject"
-                      value={values.subject}
-                      options={serviceOptions}
-                      onChange={(name, val) => handleContactChange(name as keyof ContactFormData, val)}
-                      placeholder="Select a topic"
-                      buttonClassName="bg-brand-ink-deep text-white border-white/5 hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:text-brand-accent transition-colors duration-300"
-                      labelClassName="text-white"
-                      accentClassName="text-brand-accent"
-                      listClassName="bg-brand-ink-deep border-white/10"
+                {/* Row 1: Name & Phone */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <FormField label="Name" name="name" required error={errors.name} labelClassName="text-white">
+                    <input
+                      type="text"
+                      maxLength={80}
+                      value={values.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      className={darkInputClass}
+                      placeholder="Your Name"
+                      autoComplete="name"
                     />
-
-                    {values.subject === 'Other' && (
-                      <div className="w-full mt-6">
-                        <FormField label="Please specify" name="subjectOther" required error={errors.subjectOther} labelClassName="text-white">
-                          <input
-                            type="text"
-                            maxLength={80}
-                            value={values.subjectOther}
-                            onChange={(e) => handleContactChange('subjectOther', e.target.value)}
-                            className={darkInputClass}
-                            placeholder="What is your inquiry regarding?"
-                          />
-                        </FormField>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Row 4: Message */}
+                  </FormField>
                   <FormField
-                    label="Message"
-                    name="message"
+                    label="Phone"
+                    name="phone"
                     required
-                    error={errors.message}
+                    error={errors.phone}
+                    hint="10-digit mobile, India"
                     labelClassName="text-white"
-                    hintClassName="text-white/40"
-                    hint={values.message.length > 1800
-                      ? `${values.message.length} / 2000 — approaching limit`
-                      : `${values.message.length} / 2000`}
+                    hintClassName="text-left text-white/40"
                   >
-                    <textarea
-                      rows={4}
-                      maxLength={2000}
-                      value={values.message}
-                      onChange={(e) => handleChange('message', e.target.value)}
-                      className={`${darkInputClass} resize-none leading-relaxed`}
-                      placeholder="How can we help you?"
-                    ></textarea>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      maxLength={15}
+                      pattern="[+0-9 ]*"
+                      value={values.phone}
+                      onChange={(e) => handleChange('phone', e.target.value)}
+                      className={darkInputClass}
+                      placeholder="Mobile Number"
+                      autoComplete="tel"
+                    />
+                  </FormField>
+                </div>
+
+                {/* Row 2: Email & Company Name */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <FormField label="Email" name="email" required error={errors.email} labelClassName="text-white">
+                    <input
+                      type="email"
+                      maxLength={254}
+                      value={values.email}
+                      onChange={(e) => handleChange('email', e.target.value)}
+                      className={darkInputClass}
+                      placeholder="email@company.com"
+                      autoComplete="email"
+                    />
                   </FormField>
 
-                  <div className="pt-2">
-                    <BigCTA
-                      type="submit"
-                      disabled={isSubmitting || !canSubmit}
-                      tone="accent" size="lg"
-                      className="w-full"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="animate-spin" size={20} aria-hidden="true" /> Sending...
-                        </>
-                      ) : (
-                        <>
-                          Send
-                        </>
-                      )}
-                    </BigCTA>
-                    <div className="text-center mt-4 space-y-2">
-                      {lastSaved && (
-                        <p className="inline-flex items-center justify-center gap-1 text-[10px] uppercase tracking-wider text-white/40">
-                          <Save size={12} aria-hidden="true" /> Draft saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      )}
-                      <p className="text-sm font-medium text-white/40">We typically reply within one business day.</p>
-                      <p className="text-xs font-medium text-white/40">
-                        By submitting, you agree to our <a href="/privacy" className="underline underline-offset-2 hover:text-brand-accent transition-colors">Privacy Policy</a>. We only use your details to reply to this enquiry.
-                      </p>
+                  <FormField label="Company Name" name="company" labelClassName="text-white">
+                    <input
+                      type="text"
+                      maxLength={120}
+                      value={values.company}
+                      onChange={(e) => handleChange('company', e.target.value)}
+                      className={darkInputClass}
+                      placeholder="Company Name"
+                      autoComplete="organization"
+                    />
+                  </FormField>
+                </div>
+
+                {/* Row 3: Subject (Full Width) */}
+                <div className="w-full">
+                  <CustomDropdown
+                    label="Subject"
+                    name="subject"
+                    value={values.subject}
+                    options={serviceOptions}
+                    onChange={(name, val) => handleContactChange(name as keyof ContactFormData, val)}
+                    placeholder="Select a topic"
+                    buttonClassName="bg-brand-ink-deep text-white border-white/5 hover:border-brand-accent/30 focus-visible:border-brand-accent focus-visible:text-brand-accent transition-colors duration-300"
+                    labelClassName="text-white"
+                    accentClassName="text-brand-accent"
+                    listClassName="bg-brand-ink-deep border-white/10"
+                  />
+
+                  {values.subject === 'Other' && (
+                    <div className="mt-6 w-full">
+                      <FormField
+                        label="Please specify"
+                        name="subjectOther"
+                        required
+                        error={errors.subjectOther}
+                        labelClassName="text-white"
+                      >
+                        <input
+                          type="text"
+                          maxLength={80}
+                          value={values.subjectOther}
+                          onChange={(e) => handleContactChange('subjectOther', e.target.value)}
+                          className={darkInputClass}
+                          placeholder="What is your inquiry regarding?"
+                        />
+                      </FormField>
                     </div>
+                  )}
+                </div>
+
+                {/* Row 4: Message */}
+                <FormField
+                  label="Message"
+                  name="message"
+                  required
+                  error={errors.message}
+                  labelClassName="text-white"
+                  hintClassName="text-white/40"
+                  hint={
+                    values.message.length > 1800
+                      ? `${values.message.length} / 2000 — approaching limit`
+                      : `${values.message.length} / 2000`
+                  }
+                >
+                  <textarea
+                    rows={4}
+                    maxLength={2000}
+                    value={values.message}
+                    onChange={(e) => handleChange('message', e.target.value)}
+                    className={`${darkInputClass} resize-none leading-relaxed`}
+                    placeholder="How can we help you?"
+                  ></textarea>
+                </FormField>
+
+                <div className="pt-2">
+                  <BigCTA
+                    type="submit"
+                    disabled={isSubmitting || !canSubmit}
+                    tone="accent"
+                    size="lg"
+                    className="w-full"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="animate-spin" size={20} aria-hidden="true" /> Sending...
+                      </>
+                    ) : (
+                      <>Send</>
+                    )}
+                  </BigCTA>
+                  <div className="mt-4 space-y-2 text-center">
+                    {lastSaved && (
+                      <p className="inline-flex items-center justify-center gap-1 text-[10px] uppercase tracking-wider text-white/40">
+                        <Save size={12} aria-hidden="true" /> Draft saved{' '}
+                        {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    )}
+                    <p className="text-sm font-medium text-white/40">We typically reply within one business day.</p>
+                    <p className="text-xs font-medium text-white/40">
+                      By submitting, you agree to our{' '}
+                      <a
+                        href="/privacy"
+                        className="underline underline-offset-2 transition-colors hover:text-brand-accent"
+                      >
+                        Privacy Policy
+                      </a>
+                      . We only use your details to reply to this enquiry.
+                    </p>
                   </div>
+                </div>
               </form>
             </div>
           </Reveal>
@@ -640,19 +682,30 @@ const Contact: React.FC = () => {
           <div
             role="figure"
             aria-labelledby="map-caption"
-            className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full h-[280px] md:h-[350px] rounded-none md:rounded-[3rem] overflow-hidden shadow-2xl border-0 md:border zone-border grayscale-0 md:grayscale group relative transition-all duration-700 hover:grayscale-0 cursor-auto"
+            className="zone-border group relative -mx-4 h-[280px] w-[calc(100%+2rem)] cursor-auto overflow-hidden rounded-none border-0 shadow-2xl grayscale-0 transition-all duration-700 hover:grayscale-0 md:mx-0 md:h-[350px] md:w-full md:rounded-[3rem] md:border md:grayscale"
             data-hide-cursor="true"
           >
-            <h2 id="map-caption" className="sr-only">Our Location on the Map</h2>
+            <h2 id="map-caption" className="sr-only">
+              Our Location on the Map
+            </h2>
             {/* Desktop grayscale, border, and shadow are retained as a deliberate map treatment. */}
-            <div data-show-cursor="true" className="absolute top-4 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:top-10 md:right-10 z-10 bg-black/70 backdrop-blur-xl px-4 py-3 md:px-6 md:py-4 rounded-2xl border border-white/10 shadow-lg pointer-events-auto max-w-[calc(100%-2rem)] w-max text-balance flex flex-col items-center md:items-start text-center md:text-left">
-              <div className="flex items-center gap-3 mb-1">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-[10px] text-white/80 font-bold uppercase tracking-widest">Our Location</span>
+            <div
+              data-show-cursor="true"
+              className="pointer-events-auto absolute left-1/2 top-4 z-10 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 flex-col items-center text-balance rounded-2xl border border-white/10 bg-black/70 px-4 py-3 text-center shadow-lg backdrop-blur-xl md:left-auto md:right-10 md:top-10 md:translate-x-0 md:items-start md:px-6 md:py-4 md:text-left"
+            >
+              <div className="mb-1 flex items-center gap-3">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-red-500"></div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">Our Location</span>
               </div>
-              <h3 className="font-heading font-bold text-xl text-white">{CONTACT_INFO.name}</h3>
-              <a href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-xs font-bold uppercase tracking-wider text-white hover:text-white/80 hover:underline transition-all">
-                Get Directions ↗
+              <h3 className="font-heading text-xl font-bold text-white">{CONTACT_INFO.name}</h3>
+              <a
+                href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get DirectionsGoogle Maps (opens in new window)"
+                className="mt-2 inline-block text-xs font-bold uppercase tracking-wider text-white transition-all hover:text-white/80 hover:underline"
+              >
+                Get Directions
               </a>
             </div>
 
@@ -660,16 +713,17 @@ const Contact: React.FC = () => {
               href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-white text-black p-3 rounded-xl shadow-lg font-bold"
+              aria-label="Get DirectionsGoogle Maps (opens in new window)"
+              className="sr-only z-50 rounded-xl bg-white p-3 font-bold text-black shadow-lg focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
             >
-              Get directions on Google Maps
+              Get DirectionsGoogle Maps
             </a>
             <iframe
               title={`${CONTACT_INFO.name} Location`}
               width="100%"
               height="100%"
               src={CONTACT_INFO.geo.mapEmbedUrl}
-              className="w-full h-full border-0"
+              className="h-full w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allow="geolocation 'none'"
@@ -677,16 +731,12 @@ const Contact: React.FC = () => {
               allowFullScreen
             />
 
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-brand-dark/20 to-transparent opacity-50"></div>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-dark/20 to-transparent opacity-50"></div>
           </div>
         </Reveal>
-
       </div>
     </div>
   );
 };
 
 export default Contact;
-
-
-

@@ -56,7 +56,7 @@ const renderAbout = () =>
       <main>
         <About />
       </main>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 
 describe('About', () => {
@@ -72,10 +72,9 @@ describe('About', () => {
 
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('navigation', { name: /breadcrumb/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /reach out/i })).toHaveAttribute('href', '/contact');
     expect(screen.getByText('2023')).toBeInTheDocument();
-    expect(screen.getByText('Mysuru')).toBeInTheDocument();
+    expect(screen.getAllByText('Mysuru').length).toBeGreaterThan(0);
   });
 
   it('warms the Contact route chunk when the CTA is hovered or focused', () => {

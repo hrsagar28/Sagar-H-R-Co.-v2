@@ -2,9 +2,7 @@ import React from 'react';
 import { CONTACT_INFO } from '../../constants';
 import { useCountUp } from '../../hooks/useCountUp';
 
-type Stat =
-  | { kind: 'count'; label: string; value: string }
-  | { kind: 'static'; label: string; value: string };
+type Stat = { kind: 'count'; label: string; value: string } | { kind: 'static'; label: string; value: string };
 
 const parseCountValue = (value: string) => {
   const match = value.match(/^(\d+)(.*)$/);
@@ -19,11 +17,9 @@ const CountUpStat: React.FC<{ label: string; value: string }> = ({ label, value 
   const { count, ref } = useCountUp<HTMLDivElement>(end, 1.4);
 
   return (
-    <div ref={ref}>
-      <dt className="text-eyebrow font-mono uppercase tracking-[0.2em] text-zone-text-muted/80">
-        {label}
-      </dt>
-      <dd className="font-heading text-2xl mt-1 text-zone-text">
+    <div ref={ref as React.RefObject<HTMLDivElement>}>
+      <dt className="font-mono text-eyebrow uppercase tracking-[0.2em] text-zone-text-muted/80">{label}</dt>
+      <dd className="mt-1 font-heading text-2xl text-zone-text">
         <span aria-hidden="true">
           {count.toLocaleString('en-IN')}
           {suffix}
@@ -39,10 +35,8 @@ const CountUpStat: React.FC<{ label: string; value: string }> = ({ label, value 
 
 const StaticStat: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div>
-    <dt className="text-eyebrow font-mono uppercase tracking-[0.2em] text-zone-text-muted/80">
-      {label}
-    </dt>
-    <dd className="font-heading text-2xl mt-1 text-zone-text">{value}</dd>
+    <dt className="font-mono text-eyebrow uppercase tracking-[0.2em] text-zone-text-muted/80">{label}</dt>
+    <dd className="mt-1 font-heading text-2xl text-zone-text">{value}</dd>
   </div>
 );
 
@@ -54,27 +48,36 @@ const stats: Stat[] = [
 ];
 
 export const Snapshot: React.FC = () => (
-  <section id="snapshot" aria-labelledby="snapshot-heading" className="container mx-auto max-w-7xl px-4 md:px-6 pb-24">
-    <h2 id="snapshot-heading" className="sr-only">Practice at a glance</h2>
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+  <section id="snapshot" aria-labelledby="snapshot-heading" className="container mx-auto max-w-7xl px-4 pb-24 md:px-6">
+    <h2 id="snapshot-heading" className="sr-only">
+      Practice at a glance
+    </h2>
+    <div
+      className="grid animate-fade-in-up grid-cols-1 items-end gap-12 lg:grid-cols-12"
+      style={{ animationDelay: '0.2s' }}
+    >
       <div className="lg:col-span-7">
-        <div className="relative rounded-bento overflow-hidden border zone-border zone-surface p-8 md:p-12 shadow-2xl">
+        <div className="zone-border zone-surface relative overflow-hidden rounded-bento border p-8 shadow-2xl md:p-12">
           <dl className="grid grid-cols-2 gap-x-8 gap-y-6">
-            {stats.map((stat) => (
-              stat.kind === 'count'
-                ? <CountUpStat key={stat.label} label={stat.label} value={stat.value} />
-                : <StaticStat key={stat.label} label={stat.label} value={stat.value} />
-            ))}
+            {stats.map((stat) =>
+              stat.kind === 'count' ? (
+                <CountUpStat key={stat.label} label={stat.label} value={stat.value} />
+              ) : (
+                <StaticStat key={stat.label} label={stat.label} value={stat.value} />
+              ),
+            )}
           </dl>
         </div>
       </div>
-      <div className="lg:col-span-5 pb-4">
-        <p className="text-xl md:text-2xl text-zone-text-muted font-medium leading-relaxed mb-8 max-w-prose">
-          {CONTACT_INFO.name} is a Mysuru-based Chartered Accountancy practice for owner-led businesses, professionals, and growing teams that need clear compliance ownership.
+      <div className="pb-4 lg:col-span-5">
+        <p className="mb-8 max-w-prose text-xl font-medium leading-relaxed text-zone-text-muted md:text-2xl">
+          {CONTACT_INFO.name} is a Mysuru-based Chartered Accountancy practice for owner-led businesses, professionals,
+          and growing teams that need clear compliance ownership.
         </p>
-        <div className="flex flex-col gap-4 border-l zone-border pl-6">
-          <p className="text-zone-text-muted/80 text-lg max-w-prose">
-            The firm keeps the practice intentionally direct: the person who understands the facts also signs the advice.
+        <div className="zone-border flex flex-col gap-4 border-l pl-6">
+          <p className="max-w-prose text-lg text-zone-text-muted/80">
+            The firm keeps the practice intentionally direct: the person who understands the facts also signs the
+            advice.
           </p>
         </div>
       </div>

@@ -3,21 +3,24 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 
 type RevealCallback = () => void;
 
-const revealCallbacks = new Map<Element, RevealCallback>();
+const revealCallbacks = new WeakMap<Element, RevealCallback>();
 let sharedObserver: IntersectionObserver | null = null;
 
 const getSharedObserver = () => {
   if (!sharedObserver) {
-    sharedObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
+    sharedObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
 
-        const callback = revealCallbacks.get(entry.target);
-        if (callback) callback();
-        revealCallbacks.delete(entry.target);
-        sharedObserver?.unobserve(entry.target);
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+          const callback = revealCallbacks.get(entry.target);
+          if (callback) callback();
+          revealCallbacks.delete(entry.target);
+          sharedObserver?.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
+    );
   }
 
   return sharedObserver;
@@ -47,22 +50,22 @@ interface WordRevealProps {
 
 /**
  * Reveal Component
- * 
+ *
  * Uses IntersectionObserver to trigger premium entrance animations when elements scroll into view.
  * Respects prefers-reduced-motion media query settings.
- * 
+ *
  * @example
  * <Reveal variant="fade-up" delay={0.2}>
  *   <h1>Animated Heading</h1>
  * </Reveal>
  */
-const Reveal: React.FC<RevealProps> = ({ 
-  children, 
+const Reveal: React.FC<RevealProps> = ({
+  children,
   width = 'fit-content',
   delay = 0,
   duration = 0.8,
-  className = "",
-  variant = 'fade-up'
+  className = '',
+  variant = 'fade-up',
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -78,6 +81,7 @@ const Reveal: React.FC<RevealProps> = ({
     }
 
     const observer = getSharedObserver();
+    observer.unobserve(element);
     revealCallbacks.set(element, () => setIsVisible(true));
     observer.observe(element);
 
@@ -91,12 +95,17 @@ const Reveal: React.FC<RevealProps> = ({
   const getTransformStyle = () => {
     if (shouldReduceMotion) return 'none';
     if (isVisible) return 'translate(0, 0) scale(1)';
-    
+
     switch (variant) {
-      case 'slide-up': return 'translate(0, 40px)';
-      case 'scale': return 'scale(0.95)';
-      case 'reveal-mask': return 'translate(0, 100%)';
-      case 'fade-up': default: return 'translate(0, 20px)';
+      case 'slide-up':
+        return 'translate(0, 40px)';
+      case 'scale':
+        return 'scale(0.95)';
+      case 'reveal-mask':
+        return 'translate(0, 100%)';
+      case 'fade-up':
+      default:
+        return 'translate(0, 20px)';
     }
   };
 
@@ -119,9 +128,7 @@ const Reveal: React.FC<RevealProps> = ({
   if (variant === 'reveal-mask') {
     return (
       <div ref={ref} className={`relative overflow-hidden ${className}`} style={{ width }}>
-        <div style={style}>
-          {children}
-        </div>
+        <div style={style}>{children}</div>
       </div>
     );
   }
@@ -133,12 +140,7 @@ const Reveal: React.FC<RevealProps> = ({
   );
 };
 
-export const WordReveal: React.FC<WordRevealProps> = ({
-  children,
-  delay = 0.15,
-  stagger = 0.12,
-  className = '',
-}) => {
+export const WordReveal: React.FC<WordRevealProps> = ({ children, delay = 0.15, stagger = 0.12, className = '' }) => {
   const ref = useRef<HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const shouldReduceMotion = useReducedMotion();
@@ -153,6 +155,7 @@ export const WordReveal: React.FC<WordRevealProps> = ({
     }
 
     const observer = getSharedObserver();
+    observer.unobserve(element);
     revealCallbacks.set(element, () => setIsVisible(true));
     observer.observe(element);
 
@@ -170,7 +173,10 @@ export const WordReveal: React.FC<WordRevealProps> = ({
 
   const extractWords = (node: ReactNode) => {
     if (typeof node === 'string') {
-      node.split(/\s+/).filter(Boolean).forEach((part) => words.push(part));
+      node
+        .split(/\s+/)
+        .filter(Boolean)
+        .forEach((part) => words.push(part));
       return;
     }
 
@@ -200,7 +206,7 @@ export const WordReveal: React.FC<WordRevealProps> = ({
     <span ref={ref} className={`inline-block ${className}`}>
       {words.map((word, index) => (
         <React.Fragment key={index}>
-          <span className="inline-flex overflow-hidden pb-[0.25em] -mb-[0.25em] align-bottom">
+          <span className="-mb-[0.25em] inline-flex overflow-hidden pb-[0.25em] align-bottom">
             <span
               className="inline-block whitespace-nowrap transition-all duration-700 ease-out motion-reduce:transition-none"
               style={{

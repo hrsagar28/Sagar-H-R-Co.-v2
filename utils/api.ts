@@ -1,4 +1,3 @@
-
 import { logger } from './logger';
 
 export interface ApiConfig {
@@ -11,9 +10,9 @@ export interface ApiConfig {
 
 export class ApiError extends Error {
   constructor(
-    public message: string, 
-    public status: number = 0, 
-    public code: string = 'UNKNOWN_ERROR'
+    public message: string,
+    public status: number = 0,
+    public code: string = 'UNKNOWN_ERROR',
   ) {
     super(message);
     this.name = 'ApiError';
@@ -26,52 +25,60 @@ const DEFAULT_CONFIG: ApiConfig = {
   retryDelay: 1000,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
+    Accept: 'application/json',
+  },
 };
 
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function fetchWithRetry(url: string, options: RequestInit, config: ApiConfig = {}): Promise<Response> {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
   const { timeout, retries, retryDelay } = finalConfig;
-  
+
   let attempt = 0;
-  
+
   while (true) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-    
+
     try {
-      const response = await fetch(url, { 
-        ...options, 
+      const response = await fetch(url, {
+        ...options,
         signal: config.signal || controller.signal,
         headers: {
           ...DEFAULT_CONFIG.headers,
           ...config.headers,
-          ...options.headers
-        }
+          ...options.headers,
+        },
       });
       clearTimeout(id);
 
       if (!response.ok) {
         // Handle HTTP errors
         if (response.status === 429) {
-           throw new ApiError('Too many requests. Please try again later.', 429, 'RATE_LIMIT');
+          throw new ApiError('Too many requests. Please try again later.', 429, 'RATE_LIMIT');
         }
         if (response.status >= 500) {
-           throw new ApiError(`Server error (${response.status}). Our team has been notified.`, response.status, 'SERVER_ERROR');
+          throw new ApiError(
+            `Server error (${response.status}). Our team has been notified.`,
+            response.status,
+            'SERVER_ERROR',
+          );
         }
         // Client errors (4xx)
-        throw new ApiError(`Request failed (${response.status}): ${response.statusText}`, response.status, 'CLIENT_ERROR');
+        throw new ApiError(
+          `Request failed (${response.status}): ${response.statusText}`,
+          response.status,
+          'CLIENT_ERROR',
+        );
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       clearTimeout(id);
       attempt++;
 
-      const isAbort = error.name === 'AbortError';
+      const isAbort = error instanceof DOMException && error.name === 'AbortError';
       const isNetwork = error instanceof TypeError; // fetch network errors
       const isServerError = error instanceof ApiError && error.code === 'SERVER_ERROR';
       const isRateLimit = error instanceof ApiError && error.code === 'RATE_LIMIT';
@@ -98,17 +105,21 @@ export const apiClient = {
   },
 
   post: async <T>(url: string, data: any, config?: ApiConfig): Promise<T> => {
-    const response = await fetchWithRetry(url, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    }, config);
-    
+    const response = await fetchWithRetry(
+      url,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+      config,
+    );
+
     // Handle cases where response might be empty or not JSON
     const text = await response.text();
     try {
-        return text ? JSON.parse(text) : {} as T;
+      return text ? JSON.parse(text) : ({} as T);
     } catch {
-        return {} as T;
+      return {} as T;
     }
-  }
+  },
 };

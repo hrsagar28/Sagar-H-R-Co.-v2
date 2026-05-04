@@ -33,7 +33,7 @@ const FAQ: React.FC = () => {
         categoryId: category.slug,
         items: FAQS.filter((faq) => faq.category === category.label),
       })),
-    []
+    [],
   );
 
   const faqSchemaItems = useMemo(
@@ -43,7 +43,7 @@ const FAQ: React.FC = () => {
         answer: markdownToHtml(faq.answer),
         dateModified: faq.lastUpdated || FAQ_PAGE_DATE_MODIFIED,
       })),
-    []
+    [],
   );
 
   const faqPageSchema = {
@@ -108,16 +108,16 @@ const FAQ: React.FC = () => {
 
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      headerRefs.current[FAQS[Math.min(currentIndex + 1, lastIndex)].id]?.focus();
+      headerRefs.current[FAQS[Math.min(currentIndex + 1, lastIndex)]?.id || '']?.focus();
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      headerRefs.current[FAQS[Math.max(currentIndex - 1, 0)].id]?.focus();
+      headerRefs.current[FAQS[Math.max(currentIndex - 1, 0)]?.id || '']?.focus();
     } else if (event.key === 'Home') {
       event.preventDefault();
-      headerRefs.current[FAQS[0].id]?.focus();
+      headerRefs.current[FAQS[0]?.id || '']?.focus();
     } else if (event.key === 'End') {
       event.preventDefault();
-      headerRefs.current[FAQS[lastIndex].id]?.focus();
+      headerRefs.current[FAQS[lastIndex]?.id || '']?.focus();
     }
   };
 
@@ -139,7 +139,7 @@ const FAQ: React.FC = () => {
   }, [hash]);
 
   return (
-    <div className="bg-brand-bg min-h-screen selection:bg-brand-moss selection:text-white">
+    <div className="min-h-screen bg-brand-bg selection:bg-brand-moss selection:text-white">
       <SEO
         title={FAQ_TITLE}
         description={FAQ_DESCRIPTION}
@@ -163,14 +163,14 @@ const FAQ: React.FC = () => {
         description="Clear answers to your financial queries. From tax planning to compliance, we have got you covered."
       />
 
-      <div className="py-20 px-4 md:px-6">
-        <div className="container mx-auto px-4 max-w-6xl">
+      <div className="px-4 py-20 md:px-6">
+        <div className="container mx-auto max-w-6xl px-4">
           <div className="mb-12">
             <nav
               aria-label="FAQ category jump links"
               className="rounded-[1.75rem] border border-brand-border/80 bg-brand-bg/95 px-5 py-5 shadow-lg shadow-brand-dark/5 backdrop-blur supports-[backdrop-filter]:bg-brand-bg/85"
             >
-              <p className="text-xs font-bold uppercase tracking-widest text-brand-stone mb-4">Jump to a section</p>
+              <p className="mb-4 text-xs font-bold uppercase tracking-widest text-brand-stone">Jump to a section</p>
               <ul className="flex flex-wrap gap-3">
                 {groupedFaqs.map(({ category, categoryId }) => (
                   <li key={categoryId}>
@@ -227,7 +227,7 @@ const FAQ: React.FC = () => {
                 >
                   <h2
                     id={categoryId}
-                    className="text-2xl font-heading font-bold text-brand-dark mb-6 pl-2 border-l-4 border-brand-moss bg-gradient-to-r from-brand-moss/5 to-transparent"
+                    className="mb-6 border-l-4 border-brand-moss bg-gradient-to-r from-brand-moss/5 to-transparent pl-2 font-heading text-2xl font-bold text-brand-dark"
                     style={{ scrollMarginTop: 'calc(var(--sticky-offset) + 6rem)' }}
                   >
                     {category}
@@ -242,7 +242,7 @@ const FAQ: React.FC = () => {
                         <div
                           key={faq.id}
                           id={faq.id}
-                          className={`bg-brand-surface border rounded-3xl p-5 md:p-8 transition-all duration-300 ${
+                          className={`rounded-3xl border bg-brand-surface p-5 transition-all duration-300 md:p-8 ${
                             isExpanded
                               ? 'border-brand-moss shadow-lg ring-1 ring-brand-moss/20'
                               : 'border-brand-border hover:border-brand-moss/30 hover:shadow-lg'
@@ -270,9 +270,9 @@ const FAQ: React.FC = () => {
                               onClick={() => toggleAccordion(faq.id)}
                               onKeyDown={(event) => onKeyDown(event, faq.id)}
                             >
-                              <span className="flex w-full justify-between gap-4 items-start md:items-center">
+                              <span className="flex w-full items-start justify-between gap-4 md:items-center">
                                 <span
-                                  className={`faq-question text-lg md:text-xl font-heading font-bold leading-tight transition-colors text-balance break-words ${
+                                  className={`faq-question text-balance break-words font-heading text-lg font-bold leading-tight transition-colors md:text-xl ${
                                     isExpanded ? 'text-brand-moss' : 'text-brand-dark'
                                   }`}
                                 >
@@ -280,11 +280,14 @@ const FAQ: React.FC = () => {
                                 </span>
                                 <span
                                   aria-hidden="true"
-                                  className={`shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
+                                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
                                     isExpanded ? 'bg-brand-moss text-white' : 'bg-brand-bg text-brand-dark'
                                   }`}
                                 >
-                                  <Plus size={20} className={`transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`} />
+                                  <Plus
+                                    size={20}
+                                    className={`transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`}
+                                  />
                                 </span>
                               </span>
                             </button>
@@ -298,7 +301,7 @@ const FAQ: React.FC = () => {
                           >
                             <MarkdownRenderer
                               content={faq.answer}
-                              className="faq-answer [&_p]:mb-4 [&_p]:text-base [&_p]:font-medium [&_p]:leading-relaxed [&_p]:text-brand-stone md:[&_p]:text-lg [&_p:last-child]:mb-0 [&_ul]:my-4 [&_ol]:my-4 [&_ul]:space-y-2 [&_ol]:space-y-2 [&_ul]:pl-0 [&_li]:text-base md:[&_li]:text-lg [&_li]:leading-relaxed [&_li]:font-medium [&_li]:text-brand-stone [&_a]:break-words [&_a]:font-bold"
+                              className="faq-answer [&_a]:break-words [&_a]:font-bold [&_li]:text-base [&_li]:font-medium [&_li]:leading-relaxed [&_li]:text-brand-stone md:[&_li]:text-lg [&_ol]:my-4 [&_ol]:space-y-2 [&_p:last-child]:mb-0 [&_p]:mb-4 [&_p]:text-base [&_p]:font-medium [&_p]:leading-relaxed [&_p]:text-brand-stone md:[&_p]:text-lg [&_ul]:my-4 [&_ul]:space-y-2 [&_ul]:pl-0"
                             />
                           </div>
                         </div>
@@ -310,14 +313,14 @@ const FAQ: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-20 text-center bg-brand-surface border border-brand-border p-10 rounded-[2.5rem] shadow-sm">
-            <h2 className="text-3xl font-heading font-bold text-brand-dark mb-4">Still have questions?</h2>
-            <p className="text-brand-stone mb-8 font-medium text-lg">
+          <div className="mt-20 rounded-[2.5rem] border border-brand-border bg-brand-surface p-10 text-center shadow-sm">
+            <h2 className="mb-4 font-heading text-3xl font-bold text-brand-dark">Still have questions?</h2>
+            <p className="mb-8 text-lg font-medium text-brand-stone">
               If you can&apos;t find the answer you&apos;re looking for, please don&apos;t hesitate to reach out.
             </p>
             <Link
               to="/contact"
-              className="inline-block px-8 py-4 bg-brand-dark text-white font-bold rounded-full hover:bg-brand-moss transition-all duration-300 shadow-lg"
+              className="inline-block rounded-full bg-brand-dark px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:bg-brand-moss"
             >
               Schedule a Consultation
             </Link>

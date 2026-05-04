@@ -56,7 +56,10 @@ const formatInlineMarkdown = (value: string) => {
 };
 
 const renderBlock = (block: string) => {
-  const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
+  const lines = block
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
   if (lines.length === 0) {
     return '';
   }
@@ -81,12 +84,14 @@ const renderBlock = (block: string) => {
 
   const headingMatch = block.trim().match(/^(#{1,6})\s+(.+)$/);
   if (headingMatch) {
-    const level = headingMatch[1].length;
-    return `<h${level}>${formatInlineMarkdown(headingMatch[2].trim())}</h${level}>`;
+    const marker = headingMatch[1];
+    const headingText = headingMatch[2];
+    if (!marker || !headingText) return '';
+    const level = marker.length;
+    return `<h${level}>${formatInlineMarkdown(headingText.trim())}</h${level}>`;
   }
 
-  const paragraph = lines.map((line) => formatInlineMarkdown(line)).join('<br>');
-  return `<p>${paragraph}</p>`;
+  return lines.map((line) => `<p>${formatInlineMarkdown(line)}</p>`).join('');
 };
 
 export const markdownToHtml = (markdown: string) => {

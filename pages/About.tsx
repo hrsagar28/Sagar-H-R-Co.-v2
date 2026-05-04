@@ -46,7 +46,7 @@ const About: React.FC = () => {
       warmContactRoute();
     };
 
-    if ('requestIdleCallback' in window) {
+    if (typeof window.requestIdleCallback === 'function') {
       const idleId = window.requestIdleCallback(warmCommonChunks, { timeout: 2000 });
       return () => {
         cancelled = true;
@@ -76,7 +76,11 @@ const About: React.FC = () => {
       <PageHero
         variant="directory"
         eyebrow="About"
-        title={<>On the principal, <em>briefly</em>.</>}
+        title={
+          <>
+            On the principal, <em>briefly</em>.
+          </>
+        }
         blurb={heroBlurb}
         coordinates="Mysuru - Est. MMXXIII"
         ghostWord="Firm."

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { stringifyJsonLd } from '../utils/jsonLd';
 import { SITE_URL } from '../config/site';
@@ -48,17 +47,18 @@ const getDefaultCanonicalUrl = () => {
   return `${SITE_URL}${pathname}`;
 };
 
-const toAbsoluteUrl = (url: string) => url.startsWith('http') ? url : `${SITE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+const toAbsoluteUrl = (url: string) =>
+  url.startsWith('http') ? url : `${SITE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 
 /**
  * SEO Component
- * 
+ *
  * Manages document head elements including title, meta tags, Open Graph tags,
  * and JSON-LD structured data for search engine optimization.
- * 
+ *
  * @example
- * <SEO 
- *   title="Home | My Site" 
+ * <SEO
+ *   title="Home | My Site"
  *   description="Welcome to my site"
  *   schema={{ "@context": "https://schema.org", "@type": "WebSite", ... }}
  * />
@@ -66,17 +66,17 @@ const toAbsoluteUrl = (url: string) => url.startsWith('http') ? url : `${SITE_UR
 const SEO: React.FC<SEOProps> = ({
   title,
   description,
-  keywords = "Chartered Accountant, Mysuru, Audit, Tax, GST, Business Advisory, CA Firm",
+  keywords = 'Chartered Accountant, Mysuru, Audit, Tax, GST, Business Advisory, CA Firm',
   canonicalUrl = getDefaultCanonicalUrl(),
   ogType = 'website',
   noindex = false,
-  ogImage = `${SITE_URL}/og-image.jpg`,
+  ogImage = `${SITE_URL}/og/og-default.png`,
   schema,
   breadcrumbs,
   article,
   service,
   faqs,
-  alternates
+  alternates,
 }) => {
   useEffect(() => {
     // Update Title
@@ -152,13 +152,18 @@ const SEO: React.FC<SEOProps> = ({
       alternateLink.setAttribute('rel', alternate.rel || 'alternate');
       if (alternate.type) alternateLink.setAttribute('type', alternate.type);
       if (alternate.title) alternateLink.setAttribute('title', alternate.title);
-      alternateLink.setAttribute('href', alternate.href.startsWith('http') ? alternate.href : `${SITE_URL}${alternate.href.startsWith('/') ? '' : '/'}${alternate.href}`);
+      alternateLink.setAttribute(
+        'href',
+        alternate.href.startsWith('http')
+          ? alternate.href
+          : `${SITE_URL}${alternate.href.startsWith('/') ? '' : '/'}${alternate.href}`,
+      );
       document.head.appendChild(alternateLink);
     });
 
     // Clean up all existing dynamic JSON-LD tags
     const existingScripts = document.querySelectorAll('script[data-dynamic-schema]');
-    existingScripts.forEach(script => script.remove());
+    existingScripts.forEach((script) => script.remove());
 
     const addSchema = (id: string, data: object) => {
       const script = document.createElement('script');
@@ -175,65 +180,67 @@ const SEO: React.FC<SEOProps> = ({
 
     if (breadcrumbs && breadcrumbs.length > 0) {
       addSchema('breadcrumbs', {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": breadcrumbs.map((item, index) => ({
-          "@type": "ListItem",
-          "position": index + 1,
-          "name": item.name,
-          "item": item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url.startsWith('/') ? '' : '/'}${item.url}`
-        }))
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbs.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          item: item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url.startsWith('/') ? '' : '/'}${item.url}`,
+        })),
       });
     }
 
     if (article) {
       addSchema('article', {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": article.headline,
-        "inLanguage": "en-IN",
-        "author": {
-          "@type": "Person",
-          "name": article.author,
-          ...(article.authorUrl ? { "url": article.authorUrl } : {}),
-          ...(article.authorSameAs?.length ? { "sameAs": article.authorSameAs } : {})
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: article.headline,
+        inLanguage: 'en-IN',
+        author: {
+          '@type': 'Person',
+          name: article.author,
+          ...(article.authorUrl ? { url: article.authorUrl } : {}),
+          ...(article.authorSameAs?.length ? { sameAs: article.authorSameAs } : {}),
         },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Sagar H R & Co.",
-          "logo": {
-            "@type": "ImageObject",
-            "url": `${SITE_URL}/logo.png`
-          }
+        publisher: {
+          '@type': 'Organization',
+          name: 'Sagar H R & Co.',
+          logo: {
+            '@type': 'ImageObject',
+            url: `${SITE_URL}/logo.png`,
+          },
         },
-        "datePublished": article.datePublished,
-        ...(article.dateModified ? { "dateModified": article.dateModified } : {}),
-        ...(article.section ? { "articleSection": article.section } : {}),
-        ...(article.tags?.length ? { "keywords": article.tags.join(', ') } : {}),
-        ...(article.wordCount ? { "wordCount": article.wordCount } : {}),
-        "image": article.image ? toAbsoluteUrl(article.image) : ogImage,
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": canonicalUrl
-        }
+        datePublished: article.datePublished,
+        ...(article.dateModified ? { dateModified: article.dateModified } : {}),
+        ...(article.section ? { articleSection: article.section } : {}),
+        ...(article.tags?.length ? { keywords: article.tags.join(', ') } : {}),
+        ...(article.wordCount ? { wordCount: article.wordCount } : {}),
+        image: article.image ? toAbsoluteUrl(article.image) : ogImage,
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': canonicalUrl,
+        },
       });
     }
 
     if (service) {
       addSchema('service', {
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "name": service.name,
-        "description": service.description,
-        "provider": {
-          "@id": `${SITE_URL}/#organization`
+        '@context': 'https://schema.org',
+        '@type': 'Service',
+        name: service.name,
+        description: service.description,
+        provider: {
+          '@id': `${SITE_URL}/#organization`,
         },
-        ...(service.areaServed ? {
-          "areaServed": {
-            "@type": "City",
-            "name": service.areaServed
-          }
-        } : {})
+        ...(service.areaServed
+          ? {
+              areaServed: {
+                '@type': 'City',
+                name: service.areaServed,
+              },
+            }
+          : {}),
       });
     }
 
@@ -244,27 +251,41 @@ const SEO: React.FC<SEOProps> = ({
         .sort((left, right) => new Date(right).getTime() - new Date(left).getTime())[0];
 
       addSchema('faqs', {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        ...(faqPageDateModified ? { "dateModified": faqPageDateModified } : {}),
-        "mainEntity": faqs.map(faq => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer,
-            ...(faq.dateModified ? { "dateModified": faq.dateModified } : {})
-          }
-        }))
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        ...(faqPageDateModified ? { dateModified: faqPageDateModified } : {}),
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+            ...(faq.dateModified ? { dateModified: faq.dateModified } : {}),
+          },
+        })),
       });
     }
 
     return () => {
-        document.querySelectorAll('script[data-dynamic-schema]').forEach(s => s.remove());
-        document.querySelectorAll('link[data-dynamic-alternate]').forEach(s => s.remove());
-        document.querySelectorAll('meta[data-dynamic-article-meta]').forEach(s => s.remove());
+      document.querySelectorAll('script[data-dynamic-schema]').forEach((s) => s.remove());
+      document.querySelectorAll('link[data-dynamic-alternate]').forEach((s) => s.remove());
+      document.querySelectorAll('meta[data-dynamic-article-meta]').forEach((s) => s.remove());
     };
-  }, [title, description, keywords, canonicalUrl, ogType, noindex, ogImage, schema, breadcrumbs, article, service, faqs, alternates]);
+  }, [
+    title,
+    description,
+    keywords,
+    canonicalUrl,
+    ogType,
+    noindex,
+    ogImage,
+    schema,
+    breadcrumbs,
+    article,
+    service,
+    faqs,
+    alternates,
+  ]);
 
   return null;
 };

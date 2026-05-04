@@ -37,40 +37,52 @@ const Toast: React.FC<ToastProps> = ({ id, message, variant, duration = 5000, on
 
   const getIcon = () => {
     switch (variant) {
-      case 'success': return <CheckCircle className="text-green-500" size={20} />;
-      case 'error': return <XCircle className="text-red-500" size={20} />;
-      case 'warning': return <AlertTriangle className="text-orange-500" size={20} />;
-      case 'info': default: return <Info className="text-blue-500" size={20} />;
+      case 'success':
+        return <CheckCircle className="text-green-500" size={20} />;
+      case 'error':
+        return <XCircle className="text-red-500" size={20} />;
+      case 'warning':
+        return <AlertTriangle className="text-orange-500" size={20} />;
+      case 'info':
+      default:
+        return <Info className="text-blue-500" size={20} />;
     }
   };
 
   const getStyles = () => {
     switch (variant) {
-      case 'success': return 'bg-white border-green-200 text-green-900';
-      case 'error': return 'bg-white border-red-200 text-red-900';
-      case 'warning': return 'bg-white border-orange-200 text-orange-900';
-      case 'info': default: return 'bg-white border-blue-200 text-blue-900';
+      case 'success':
+        return 'bg-white border-green-200 text-green-900';
+      case 'error':
+        return 'bg-white border-red-200 text-red-900';
+      case 'warning':
+        return 'bg-white border-orange-200 text-orange-900';
+      case 'info':
+      default:
+        return 'bg-white border-blue-200 text-blue-900';
     }
   };
 
-  const animationClass = shouldReduceMotion 
-    ? (isVisible ? 'opacity-100' : 'opacity-0')
-    : (isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0');
+  const animationClass = shouldReduceMotion
+    ? isVisible
+      ? 'opacity-100'
+      : 'opacity-0'
+    : isVisible
+      ? 'translate-x-0 opacity-100'
+      : 'translate-x-full opacity-0';
+  const isUrgent = variant === 'error' || variant === 'warning';
 
   return (
-    <div 
-      className={`
-        pointer-events-auto flex items-start gap-3 p-4 rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-sm w-full
-        ${getStyles()}
-        ${animationClass}
-      `}
-      role="alert"
+    <div
+      className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border p-4 shadow-xl backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${getStyles()} ${animationClass} `}
+      role={isUrgent ? 'alert' : 'status'}
+      aria-live={isUrgent ? 'assertive' : 'polite'}
     >
-      <div className="shrink-0 mt-0.5">{getIcon()}</div>
+      <div className="mt-0.5 shrink-0">{getIcon()}</div>
       <p className="flex-1 text-sm font-medium leading-relaxed">{message}</p>
-      <button 
-        onClick={handleClose} 
-        className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+      <button
+        onClick={handleClose}
+        className="shrink-0 text-gray-400 transition-colors hover:text-gray-600"
         aria-label="Close"
       >
         <X size={16} />

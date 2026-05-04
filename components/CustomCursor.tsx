@@ -5,23 +5,19 @@ const CustomCursor: React.FC = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
   const rafIdRef = useRef<number>(0);
-  
-  const [canHover, setCanHover] = useState(() => 
-    typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches
+  const mouse = useRef({ x: -100, y: -100 });
+  const follower = useRef({ x: -100, y: -100 });
+
+  const [canHover, setCanHover] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches,
   );
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [forceHide, setForceHide] = useState(false);
-  
-  const reducedMotion = useReducedMotion();
-  
-  if (!canHover || reducedMotion) return null;
 
-  // Use refs for coordinates to avoid re-renders on every frame
-  const mouse = useRef({ x: -100, y: -100 }); // Start off-screen
-  const follower = useRef({ x: -100, y: -100 });
-  
+  const reducedMotion = useReducedMotion();
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -42,7 +38,7 @@ const CustomCursor: React.FC = () => {
 
     const moveMouse = (e: MouseEvent) => {
       mouse.current = { x: e.clientX, y: e.clientY };
-      
+
       // Move the center dot instantly
       if (cursorRef.current) {
         cursorRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
@@ -55,7 +51,7 @@ const CustomCursor: React.FC = () => {
       const target = e.target as HTMLElement;
       const hideEl = target.closest('[data-hide-cursor="true"]');
       const showEl = target.closest('[data-show-cursor="true"]');
-      
+
       if (hideEl && showEl && hideEl.contains(showEl)) {
         setForceHide(false);
       } else if (hideEl) {
@@ -71,15 +67,15 @@ const CustomCursor: React.FC = () => {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      
+
       // Check for clickable elements
       if (
-        target.tagName === 'A' || 
-        target.tagName === 'BUTTON' || 
-        target.tagName === 'INPUT' || 
-        target.tagName === 'SELECT' || 
-        target.tagName === 'TEXTAREA' || 
-        target.closest('a') || 
+        target.tagName === 'A' ||
+        target.tagName === 'BUTTON' ||
+        target.tagName === 'INPUT' ||
+        target.tagName === 'SELECT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.closest('a') ||
         target.closest('button') ||
         target.getAttribute('role') === 'button' ||
         target.classList.contains('cursor-pointer')
@@ -98,13 +94,13 @@ const CustomCursor: React.FC = () => {
     window.addEventListener('mouseover', handleMouseOver);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
-    
+
     // Animation Loop for the follower (Ring)
     const animate = () => {
       // Linear Interpolation (LERP) for smooth, organic movement
       // Increased to 0.6 for faster response
-      const lerpFactor = 0.6; 
-      
+      const lerpFactor = 0.6;
+
       follower.current.x += (mouse.current.x - follower.current.x) * lerpFactor;
       follower.current.y += (mouse.current.y - follower.current.y) * lerpFactor;
 
@@ -129,41 +125,33 @@ const CustomCursor: React.FC = () => {
     };
   }, []);
 
-  const blendModeClass = "mix-blend-difference";
-  
+  const blendModeClass = 'mix-blend-difference';
+
   // Actually hide visual elements if forceHide is true
-  const visualStateClass = (isHovering || !isVisible || forceHide) ? 'opacity-0' : 'opacity-100';
-  const followerStateClass = !isVisible || forceHide
-             ? 'opacity-0 scale-50'
-             : isHovering 
-                ? 'scale-[2.5] bg-white border-0 opacity-100' // Hover: Becomes a large, solid "Lens"
-                : isClicking 
-                  ? 'scale-75 border border-white bg-transparent opacity-50' // Click: Sharp shrink
-                  : 'scale-100 border border-white bg-transparent opacity-100'; // Normal: Thin ring
+  const visualStateClass = isHovering || !isVisible || forceHide ? 'opacity-0' : 'opacity-100';
+  const followerStateClass =
+    !isVisible || forceHide
+      ? 'opacity-0 scale-50'
+      : isHovering
+        ? 'scale-[2.5] bg-white border-0 opacity-100' // Hover: Becomes a large, solid "Lens"
+        : isClicking
+          ? 'scale-75 border border-white bg-transparent opacity-50' // Click: Sharp shrink
+          : 'scale-100 border border-white bg-transparent opacity-100'; // Normal: Thin ring
+
+  if (!canHover || reducedMotion) return null;
 
   return (
     <>
       {/* Center Dot - Disappears on hover to let the lens take over */}
-      <div 
-        ref={cursorRef} 
-        className={`
-          fixed top-0 left-0 w-2.5 h-2.5 bg-white rounded-full pointer-events-none z-cursor 
-          -mt-1.25 -ml-1.25 ${blendModeClass} will-change-transform
-          transition-opacity duration-300 ease-out
-          ${visualStateClass}
-        `}
+      <div
+        ref={cursorRef}
+        className={`-mt-1.25 -ml-1.25 pointer-events-none fixed left-0 top-0 z-cursor h-2.5 w-2.5 rounded-full bg-white ${blendModeClass} transition-opacity duration-300 ease-out will-change-transform ${visualStateClass} `}
       />
-      
+
       {/* Follower Ring - Morphs into a lens on hover */}
-      <div 
+      <div
         ref={followerRef}
-        className={`
-          fixed top-0 left-0 rounded-full pointer-events-none z-cursor 
-          -mt-5 -ml-5 w-10 h-10 will-change-transform
-          ${blendModeClass}
-          transition-all duration-500 ease-out
-          ${followerStateClass}
-        `}
+        className={`pointer-events-none fixed left-0 top-0 z-cursor -ml-5 -mt-5 h-10 w-10 rounded-full will-change-transform ${blendModeClass} transition-all duration-500 ease-out ${followerStateClass} `}
       />
     </>
   );

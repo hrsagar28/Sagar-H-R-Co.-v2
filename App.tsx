@@ -1,11 +1,21 @@
-
 import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import {
-  Navbar, Footer, Preloader,
-  PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar,
-  ServiceDetailSkeleton, InsightDetailSkeleton, ContactSkeleton, FAQSkeleton, ResourcesSkeleton,
-  WhatsAppFloat, CookieConsent
+  Navbar,
+  Footer,
+  Preloader,
+  PageLoader,
+  ToastContainer,
+  NetworkStatus,
+  RouteErrorBoundary,
+  TopProgressBar,
+  ServiceDetailSkeleton,
+  InsightDetailSkeleton,
+  ContactSkeleton,
+  FAQSkeleton,
+  ResourcesSkeleton,
+  WhatsAppFloat,
+  CookieConsent,
 } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
@@ -41,7 +51,7 @@ const RouteHandler = () => {
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: 'instant'
+      behavior: 'instant',
     });
 
     // Focus management for accessibility
@@ -61,14 +71,19 @@ const RouteHandler = () => {
 
       // Handle known routes
       if (pathname.startsWith('/services/')) {
-        pageName = `Service: ${parts[1].split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}`;
+        const serviceSlug = parts[1] || '';
+        pageName = `Service: ${serviceSlug
+          .split('-')
+          .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+          .join(' ')}`;
       } else if (pathname.startsWith('/insights/')) {
         pageName = `Insight Article`;
       } else if (pathname.startsWith('/resources/checklist/')) {
         pageName = `Checklist Resource`;
       } else {
         // Generic fallback: Capitalize words
-        pageName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+        const firstPart = parts[0] || '';
+        pageName = firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
         if (pageName === 'Faqs') pageName = 'FAQ';
       }
     }
@@ -88,56 +103,141 @@ const MainContent = () => {
     <main
       id="main-content"
       data-zone={mainZone}
-      className={`flex-grow relative z-base w-full ${mainZone ? 'zone-bg zone-text' : ''}`}
+      className={`relative z-base w-full flex-grow ${mainZone ? 'zone-bg zone-text' : ''}`}
       tabIndex={-1}
     >
       <Suspense fallback={<PageLoader tone={loaderTone} />}>
         <Routes>
-          <Route path="/" element={<RouteErrorBoundary><Home /></RouteErrorBoundary>} />
-          <Route path="/about" element={<RouteErrorBoundary><About /></RouteErrorBoundary>} />
-          <Route path="/services" element={<RouteErrorBoundary><Services /></RouteErrorBoundary>} />
-          <Route path="/services/:slug" element={
-            <RouteErrorBoundary>
-              <Suspense fallback={<ServiceDetailSkeleton />}>
-                <ServiceDetail />
-              </Suspense>
-            </RouteErrorBoundary>
-          } />
-          <Route path="/insights" element={<RouteErrorBoundary><Insights /></RouteErrorBoundary>} />
-          <Route path="/insights/:slug" element={
-            <RouteErrorBoundary>
-              <Suspense fallback={<InsightDetailSkeleton />}>
-                <InsightDetail />
-              </Suspense>
-            </RouteErrorBoundary>
-          } />
-          <Route path="/faqs" element={
-            <RouteErrorBoundary>
-              <Suspense fallback={<FAQSkeleton />}>
-                <FAQ />
-              </Suspense>
-            </RouteErrorBoundary>
-          } />
-          <Route path="/resources" element={
-            <RouteErrorBoundary>
-              <Suspense fallback={<ResourcesSkeleton />}>
-                <Resources />
-              </Suspense>
-            </RouteErrorBoundary>
-          } />
-          <Route path="/resources/checklist/:slug" element={<RouteErrorBoundary><ChecklistDetail /></RouteErrorBoundary>} />
-          <Route path="/careers" element={<RouteErrorBoundary><Careers /></RouteErrorBoundary>} />
-          <Route path="/contact" element={
-            <RouteErrorBoundary>
-              <Suspense fallback={<ContactSkeleton />}>
-                <Contact />
-              </Suspense>
-            </RouteErrorBoundary>
-          } />
-          <Route path="/disclaimer" element={<RouteErrorBoundary><Disclaimer /></RouteErrorBoundary>} />
-          <Route path="/privacy" element={<RouteErrorBoundary><Privacy /></RouteErrorBoundary>} />
-          <Route path="/terms" element={<RouteErrorBoundary><Terms /></RouteErrorBoundary>} />
-          <Route path="*" element={<RouteErrorBoundary><NotFound /></RouteErrorBoundary>} />
+          <Route
+            path="/"
+            element={
+              <RouteErrorBoundary>
+                <Home />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <RouteErrorBoundary>
+                <About />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/services"
+            element={
+              <RouteErrorBoundary>
+                <Services />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/services/:slug"
+            element={
+              <RouteErrorBoundary>
+                <Suspense fallback={<ServiceDetailSkeleton />}>
+                  <ServiceDetail />
+                </Suspense>
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/insights"
+            element={
+              <RouteErrorBoundary>
+                <Insights />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/insights/:slug"
+            element={
+              <RouteErrorBoundary>
+                <Suspense fallback={<InsightDetailSkeleton />}>
+                  <InsightDetail />
+                </Suspense>
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/faqs"
+            element={
+              <RouteErrorBoundary>
+                <Suspense fallback={<FAQSkeleton />}>
+                  <FAQ />
+                </Suspense>
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/resources"
+            element={
+              <RouteErrorBoundary>
+                <Suspense fallback={<ResourcesSkeleton />}>
+                  <Resources />
+                </Suspense>
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/resources/checklist/:slug"
+            element={
+              <RouteErrorBoundary>
+                <ChecklistDetail />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/careers"
+            element={
+              <RouteErrorBoundary>
+                <Careers />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <RouteErrorBoundary>
+                <Suspense fallback={<ContactSkeleton />}>
+                  <Contact />
+                </Suspense>
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/disclaimer"
+            element={
+              <RouteErrorBoundary>
+                <Disclaimer />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <RouteErrorBoundary>
+                <Privacy />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/terms"
+            element={
+              <RouteErrorBoundary>
+                <Terms />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <RouteErrorBoundary>
+                <NotFound />
+              </RouteErrorBoundary>
+            }
+          />
         </Routes>
       </Suspense>
     </main>
@@ -158,22 +258,23 @@ const App: React.FC = () => {
       <ToastProvider>
         <BrowserRouter>
           <TopProgressBar />
-          <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-preloader focus:px-6 focus:py-3 focus:bg-brand-moss focus:text-white focus:font-bold focus:rounded-full focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white print:hidden">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-preloader focus:rounded-full focus:bg-brand-moss focus:px-6 focus:py-3 focus:font-bold focus:text-white focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white print:hidden"
+          >
             Skip to content
           </a>
           <RouteHandler />
           <div className="print:hidden">
             <NetworkStatus />
             <Preloader />
-            <Suspense fallback={null}>
-              {showCursor && <CustomCursor />}
-            </Suspense>
+            <Suspense fallback={null}>{showCursor && <CustomCursor />}</Suspense>
             <WhatsAppFloat />
             <CookieConsent />
           </div>
 
           {/* Fixed Elements */}
-          <div className="fixed top-0 left-0 w-full z-fixed pointer-events-none print:hidden">
+          <div className="pointer-events-none fixed left-0 top-0 z-fixed w-full print:hidden">
             <Navbar className="animate-fade-in-up delay-200" />
           </div>
 
@@ -182,11 +283,11 @@ const App: React.FC = () => {
           </div>
 
           {/* Global Background Noise */}
-          <div className="fixed inset-0 bg-noise opacity-[0.4] pointer-events-none z-0 mix-blend-multiply print:hidden" />
+          <div className="bg-noise pointer-events-none fixed inset-0 z-0 opacity-[0.4] mix-blend-multiply print:hidden" />
           <Grain opacity={0.05} />
 
           {/* Main Layout */}
-          <div className="relative z-base flex flex-col min-h-screen bg-brand-bg w-full print:bg-white">
+          <div className="relative z-base flex min-h-screen w-full flex-col bg-brand-bg print:bg-white">
             <MainContent />
 
             <div className="print:hidden">

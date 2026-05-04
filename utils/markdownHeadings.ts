@@ -4,13 +4,14 @@ export interface MarkdownHeading {
   text: string;
 }
 
-export const slugifyHeading = (value: string) => value
-  .toLowerCase()
-  .replace(/&amp;/g, 'and')
-  .replace(/[^a-z0-9\s-]/g, '')
-  .trim()
-  .replace(/\s+/g, '-')
-  .replace(/-+/g, '-');
+export const slugifyHeading = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/&amp;/g, 'and')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 
 export const extractMarkdownHeadings = (content: string): MarkdownHeading[] => {
   const seen = new Map<string, number>();
@@ -19,8 +20,11 @@ export const extractMarkdownHeadings = (content: string): MarkdownHeading[] => {
   let match: RegExpExecArray | null;
 
   while ((match = headingPattern.exec(content)) !== null) {
-    const level = match[1].length as 2 | 3;
-    const text = match[2].replace(/[*_`[\]]/g, '').trim();
+    const marker = match[1];
+    const rawText = match[2];
+    if (!marker || !rawText) continue;
+    const level = marker.length as 2 | 3;
+    const text = rawText.replace(/[*_`[\]]/g, '').trim();
     const baseId = slugifyHeading(text);
     const count = seen.get(baseId) || 0;
     seen.set(baseId, count + 1);

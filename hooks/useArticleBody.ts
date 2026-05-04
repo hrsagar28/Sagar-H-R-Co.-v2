@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { logger } from '../utils/logger';
+import { getLeadingH1Warning } from '../utils/insightValidation';
 
 const getArticleBodyUrl = (slug: string) => {
   const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
@@ -57,6 +58,8 @@ export const useArticleBody = (slug?: string, enabled = true) => {
       })
       .then((text) => {
         if (!controller.signal.aborted) {
+          const warning = getLeadingH1Warning(text, `content/insights/${slug}.md`);
+          if (warning) logger.warn(warning);
           articleBodyCache.set(slug, text);
           setContent(text);
           setLoading(false);

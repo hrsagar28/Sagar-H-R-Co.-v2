@@ -1,10 +1,40 @@
-
 import { useEffect, RefObject } from 'react';
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'area[href]',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  'summary',
+  'audio[controls]',
+  'video[controls]',
+  '[contenteditable="true"]',
+  '[tabindex]',
+].join(',');
+
+const isVisible = (element: HTMLElement) => {
+  const style = window.getComputedStyle(element);
+  return (
+    style.display !== 'none' &&
+    style.visibility !== 'hidden' &&
+    (element.offsetParent !== null || style.position === 'fixed')
+  );
+};
+
+const getFocusableElements = (element: HTMLElement) =>
+  Array.from(element.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (node) =>
+      !node.matches('[disabled], [aria-hidden="true"], [tabindex="-1"]') &&
+      !node.closest('[aria-hidden="true"]') &&
+      isVisible(node),
+  );
 
 /**
  * Hook to trap focus within a container when active (e.g., for modals/menus).
  * Handles Tab and Shift+Tab navigation to cycle through focusable elements.
- * 
+ *
  * @param {boolean} isActive - Whether the trap is currently active.
  * @param {RefObject<HTMLElement>} containerRef - Ref to the container element.
  * @param {() => void} [onEscape] - Optional callback when Escape key is pressed.
@@ -14,10 +44,8 @@ export const useFocusTrap = (isActive: boolean, containerRef: RefObject<HTMLElem
     if (!isActive || !containerRef.current) return;
 
     const element = containerRef.current;
-    const focusableElements = element.querySelectorAll(
-      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
-    );
-    
+    const focusableElements = getFocusableElements(element);
+
     if (focusableElements.length === 0) return;
 
     const firstElement = focusableElements[0] as HTMLElement;
@@ -25,12 +53,14 @@ export const useFocusTrap = (isActive: boolean, containerRef: RefObject<HTMLElem
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Tab') {
-        if (e.shiftKey) { // Shift + Tab
+        if (e.shiftKey) {
+          // Shift + Tab
           if (document.activeElement === firstElement) {
             e.preventDefault();
             lastElement.focus();
           }
-        } else { // Tab
+        } else {
+          // Tab
           if (document.activeElement === lastElement) {
             e.preventDefault();
             firstElement.focus();
@@ -42,10 +72,10 @@ export const useFocusTrap = (isActive: boolean, containerRef: RefObject<HTMLElem
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    
+
     // Initial focus with a small delay to ensure DOM is ready
     const timer = setTimeout(() => {
-        firstElement.focus();
+      firstElement.focus();
     }, 100);
 
     return () => {

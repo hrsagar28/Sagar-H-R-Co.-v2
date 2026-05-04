@@ -10,12 +10,19 @@ import { HeroDirectory } from './HeroDirectory';
 
 export function PageHero(props: PageHeroProps) {
   switch (props.variant) {
-    case 'split':        return <HeroSplit {...(props as any)} />;
-    case 'folio':        return <HeroFolio {...(props as any)} />;
-    case 'ledger':       return <HeroLedger {...(props as any)} />;
-    case 'frontispiece': return <HeroFrontispiece {...(props as any)} />;
-    case 'archive':      return <HeroArchive {...(props as any)} />;
-    case 'directory':    return <HeroDirectory {...(props as any)} />;
-    default:             return <HeroBasic {...(props as any)} />;
+    case 'split':
+      return <HeroSplit {...props} />;
+    case 'folio':
+      return <HeroFolio {...props} />;
+    case 'ledger':
+      return <HeroLedger {...props} />;
+    case 'frontispiece':
+      return <HeroFrontispiece {...props} />;
+    case 'archive':
+      return <HeroArchive {...props} />;
+    case 'directory':
+      return <HeroDirectory {...props} />;
+    default:
+      return <HeroBasic {...props} />;
   }
 }

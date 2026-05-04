@@ -55,7 +55,9 @@ vi.mock('../components/hero', () => ({
   PageHero: ({ items }: { items: Array<{ title: React.ReactNode; href: string }> }) => (
     <div data-testid="page-hero">
       {items.map((item) => (
-        <a key={item.href} href={item.href}>{item.title}</a>
+        <a key={item.href} href={item.href}>
+          {item.title}
+        </a>
       ))}
     </div>
   ),
@@ -76,7 +78,7 @@ const renderInsights = (initialEntry = '/insights') =>
   render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <Insights />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 
 describe('Insights', () => {
@@ -101,10 +103,13 @@ describe('Insights', () => {
     expect(screen.getByRole('heading', { name: 'GST Compliance Updates' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'New Income Tax Bill' })).not.toBeInTheDocument();
 
-    const schema = seoMock.mock.calls.at(-1)?.[0].schema;
+    const calls = seoMock.mock.calls as unknown as Array<[Record<string, unknown>]>;
+    const lastCall = calls.at(-1);
+    expect(lastCall).toBeDefined();
+    const schema = lastCall?.[0].schema as { blogPost: Array<{ url: string }> };
     expect(schema.blogPost).toHaveLength(mockInsights.length);
     expect(schema.blogPost.map((post: { url: string }) => post.url)).toContain(
-      'https://casagar.co.in/insights/new-income-tax-bill-2025'
+      'https://casagar.co.in/insights/new-income-tax-bill-2025',
     );
   });
 

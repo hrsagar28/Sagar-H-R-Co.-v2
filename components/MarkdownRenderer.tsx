@@ -13,13 +13,14 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
-const getNodeText = (children: React.ReactNode): string => React.Children.toArray(children)
-  .map((child) => {
-    if (typeof child === 'string' || typeof child === 'number') return String(child);
-    if (React.isValidElement(child)) return getNodeText(child.props.children);
-    return '';
-  })
-  .join('');
+const getNodeText = (children: React.ReactNode): string =>
+  React.Children.toArray(children)
+    .map((child) => {
+      if (typeof child === 'string' || typeof child === 'number') return String(child);
+      if (React.isValidElement(child)) return getNodeText(child.props.children);
+      return '';
+    })
+    .join('');
 
 const remarkSummaryDirective = () => (tree: any) => {
   visit(tree, 'containerDirective', (node: any) => {
@@ -27,7 +28,7 @@ const remarkSummaryDirective = () => (tree: any) => {
     node.data = {
       ...(node.data || {}),
       hName: 'div',
-      hProperties: { className: 'summary-card' }
+      hProperties: { className: 'summary-card' },
     };
   });
 };
@@ -36,11 +37,8 @@ const sanitizeSchema = {
   ...defaultSchema,
   attributes: {
     ...defaultSchema.attributes,
-    div: [
-      ...(defaultSchema.attributes?.div || []),
-      ['className', 'summary-card']
-    ]
-  }
+    div: [...(defaultSchema.attributes?.div || []), ['className', 'summary-card']],
+  },
 };
 
 const CopyablePre: React.FC<React.HTMLAttributes<HTMLPreElement>> = ({ children, ...props }) => {
@@ -57,17 +55,21 @@ const CopyablePre: React.FC<React.HTMLAttributes<HTMLPreElement>> = ({ children,
   };
 
   return (
-    <div className="relative group mb-8 rounded-2xl overflow-hidden shadow-xl">
-      <pre className="bg-brand-dark text-white p-6 rounded-2xl overflow-x-auto text-sm font-mono m-0" {...props}>
+    <div className="group relative mb-8 overflow-hidden rounded-2xl shadow-xl">
+      <pre className="m-0 overflow-x-auto rounded-2xl bg-brand-dark p-6 font-mono text-sm text-white" {...props}>
         {children}
       </pre>
       <button
         type="button"
         onClick={handleCopy}
         aria-label={copied ? 'Code copied' : 'Copy code'}
-        className="absolute top-3 right-3 p-2 bg-white/10 border border-white/20 rounded-lg text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-white/20 z-10"
+        className="absolute right-3 top-3 z-10 rounded-lg border border-white/20 bg-white/10 p-2 text-white opacity-100 transition-opacity hover:bg-white/20 focus:opacity-100 md:opacity-0 md:group-hover:opacity-100"
       >
-        {copied ? <Check size={16} aria-hidden="true" focusable="false" className="text-green-300" /> : <Copy size={16} aria-hidden="true" focusable="false" />}
+        {copied ? (
+          <Check size={16} aria-hidden="true" focusable="false" className="text-green-300" />
+        ) : (
+          <Copy size={16} aria-hidden="true" focusable="false" />
+        )}
       </button>
     </div>
   );
@@ -87,18 +89,73 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className 
 
   return (
     <div className={`article-wrapper ${className}`}>
-      <ReactMarkdown 
-        remarkPlugins={[remarkGfm, remarkDirective, remarkSummaryDirective]} 
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkDirective, remarkSummaryDirective]}
         rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}
         components={{
-          h1: ({node, children, ...props}) => <h2 id={getHeadingId(children)} className="font-serif font-bold text-3xl md:text-4xl text-brand-dark mt-16 mb-6 tracking-tight scroll-mt-32" {...props}>{children}</h2>,
-          h2: ({node, children, ...props}) => <h2 id={getHeadingId(children)} className="font-serif font-bold text-3xl md:text-4xl text-brand-dark mt-16 mb-6 tracking-tight scroll-mt-32" {...props}>{children}</h2>,
-          h3: ({node, children, ...props}) => <h3 id={getHeadingId(children)} className="font-heading font-bold text-xl md:text-2xl text-brand-dark mt-10 mb-4 scroll-mt-32" {...props}>{children}</h3>,
-          h4: ({node, children, ...props}) => <h4 id={getHeadingId(children)} className="font-heading font-bold text-lg md:text-xl text-brand-dark mt-8 mb-3 scroll-mt-32" {...props}>{children}</h4>,
-          h5: ({node, children, ...props}) => <h5 id={getHeadingId(children)} className="font-heading font-bold text-base md:text-lg text-brand-dark mt-8 mb-3 scroll-mt-32" {...props}>{children}</h5>,
-          h6: ({node, children, ...props}) => <h6 id={getHeadingId(children)} className="font-heading font-bold text-sm md:text-base uppercase tracking-widest text-brand-dark mt-8 mb-3 scroll-mt-32" {...props}>{children}</h6>,
-          p: ({node, ...props}) => <p className="mb-6 leading-8 text-brand-stone font-normal text-lg md:text-[1.15rem] md:leading-[1.9]" {...props} />,
-          a: ({node, href, ...props}) => {
+          h1: ({ node, children, ...props }) => (
+            <h2
+              role="heading"
+              aria-level={2}
+              id={getHeadingId(children)}
+              className="mb-6 mt-16 scroll-mt-32 font-serif text-3xl font-bold tracking-tight text-brand-dark md:text-4xl"
+              {...props}
+            >
+              {children}
+            </h2>
+          ),
+          h2: ({ node, children, ...props }) => (
+            <h2
+              id={getHeadingId(children)}
+              className="mb-6 mt-16 scroll-mt-32 font-serif text-3xl font-bold tracking-tight text-brand-dark md:text-4xl"
+              {...props}
+            >
+              {children}
+            </h2>
+          ),
+          h3: ({ node, children, ...props }) => (
+            <h3
+              id={getHeadingId(children)}
+              className="mb-4 mt-10 scroll-mt-32 font-heading text-xl font-bold text-brand-dark md:text-2xl"
+              {...props}
+            >
+              {children}
+            </h3>
+          ),
+          h4: ({ node, children, ...props }) => (
+            <h4
+              id={getHeadingId(children)}
+              className="mb-3 mt-8 scroll-mt-32 font-heading text-lg font-bold text-brand-dark md:text-xl"
+              {...props}
+            >
+              {children}
+            </h4>
+          ),
+          h5: ({ node, children, ...props }) => (
+            <h5
+              id={getHeadingId(children)}
+              className="mb-3 mt-8 scroll-mt-32 font-heading text-base font-bold text-brand-dark md:text-lg"
+              {...props}
+            >
+              {children}
+            </h5>
+          ),
+          h6: ({ node, children, ...props }) => (
+            <h6
+              id={getHeadingId(children)}
+              className="mb-3 mt-8 scroll-mt-32 font-heading text-sm font-bold uppercase tracking-widest text-brand-dark md:text-base"
+              {...props}
+            >
+              {children}
+            </h6>
+          ),
+          p: ({ node, ...props }) => (
+            <p
+              className="mb-6 text-lg font-normal leading-8 text-brand-stone md:text-[1.15rem] md:leading-[1.9]"
+              {...props}
+            />
+          ),
+          a: ({ node, href, ...props }) => {
             const isHttp = Boolean(href?.startsWith('http://') || href?.startsWith('https://'));
             const isExternal = (() => {
               if (!isHttp || !href) return false;
@@ -111,22 +168,29 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className 
             return (
               <a
                 href={href}
-                className="text-brand-moss font-bold border-b border-brand-moss/30 hover:border-brand-moss transition-colors no-underline pb-0.5 cursor-pointer"
+                className="cursor-pointer border-b border-brand-moss/30 pb-0.5 font-bold text-brand-moss no-underline transition-colors hover:border-brand-moss"
                 target={isExternal ? '_blank' : undefined}
                 rel={isExternal ? 'noopener noreferrer nofollow' : undefined}
                 {...props}
               />
             );
           },
-          ul: ({node, ...props}) => <ul className="space-y-3 my-8 pl-1" {...props} />,
-          ol: ({node, ...props}) => <ol className="space-y-3 my-8 pl-5 list-decimal text-brand-stone font-medium text-lg leading-relaxed" {...props} />,
-          li: ({node, ...props}) => <li className="relative pl-8 text-brand-stone font-medium text-lg leading-relaxed" {...props} />,
+          ul: ({ node, ...props }) => <ul className="my-8 space-y-3 pl-1" {...props} />,
+          ol: ({ node, ...props }) => (
+            <ol
+              className="my-8 list-decimal space-y-3 pl-5 text-lg font-medium leading-relaxed text-brand-stone"
+              {...props}
+            />
+          ),
+          li: ({ node, ...props }) => (
+            <li className="relative pl-8 text-lg font-medium leading-relaxed text-brand-stone" {...props} />
+          ),
           code: (props) => {
-            const {children, className, node, ...rest} = props;
+            const { children, className, node, ...rest } = props;
             const match = /language-(\w+)/.exec(className || '');
             const isInline = !match && !className?.includes('language-');
             return isInline ? (
-              <code className="bg-brand-bg text-brand-moss px-1.5 py-0.5 rounded font-mono text-sm" {...rest}>
+              <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-sm text-brand-moss" {...rest}>
                 {children}
               </code>
             ) : (
@@ -135,8 +199,13 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className 
               </code>
             );
           },
-          pre: ({node, ...props}) => <CopyablePre {...props} />,
-          blockquote: ({node, ...props}) => <blockquote className="relative pl-6 py-2 my-10 text-2xl md:text-3xl text-brand-dark font-serif italic leading-normal border-l-4 border-brand-moss bg-brand-moss/5 rounded-r-xl" {...props} />,
+          pre: ({ node, ...props }) => <CopyablePre {...props} />,
+          blockquote: ({ node, ...props }) => (
+            <blockquote
+              className="relative my-10 rounded-r-xl border-l-4 border-brand-moss bg-brand-moss/5 py-2 pl-6 font-serif text-2xl italic leading-normal text-brand-dark md:text-3xl"
+              {...props}
+            />
+          ),
         }}
       >
         {content}

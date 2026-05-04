@@ -1,26 +1,62 @@
+const LOG_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const STORAGE_KEY = 'app_error_logs';
+const MAX_LOGS = 50;
 
-// Helper to safely check dev mode
-const isDev = () => {
-  if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
-    return (import.meta as any).env.DEV;
-  }
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env.NODE_ENV === 'development';
-  }
-  return false;
-};
-
-const isDevelopment = isDev();
+const isDevelopment = import.meta.env?.DEV || process.env.NODE_ENV === 'development';
 
 interface LogEntry {
   timestamp: string;
-  level: 'info' | 'warn' | 'error';
+  level: 'error';
   message: string;
-  data?: any[];
+  data?: unknown[];
 }
 
-const STORAGE_KEY = 'app_error_logs';
-const MAX_LOGS = 50;
+const isDebugPersistenceEnabled = () => {
+  if (isDevelopment) return true;
+  if (typeof window === 'undefined') return false;
+  return new URLSearchParams(window.location.search).get('debug') === '1';
+};
+
+const redactError = (error: Error) => ({
+  name: error.name,
+  message: error.message,
+});
+
+const isFormLog = (args: unknown[]) =>
+  args.some((arg) => {
+    if (typeof arg === 'string') return /form|submission|contact|career/i.test(arg);
+    if (arg && typeof arg === 'object') {
+      try {
+        return /form|submission|contact|career/i.test(JSON.stringify(arg));
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+
+const serialize = (arg: unknown, omitStack: boolean): unknown => {
+  if (arg instanceof Error) {
+    return omitStack ? redactError(arg) : { name: arg.name, message: arg.message };
+  }
+
+  if (arg && typeof arg === 'object') {
+    try {
+      return JSON.parse(JSON.stringify(arg)) as unknown;
+    } catch {
+      return 'Unserializable data';
+    }
+  }
+
+  return arg;
+};
+
+const getStoredLogs = (): LogEntry[] => {
+  const existing = localStorage.getItem(STORAGE_KEY);
+  const logs = existing ? (JSON.parse(existing) as LogEntry[]) : [];
+  const cutoff = Date.now() - LOG_TTL_MS;
+  return logs.filter((log) => new Date(log.timestamp).getTime() >= cutoff);
+};
 
 export const logger = {
   log: (...args: unknown[]) => {
@@ -30,54 +66,25 @@ export const logger = {
     if (isDevelopment) console.warn(...args);
   },
   error: (...args: unknown[]) => {
-    // Always log to console for browser telemetry/devtools
     console.error(...args);
 
-    // Persist to localStorage for production debugging
-    try {
-        const entry: LogEntry = {
-            timestamp: new Date().toISOString(),
-            level: 'error',
-            message: String(args[0]) || 'Unknown Error',
-            // Safe serialization of additional args
-            data: args.slice(1).map(arg => {
-                try {
-                    if (arg instanceof Error) {
-                        return { message: arg.message, stack: arg.stack };
-                    }
-                    if (typeof arg === 'object' && arg !== null) {
-                        // Attempt to shallow clone readable props if possible, or just stringify
-                        return JSON.parse(JSON.stringify(arg));
-                    }
-                    return String(arg);
-                } catch {
-                    return 'Unserializable data';
-                }
-            })
-        };
+    if (!isDebugPersistenceEnabled()) return;
 
-        const existing = localStorage.getItem(STORAGE_KEY);
-        let logs: LogEntry[] = existing ? JSON.parse(existing) : [];
-        
-        // Add new log to beginning
-        logs.unshift(entry);
-        
-        // Trim to max logs
-        if (logs.length > MAX_LOGS) logs = logs.slice(0, MAX_LOGS);
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
-    } catch (e) {
-        // Fail silently if localStorage is full or blocked
-        if (isDevelopment) console.warn('Failed to persist error log', e);
+    try {
+      const omitStack = isFormLog(args);
+      const entry: LogEntry = {
+        timestamp: new Date().toISOString(),
+        level: 'error',
+        message: String(args[0] || 'Unknown Error'),
+        data: args.slice(1).map((arg) => serialize(arg, omitStack)),
+      };
+
+      const logs = [entry, ...getStoredLogs()].slice(0, MAX_LOGS);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+    } catch (error) {
+      if (isDevelopment) console.warn('Failed to persist error log', error);
     }
   },
-  // Stub for reporting to external monitoring service (Sentry, etc.)
-  report: () => {
-     const existing = localStorage.getItem(STORAGE_KEY);
-     return existing ? JSON.parse(existing) : [];
-  },
-  getLogs: () => {
-     const existing = localStorage.getItem(STORAGE_KEY);
-     return existing ? JSON.parse(existing) : [];
-  }
+  report: () => getStoredLogs(),
+  getLogs: () => getStoredLogs(),
 };

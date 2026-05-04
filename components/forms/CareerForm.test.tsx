@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   announce: vi.fn(),
   clearDraft: vi.fn(),
   loadDraft: vi.fn(),
-  post: vi.fn()
+  post: vi.fn(),
 }));
 
 let draftLastSaved: Date | null = null;
@@ -20,7 +20,7 @@ vi.mock('./CustomDropdown', () => ({
     name,
     value,
     options,
-    onChange
+    onChange,
   }: {
     label: string;
     name: string;
@@ -39,7 +39,7 @@ vi.mock('./CustomDropdown', () => ({
         ))}
       </select>
     </label>
-  )
+  ),
 }));
 
 vi.mock('./CustomDatePicker', () => ({
@@ -47,7 +47,7 @@ vi.mock('./CustomDatePicker', () => ({
     label,
     name,
     value,
-    onChange
+    onChange,
   }: {
     label: string;
     name: string;
@@ -58,7 +58,7 @@ vi.mock('./CustomDatePicker', () => ({
       {label}
       <input aria-label={label} type="date" value={value} onChange={(event) => onChange(name, event.target.value)} />
     </label>
-  )
+  ),
 }));
 
 vi.mock('../../utils/api', async () => {
@@ -67,8 +67,8 @@ vi.mock('../../utils/api', async () => {
     ...actual,
     apiClient: {
       ...actual.apiClient,
-      post: mocks.post
-    }
+      post: mocks.post,
+    },
   };
 });
 
@@ -82,9 +82,9 @@ vi.mock('../../hooks', async () => {
       hasDraft: Boolean(draftLastSaved),
       loadDraft: mocks.loadDraft,
       clearDraft: mocks.clearDraft,
-      lastSaved: draftLastSaved
+      lastSaved: draftLastSaved,
     }),
-    useReducedMotion: () => false
+    useReducedMotion: () => false,
   };
 });
 
@@ -121,7 +121,7 @@ describe('CareerForm', () => {
       removeListener: vi.fn(),
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn()
+      dispatchEvent: vi.fn(),
     }));
     Element.prototype.scrollIntoView = vi.fn();
     mocks.addToast.mockClear();
@@ -147,7 +147,7 @@ describe('CareerForm', () => {
 
     await completeWizard();
     fireEvent.change(container.querySelector('input[name="_hp_wauth_do_not_fill"]') as HTMLInputElement, {
-      target: { value: 'bot-value' }
+      target: { value: 'bot-value' },
     });
     fireEvent.click(screen.getByRole('button', { name: /submit application/i }));
 
@@ -167,13 +167,13 @@ describe('CareerForm', () => {
       experience: '1-2 Years',
       previousCompanies: 'Previous Co',
       whyJoin: 'To grow with the firm.',
-      position: 'Audit Associate'
+      position: 'Audit Associate',
     });
 
     renderCareerForm();
     fireEvent.click(await screen.findByRole('button', { name: /resume/i }));
 
-    expect(screen.getByLabelText(/full name/i)).toHaveValue('Draft Candidate');
+    await waitFor(() => expect(screen.getByLabelText(/full name/i)).toHaveValue('Draft Candidate'));
     expect(mocks.addToast).toHaveBeenCalledWith('Application draft restored.', 'success');
   });
 
@@ -199,7 +199,10 @@ describe('CareerForm', () => {
     fireEvent.submit(container.querySelector('form') as HTMLFormElement);
 
     await waitFor(() => {
-      expect(mocks.addToast).toHaveBeenCalledWith(expect.stringMatching(/Still submitting - please wait \d+ seconds\./), 'info');
+      expect(mocks.addToast).toHaveBeenCalledWith(
+        expect.stringMatching(/Still submitting - please wait \d+ seconds\./),
+        'info',
+      );
     });
     expect(mocks.post).not.toHaveBeenCalled();
   });

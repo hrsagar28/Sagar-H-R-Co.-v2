@@ -10,19 +10,19 @@ const mocks = vi.hoisted(() => ({
   addToast: vi.fn(),
   clearDraft: vi.fn(),
   loadDraft: vi.fn(),
-  post: vi.fn()
+  post: vi.fn(),
 }));
 
 vi.mock('../components/SEO', () => ({
-  default: () => null
+  default: () => null,
 }));
 
 vi.mock('../components/Reveal', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <>{children}</>
+  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 vi.mock('../components/hero', () => ({
-  PageHero: () => <div data-testid="page-hero" />
+  PageHero: () => <div data-testid="page-hero" />,
 }));
 
 vi.mock('../utils/api', async () => {
@@ -31,8 +31,8 @@ vi.mock('../utils/api', async () => {
     ...actual,
     apiClient: {
       ...actual.apiClient,
-      post: mocks.post
-    }
+      post: mocks.post,
+    },
   };
 });
 
@@ -45,8 +45,8 @@ vi.mock('../hooks', async () => {
       hasDraft: false,
       loadDraft: mocks.loadDraft,
       clearDraft: mocks.clearDraft,
-      lastSaved: null
-    })
+      lastSaved: null,
+    }),
   };
 });
 
@@ -54,7 +54,7 @@ const renderContact = (initialEntry = '/contact') =>
   render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <Contact />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 
 const fillRequiredFields = () => {
@@ -75,7 +75,7 @@ describe('Contact', () => {
       removeListener: vi.fn(),
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn()
+      dispatchEvent: vi.fn(),
     }));
     Element.prototype.scrollIntoView = vi.fn();
     mocks.addToast.mockClear();
@@ -110,7 +110,7 @@ describe('Contact', () => {
   });
 
   it('preselects a valid query string subject and ignores an invalid one', () => {
-    const validSubject = SERVICES[0].title;
+    const validSubject = SERVICES[0]?.title || '';
     const { unmount } = renderContact(`/contact?subject=${encodeURIComponent(validSubject)}`);
 
     expect(screen.getAllByText(validSubject).length).toBeGreaterThan(0);
