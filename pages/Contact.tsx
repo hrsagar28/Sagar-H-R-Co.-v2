@@ -702,7 +702,7 @@ const Contact: React.FC = () => {
                 href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Get DirectionsGoogle Maps (opens in new window)"
+                aria-label="Get directions on Google Maps (opens in new window)"
                 className="mt-2 inline-block text-xs font-bold uppercase tracking-wider text-white transition-all hover:text-white/80 hover:underline"
               >
                 Get Directions
@@ -713,10 +713,10 @@ const Contact: React.FC = () => {
               href={`https://maps.google.com/?q=${CONTACT_INFO.geo.latitude},${CONTACT_INFO.geo.longitude}`}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Get DirectionsGoogle Maps (opens in new window)"
+              aria-label="Get directions on Google Maps (opens in new window)"
               className="sr-only z-50 rounded-xl bg-white p-3 font-bold text-black shadow-lg focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
             >
-              Get DirectionsGoogle Maps
+              Get directions on Google Maps
             </a>
             <iframe
               title={`${CONTACT_INFO.name} Location`}
