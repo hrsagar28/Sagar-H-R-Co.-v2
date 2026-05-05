@@ -104,7 +104,7 @@ export const apiClient = {
     return response.json();
   },
 
-  post: async <T>(url: string, data: any, config?: ApiConfig): Promise<T> => {
+  post: async <T>(url: string, data: unknown, config?: ApiConfig): Promise<T> => {
     const response = await fetchWithRetry(
       url,
       {

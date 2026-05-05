@@ -1,9 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { CONTACT_INFO } from '../constants';
-
-const { Link } = ReactRouterDOM;
 
 const Privacy: React.FC = () => {
   return (

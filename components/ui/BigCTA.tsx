@@ -1,8 +1,6 @@
 import React from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-
-const { Link } = ReactRouterDOM;
 
 export interface BigCTAProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   to?: string;

@@ -4,7 +4,6 @@ import { useReducedMotion } from '../../hooks';
 const BG = '#06070a';
 const MOBILE_BP = 768;
 const NEBULA_COLOR = 'rgba(90,110,180,0.06)';
-const WARM_WHITE = '#fff4e0';
 const SHOOT_ANGLE_DEG = 215;
 const SHOOT_ANGLE_SPREAD = 15;
 const SHOOT_TRAIL_LEN = 140;
@@ -34,6 +33,15 @@ interface ShootingStar {
   angle: number;
   birth: number;
   speed: number;
+}
+
+interface NavigatorConnection {
+  saveData?: boolean;
+  effectiveType?: string;
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: NavigatorConnection;
 }
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
@@ -109,7 +117,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const nav = navigator as any;
+    const nav = navigator as NavigatorWithConnection;
     const connection = nav.connection;
     const liteMode = Boolean(
       connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g',
@@ -129,26 +137,9 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
 
     if (reducedMotion || liteMode) {
       scheduleStaticDraw();
-      let resizeTimer: ReturnType<typeof setTimeout>;
-      const redrawTimer = setTimeout(() => {
-        cancelAnimationFrame(staticRafId);
-        scheduleStaticDraw();
-      }, 600);
-
-      const ro = new ResizeObserver(() => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-          cancelAnimationFrame(staticRafId);
-          scheduleStaticDraw();
-        }, 150);
-      });
-      ro.observe(container);
 
       return () => {
         cancelAnimationFrame(staticRafId);
-        clearTimeout(redrawTimer);
-        clearTimeout(resizeTimer);
-        ro.disconnect();
       };
     }
 
@@ -161,8 +152,8 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     let shooting: ShootingStar | null = null;
     let mouseX = 0;
     let mouseY = 0;
-    let visible = true;
     let rafId = 0;
+    let isLooping = false;
     let lastFrame = 0;
     let nebulaX = 0;
     let nebulaY = 0;
@@ -195,15 +186,6 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       mouseY = (e.clientY - rect.top) / rect.height - 0.5;
     };
     container.addEventListener('mousemove', onMouseMove, { passive: true });
-
-    // visibility
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        visible = Boolean(entry?.intersectionRatio && entry.intersectionRatio >= 0.1);
-      },
-      { threshold: 0.1 },
-    );
-    io.observe(container);
 
     // resize debounced
     const ro = new ResizeObserver(() => {
@@ -261,13 +243,15 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     };
 
     const loop = (now: number) => {
-      rafId = requestAnimationFrame(loop);
-      if (!visible) return;
+      if (!isLooping) return;
 
       const dt = lastFrame ? now - lastFrame : 16;
       lastFrame = now;
       // cap at ~60fps
-      if (dt < 14) return;
+      if (dt < 14) {
+        rafId = requestAnimationFrame(loop);
+        return;
+      }
 
       ctx.fillStyle = BG;
       ctx.fillRect(0, 0, w, h);
@@ -315,12 +299,40 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
 
       trySpawnShoot(dt);
       drawShoot(now);
+
+      rafId = requestAnimationFrame(loop);
     };
 
-    rafId = requestAnimationFrame(loop);
+    const startLoop = () => {
+      if (isLooping) return;
+      isLooping = true;
+      lastFrame = 0;
+      rafId = requestAnimationFrame(loop);
+    };
+
+    const stopLoop = () => {
+      if (!isLooping) return;
+      isLooping = false;
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+      lastFrame = 0;
+    };
+
+    // visibility
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { rootMargin: '200px 0px' },
+    );
+    io.observe(container);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      stopLoop();
       io.disconnect();
       ro.disconnect();
       container.removeEventListener('mousemove', onMouseMove);

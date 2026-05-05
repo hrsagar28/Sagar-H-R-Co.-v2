@@ -2,13 +2,7 @@ import { useEffect, useState } from 'react';
 
 type ConsentKey = 'cookie_consent';
 
-const getGranted = (key: ConsentKey) => (
-  typeof window !== 'undefined' && window.localStorage.getItem(key) === 'granted'
-);
-
-const getValue = (key: ConsentKey) => (
-  typeof window !== 'undefined' ? window.localStorage.getItem(key) : null
-);
+const getValue = (key: ConsentKey) => (typeof window !== 'undefined' ? window.localStorage.getItem(key) : null);
 
 export function useConsent(key: ConsentKey) {
   const [value, setValue] = useState<string | null>(() => getValue(key));

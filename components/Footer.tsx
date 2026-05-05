@@ -1,10 +1,8 @@
 import React from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Linkedin, ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import { toRomanNumeral } from '../utils/toRomanNumeral';
-
-const { Link } = ReactRouterDOM;
 
 const Footer: React.FC = React.memo(() => {
   const scrollToTop = () => {

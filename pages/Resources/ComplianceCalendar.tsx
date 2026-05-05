@@ -125,7 +125,7 @@ const ComplianceCalendar: React.FC = () => {
               <Clock className="text-brand-accent" size={24} />
             </div>
             <div>
-              <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-brand-stone/80">
+              <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-white/70">
                 Next Compliance Deadline
               </span>
               <h3 className="mb-1 text-xl font-bold">{nextDeadline.event.desc}</h3>

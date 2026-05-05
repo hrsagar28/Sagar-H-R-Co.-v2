@@ -245,13 +245,19 @@ html {
   z-index: 999;
 }
 
+[data-hero-dark] :focus-visible,
+.bg-brand-black :focus-visible {
+  outline-color: #b8924c;
+  box-shadow: 0 0 0 6px rgb(184 146 76 / 0.28);
+}
+
 /* Remove default outline for mouse users if desired, but keep for keyboard */
 :focus:not(:focus-visible) {
   outline: none;
 }
 
 /* Programmatic focus on main container shouldn't show ring */
-#main-content:focus {
+#main-content:focus:not(:focus-visible) {
   outline: none;
 }
 

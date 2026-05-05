@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { logger } from '../utils/logger';
 
 interface UseRateLimitOptions {
@@ -19,7 +18,7 @@ interface UseRateLimitReturn {
 /**
  * Hook to enforce client-side rate limiting on actions (e.g., form submissions).
  * Persists attempts to localStorage to survive page reloads.
- * 
+ *
  * @param {UseRateLimitOptions} options - Configuration for rate limiting.
  * @returns {UseRateLimitReturn} Rate limit state and methods.
  */
@@ -36,25 +35,31 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
           setAttempts(validAttempts);
         }
       } catch (e) {
-        logger.error("Error parsing rate limit data", e);
+        logger.error('Error parsing rate limit data', e);
       }
     }
   }, [storageKey, windowMs]);
 
-  const now = Date.now();
-  const recentAttempts = attempts.filter(timestamp => now - timestamp < windowMs);
-  const canSubmit = recentAttempts.length < maxAttempts;
-  const attemptsRemaining = Math.max(0, maxAttempts - recentAttempts.length);
-  const oldestAttempt = recentAttempts.length > 0 ? recentAttempts[0] : null;
-  const resetTime = oldestAttempt ? new Date(oldestAttempt + windowMs) : null;
-  const timeUntilReset = resetTime ? Math.max(0, Math.ceil((resetTime.getTime() - now) / 1000)) : 0;
+  const rateLimitState = useMemo(() => {
+    const now = Date.now();
+    const recentAttempts = attempts.filter((timestamp) => now - timestamp < windowMs);
+    const canSubmit = recentAttempts.length < maxAttempts;
+    const attemptsRemaining = Math.max(0, maxAttempts - recentAttempts.length);
+    const oldestAttempt = recentAttempts.length > 0 ? recentAttempts[0] : null;
+    const resetTime = oldestAttempt ? new Date(oldestAttempt + windowMs) : null;
+    const timeUntilReset = resetTime ? Math.max(0, Math.ceil((resetTime.getTime() - now) / 1000)) : 0;
+
+    return { canSubmit, attemptsRemaining, resetTime, timeUntilReset };
+  }, [attempts, maxAttempts, windowMs]);
+
+  const { canSubmit, attemptsRemaining, resetTime, timeUntilReset } = rateLimitState;
 
   useEffect(() => {
     if (canSubmit || !resetTime) return;
 
     const timeoutMs = Math.max(0, resetTime.getTime() - Date.now()) + 50;
     const timeout = setTimeout(() => {
-      setAttempts(prev => prev.filter(timestamp => Date.now() - timestamp < windowMs));
+      setAttempts((prev) => prev.filter((timestamp) => Date.now() - timestamp < windowMs));
     }, timeoutMs);
 
     return () => clearTimeout(timeout);
@@ -62,8 +67,8 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
 
   const recordAttempt = useCallback(() => {
     const newTimestamp = Date.now();
-    setAttempts(prev => {
-      const currentValid = prev.filter(ts => newTimestamp - ts < windowMs);
+    setAttempts((prev) => {
+      const currentValid = prev.filter((ts) => newTimestamp - ts < windowMs);
       const newAttempts = [...currentValid, newTimestamp];
 
       try {

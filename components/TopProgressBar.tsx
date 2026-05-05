@@ -1,8 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
-
-const { useLocation } = ReactRouterDOM;
+import { useLocation } from 'react-router-dom';
 
 const TopProgressBar: React.FC = () => {
   const { pathname } = useLocation();
@@ -34,8 +31,8 @@ const TopProgressBar: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-0 left-0 w-full h-1 z-[2000] pointer-events-none">
-      <div 
+    <div className="pointer-events-none fixed left-0 top-0 z-[2000] h-1 w-full">
+      <div
         className="h-full w-full origin-left bg-brand-moss shadow-[0_0_10px_#1A4D2E] transition-transform duration-300 ease-out"
         style={{ transform: `scaleX(${progress / 100})` }}
       />

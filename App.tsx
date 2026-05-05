@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import {
   Navbar,
   Footer,
@@ -21,8 +21,6 @@ import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
 import { useAnnounce } from './hooks';
 import { Grain } from './components/ui/Grain';
-
-const { BrowserRouter, Routes, Route, useLocation } = ReactRouterDOM;
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));

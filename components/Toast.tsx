@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
@@ -16,6 +16,14 @@ const Toast: React.FC<ToastProps> = ({ id, message, variant, duration = 5000, on
   const [isVisible, setIsVisible] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
+  const handleClose = useCallback(() => {
+    setIsVisible(false);
+    // Wait for exit animation to finish before removing from DOM
+    setTimeout(() => {
+      onClose(id);
+    }, 300);
+  }, [id, onClose]);
+
   useEffect(() => {
     // Trigger entry animation
     requestAnimationFrame(() => setIsVisible(true));
@@ -25,15 +33,7 @@ const Toast: React.FC<ToastProps> = ({ id, message, variant, duration = 5000, on
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [duration]);
-
-  const handleClose = () => {
-    setIsVisible(false);
-    // Wait for exit animation to finish before removing from DOM
-    setTimeout(() => {
-      onClose(id);
-    }, 300);
-  };
+  }, [duration, handleClose]);
 
   const getIcon = () => {
     switch (variant) {

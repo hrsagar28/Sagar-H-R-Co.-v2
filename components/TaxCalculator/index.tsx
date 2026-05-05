@@ -138,7 +138,9 @@ const TaxCalculator: React.FC = () => {
     <div className="print-container relative animate-fade-in-up overflow-visible rounded-[3rem] border border-brand-border bg-brand-surface p-8 shadow-2xl shadow-brand-dark/5 md:p-12 print:border-0 print:p-0 print:shadow-none">
       {/* Print Only Header (Letterhead Style) */}
       <div className="print-header mb-8 hidden flex-col items-center border-b-2 border-black pb-4 text-center print:flex">
-        <h1 className="mb-1 font-serif text-3xl font-bold uppercase tracking-widest text-black">{CONTACT_INFO.name}</h1>
+        <div className="mb-1 font-serif text-3xl font-bold uppercase tracking-widest text-black">
+          {CONTACT_INFO.name}
+        </div>
         <p className="mb-2 text-sm font-bold uppercase tracking-wider text-black">Chartered Accountants</p>
         <p className="text-xs text-black">
           {CONTACT_INFO.address.city} | {CONTACT_INFO.phone.display} | {CONTACT_INFO.email}
@@ -238,7 +240,7 @@ const TaxCalculator: React.FC = () => {
               <div className="relative z-10 space-y-6 text-center">
                 <div>
                   <h3 className="mb-2 font-heading text-xl font-bold text-white">Ready to calculate?</h3>
-                  <p className="text-sm font-medium text-brand-stone/80">
+                  <p className="text-sm font-medium text-white/70">
                     Updated with {CURRENT_FY || config.financialYear} rules.
                   </p>
                 </div>
@@ -272,7 +274,7 @@ const TaxCalculator: React.FC = () => {
 
             {/* Disclaimer */}
             <div className="pt-4 text-center print:text-left">
-              <p className="text-[10px] font-medium leading-relaxed text-brand-stone/60 print:text-black">
+              <p className="text-[10px] font-medium leading-relaxed text-brand-stone print:text-black">
                 <strong>Note:</strong> This tool provides an estimate based on {CURRENT_FY || config.financialYear}{' '}
                 proposals. Actual liability may vary.
               </p>

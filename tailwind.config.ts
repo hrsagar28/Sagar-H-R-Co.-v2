@@ -47,7 +47,7 @@ export default {
           moss: '#1A4D2E',
           mossLight: '#E8F5E9',
           border: '#e7e5e4',
-          stone: '#78716c',
+          stone: '#746d68',
           inverse: '#FFFFFF',
           'surface-dark': '#1e1e1e',
           'surface-dark-hover': '#161616',

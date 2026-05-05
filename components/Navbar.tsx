@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS, CONTACT_INFO } from '../constants';
 import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
 import { useFocusTrap, useReturnFocus, useScrollPosition } from '../hooks';
-
-const { Link, useLocation } = ReactRouterDOM;
 
 interface NavbarProps {
   className?: string;
@@ -84,9 +82,9 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
           className="group flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border-brand-border/30 bg-brand-surface/50 px-3 py-2 shadow-none transition-all hover:border-brand-moss/30 md:gap-3 md:border md:bg-brand-surface md:px-5 md:shadow-sm"
           aria-label="Sagar H R & Co. Home"
         >
-          <h1 className="block whitespace-nowrap font-heading text-sm font-bold tracking-tight text-brand-dark md:text-lg">
+          <span className="block whitespace-nowrap font-heading text-sm font-bold tracking-tight text-brand-dark md:text-lg">
             Sagar H R & Co.
-          </h1>
+          </span>
         </Link>
 
         {/* Desktop Menu - Center Pill (Rolling Text Effect) */}

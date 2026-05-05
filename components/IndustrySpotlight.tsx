@@ -1,42 +1,47 @@
 import React, { useRef } from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { INDUSTRIES } from '../constants';
 import { useSpotlight } from '../hooks';
 import Reveal from './Reveal';
-
-const { Link } = ReactRouterDOM;
 
 interface IndustrySpotlightProps {
   variant?: 'default' | 'compact';
 }
 
 export const IndustryChips: React.FC = () => (
-  <section className="py-24 px-4 md:px-6 bg-brand-bg relative overflow-hidden">
+  <section className="relative overflow-hidden bg-brand-bg px-4 py-24 md:px-6">
     <div className="container mx-auto max-w-6xl text-center">
       <Reveal variant="fade-up">
-        <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-6 block">Sectors We Serve</span>
-        <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-dark mb-12">
-          Expertise across <span className="font-serif italic font-normal text-brand-stone">industries.</span>
+        <span className="mb-6 block text-xs font-bold uppercase tracking-widest text-brand-moss">Sectors We Serve</span>
+        <h2 className="mb-12 font-heading text-4xl font-bold text-brand-dark md:text-5xl">
+          Expertise across <span className="font-serif font-normal italic text-brand-stone">industries.</span>
         </h2>
       </Reveal>
 
       <div className="flex flex-wrap justify-center gap-4">
         {INDUSTRIES.map((ind, index) => (
           <Reveal key={ind.title} delay={index * 0.05} variant="scale" width="fit-content">
-            <div className="group flex items-center gap-3 pl-2 pr-6 py-2 bg-white border border-brand-border rounded-full hover:border-brand-moss hover:shadow-lg hover:shadow-brand-moss/10 transition-all duration-300 cursor-default">
-              <div className="w-10 h-10 rounded-full bg-brand-bg flex items-center justify-center text-brand-moss group-hover:bg-brand-moss group-hover:text-white transition-colors">
+            <div className="group flex cursor-default items-center gap-3 rounded-full border border-brand-border bg-white py-2 pl-2 pr-6 transition-all duration-300 hover:border-brand-moss hover:shadow-lg hover:shadow-brand-moss/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-bg text-brand-moss transition-colors group-hover:bg-brand-moss group-hover:text-white">
                 {React.cloneElement(ind.icon as React.ReactElement<{ size?: number }>, { size: 18 })}
               </div>
-              <span className="text-sm font-bold text-brand-dark group-hover:text-brand-moss transition-colors">
+              <span className="text-sm font-bold text-brand-dark transition-colors group-hover:text-brand-moss">
                 {ind.title}
               </span>
             </div>
           </Reveal>
         ))}
         <Reveal delay={0.4} variant="scale" width="fit-content">
-          <Link to="/services" className="flex items-center gap-2 px-6 py-3 rounded-full bg-brand-dark text-white font-bold text-sm hover:bg-brand-moss transition-all shadow-md group">
-            View All <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          <Link
+            to="/services"
+            className="group flex items-center gap-2 rounded-full bg-brand-dark px-6 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-brand-moss"
+          >
+            View All{' '}
+            <ArrowUpRight
+              size={16}
+              className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            />
           </Link>
         </Reveal>
       </div>
@@ -49,44 +54,61 @@ export const IndustryGridDark: React.FC = () => {
   useSpotlight(containerRef);
 
   return (
-    <div className="px-2 md:px-4 pb-4 bg-brand-bg">
+    <div className="bg-brand-bg px-2 pb-4 md:px-4">
       <section
         ref={containerRef}
-        className="relative py-24 px-4 md:px-10 bg-brand-black text-white rounded-[2.5rem] md:rounded-[3rem] overflow-hidden group"
+        className="group relative overflow-hidden rounded-[2.5rem] bg-brand-black px-4 py-24 text-white md:rounded-[3rem] md:px-10"
         style={{ '--mouse-x': '-500px', '--mouse-y': '-500px' } as React.CSSProperties}
       >
         <div
-          className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-          style={{ background: 'radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(184, 146, 76, 0.15), transparent 40%)' }}
+          className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background:
+              'radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(184, 146, 76, 0.15), transparent 40%)',
+          }}
         />
 
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="flex flex-col md:flex-row md:items-start justify-between mb-16 gap-8 border-b border-white/10 pb-12">
+        <div className="container relative z-10 mx-auto max-w-7xl">
+          <div className="mb-16 flex flex-col justify-between gap-8 border-b border-white/10 pb-12 md:flex-row md:items-start">
             <div className="max-w-2xl">
-              <span className="text-brand-brass font-bold tracking-widest uppercase text-xs mb-4 block">SECTORS</span>
-              <h2 className="text-4xl md:text-6xl font-heading font-bold text-white mb-0">Industries We Serve</h2>
+              <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-brand-brass">SECTORS</span>
+              <h2 className="mb-0 font-heading text-4xl font-bold text-white md:text-6xl">Industries We Serve</h2>
             </div>
-            <p className="text-white/60 font-medium text-lg max-w-xs text-left leading-relaxed">
+            <p className="max-w-xs text-left text-lg font-medium leading-relaxed text-white/60">
               Specialized knowledge across diverse verticals ensures relevant and impactful advice.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {INDUSTRIES.map((ind) => (
-              <Link key={ind.title} to="/contact" className="relative p-8 rounded-[2rem] bg-brand-dark hover:bg-brand-surface-dark-hover border border-white/5 transition-all duration-300 group/card flex flex-col items-start h-full hover:-translate-y-1 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass" aria-label={`Discuss ${ind.title} services`}>
-                <div className="absolute inset-0 bg-brand-brass/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                <div className="relative z-10 w-12 h-12 rounded-xl flex items-center justify-center text-brand-brass mb-6 bg-brand-brass/10 border border-brand-brass/20 group-hover/card:scale-105 transition-transform">
+              <Link
+                key={ind.title}
+                to="/contact"
+                className="group/card relative flex h-full flex-col items-start overflow-hidden rounded-[2rem] border border-white/5 bg-brand-dark p-8 transition-all duration-300 hover:-translate-y-1 hover:bg-brand-surface-dark-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass"
+                aria-label={`Discuss ${ind.title} services`}
+              >
+                <div className="pointer-events-none absolute inset-0 bg-brand-brass/5 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
+                <div className="relative z-10 mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-brand-brass/20 bg-brand-brass/10 text-brand-brass transition-transform group-hover/card:scale-105">
                   {React.cloneElement(ind.icon as React.ReactElement<{ size?: number }>, { size: 24 })}
                 </div>
-                <h3 className="relative z-10 text-xl font-heading font-bold text-white mb-3">{ind.title}</h3>
-                <p className="relative z-10 text-zinc-300 text-sm leading-relaxed font-medium">{ind.description}</p>
+                <h3 className="relative z-10 mb-3 font-heading text-xl font-bold text-white">{ind.title}</h3>
+                <p className="relative z-10 text-sm font-medium leading-relaxed text-zinc-300">{ind.description}</p>
               </Link>
             ))}
           </div>
 
-          <div className="mt-20 flex justify-center relative z-10">
-            <Link to="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/20 text-white font-bold text-sm hover:bg-white hover:text-black transition-all duration-300 group">
-              Industry not listed? Contact Us <ArrowUpRight size={16} className="text-brand-brass group-hover:text-brand-moss group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" aria-hidden="true" focusable={false} />
+          <div className="relative z-10 mt-20 flex justify-center">
+            <Link
+              to="/contact"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:bg-white hover:text-black"
+            >
+              Industry not listed? Contact Us{' '}
+              <ArrowUpRight
+                size={16}
+                className="text-brand-brass transition-all group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-brand-moss"
+                aria-hidden="true"
+                focusable={false}
+              />
             </Link>
           </div>
         </div>
@@ -95,8 +117,7 @@ export const IndustryGridDark: React.FC = () => {
   );
 };
 
-const IndustrySpotlight: React.FC<IndustrySpotlightProps> = ({ variant = 'default' }) => (
-  variant === 'compact' ? <IndustryChips /> : <IndustryGridDark />
-);
+const IndustrySpotlight: React.FC<IndustrySpotlightProps> = ({ variant = 'default' }) =>
+  variant === 'compact' ? <IndustryChips /> : <IndustryGridDark />;
 
 export default IndustrySpotlight;

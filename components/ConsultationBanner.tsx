@@ -1,37 +1,35 @@
-
 import React from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
-import { MessageSquare, Phone, ArrowRight } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import Reveal from './Reveal';
 import { BigCTA } from './ui/BigCTA';
 
-const { Link } = ReactRouterDOM;
-
 const ConsultationBanner: React.FC = () => {
   return (
-    <section className="py-20 px-4 md:px-6 bg-card-moss-deep relative overflow-hidden print:hidden">
+    <section className="relative overflow-hidden bg-card-moss-deep px-4 py-20 md:px-6 print:hidden">
       {/* Decorative Background */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-black/20 rounded-full blur-[80px] translate-y-1/4 -translate-x-1/4 pointer-events-none"></div>
-      
-      <div className="container mx-auto max-w-5xl relative z-10 text-center">
+      <div className="pointer-events-none absolute right-0 top-0 h-[500px] w-[500px] -translate-y-1/2 translate-x-1/4 rounded-full bg-white/5 blur-[100px]"></div>
+      <div className="pointer-events-none absolute bottom-0 left-0 h-[300px] w-[300px] -translate-x-1/4 translate-y-1/4 rounded-full bg-black/20 blur-[80px]"></div>
+
+      <div className="container relative z-10 mx-auto max-w-5xl text-center">
         <Reveal variant="scale">
-          <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6 tracking-tight">
+          <h2 className="mb-6 font-heading text-3xl font-bold tracking-tight text-white md:text-5xl">
             Professional Assistance.
           </h2>
-          <p className="text-white/80 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="mx-auto mb-10 max-w-2xl text-lg font-medium leading-relaxed text-white/80 md:text-xl">
             Contact us for expert advice on tax, audit, and business compliance matters.
           </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="w-full sm:w-auto flex justify-center">
-              <BigCTA to="/contact" tone="moss" size="lg">Engage on a matter</BigCTA>
+
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="flex w-full justify-center sm:w-auto">
+              <BigCTA to="/contact" tone="moss" size="lg">
+                Engage on a matter
+              </BigCTA>
             </div>
-            
-            <a 
+
+            <a
               href={`tel:${CONTACT_INFO.phone.value}`}
-              className="w-full sm:w-auto px-8 py-4 bg-white/10 border border-white/20 text-white rounded-full font-bold text-base hover:bg-white/20 transition-all flex items-center justify-center gap-2 backdrop-blur-sm"
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-8 py-4 text-base font-bold text-white backdrop-blur-sm transition-all hover:bg-white/20 sm:w-auto"
             >
               <Phone size={18} /> {CONTACT_INFO.phone.display}
             </a>

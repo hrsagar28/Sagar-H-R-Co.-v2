@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsx scripts/generate-sitemap.ts && vite build",
+    "build": "npm run icons && tsx scripts/generate-sitemap.ts && vite build",
+    "icons": "tsx scripts/generate-icons.ts",
     "sitemap": "tsx scripts/generate-sitemap.ts",
     "lint:schema": "tsx scripts/validate-services-schema.ts",
     "lint": "eslint .",

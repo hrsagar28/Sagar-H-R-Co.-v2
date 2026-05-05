@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { InsightItem } from '../types';
 import { logger } from '../utils/logger';
@@ -8,7 +7,7 @@ import { parseInsights } from '../utils/insightValidation';
 let insightsPromise: Promise<InsightItem[]> | null = null;
 
 const getInsightsUrl = () => {
-  const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
+  const baseUrl = import.meta.env.BASE_URL || '/';
   if (typeof window === 'undefined') return `${baseUrl.replace(/\/$/, '')}/data/insights.json`;
   return new URL('data/insights.json', new URL(baseUrl, window.location.origin)).toString();
 };
@@ -47,9 +46,9 @@ export const useInsights = () => {
           logger.error('Error fetching insights:', err);
           let msg = 'Unable to load insights.';
           if (err instanceof ApiError) {
-             if (err.code === 'NETWORK_ERROR') msg = 'Network error. Please check your connection.';
-             else if (err.code === 'TIMEOUT') msg = 'Request timed out.';
-             else if (err.code === 'INVALID_RESPONSE') msg = 'Insights data is invalid.';
+            if (err.code === 'NETWORK_ERROR') msg = 'Network error. Please check your connection.';
+            else if (err.code === 'TIMEOUT') msg = 'Request timed out.';
+            else if (err.code === 'INVALID_RESPONSE') msg = 'Insights data is invalid.';
           }
           setError(msg);
           setLoading(false);
@@ -64,9 +63,12 @@ export const useInsights = () => {
     };
   }, []);
 
-  const getInsightBySlug = useCallback((slug: string) => {
-    return insights.find(i => i.slug === slug);
-  }, [insights]);
+  const getInsightBySlug = useCallback(
+    (slug: string) => {
+      return insights.find((i) => i.slug === slug);
+    },
+    [insights],
+  );
 
   return { insights, loading, error, getInsightBySlug };
 };

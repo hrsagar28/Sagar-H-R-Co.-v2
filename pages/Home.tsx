@@ -1,75 +1,94 @@
-
 import React from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import {
-  Marquee, Reveal, SEO,
+  Marquee,
+  Reveal,
+  SEO,
   HorizontalScroll,
   FounderSection,
-  FAQPreview, LocationStrip,
-  StarField, ChaosToOrder,
+  FAQPreview,
+  LocationStrip,
+  StarField,
+  ChaosToOrder,
 } from '../components';
 import { AccentTitle } from '../components/ui/AccentTitle';
 import TrustBar from '../components/home/TrustBar';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useInsights } from '../hooks';
 import { BigCTA } from '../components/ui/BigCTA';
-
-const { Link } = ReactRouterDOM;
+import VisuallyHidden from '../components/VisuallyHidden';
+import { SITE_URL } from '../config/site';
 
 const Home: React.FC = () => {
   const { insights } = useInsights();
   const recentInsights = insights.slice(0, 3);
 
   const schema = {
-    "@context": "https://schema.org",
-    "@graph": [
+    '@context': 'https://schema.org',
+    '@graph': [
       {
-        "@type": "AccountingService",
-        "@id": "https://casagar.co.in/#organization",
-        "name": CONTACT_INFO.name,
-        "url": "https://casagar.co.in",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://casagar.co.in/logo.png"
+        '@type': 'AccountingService',
+        '@id': 'https://casagar.co.in/#organization',
+        name: CONTACT_INFO.name,
+        url: 'https://casagar.co.in',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://casagar.co.in/logo.png',
         },
-        "description": "Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.",
-        "foundingDate": CONTACT_INFO.stats.established,
-        "founder": {
-          "@type": "Person",
-          "name": CONTACT_INFO.founder.name
-        },
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": CONTACT_INFO.address.street,
-          "addressLocality": CONTACT_INFO.address.city,
-          "postalCode": CONTACT_INFO.address.zip,
-          "addressCountry": "IN"
-        },
-        "geo": {
-          "@type": "GeoCoordinates",
-          "latitude": CONTACT_INFO.geo.latitude,
-          "longitude": CONTACT_INFO.geo.longitude
-        },
-        "telephone": CONTACT_INFO.phone.value,
-        "openingHoursSpecification": [
-          {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-            "opens": "10:00",
-            "closes": "20:00"
-          }
+        image: 'https://casagar.co.in/og/og-default.png',
+        description: 'Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.',
+        sameAs: [CONTACT_INFO.social.linkedin],
+        areaServed: [
+          { '@type': 'City', name: 'Mysuru' },
+          { '@type': 'State', name: 'Karnataka' },
+          { '@type': 'Country', name: 'India' },
         ],
-        "priceRange": "$$"
+        foundingDate: CONTACT_INFO.stats.established,
+        founder: {
+          '@type': 'Person',
+          name: CONTACT_INFO.founder.name,
+        },
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: CONTACT_INFO.address.street,
+          addressLocality: CONTACT_INFO.address.city,
+          postalCode: CONTACT_INFO.address.zip,
+          addressCountry: 'IN',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: CONTACT_INFO.geo.latitude,
+          longitude: CONTACT_INFO.geo.longitude,
+        },
+        telephone: CONTACT_INFO.phone.value,
+        openingHoursSpecification: [
+          {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            opens: '10:00',
+            closes: '20:00',
+          },
+        ],
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Chartered Accountancy Services',
+          itemListElement: SERVICES.map((service) => ({
+            '@type': 'Service',
+            name: service.title,
+            description: service.description,
+            url: `${SITE_URL}${service.link}`,
+          })),
+        },
       },
       {
-        "@type": "WebSite",
-        "@id": "https://casagar.co.in/#website",
-        "url": "https://casagar.co.in",
-        "name": CONTACT_INFO.name,
-        "publisher": { "@id": "https://casagar.co.in/#organization" }
-      }
-    ]
+        '@type': 'WebSite',
+        '@id': 'https://casagar.co.in/#website',
+        url: 'https://casagar.co.in',
+        name: CONTACT_INFO.name,
+        publisher: { '@id': 'https://casagar.co.in/#organization' },
+      },
+    ],
   };
 
   return (
@@ -88,18 +107,21 @@ const Home: React.FC = () => {
           recenter the hero when their chrome reports a changing dynamic
           viewport. Larger viewports can use dvh for the fuller cinematic
           frame. */}
-      <section className="relative min-h-screen min-h-[100svh] md:min-h-[100dvh] flex flex-col justify-start md:justify-center px-4 md:px-6 overflow-hidden pt-32 md:pt-20 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] md:pb-0">
+      <section
+        data-hero-dark
+        className="relative flex min-h-[100svh] min-h-screen flex-col justify-start overflow-hidden px-4 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] pt-32 md:min-h-[100dvh] md:justify-center md:px-6 md:pb-0 md:pt-20"
+      >
         <StarField />
 
-        <div className="container mx-auto max-w-7xl relative z-20 mt-12 md:mt-0">
+        <div className="container relative z-20 mx-auto mt-12 max-w-7xl md:mt-0">
           <div className="max-w-6xl">
             <Reveal delay={0.05} variant="fade-up">
-              <div className="flex flex-col gap-2 mb-8">
-                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl text-xs font-bold uppercase tracking-[0.2em] text-white/90 w-fit">
-                  <div className="w-2 h-2 bg-brand-accent rounded-full animate-pulse shadow-[0_0_12px_brand-accent]"></div>
+              <div className="mb-8 flex flex-col gap-2">
+                <div className="inline-flex w-fit items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-xl">
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-brand-accent shadow-[0_0_12px_brand-accent]"></div>
                   <span>Mysuru</span>
                 </div>
-                <h2 className="text-xl md:text-2xl font-bold text-white/80 tracking-wide font-heading">
+                <h2 className="font-heading text-xl font-bold tracking-wide text-white/80 md:text-2xl">
                   Sagar H R &amp; Co.
                 </h2>
               </div>
@@ -107,43 +129,63 @@ const Home: React.FC = () => {
 
             {/* Dynamic Service-Based Headline */}
             <div className="mb-10">
+              <VisuallyHidden as="h1">
+                Sagar H R & Co. — Chartered Accountants in Mysuru: Audit, Taxation, and Advisory.
+              </VisuallyHidden>
               <Reveal variant="reveal-mask" delay={0.1} duration={0.7}>
-                <AccentTitle as="h1" className="text-white drop-shadow-2xl overflow-hidden max-w-full">
+                <AccentTitle as="div" className="max-w-full overflow-hidden text-white drop-shadow-2xl">
                   <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Audit.</span>
                 </AccentTitle>
               </Reveal>
               <Reveal variant="reveal-mask" delay={0.18} duration={0.7}>
-                <AccentTitle as="h1" className="text-white drop-shadow-2xl overflow-hidden max-w-full">
+                <AccentTitle as="div" className="max-w-full overflow-hidden text-white drop-shadow-2xl">
                   <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Taxation.</span>
                 </AccentTitle>
               </Reveal>
               <Reveal variant="reveal-mask" delay={0.26} duration={0.7}>
-                <AccentTitle as="h1" className="text-white drop-shadow-2xl overflow-hidden max-w-full" accentClassName="text-[#E8F5E9]">
-                  <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]"><em>Advisory.</em></span>
+                <AccentTitle
+                  as="div"
+                  className="max-w-full overflow-hidden text-white drop-shadow-2xl"
+                  accentClassName="text-[#E8F5E9]"
+                >
+                  <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">
+                    <em>Advisory.</em>
+                  </span>
                 </AccentTitle>
               </Reveal>
             </div>
 
             <div className="flex flex-col items-start gap-8">
               <Reveal delay={0.4}>
-                <div className="flex items-center gap-4 text-white/80 text-lg md:text-xl font-medium border-l-2 border-brand-accent pl-4 md:pl-6">
-                  <span className="block">Chartered Accountants based in Mysuru. Providing services in Audit, Taxation, and Regulatory Compliance.</span>
+                <div className="flex items-center gap-4 border-l-2 border-brand-accent pl-4 text-lg font-medium text-white/80 md:pl-6 md:text-xl">
+                  <span className="block">
+                    Chartered Accountants based in Mysuru. Providing services in Audit, Taxation, and Regulatory
+                    Compliance.
+                  </span>
                 </div>
               </Reveal>
 
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-8 w-full mt-4">
+              <div className="mt-4 flex w-full flex-col items-start gap-8 md:flex-row md:items-center">
                 <Reveal delay={0.5}>
-                  <BigCTA to="/contact" tone="paper" size="lg">Engage the practice</BigCTA>
+                  <BigCTA to="/contact" tone="paper" size="lg">
+                    Engage the practice
+                  </BigCTA>
                 </Reveal>
 
                 <Reveal delay={0.6} variant="fade-up">
-                  <div className="w-full md:w-auto overflow-hidden">
-                    <div className="flex flex-wrap gap-3 md:gap-4 px-5 md:px-6 py-3 md:py-3.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors duration-300">
-                      <span className="text-white/90 text-[11px] md:text-xs font-bold uppercase tracking-wider">GST</span>
+                  <div className="w-full overflow-hidden md:w-auto">
+                    <div className="flex flex-wrap gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-3 backdrop-blur-md transition-colors duration-300 hover:bg-white/10 md:gap-4 md:px-6 md:py-3.5">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-white/90 md:text-xs">
+                        GST
+                      </span>
                       <span className="text-white/30">•</span>
-                      <span className="text-white/90 text-[11px] md:text-xs font-bold uppercase tracking-wider">Income Tax</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-white/90 md:text-xs">
+                        Income Tax
+                      </span>
                       <span className="text-white/30">•</span>
-                      <span className="text-white/90 text-[11px] md:text-xs font-bold uppercase tracking-wider">Company Law</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-white/90 md:text-xs">
+                        Company Law
+                      </span>
                     </div>
                   </div>
                 </Reveal>
@@ -170,20 +212,22 @@ const Home: React.FC = () => {
              Mobile alignment: items-start so the heading and caption hug the
              left edge instead of being pushed right by the desktop `items-end`
              baseline. */}
-      <section className="bg-brand-black text-white relative z-30 pt-8 md:pt-12 pb-12 md:pb-16">
+      <section className="relative z-30 bg-brand-black pb-12 pt-8 text-white md:pb-16 md:pt-12">
         <HorizontalScroll
           header={
-            <div className="container mx-auto max-w-7xl relative z-10 px-4 md:px-6 pt-10 md:pt-14 pb-4 md:pb-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 md:gap-6 border-b border-white/10 pb-4 md:pb-6">
+            <div className="container relative z-10 mx-auto max-w-7xl px-4 pb-4 pt-10 md:px-6 md:pb-6 md:pt-14">
+              <div className="flex flex-col items-start justify-between gap-3 border-b border-white/10 pb-4 md:flex-row md:items-end md:gap-6 md:pb-6">
                 <Reveal>
-                  <span className="text-amber-400 font-bold tracking-widest uppercase text-[11px] md:text-xs mb-2 md:mb-3 block">Practice Areas</span>
-                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-white leading-[0.95]">
+                  <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-amber-400 md:mb-3 md:text-xs">
+                    Practice Areas
+                  </span>
+                  <h2 className="font-heading text-4xl font-bold leading-[0.95] text-white md:text-6xl lg:text-7xl">
                     Services
                   </h2>
                 </Reveal>
                 <Reveal delay={0.2} className="md:w-1/3">
-                  <p className="text-white/60 font-medium text-sm md:text-base lg:text-lg leading-relaxed text-left md:text-left">
-                    Scroll to view our professional services.
+                  <p className="text-left text-sm font-medium leading-relaxed text-white/60 md:text-left md:text-base lg:text-lg">
+                    Use the arrows or scroll to explore our practice areas.
                   </p>
                 </Reveal>
               </div>
@@ -194,39 +238,44 @@ const Home: React.FC = () => {
             <Link
               key={service.id}
               to={service.link}
-              className="shrink-0 w-[300px] md:w-[400px] aspect-[4/5] bg-brand-dark border border-white/5 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between hover:border-brand-accent/50 hover:bg-brand-surface-dark-hover transition-all duration-500 group snap-center relative overflow-hidden"
+              className="group relative flex aspect-[4/5] w-[300px] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] border border-white/5 bg-brand-dark p-8 transition-all duration-500 hover:border-brand-accent/50 hover:bg-brand-surface-dark-hover md:w-[400px] md:p-10"
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
 
-              <div className="relative z-10 flex flex-col h-full">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-brand-accent group-hover:scale-110 transition-transform duration-500 mb-8 border border-white/5 shadow-lg shadow-black/20">
+              <div className="relative z-10 flex h-full flex-col">
+                <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5 bg-white/5 text-brand-accent shadow-lg shadow-black/20 transition-transform duration-500 group-hover:scale-110">
                   {React.cloneElement(service.icon as React.ReactElement<{ size?: number }>, { size: 32 })}
                 </div>
 
                 <div className="mb-auto">
-                  <h3 className="text-2xl md:text-3xl font-heading font-bold leading-tight text-white group-hover:text-brand-accent transition-colors mb-4">
+                  <h3 className="mb-4 font-heading text-2xl font-bold leading-tight text-white transition-colors group-hover:text-brand-accent md:text-3xl">
                     {service.title}
                   </h3>
-                  <p className="text-white/65 text-base font-medium leading-relaxed line-clamp-3 group-hover:text-white/80 transition-colors">
+                  <p className="line-clamp-3 text-base font-medium leading-relaxed text-white/65 transition-colors group-hover:text-white/80">
                     {service.description}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-white/10 pt-8 mt-8">
-                  <span className="text-xs font-bold uppercase tracking-widest text-amber-300 group-hover:text-white transition-colors">View Details</span>
-                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-brand-accent group-hover:text-black group-hover:border-brand-accent transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0)] group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
-                    <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
+                <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-8">
+                  <span className="text-xs font-bold uppercase tracking-widest text-amber-300 transition-colors group-hover:text-white">
+                    View Details
+                  </span>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 shadow-[0_0_20px_rgba(74,222,128,0)] transition-all duration-300 group-hover:border-brand-accent group-hover:bg-brand-accent group-hover:text-black group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
+                    <ArrowRight
+                      size={20}
+                      className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
+                    />
                   </div>
                 </div>
               </div>
             </Link>
           ))}
-          <div className="shrink-0 w-[300px] md:w-[400px] aspect-[4/5] flex items-center justify-center snap-center">
-            <Link to="/services" className="text-center group">
-              <div className="w-24 h-24 rounded-full border border-white/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-white group-hover:text-black transition-all duration-500">
+          <div className="flex aspect-[4/5] w-[300px] shrink-0 snap-center items-center justify-center md:w-[400px]">
+            <Link to="/services" className="group text-center">
+              <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full border border-white/20 transition-all duration-500 group-hover:bg-white group-hover:text-black">
                 <ArrowRight size={32} />
               </div>
-              <h3 className="text-3xl font-heading font-bold text-white group-hover:text-brand-accent transition-colors">
+              <h3 className="font-heading text-3xl font-bold text-white transition-colors group-hover:text-brand-accent">
                 View All Services
               </h3>
             </Link>
@@ -236,111 +285,126 @@ const Home: React.FC = () => {
 
       {/* 5. TRUST BAR — moved below Services. Now reads as "and these are the
              sectors we've actually served", not decorative noise upfront. */}
-      <TrustBar />
+      <div id="after-services" tabIndex={-1}>
+        <TrustBar />
+      </div>
 
       {/* 7. RECENT INSIGHTS */}
       {recentInsights.length > 0 && (
-        <section className="py-16 md:py-32 px-4 md:px-6 bg-white relative overflow-hidden border-t border-brand-border/60">
-          <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
+        <section className="relative overflow-hidden border-t border-brand-border/60 bg-white px-4 py-16 md:px-6 md:py-32">
+          <div className="bg-grid pointer-events-none absolute inset-0 opacity-20" />
 
-          <div className="container mx-auto max-w-7xl relative z-10">
-
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8 md:mb-16">
+          <div className="container relative z-10 mx-auto max-w-7xl">
+            <div className="mb-8 flex flex-col items-start justify-between gap-8 md:mb-16 md:flex-row md:items-end">
               <div>
                 <Reveal>
-                  <span className="text-brand-moss font-bold tracking-widest uppercase text-xs mb-4 block">Knowledge Base</span>
+                  <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-brand-moss">
+                    Knowledge Base
+                  </span>
                 </Reveal>
                 <Reveal delay={0.1}>
-                  <h2 className="text-5xl md:text-7xl font-heading font-bold text-brand-dark">
-                    Latest <span className="font-serif italic font-normal text-brand-stone">Updates.</span>
+                  <h2 className="font-heading text-5xl font-bold text-brand-dark md:text-7xl">
+                    Latest <span className="font-serif font-normal italic text-brand-stone">Updates.</span>
                   </h2>
                 </Reveal>
               </div>
               <Reveal delay={0.2}>
-                <Link to="/insights" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-brand-dark hover:text-brand-moss transition-colors group">
+                <Link
+                  to="/insights"
+                  className="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-brand-dark transition-colors hover:text-brand-moss"
+                >
                   View All
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               </Reveal>
             </div>
 
             {/* Mobile: compact list view */}
-            <div className="md:hidden divide-y divide-brand-border/60">
+            <div className="divide-y divide-brand-border/60 md:hidden">
               {recentInsights.map((insight, i) => (
                 <Reveal key={insight.id} delay={i * 0.05} width="100%">
                   <Link
                     to={`/insights/${insight.slug}`}
-                    className="group flex items-center gap-4 py-4 -mx-1 px-1 rounded-xl hover:bg-brand-bg/80 transition-colors"
+                    className="group -mx-1 flex items-center gap-4 rounded-xl px-1 py-4 transition-colors hover:bg-brand-bg/80"
                   >
-                    <span className="text-xs font-bold font-mono text-brand-moss/70 w-6 shrink-0 tabular-nums">
+                    <span className="w-6 shrink-0 font-mono text-xs font-bold tabular-nums text-brand-moss/70">
                       {String(i + 1).padStart(2, '0')}
                     </span>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-heading font-bold text-brand-dark group-hover:text-brand-moss transition-colors leading-snug mb-1">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="mb-1 font-heading text-base font-bold leading-snug text-brand-dark transition-colors group-hover:text-brand-moss">
                         {insight.title}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-brand-moss">{insight.category}</span>
-                        <span className="text-brand-border text-xs">·</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-brand-dark">{insight.date}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-brand-moss">
+                          {insight.category}
+                        </span>
+                        <span className="text-xs text-brand-border">·</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-brand-dark">
+                          {insight.date}
+                        </span>
                       </div>
                     </div>
-                    <ArrowRight size={14} className="shrink-0 text-brand-dark group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight
+                      size={14}
+                      className="shrink-0 text-brand-dark transition-transform group-hover:translate-x-1"
+                    />
                   </Link>
                 </Reveal>
               ))}
             </div>
 
             {/* Desktop: card grid */}
-            <div className="hidden md:grid grid-cols-3 gap-8">
+            <div className="hidden grid-cols-3 gap-8 md:grid">
               {recentInsights.map((insight, i) => (
                 <Reveal key={insight.id} delay={i * 0.1} width="100%">
-                  <Link
-                    to={`/insights/${insight.slug}`}
-                    className="group block h-full"
-                  >
-                    <article className="h-full relative bg-brand-bg border border-brand-border rounded-[2rem] overflow-hidden hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10 transition-all duration-500 hover:-translate-y-2 flex flex-col">
+                  <Link to={`/insights/${insight.slug}`} className="group block h-full">
+                    <article className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-border bg-brand-bg transition-all duration-500 hover:-translate-y-2 hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10">
+                      <div className="h-1 w-0 bg-gradient-to-r from-brand-moss to-brand-accent transition-all duration-700 group-hover:w-full" />
 
-                      <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-brand-moss to-brand-accent transition-all duration-700" />
-
-                      <div className="p-6 md:p-8 flex flex-col flex-grow">
-                        <div className="flex items-center justify-between mb-6">
-                          <span className="px-3 py-1 bg-brand-moss/10 text-brand-moss text-xs font-bold uppercase tracking-wider rounded-full">
+                      <div className="flex flex-grow flex-col p-6 md:p-8">
+                        <div className="mb-6 flex items-center justify-between">
+                          <span className="rounded-full bg-brand-moss/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-moss">
                             {insight.category}
                           </span>
-                          <span className="text-brand-dark text-xs font-bold uppercase tracking-wider">
+                          <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
                             {insight.readTime}
                           </span>
                         </div>
 
-                        <h3 className="text-2xl font-heading font-bold text-brand-dark mb-4 leading-tight group-hover:text-brand-moss transition-colors line-clamp-2">
+                        <h3 className="mb-4 line-clamp-2 font-heading text-2xl font-bold leading-tight text-brand-dark transition-colors group-hover:text-brand-moss">
                           {insight.title}
                         </h3>
 
-                        <p className="text-brand-dark font-medium leading-relaxed line-clamp-3 mb-6 flex-grow">
+                        <p className="mb-6 line-clamp-3 flex-grow font-medium leading-relaxed text-brand-dark">
                           {insight.summary}
                         </p>
 
-                        <div className="flex items-center justify-between pt-6 border-t border-brand-border/50">
+                        <div className="flex items-center justify-between border-t border-brand-border/50 pt-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-brand-moss/10 flex items-center justify-center text-brand-moss text-xs font-bold">
-                              {insight.author.split(' ').map((n: string) => n[0]).join('')}
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-moss/10 text-xs font-bold text-brand-moss">
+                              {insight.author
+                                .split(' ')
+                                .map((n: string) => n[0])
+                                .join('')}
                             </div>
-                            <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">{insight.date}</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
+                              {insight.date}
+                            </span>
                           </div>
 
-                          <div className="w-10 h-10 rounded-full border border-brand-border flex items-center justify-center text-brand-dark group-hover:bg-brand-moss group-hover:border-brand-moss group-hover:text-white transition-all duration-300">
-                            <ArrowRight size={16} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border text-brand-dark transition-all duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
+                            <ArrowRight
+                              size={16}
+                              className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
+                            />
                           </div>
                         </div>
                       </div>
-
                     </article>
                   </Link>
                 </Reveal>
               ))}
             </div>
-
           </div>
         </section>
       )}
@@ -358,4 +422,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-

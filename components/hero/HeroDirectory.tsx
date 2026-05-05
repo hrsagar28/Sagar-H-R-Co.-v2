@@ -10,7 +10,6 @@ export const HeroDirectory: React.FC<DirectoryHeroProps> = ({
   contacts,
   coordinates,
   ghostWord = 'Engage.',
-  accentTone,
 }) => {
   return (
     <section

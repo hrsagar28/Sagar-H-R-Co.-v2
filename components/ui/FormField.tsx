@@ -18,26 +18,51 @@ const FormField: React.FC<FormFieldProps> = ({
   hint,
   required,
   children,
-  labelClassName = "",
-  hintClassName = ""
+  labelClassName = '',
+  hintClassName = '',
 }) => {
   return (
     <div className="mb-6">
-      <label htmlFor={name} className={`block text-sm font-semibold zone-text mb-2 ${labelClassName}`}>
-        {label} {required && <span className="text-red-500" aria-hidden="true">*</span>}
+      <label htmlFor={name} className={`zone-text mb-2 block text-sm font-semibold ${labelClassName}`}>
+        {label}{' '}
+        {required && (
+          <span className="text-red-500" aria-hidden="true">
+            *
+          </span>
+        )}
         {required && <span className="sr-only"> (required)</span>}
       </label>
 
-      {React.isValidElement(children) ? React.cloneElement(children as React.ReactElement<any>, {
-        id: name,
-        name: name,
-        'aria-invalid': !!error,
-        'aria-describedby': error ? `${name}-error` : hint ? `${name}-hint` : undefined,
-        className: `${children.props.className || ''} ${error ? 'border-red-500 ring-1 ring-red-500' : ''}`.trim()
-      }) : children}
+      {React.isValidElement(children)
+        ? React.cloneElement(
+            children as React.ReactElement<{
+              id?: string;
+              name?: string;
+              className?: string;
+              'aria-invalid'?: boolean;
+              'aria-describedby'?: string;
+            }>,
+            {
+              id: name,
+              name,
+              'aria-invalid': !!error,
+              'aria-describedby': error ? `${name}-error` : hint ? `${name}-hint` : undefined,
+              className:
+                `${children.props.className || ''} ${error ? 'border-red-500 ring-1 ring-red-500' : ''}`.trim(),
+            },
+          )
+        : children}
 
-      {hint && !error && <p id={`${name}-hint`} className={`zone-text-muted text-xs mt-2 text-right tabular-nums ${hintClassName}`}>{hint}</p>}
-      {error && <p id={`${name}-error`} className="text-red-500 font-bold text-xs mt-2" aria-live="polite">{error}</p>}
+      {hint && !error && (
+        <p id={`${name}-hint`} className={`zone-text-muted mt-2 text-right text-xs tabular-nums ${hintClassName}`}>
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p id={`${name}-error`} className="mt-2 text-xs font-bold text-red-500" aria-live="polite">
+          {error}
+        </p>
+      )}
     </div>
   );
 };

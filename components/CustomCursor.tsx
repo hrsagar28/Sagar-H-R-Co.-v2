@@ -123,7 +123,7 @@ const CustomCursor: React.FC = () => {
       window.removeEventListener('mouseup', handleMouseUp);
       cancelAnimationFrame(rafIdRef.current);
     };
-  }, []);
+  }, [canHover, reducedMotion]);
 
   const blendModeClass = 'mix-blend-difference';
 

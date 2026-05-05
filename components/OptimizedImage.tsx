@@ -39,23 +39,23 @@ interface OptimizedImageProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * OptimizedImage Component
- * 
+ *
  * Handles progressive loading with a blur-up effect.
  * Provides fallback support, custom aspect ratio handling, and automatic srcSet generation.
- * 
+ *
  * @example
- * <OptimizedImage 
- *   src="https://images.unsplash.com/photo-..." 
- *   alt="Description" 
+ * <OptimizedImage
+ *   src="https://images.unsplash.com/photo-..."
+ *   alt="Description"
  *   generateSrcSet={true}
- *   className="rounded-xl" 
+ *   className="rounded-xl"
  * />
  */
-const OptimizedImage: React.FC<OptimizedImageProps> = ({ 
-  src, 
-  alt, 
-  className = "", 
-  imgClassName = "",
+const OptimizedImage: React.FC<OptimizedImageProps> = ({
+  src,
+  alt,
+  className = '',
+  imgClassName = '',
   priority = false,
   fallbackSrc,
   aspectRatio,
@@ -70,17 +70,15 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   srcAvifSet,
   srcWebp,
   srcWebpSet,
-  ...props 
+  ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(src);
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     setCurrentSrc(src);
     setIsLoaded(false);
-    setHasError(false);
   }, [src]);
 
   // Check if image is already loaded (e.g. from cache)
@@ -89,29 +87,31 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
       setIsLoaded(true);
       if (onLoad) onLoad();
     }
-  }, []);
+  }, [onLoad]);
 
   // Automatically generate srcSet for Unsplash images if requested
   const calculatedSrcSet = useMemo(() => {
     if (srcSet) return srcSet;
     if (!generateSrcSet) return undefined;
-    
+
     // Check if it's an Unsplash URL
     if (src.includes('images.unsplash.com')) {
       try {
         const urlObj = new URL(src);
         const widths = [640, 1024, 1536, 2048];
-        return widths.map(w => {
-          // Clone the URL for each width
-          const newUrl = new URL(urlObj.toString());
-          newUrl.searchParams.set('w', w.toString());
-          // Ensure quality and format are optimized
-          if (!newUrl.searchParams.has('q')) newUrl.searchParams.set('q', '80');
-          if (!newUrl.searchParams.has('auto')) newUrl.searchParams.set('auto', 'format');
-          
-          return `${newUrl.toString()} ${w}w`;
-        }).join(', ');
-      } catch (e) {
+        return widths
+          .map((w) => {
+            // Clone the URL for each width
+            const newUrl = new URL(urlObj.toString());
+            newUrl.searchParams.set('w', w.toString());
+            // Ensure quality and format are optimized
+            if (!newUrl.searchParams.has('q')) newUrl.searchParams.set('q', '80');
+            if (!newUrl.searchParams.has('auto')) newUrl.searchParams.set('auto', 'format');
+
+            return `${newUrl.toString()} ${w}w`;
+          })
+          .join(', ');
+      } catch {
         return undefined;
       }
     }
@@ -124,7 +124,6 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   };
 
   const handleError = () => {
-    setHasError(true);
     if (fallbackSrc) {
       setCurrentSrc(fallbackSrc);
     }
@@ -132,18 +131,18 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={`relative overflow-hidden bg-brand-border/20 ${className}`}
       style={aspectRatio ? { aspectRatio } : undefined}
       {...props}
     >
       {/* Loading Placeholder / Blur Effect */}
-      <div 
-        className={`absolute inset-0 bg-brand-surface/50 backdrop-blur-md transition-opacity duration-700 ease-in-out z-10 ${
-          isLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`} 
+      <div
+        className={`absolute inset-0 z-10 bg-brand-surface/50 backdrop-blur-md transition-opacity duration-700 ease-in-out ${
+          isLoaded ? 'pointer-events-none opacity-0' : 'opacity-100'
+        }`}
       />
-      
+
       {/* Actual Image */}
       {srcAvif || srcWebp || srcAvifSet || srcWebpSet ? (
         <picture>
@@ -153,19 +152,21 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
             ref={imgRef}
             src={currentSrc}
             srcSet={calculatedSrcSet}
-            sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+            sizes={sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
             alt={alt}
             width={width}
             height={height}
-            loading={priority ? "eager" : "lazy"}
-            {...({ fetchpriority: priority ? "high" : "auto" } as React.ImgHTMLAttributes<HTMLImageElement>)}
-            decoding={priority ? "sync" : "async"}
+            loading={priority ? 'eager' : 'lazy'}
+            {...({ fetchpriority: priority ? 'high' : 'auto' } as React.ImgHTMLAttributes<HTMLImageElement>)}
+            decoding={priority ? 'sync' : 'async'}
             onLoad={handleLoad}
             onError={handleError}
-            className={`block w-full h-full object-cover transition-all duration-700 ease-in-out relative z-0 ${
+            className={`relative z-0 block h-full w-full object-cover transition-all duration-700 ease-in-out ${
               priority && (srcAvif || srcWebp || srcAvifSet || srcWebpSet)
-                ? 'opacity-100 scale-100'
-                : isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+                ? 'scale-100 opacity-100'
+                : isLoaded
+                  ? 'scale-100 opacity-100'
+                  : 'scale-105 opacity-0'
             } ${imgClassName}`}
           />
         </picture>
@@ -174,17 +175,17 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           ref={imgRef}
           src={currentSrc}
           srcSet={calculatedSrcSet}
-          sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+          sizes={sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
           alt={alt}
           width={width}
           height={height}
-          loading={priority ? "eager" : "lazy"}
-          {...({ fetchpriority: priority ? "high" : "auto" } as React.ImgHTMLAttributes<HTMLImageElement>)}
-          decoding={priority ? "sync" : "async"}
+          loading={priority ? 'eager' : 'lazy'}
+          {...({ fetchpriority: priority ? 'high' : 'auto' } as React.ImgHTMLAttributes<HTMLImageElement>)}
+          decoding={priority ? 'sync' : 'async'}
           onLoad={handleLoad}
           onError={handleError}
-          className={`block w-full h-full object-cover transition-all duration-700 ease-in-out relative z-0 ${
-            isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+          className={`relative z-0 block h-full w-full object-cover transition-all duration-700 ease-in-out ${
+            isLoaded ? 'scale-100 opacity-100' : 'scale-105 opacity-0'
           } ${imgClassName}`}
         />
       )}

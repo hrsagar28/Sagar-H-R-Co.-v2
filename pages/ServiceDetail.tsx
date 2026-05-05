@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { SERVICE_DETAILS } from '../constants';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
@@ -7,8 +7,6 @@ import { CONTACT_INFO } from '../constants';
 import { PageHero } from '../components/hero';
 import { SERVICE_HERO_META } from '../constants/serviceHeroMeta';
 import NotFound from './NotFound';
-
-const { useParams, Link } = ReactRouterDOM;
 
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

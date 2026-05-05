@@ -480,7 +480,7 @@ const CareerForm = ({ initialPosition }: CareerFormProps): JSX.Element => {
                   {isActive ? <Check size={16} /> : step}
                 </div>
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-wider transition-colors ${isCurrent ? 'text-brand-moss' : 'text-brand-stone/60'}`}
+                  className={`text-[10px] font-bold uppercase tracking-wider transition-colors ${isCurrent ? 'text-brand-moss' : 'text-brand-stone'}`}
                 >
                   {STEP_LABELS[step - 1]}
                 </span>

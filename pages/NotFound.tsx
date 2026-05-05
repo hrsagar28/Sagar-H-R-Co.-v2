@@ -1,9 +1,7 @@
 import React from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowLeft, Home, FileText, MessageSquare } from 'lucide-react';
 import SEO from '../components/SEO';
-
-const { Link } = ReactRouterDOM;
 
 const NotFound: React.FC = () => {
   return (

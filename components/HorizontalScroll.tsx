@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { ChevronsRight, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -31,7 +30,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
   const metrics = useRef({
     top: 0,
     maxTranslate: 0,
-    ready: false
+    ready: false,
   });
 
   useEffect(() => {
@@ -71,7 +70,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
         metrics.current = {
           top: rect.top + scrollTop,
           maxTranslate: scrollDist,
-          ready: true
+          ready: true,
         };
       }
     };
@@ -123,18 +122,26 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
   }, [showSwipeHint]);
 
   // Desktop: nudge scroll position left/right via arrow buttons
-  const nudgeScroll = useCallback((direction: 'left' | 'right') => {
-    if (!metrics.current.ready) return;
-    const nudgeAmount = window.innerWidth * 0.4; // scroll ~40vw per click
-    const currentScroll = window.scrollY || document.documentElement.scrollTop;
-    const targetOffset = direction === 'right'
-      ? Math.min(translateX + nudgeAmount, metrics.current.maxTranslate)
-      : Math.max(translateX - nudgeAmount, 0);
-    const targetScrollY = metrics.current.top + targetOffset;
-    window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
-  }, [translateX]);
+  const nudgeScroll = useCallback(
+    (direction: 'left' | 'right') => {
+      if (!metrics.current.ready) return;
+      const nudgeAmount = window.innerWidth * 0.4; // scroll ~40vw per click
+      const targetOffset =
+        direction === 'right'
+          ? Math.min(translateX + nudgeAmount, metrics.current.maxTranslate)
+          : Math.max(translateX - nudgeAmount, 0);
+      const targetScrollY = metrics.current.top + targetOffset;
+      window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+    },
+    [translateX],
+  );
 
   const isDisabled = isMobile || shouldReduceMotion;
+  const focusAfterServices = useCallback(() => {
+    window.setTimeout(() => {
+      document.getElementById('after-services')?.focus({ preventScroll: true });
+    }, 0);
+  }, []);
 
   return (
     <div
@@ -142,6 +149,14 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
       className={`relative w-full ${className}`}
       style={{ height: isDisabled ? 'auto' : dynamicHeight }}
     >
+      <a
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-30 focus:rounded-full focus:bg-white focus:px-5 focus:py-3 focus:text-sm focus:font-bold focus:text-brand-dark focus:shadow-xl"
+        href="#after-services"
+        onClick={focusAfterServices}
+      >
+        Skip services rail
+      </a>
+
       {/*
         Desktop: sticky flex-col pane that holds the header at the top and
         fills the remaining height with the horizontally-scrolling cards.
@@ -149,30 +164,18 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
         bottom URL bar eating into the sticky region.
         Mobile: no sticky — content flows normally; header sits above cards.
       */}
-      <div
-        className={`${
-          isDisabled ? '' : 'sticky top-0 h-screen h-[100dvh]'
-        } flex flex-col overflow-hidden`}
-      >
-        {header && (
-          <div className="shrink-0 w-full">
-            {header}
-          </div>
-        )}
+      <div className={`${isDisabled ? '' : 'sticky top-0 h-[100dvh] h-screen'} flex flex-col overflow-hidden`}>
+        {header && <div className="w-full shrink-0">{header}</div>}
 
         {/* Cards viewport — this is the positioning context for arrows,
             swipe hint and progress bar. */}
-        <div className="relative flex-1 flex items-center overflow-hidden w-full min-h-0">
+        <div className="relative flex min-h-0 w-full flex-1 items-center overflow-hidden">
           {/* Minimalistic Mobile Swipe Indicator */}
           {isMobile && (
             <div
-              className={`
-                absolute right-2 top-1/2 -translate-y-1/2 z-20 pointer-events-none
-                transition-opacity duration-700 ease-out
-                ${showSwipeHint ? 'opacity-100' : 'opacity-0'}
-              `}
+              className={`pointer-events-none absolute right-2 top-1/2 z-20 -translate-y-1/2 transition-opacity duration-700 ease-out ${showSwipeHint ? 'opacity-100' : 'opacity-0'} `}
             >
-              <div className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg animate-bounce-x">
+              <div className="animate-bounce-x rounded-full border border-white/20 bg-white/10 p-3 shadow-lg backdrop-blur-md">
                 <ChevronsRight size={20} className="text-white/90" />
               </div>
             </div>
@@ -183,13 +186,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
             <button
               onClick={() => nudgeScroll('left')}
               aria-label="Scroll left"
-              className={`
-                absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full
-                bg-white/10 backdrop-blur-md border border-white/20 shadow-lg
-                flex items-center justify-center text-white
-                hover:bg-white/20 transition-all duration-300
-                ${scrollProgress > 0.02 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'}
-              `}
+              className={`absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-white/20 ${scrollProgress > 0.02 ? 'translate-x-0 opacity-100' : 'pointer-events-none -translate-x-4 opacity-0'} `}
             >
               <ChevronLeft size={22} />
             </button>
@@ -200,13 +197,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
             <button
               onClick={() => nudgeScroll('right')}
               aria-label="Scroll right"
-              className={`
-                absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full
-                bg-white/10 backdrop-blur-md border border-white/20 shadow-lg
-                flex items-center justify-center text-white
-                hover:bg-white/20 transition-all duration-300
-                ${scrollProgress < 0.98 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}
-              `}
+              className={`absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-white/20 ${scrollProgress < 0.98 ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-4 opacity-0'} `}
             >
               <ChevronRight size={22} />
             </button>
@@ -215,27 +206,26 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
           <div
             ref={scrollContainerRef}
             onScroll={isMobile ? handleMobileScroll : undefined}
-            className={`
-              flex gap-8 px-4 md:px-20
-              ${isDisabled
-                ? 'overflow-x-auto pb-12 flex-nowrap w-full snap-x snap-mandatory no-scrollbar'
+            className={`flex gap-8 px-4 md:px-20 ${
+              isDisabled
+                ? 'no-scrollbar w-full snap-x snap-mandatory flex-nowrap overflow-x-auto pb-12'
                 : 'will-change-transform'
-              }
-            `}
+            } `}
             style={{ transform: isDisabled ? 'none' : `translate3d(-${translateX}px, 0, 0)` }}
           >
             {children}
           </div>
 
           {/* Scroll Progress Bar — bottom of the cards viewport */}
-          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/10 z-20">
+          <div className="absolute bottom-0 left-0 right-0 z-20 h-[3px] bg-white/10">
             <div
-              className="h-full bg-[#4ADE80] transition-all duration-100 ease-linear rounded-full"
+              className="h-full rounded-full bg-[#4ADE80] transition-all duration-100 ease-linear"
               style={{ width: `${scrollProgress * 100}%` }}
               role="progressbar"
               aria-valuenow={Math.round(scrollProgress * 100)}
               aria-valuemin={0}
               aria-valuemax={100}
+              aria-valuetext={`${Math.round(scrollProgress * 100)}% through services`}
               aria-label="Horizontal scroll progress"
             />
           </div>

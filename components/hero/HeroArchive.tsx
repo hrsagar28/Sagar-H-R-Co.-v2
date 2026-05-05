@@ -1,11 +1,9 @@
 import React from 'react';
 import { WordReveal } from '../Reveal';
 import type { ArchiveHeroProps } from './types';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-const { Link } = ReactRouterDOM;
-
-export const HeroArchive: React.FC<ArchiveHeroProps> = ({ eyebrow, title, blurb, items, totalLabel, accentTone }) => {
+export const HeroArchive: React.FC<ArchiveHeroProps> = ({ eyebrow, title, blurb, items, totalLabel }) => {
   return (
     <section
       aria-labelledby="hero-archive-title"

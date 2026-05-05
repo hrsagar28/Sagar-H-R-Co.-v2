@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface GrainProps {
   opacity?: number;
-  blendMode?: 'overlay' | 'multiply' | 'soft-light' | 'normal' | 'color-burn';
+  blendMode?: React.CSSProperties['mixBlendMode'];
 }
 
 export function Grain({ opacity = 0.05, blendMode = 'overlay' }: GrainProps) {
@@ -10,8 +10,8 @@ export function Grain({ opacity = 0.05, blendMode = 'overlay' }: GrainProps) {
   return (
     <div
       aria-hidden
-      className="fixed inset-0 pointer-events-none z-[100]"
-      style={{ backgroundImage: `url("${svg}")`, mixBlendMode: blendMode as any, opacity }}
+      className="pointer-events-none fixed inset-0 z-[100]"
+      style={{ backgroundImage: `url("${svg}")`, mixBlendMode: blendMode, opacity }}
     />
   );
 }

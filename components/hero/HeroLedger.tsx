@@ -1,10 +1,8 @@
 import React from 'react';
 import { WordReveal } from '../Reveal';
 import type { LedgerHeroProps } from './types';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { borderAccentClass, ledgerCtaAccentClass, textAccentClass } from './accentClasses';
-
-const { Link } = ReactRouterDOM;
 
 export const HeroLedger: React.FC<LedgerHeroProps> = ({
   eyebrow,

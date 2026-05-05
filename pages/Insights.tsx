@@ -1,5 +1,5 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo } from 'react';
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { AlertCircle, ArrowUpRight, Calendar, Check, Clock, Search, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
@@ -10,8 +10,6 @@ import { formatArchiveDate } from '../utils/formatArchiveDate';
 import { formatLongDate, toISODate } from '../utils/insightDates';
 import { normalizeSearch } from '../utils/normalizeSearch';
 import { SITE_URL } from '../config/site';
-
-const { Link, useSearchParams } = ReactRouterDOM;
 
 const HERO_PLACEHOLDERS = Array.from({ length: 4 }, (_, index) => ({
   num: String(index + 1).padStart(2, '0'),
