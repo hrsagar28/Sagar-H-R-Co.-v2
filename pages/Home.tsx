@@ -132,17 +132,17 @@ const Home: React.FC = () => {
               <VisuallyHidden as="h1">
                 Sagar H R & Co. — Chartered Accountants in Mysuru: Audit, Taxation, and Advisory.
               </VisuallyHidden>
-              <Reveal variant="reveal-mask" delay={0.1} duration={0.7}>
+              <Reveal variant="reveal-mask" delay={0.1} duration={0.7} eager>
                 <AccentTitle as="div" className="max-w-full overflow-hidden text-white drop-shadow-2xl">
                   <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Audit.</span>
                 </AccentTitle>
               </Reveal>
-              <Reveal variant="reveal-mask" delay={0.18} duration={0.7}>
+              <Reveal variant="reveal-mask" delay={0.18} duration={0.7} eager>
                 <AccentTitle as="div" className="max-w-full overflow-hidden text-white drop-shadow-2xl">
                   <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Taxation.</span>
                 </AccentTitle>
               </Reveal>
-              <Reveal variant="reveal-mask" delay={0.26} duration={0.7}>
+              <Reveal variant="reveal-mask" delay={0.26} duration={0.7} eager>
                 <AccentTitle
                   as="div"
                   className="max-w-full overflow-hidden text-white drop-shadow-2xl"

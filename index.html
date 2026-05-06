@@ -62,9 +62,78 @@
     <meta property="og:image:type" content="image/png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://casagar.co.in/og/og-default.png" />
+    <style>
+      #preload-hero {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 8rem 1rem 2rem;
+        pointer-events: none;
+        overflow: hidden;
+        background: #06070a;
+        color: #fff;
+      }
+
+      #preload-hero-inner {
+        width: min(100%, 80rem);
+        margin: 3rem auto 0;
+      }
+
+      #preload-hero-title {
+        font-family: Fraunces, Georgia, serif;
+        font-weight: 300;
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      #preload-hero-title span {
+        display: block;
+        font-size: 12vw;
+        opacity: 1;
+        transform: none;
+      }
+
+      #preload-hero-title em {
+        font-style: italic;
+        font-weight: 400;
+      }
+
+      @media (min-width: 768px) {
+        #preload-hero {
+          align-items: center;
+          padding: 5rem 1.5rem 0;
+        }
+
+        #preload-hero-inner {
+          margin-top: 0;
+        }
+
+        #preload-hero-title span {
+          font-size: 7rem;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        #preload-hero-title span {
+          font-size: 9rem;
+        }
+      }
+    </style>
   </head>
 
   <body class="overflow-x-hidden bg-[#F2F2F0] text-[#111111]">
+    <div id="preload-hero" aria-hidden="true">
+      <div id="preload-hero-inner">
+        <div id="preload-hero-title">
+          <span>Audit.</span>
+          <span>Taxation.</span>
+          <span><em>Advisory.</em></span>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
   </body>

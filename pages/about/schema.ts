@@ -18,7 +18,7 @@ export const buildAboutSchema = (contact: ContactInfo): object[] => [
     url: `${SITE_URL}/about`,
     name: `About ${contact.name}`,
     description: `Profile of ${contact.name}, a Chartered Accountancy practice in Mysuru, Karnataka.`,
-    primaryImageOfPage: `${SITE_URL}/images/founder.jpg`,
+    primaryImageOfPage: `${SITE_URL}/images/founder-1080.jpg`,
     about: { '@id': `${SITE_URL}/#founder` },
     mainEntity: { '@id': `${SITE_URL}/#organization` },
     isPartOf: { '@id': `${SITE_URL}/#website` },
@@ -71,7 +71,7 @@ export const buildAboutSchema = (contact: ContactInfo): object[] => [
       '@type': 'Organization',
       name: 'Institute of Chartered Accountants of India',
     },
-    image: `${SITE_URL}/images/founder.jpg`,
+    image: `${SITE_URL}/images/founder-1080.jpg`,
     sameAs: [contact.social.linkedin],
   },
 ];

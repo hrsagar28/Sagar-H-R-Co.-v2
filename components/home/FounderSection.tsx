@@ -13,11 +13,9 @@ import Reveal from '../Reveal';
  * token), captions it in JetBrains Mono, and adds a single Fraunces italic
  * line anchoring the practice in Mysuru.
  *
- * The photo file is expected at `/public/images/founder.jpg`, which Vite
- * serves from `/images/founder.jpg` at runtime.
+ * The portrait variants are generated from `/public/images/founder-source.jpg`
+ * by `scripts/generate-responsive-images.ts`.
  */
-
-const FOUNDER_PHOTO_SRC = '/images/founder.jpg';
 
 const FounderSection: React.FC = () => {
   return (
@@ -40,11 +38,21 @@ const FounderSection: React.FC = () => {
                       the torso be the thing that gets trimmed — not the hair. */}
                   <div className="relative aspect-[3/4] overflow-hidden rounded-[2px] bg-brand-border">
                     <picture>
-                      <source srcSet="/images/founder.avif" type="image/avif" />
-                      <source srcSet="/images/founder.webp" type="image/webp" />
+                      <source
+                        type="image/avif"
+                        srcSet="/images/founder-400.avif 400w, /images/founder-800.avif 800w, /images/founder-1080.avif 1080w"
+                        sizes="(min-width: 1024px) 320px, (min-width: 768px) 50vw, 100vw"
+                      />
+                      <source
+                        type="image/webp"
+                        srcSet="/images/founder-400.webp 400w, /images/founder-800.webp 800w, /images/founder-1080.webp 1080w"
+                        sizes="(min-width: 1024px) 320px, (min-width: 768px) 50vw, 100vw"
+                      />
                       <img
-                        src={FOUNDER_PHOTO_SRC}
-                        alt={`Portrait of ${CONTACT_INFO.founder.name}, ${CONTACT_INFO.founder.title}`}
+                        src="/images/founder-800.jpg"
+                        srcSet="/images/founder-400.jpg 400w, /images/founder-800.jpg 800w, /images/founder-1080.jpg 1080w"
+                        sizes="(min-width: 1024px) 320px, (min-width: 768px) 50vw, 100vw"
+                        alt="Portrait of CA Sagar H R, Founder & Principal"
                         loading="lazy"
                         decoding="async"
                         width="1080"

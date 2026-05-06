@@ -1,31 +1,6 @@
 import React, { Children, isValidElement, useRef, useEffect, useState, ReactNode } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
-type RevealCallback = () => void;
-
-const revealCallbacks = new WeakMap<Element, RevealCallback>();
-let sharedObserver: IntersectionObserver | null = null;
-
-const getSharedObserver = () => {
-  if (!sharedObserver) {
-    sharedObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-
-          const callback = revealCallbacks.get(entry.target);
-          if (callback) callback();
-          revealCallbacks.delete(entry.target);
-          sharedObserver?.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
-    );
-  }
-
-  return sharedObserver;
-};
-
 interface RevealProps {
   /** The content to be animated */
   children: ReactNode;
@@ -39,6 +14,8 @@ interface RevealProps {
   className?: string;
   /** Animation style variant. Default: 'fade-up' */
   variant?: 'fade-up' | 'slide-up' | 'scale' | 'reveal-mask';
+  /** Render immediately without observing or animating. Default: false */
+  eager?: boolean;
 }
 
 interface WordRevealProps {
@@ -66,12 +43,15 @@ const Reveal: React.FC<RevealProps> = ({
   duration = 0.8,
   className = '',
   variant = 'fade-up',
+  eager = false,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    if (eager) return;
+
     const element = ref.current;
     if (!element) return;
 
@@ -80,16 +60,40 @@ const Reveal: React.FC<RevealProps> = ({
       return;
     }
 
-    const observer = getSharedObserver();
-    observer.unobserve(element);
-    revealCallbacks.set(element, () => setIsVisible(true));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
+    );
+
     observer.observe(element);
 
     return () => {
-      revealCallbacks.delete(element);
-      observer.unobserve(element);
+      observer.disconnect();
     };
-  }, [shouldReduceMotion]);
+  }, [eager, shouldReduceMotion]);
+
+  if (eager) {
+    if (variant === 'reveal-mask') {
+      return (
+        <div ref={ref} className={`relative overflow-hidden ${className}`} style={{ width }}>
+          <div style={{ opacity: 1 }}>{children}</div>
+        </div>
+      );
+    }
+
+    return (
+      <div ref={ref} className={className} style={{ width, opacity: 1 }}>
+        {children}
+      </div>
+    );
+  }
 
   // Define transition styles based on visibility
   const getTransformStyle = () => {
@@ -154,14 +158,22 @@ export const WordReveal: React.FC<WordRevealProps> = ({ children, delay = 0.15, 
       return;
     }
 
-    const observer = getSharedObserver();
-    observer.unobserve(element);
-    revealCallbacks.set(element, () => setIsVisible(true));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
+    );
+
     observer.observe(element);
 
     return () => {
-      revealCallbacks.delete(element);
-      observer.unobserve(element);
+      observer.disconnect();
     };
   }, [shouldReduceMotion]);
 
