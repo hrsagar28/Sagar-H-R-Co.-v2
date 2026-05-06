@@ -16,6 +16,8 @@ import Honeypot from '../components/forms/Honeypot';
 import FormField from '../components/ui/FormField';
 import { BigCTA } from '../components/ui/BigCTA';
 import { darkInputClass } from '../components/ui/formClasses';
+import './route-styles.css';
+import '../components/hero/PageHero.css';
 
 interface ContactFormData {
   name: string;

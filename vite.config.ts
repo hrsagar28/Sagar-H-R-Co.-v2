@@ -12,7 +12,21 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0',
     },
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: 'non-blocking-entry-css',
+        transformIndexHtml: {
+          order: 'post',
+          handler(html) {
+            return html.replace(
+              /<link rel="stylesheet" crossorigin href="([^"]*\/assets\/index-[^"]+\.css)">/,
+              `<link rel="preload" as="style" crossorigin href="$1" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" crossorigin href="$1"></noscript>`,
+            );
+          },
+        },
+      },
+    ],
     test: {
       globals: true,
       environment: 'jsdom',

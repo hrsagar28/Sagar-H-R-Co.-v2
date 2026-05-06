@@ -7,6 +7,7 @@ import { visit } from 'unist-util-visit';
 import { Check, Copy } from 'lucide-react';
 import { SITE_URL } from '../config/site';
 import { slugifyHeading } from '../utils/markdownHeadings';
+import './MarkdownRenderer.css';
 
 interface MarkdownRendererProps {
   content: string;

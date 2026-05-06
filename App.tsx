@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, Suspense, lazy } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import {
   Navbar,
@@ -44,20 +44,20 @@ const RouteHandler = () => {
   const { pathname } = useLocation();
   const { announce } = useAnnounce();
 
-  useLayoutEffect(() => {
-    // Force instant scroll to top on route change, ignoring smooth scroll preferences
+  useEffect(() => {
+    let rafId = 0;
+
     window.scrollTo({
       top: 0,
       left: 0,
       behavior: 'instant',
     });
 
-    // Focus management for accessibility
-    // Focus the main content wrapper to announce page change to screen readers
-    const mainContent = document.getElementById('main-content');
-    if (mainContent) {
-      mainContent.focus();
-    }
+    rafId = window.requestAnimationFrame(() => {
+      document.getElementById('main-content')?.focus({ preventScroll: true });
+    });
+
+    return () => window.cancelAnimationFrame(rafId);
   }, [pathname]);
 
   // Accessibility Announcement for Route Change

@@ -10,6 +10,8 @@ import { formatArchiveDate } from '../utils/formatArchiveDate';
 import { formatLongDate, toISODate } from '../utils/insightDates';
 import { normalizeSearch } from '../utils/normalizeSearch';
 import { SITE_URL } from '../config/site';
+import './route-styles.css';
+import '../components/hero/PageHero.css';
 
 const HERO_PLACEHOLDERS = Array.from({ length: 4 }, (_, index) => ({
   num: String(index + 1).padStart(2, '0'),

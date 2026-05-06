@@ -1,3 +1,5 @@
+@config './tailwind.home.config.ts';
+
 @font-face {
   font-family: 'Fraunces';
   font-style: normal;
@@ -68,81 +70,6 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
-[data-zone='editorial'] #frontispiece-section,
-[data-zone='editorial-paper'] #frontispiece-section {
-  background-color: var(--brand-rust);
-  color: var(--brand-paper);
-}
-
-.hero-ledger-cta {
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-ledger-cta::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  transform: scaleY(0);
-  transform-origin: bottom;
-  transition: transform 0.3s ease;
-  z-index: 0;
-}
-
-.hero-ledger-cta:hover::after {
-  transform: scaleY(1);
-}
-
-.hero-ledger-cta-zone::after {
-  background: var(--zone-accent);
-}
-
-.hero-ledger-cta-moss::after {
-  background: var(--brand-moss);
-}
-
-.hero-ledger-cta-brass::after {
-  background: var(--brand-brass);
-}
-
-.hero-ledger-cta-rust::after {
-  background: var(--brand-rust);
-}
-
-.hero-ledger-cta:hover .relative.z-10 {
-  color: var(--zone-bg) !important;
-}
-
-.hero-ledger-cta-moss:hover .relative.z-10,
-.hero-ledger-cta-brass:hover .relative.z-10,
-.hero-ledger-cta-rust:hover .relative.z-10 {
-  color: var(--brand-surface) !important;
-}
-
-.archive-item {
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.archive-item:hover {
-  transform: translateX(0.5rem);
-  background: linear-gradient(to right, rgba(26, 77, 46, 0.05), transparent);
-}
-
-[data-zone='editorial'] .archive-item:hover {
-  background: linear-gradient(to right, rgba(184, 146, 76, 0.1), transparent);
-}
-
-[data-zone='editorial-paper'] .archive-item:hover {
-  background: linear-gradient(to right, rgba(139, 58, 47, 0.05), transparent);
-}
-
-.hero-directory-contact:hover .hover-zone-accent {
-  color: var(--zone-accent);
-}
-
-.hero-directory-contact:hover {
-  border-left-color: var(--zone-accent);
-}
 .custom-cursor-active,
 .custom-cursor-active a,
 .custom-cursor-active button {
@@ -381,99 +308,6 @@ html {
     max-height: none !important;
     opacity: 1 !important;
     display: block !important;
-  }
-}
-
-/* PREMIUM ARTICLE TYPOGRAPHY & LAYOUT */
-@layer components {
-  .card-surface {
-    @apply group relative flex flex-col rounded-[2rem] border border-brand-border/50 bg-brand-surface p-6 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] md:p-8;
-  }
-  .card-surface-hover {
-    @apply hover:-translate-y-2 hover:shadow-2xl hover:shadow-brand-dark/10;
-  }
-
-  .article-wrapper {
-    @apply max-w-none font-sans text-lg text-brand-dark/90 selection:bg-brand-moss/20 selection:text-brand-dark;
-  }
-
-  /* Drop Cap - Clean Editorial Style */
-  .article-wrapper > p:first-of-type::first-letter {
-    @apply float-left mr-4 mt-1 font-serif text-[5.5rem] font-medium leading-[0.85] text-brand-moss;
-  }
-
-  /* Headings - Serif for impact */
-  .article-wrapper h2 {
-    @apply relative mb-6 mt-16 font-serif text-3xl font-bold tracking-tight text-brand-dark md:text-4xl;
-  }
-
-  .article-wrapper h3 {
-    @apply mb-4 mt-10 font-heading text-xl font-bold text-brand-dark md:text-2xl;
-  }
-
-  /* Body Text */
-  .article-wrapper p {
-    @apply mb-6 text-lg font-normal leading-8 text-brand-stone md:text-[1.15rem] md:leading-[1.9];
-  }
-
-  /* Summary Card - Highlight Box */
-  .article-wrapper .summary-card {
-    @apply relative my-10 overflow-hidden rounded-2xl border border-brand-border bg-brand-bg p-8;
-  }
-
-  .article-wrapper .summary-card::before {
-    content: '';
-    @apply absolute bottom-0 left-0 top-0 w-1.5 bg-brand-moss;
-  }
-
-  .article-wrapper .summary-card h3 {
-    @apply mb-6 mt-0 flex items-center gap-3 border-b border-brand-border/50 pb-4 font-sans text-xs font-bold uppercase tracking-[0.2em] text-brand-moss;
-  }
-
-  .article-wrapper .summary-card ul {
-    @apply my-0 space-y-4 pl-0;
-  }
-
-  .article-wrapper .summary-card ul li {
-    @apply flex items-start gap-3 pl-0 font-heading text-lg font-semibold leading-snug text-brand-dark;
-  }
-
-  /* Custom Checkmark Icon for Summary Items */
-  .article-wrapper .summary-card ul li::before {
-    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%231A4D2E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
-    @apply static mt-0.5 h-5 w-5 shrink-0 rounded-none bg-transparent;
-  }
-
-  /* Regular Lists */
-  .article-wrapper ul:not(.summary-card ul) {
-    @apply my-8 space-y-3 pl-1;
-  }
-
-  .article-wrapper ul:not(.summary-card ul) li {
-    @apply relative pl-8 text-lg font-medium leading-relaxed text-brand-stone;
-  }
-
-  .article-wrapper ul:not(.summary-card ul) li::before {
-    content: '-';
-    @apply absolute left-0 top-0 bg-transparent font-bold text-brand-moss;
-  }
-
-  .article-wrapper strong {
-    @apply font-bold text-brand-dark;
-  }
-
-  .article-wrapper a {
-    @apply border-b border-brand-moss/30 pb-0.5 font-bold text-brand-moss decoration-0 transition-colors hover:border-brand-moss;
-  }
-
-  /* Modern Blockquote */
-  .article-wrapper blockquote {
-    @apply relative my-10 py-2 pl-8 font-serif text-2xl italic leading-normal text-brand-dark md:text-3xl;
-  }
-
-  .article-wrapper blockquote::before {
-    content: '';
-    @apply absolute bottom-0 left-0 top-0 w-1 rounded-full bg-brand-moss;
   }
 }
 

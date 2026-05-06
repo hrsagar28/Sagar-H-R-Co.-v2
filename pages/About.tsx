@@ -9,6 +9,8 @@ import { Snapshot } from './about/Snapshot';
 import { Values } from './about/Values';
 import { ABOUT_OG_IMAGE, aboutBreadcrumbs, buildAboutSchema } from './about/schema';
 import { warmContactRoute } from './about/warmContact';
+import './route-styles.css';
+import '../components/hero/PageHero.css';
 
 const ordinalSuffix = (value: number) => {
   const mod100 = value % 100;

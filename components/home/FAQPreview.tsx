@@ -1,8 +1,141 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { FAQS } from '../../constants/faq';
 import Reveal from '../Reveal';
+
+interface FAQPreviewItemProps {
+  faq: (typeof FAQS)[number];
+  index: number;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onToggle }) => {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const cachedHeight = useRef<number | null>(null);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    const content = contentRef.current;
+    if (!panel || !content) return;
+
+    window.cancelAnimationFrame(rafRef.current);
+
+    rafRef.current = window.requestAnimationFrame(() => {
+      const measuredHeight = cachedHeight.current ?? content.scrollHeight;
+      cachedHeight.current = measuredHeight;
+
+      if (isOpen) {
+        panel.style.height = `${measuredHeight}px`;
+        panel.style.opacity = '1';
+        return;
+      }
+
+      if (panel.style.height === 'auto') {
+        panel.style.height = `${measuredHeight}px`;
+      }
+
+      void panel.offsetHeight;
+
+      rafRef.current = window.requestAnimationFrame(() => {
+        panel.style.height = '0px';
+        panel.style.opacity = '0';
+      });
+    });
+
+    return () => window.cancelAnimationFrame(rafRef.current);
+  }, [isOpen]);
+
+  useEffect(() => {
+    const resetCachedHeight = () => {
+      cachedHeight.current = null;
+      if (!isOpen || !contentRef.current || !panelRef.current) return;
+
+      window.cancelAnimationFrame(rafRef.current);
+      rafRef.current = window.requestAnimationFrame(() => {
+        const measuredHeight = contentRef.current?.scrollHeight ?? 0;
+        cachedHeight.current = measuredHeight;
+        if (panelRef.current) {
+          panelRef.current.style.height = `${measuredHeight}px`;
+        }
+      });
+    };
+
+    window.addEventListener('resize', resetCachedHeight, { passive: true });
+    return () => window.removeEventListener('resize', resetCachedHeight);
+  }, [isOpen]);
+
+  const handleTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
+    if (event.propertyName !== 'height' || !isOpen || !panelRef.current) return;
+    panelRef.current.style.height = 'auto';
+  };
+
+  return (
+    <Reveal delay={index * 0.1} width="100%">
+      <div
+        className={`group/faq relative overflow-hidden rounded-[1.5rem] bg-white transition-[transform,opacity] duration-500 ${
+          isOpen ? 'scale-[1.02]' : ''
+        } `}
+      >
+        <div className="pointer-events-none absolute inset-0 rounded-[1.5rem] opacity-0 shadow-[inset_0_0_0_1px_rgba(26,77,46,1),0_20px_45px_-24px_rgba(26,77,46,0.45)] transition-opacity duration-300 group-hover/faq:opacity-60" />
+        <div
+          className={`pointer-events-none absolute inset-0 rounded-[1.5rem] shadow-[inset_0_0_0_1px_rgba(26,77,46,1),0_25px_50px_-24px_rgba(26,77,46,0.5)] transition-opacity duration-300 ${
+            isOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+        <div className="pointer-events-none absolute inset-0 rounded-[1.5rem] shadow-[inset_0_0_0_1px_rgba(223,217,204,1)]" />
+
+        <button
+          onClick={onToggle}
+          className="group relative z-10 flex w-full items-center justify-between gap-4 p-6 text-left focus:outline-none md:p-8"
+          aria-expanded={isOpen}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-colors duration-300 ${
+                isOpen
+                  ? 'bg-brand-moss text-white'
+                  : 'bg-brand-bg text-brand-stone group-hover:bg-brand-moss/10 group-hover:text-brand-moss'
+              } `}
+            >
+              {String(index + 1).padStart(2, '0')}
+            </div>
+            <h3
+              className={`font-heading text-lg font-bold transition-colors md:text-xl ${
+                isOpen ? 'text-brand-moss' : 'text-brand-dark'
+              }`}
+            >
+              {faq.question}
+            </h3>
+          </div>
+
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full shadow-[inset_0_0_0_1px_currentColor] transition-[transform,opacity,background-color,color] duration-500 ${
+              isOpen ? 'rotate-180 bg-brand-moss text-white' : 'text-brand-stone group-hover:text-brand-moss'
+            } `}
+          >
+            <ChevronDown size={20} />
+          </div>
+        </button>
+
+        <div
+          ref={panelRef}
+          className="relative z-10 h-0 overflow-hidden opacity-0 transition-[height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          onTransitionEnd={handleTransitionEnd}
+        >
+          <div ref={contentRef} className="px-6 pb-8 pt-0 md:px-8">
+            <div className="border-l-2 border-brand-moss/20 pl-14">
+              <p className="text-lg font-medium leading-relaxed text-brand-stone">{faq.answer}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Reveal>
+  );
+};
 
 const FAQPreview: React.FC = () => {
   // Get top 3 General FAQs
@@ -34,63 +167,13 @@ const FAQPreview: React.FC = () => {
         {/* FAQ Cards */}
         <div className="space-y-4">
           {featuredFaqs.map((faq, i) => (
-            <Reveal key={i} delay={i * 0.1} width="100%">
-              <div
-                className={`overflow-hidden rounded-[1.5rem] border bg-white transition-all duration-500 ${
-                  openIndex === i
-                    ? 'scale-[1.02] border-brand-moss shadow-xl shadow-brand-moss/10'
-                    : 'border-brand-border hover:border-brand-moss/30 hover:shadow-lg'
-                } `}
-              >
-                <button
-                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  className="group flex w-full items-center justify-between gap-4 p-6 text-left focus:outline-none md:p-8"
-                  aria-expanded={openIndex === i}
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-all duration-300 ${
-                        openIndex === i
-                          ? 'bg-brand-moss text-white'
-                          : 'bg-brand-bg text-brand-stone group-hover:bg-brand-moss/10 group-hover:text-brand-moss'
-                      } `}
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                    </div>
-                    <h3
-                      className={`font-heading text-lg font-bold transition-colors md:text-xl ${
-                        openIndex === i ? 'text-brand-moss' : 'text-brand-dark'
-                      }`}
-                    >
-                      {faq.question}
-                    </h3>
-                  </div>
-
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-500 ${
-                      openIndex === i
-                        ? 'rotate-180 border-brand-moss bg-brand-moss text-white'
-                        : 'border-brand-border text-brand-stone group-hover:border-brand-moss group-hover:text-brand-moss'
-                    } `}
-                  >
-                    <ChevronDown size={20} />
-                  </div>
-                </button>
-
-                {/* Expandable answer */}
-                <div
-                  className={`grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${openIndex === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'} `}
-                >
-                  <div className="overflow-hidden">
-                    <div className="px-6 pb-8 pt-0 md:px-8">
-                      <div className="border-l-2 border-brand-moss/20 pl-14">
-                        <p className="text-lg font-medium leading-relaxed text-brand-stone">{faq.answer}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
+            <FAQPreviewItem
+              key={faq.question}
+              faq={faq}
+              index={i}
+              isOpen={openIndex === i}
+              onToggle={() => setOpenIndex(openIndex === i ? null : i)}
+            />
           ))}
         </div>
 

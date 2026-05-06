@@ -159,9 +159,23 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     let nebulaY = 0;
     let resizeTimer: ReturnType<typeof setTimeout>;
     const isTouch = 'ontouchstart' in window;
+    let resizeRaf = 0;
+    let containerRect = {
+      left: 0,
+      top: 0,
+      width: 1,
+      height: 1,
+    };
 
     const resize = () => {
       dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+      containerRect = {
+        left: rect.left,
+        top: rect.top,
+        width: Math.max(1, rect.width),
+        height: Math.max(1, rect.height),
+      };
       w = canvas.clientWidth;
       h = canvas.clientHeight;
       canvas.width = w * dpr;
@@ -172,25 +186,32 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       midStars = seedMid(w, h, isMobile ? 20 : 40);
     };
 
+    const scheduleResize = () => {
+      if (resizeRaf) return;
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = 0;
+        resize();
+      });
+    };
+
     const redrawTimer = setTimeout(() => {
-      resize();
+      scheduleResize();
     }, 600);
 
-    resize();
+    scheduleResize();
 
     // parallax
     const onMouseMove = (e: MouseEvent) => {
       if (isTouch) return;
-      const rect = container.getBoundingClientRect();
-      mouseX = (e.clientX - rect.left) / rect.width - 0.5;
-      mouseY = (e.clientY - rect.top) / rect.height - 0.5;
+      mouseX = (e.clientX - containerRect.left) / containerRect.width - 0.5;
+      mouseY = (e.clientY - containerRect.top) / containerRect.height - 0.5;
     };
     container.addEventListener('mousemove', onMouseMove, { passive: true });
 
     // resize debounced
     const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(resize, 150);
+      resizeTimer = setTimeout(scheduleResize, 150);
     });
     ro.observe(container);
 
@@ -338,6 +359,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       container.removeEventListener('mousemove', onMouseMove);
       clearTimeout(redrawTimer);
       clearTimeout(resizeTimer);
+      cancelAnimationFrame(resizeRaf);
     };
   }, [reducedMotion, drawStatic]);
 

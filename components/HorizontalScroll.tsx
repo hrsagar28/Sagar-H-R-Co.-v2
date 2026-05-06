@@ -25,6 +25,8 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
   // Disable sticky scroll on mobile for better UX
   const [isMobile, setIsMobile] = useState(false);
   const [showSwipeHint, setShowSwipeHint] = useState(false);
+  const scrollRaf = useRef(0);
+  const mobileScrollRaf = useRef(0);
 
   // Cached layout metrics
   const metrics = useRef({
@@ -34,6 +36,8 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
   });
 
   useEffect(() => {
+    let resizeRaf = 0;
+
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
@@ -45,44 +49,75 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
       }
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const scheduleCheckMobile = () => {
+      if (resizeRaf) return;
+      resizeRaf = window.requestAnimationFrame(() => {
+        resizeRaf = 0;
+        checkMobile();
+      });
+    };
+
+    scheduleCheckMobile();
+    window.addEventListener('resize', scheduleCheckMobile, { passive: true });
+    return () => {
+      window.removeEventListener('resize', scheduleCheckMobile);
+      window.cancelAnimationFrame(resizeRaf);
+    };
   }, []);
 
   // Calculate layout dimensions
   useEffect(() => {
     if (isMobile || shouldReduceMotion) return;
+    const container = containerRef.current;
+    const scrollContainer = scrollContainerRef.current;
+    if (!container || !scrollContainer) return;
+
+    let measureRaf = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let hasMeasured = false;
 
     const measure = () => {
-      if (scrollContainerRef.current && containerRef.current) {
-        const objectWidth = scrollContainerRef.current.scrollWidth;
-        const viewportWidth = window.innerWidth;
-        const scrollDist = objectWidth - viewportWidth;
+      const objectWidth = scrollContainer.scrollWidth;
+      const viewportWidth = window.innerWidth;
+      const scrollDist = Math.max(0, objectWidth - viewportWidth);
+      const rect = container.getBoundingClientRect();
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-        // We add viewport height to allow full scroll through + padding
-        setDynamicHeight(`${scrollDist + viewportWidth * 0.5}px`);
+      metrics.current = {
+        top: rect.top + scrollTop,
+        maxTranslate: scrollDist,
+        ready: true,
+      };
 
-        // Cache absolute position and max translation
-        const rect = containerRef.current.getBoundingClientRect();
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-        metrics.current = {
-          top: rect.top + scrollTop,
-          maxTranslate: scrollDist,
-          ready: true,
-        };
-      }
+      setDynamicHeight(`${scrollDist + viewportWidth * 0.5}px`);
+      hasMeasured = true;
     };
 
-    measure();
-    // Re-measure after a slight delay to ensure children content (like images) might have loaded/shifted
-    const timer = setTimeout(measure, 500);
-    window.addEventListener('resize', measure);
+    const scheduleMeasure = () => {
+      if (measureRaf) return;
+      measureRaf = window.requestAnimationFrame(() => {
+        measureRaf = 0;
+        measure();
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting || hasMeasured) return;
+        scheduleMeasure();
+        timer = setTimeout(scheduleMeasure, 500);
+      },
+      { rootMargin: '900px 0px' },
+    );
+
+    observer.observe(container);
+    window.addEventListener('resize', scheduleMeasure, { passive: true });
 
     return () => {
-      window.removeEventListener('resize', measure);
-      clearTimeout(timer);
+      observer.disconnect();
+      window.removeEventListener('resize', scheduleMeasure);
+      window.cancelAnimationFrame(measureRaf);
+      if (timer) clearTimeout(timer);
     };
   }, [children, isMobile, shouldReduceMotion]);
 
@@ -90,7 +125,8 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
   useEffect(() => {
     if (isMobile || shouldReduceMotion) return;
 
-    const handleScroll = () => {
+    const updateScroll = () => {
+      scrollRaf.current = 0;
       if (!metrics.current.ready) return;
 
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -105,21 +141,40 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
       setScrollProgress(metrics.current.maxTranslate > 0 ? translate / metrics.current.maxTranslate : 0);
     };
 
+    const handleScroll = () => {
+      if (scrollRaf.current) return;
+      scrollRaf.current = window.requestAnimationFrame(updateScroll);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.cancelAnimationFrame(scrollRaf.current);
+      scrollRaf.current = 0;
+    };
   }, [isMobile, shouldReduceMotion]);
 
   // Handle Mobile Scroll to hide hint and update progress
   const handleMobileScroll = useCallback(() => {
-    if (showSwipeHint) {
-      setShowSwipeHint(false);
-    }
-    if (scrollContainerRef.current) {
+    if (mobileScrollRaf.current) return;
+    mobileScrollRaf.current = window.requestAnimationFrame(() => {
+      mobileScrollRaf.current = 0;
+      if (showSwipeHint) {
+        setShowSwipeHint(false);
+      }
+
       const el = scrollContainerRef.current;
+      if (!el) return;
       const max = el.scrollWidth - el.clientWidth;
       setScrollProgress(max > 0 ? el.scrollLeft / max : 0);
-    }
+    });
   }, [showSwipeHint]);
+
+  useEffect(() => {
+    return () => {
+      window.cancelAnimationFrame(mobileScrollRaf.current);
+    };
+  }, []);
 
   // Desktop: nudge scroll position left/right via arrow buttons
   const nudgeScroll = useCallback(

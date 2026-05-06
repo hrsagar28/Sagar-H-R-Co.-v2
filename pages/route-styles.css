@@ -1,0 +1,4 @@
+@config '../tailwind.routes.config.ts';
+
+@tailwind components;
+@tailwind utilities;

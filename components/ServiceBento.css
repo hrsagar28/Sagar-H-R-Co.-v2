@@ -1,0 +1,4 @@
+.card-surface-hover:hover {
+  transform: translateY(-0.5rem);
+  box-shadow: 0 25px 50px -12px rgb(17 17 17 / 0.1);
+}

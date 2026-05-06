@@ -9,6 +9,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import ReactMarkdown from 'react-markdown';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { useToast } from '../hooks/useToast';
+import './route-styles.css';
 
 const ChecklistDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

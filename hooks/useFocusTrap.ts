@@ -44,14 +44,29 @@ export const useFocusTrap = (isActive: boolean, containerRef: RefObject<HTMLElem
     if (!isActive || !containerRef.current) return;
 
     const element = containerRef.current;
-    const focusableElements = getFocusableElements(element);
+    let focusableElements: HTMLElement[] = [];
+    let firstElement: HTMLElement | undefined;
+    let lastElement: HTMLElement | undefined;
+    let rafId = 0;
+    let focusTimer: ReturnType<typeof setTimeout> | undefined;
 
-    if (focusableElements.length === 0) return;
-
-    const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+    const refreshFocusableElements = () => {
+      focusableElements = getFocusableElements(element);
+      firstElement = focusableElements[0];
+      lastElement = focusableElements[focusableElements.length - 1];
+    };
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onEscape) {
+        onEscape();
+        return;
+      }
+
+      if (!firstElement || !lastElement) {
+        refreshFocusableElements();
+      }
+      if (!firstElement || !lastElement) return;
+
       if (e.key === 'Tab') {
         if (e.shiftKey) {
           // Shift + Tab
@@ -66,21 +81,24 @@ export const useFocusTrap = (isActive: boolean, containerRef: RefObject<HTMLElem
             firstElement.focus();
           }
         }
-      } else if (e.key === 'Escape' && onEscape) {
-        onEscape();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
 
-    // Initial focus with a small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      firstElement.focus();
-    }, 100);
+    rafId = window.requestAnimationFrame(() => {
+      refreshFocusableElements();
+      if (!firstElement) return;
+
+      focusTimer = setTimeout(() => {
+        firstElement?.focus();
+      }, 100);
+    });
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      clearTimeout(timer);
+      window.cancelAnimationFrame(rafId);
+      if (focusTimer) clearTimeout(focusTimer);
     };
   }, [isActive, containerRef, onEscape]);
 };

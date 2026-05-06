@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Home, FileText, MessageSquare } from 'lucide-react';
 import SEO from '../components/SEO';
+import './route-styles.css';
 
 const NotFound: React.FC = () => {
   return (

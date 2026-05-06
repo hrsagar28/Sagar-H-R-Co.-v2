@@ -22,6 +22,8 @@ import HRACalculator from './Resources/HRACalculator';
 import TDSRateChart from './Resources/TDSRateChart';
 import CIITable from './Resources/CIITable';
 import CIICalculator from './Resources/CIICalculator';
+import './route-styles.css';
+import '../components/hero/PageHero.css';
 
 type ResourceTab =
   | 'income-tax'

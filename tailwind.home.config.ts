@@ -1,0 +1,36 @@
+import type { Config } from 'tailwindcss';
+import baseConfig from './tailwind.config';
+
+export default {
+  ...baseConfig,
+  content: [
+    './index.html',
+    './index.tsx',
+    './App.tsx',
+    './pages/Home.tsx',
+    './components/Navbar.tsx',
+    './components/Footer.tsx',
+    './components/Preloader.tsx',
+    './components/PageLoader.tsx',
+    './components/TopProgressBar.tsx',
+    './components/NetworkStatus.tsx',
+    './components/WhatsAppFloat.tsx',
+    './components/CookieConsent.tsx',
+    './components/Toast.tsx',
+    './components/ToastContainer.tsx',
+    './components/ErrorBoundary.tsx',
+    './components/RouteErrorBoundary.tsx',
+    './components/Reveal.tsx',
+    './components/HorizontalScroll.tsx',
+    './components/IndustrySpotlight.tsx',
+    './components/Marquee.tsx',
+    './components/SEO.tsx',
+    './components/VisuallyHidden.tsx',
+    './components/CustomCursor.tsx',
+    './components/home/**/*.{ts,tsx}',
+    './components/ui/AccentTitle.tsx',
+    './components/ui/BigCTA.tsx',
+    './components/ui/Grain.tsx',
+    './components/skeletons/**/*.{ts,tsx}',
+  ],
+} satisfies Config;

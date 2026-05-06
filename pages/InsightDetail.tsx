@@ -12,6 +12,7 @@ import { formatArchiveDate } from '../utils/formatArchiveDate';
 import { formatLongDate, toISODate } from '../utils/insightDates';
 import { extractMarkdownHeadings } from '../utils/markdownHeadings';
 import { SITE_URL } from '../config/site';
+import './route-styles.css';
 
 const MarkdownRenderer = React.lazy(() => import('../components/MarkdownRenderer'));
 const READING_PROGRESS_RADIUS = 24;

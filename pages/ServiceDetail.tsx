@@ -7,6 +7,8 @@ import { CONTACT_INFO } from '../constants';
 import { PageHero } from '../components/hero';
 import { SERVICE_HERO_META } from '../constants/serviceHeroMeta';
 import NotFound from './NotFound';
+import './route-styles.css';
+import '../components/hero/PageHero.css';
 
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

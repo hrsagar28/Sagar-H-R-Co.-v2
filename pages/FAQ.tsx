@@ -6,6 +6,8 @@ import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
 import { FAQ_CATEGORIES, FAQS } from '../constants';
 import { markdownToHtml } from '../utils/markdownToHtml';
+import './route-styles.css';
+import '../components/hero/PageHero.css';
 
 const DEFAULT_FAQ_DATE_MODIFIED = '2026-04-24';
 const FAQ_CANONICAL_URL = 'https://casagar.co.in/faqs';

@@ -1,0 +1,75 @@
+.hero-ledger-cta {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-ledger-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s ease;
+  z-index: 0;
+}
+
+.hero-ledger-cta:hover::after {
+  transform: scaleY(1);
+}
+
+.hero-ledger-cta-zone::after {
+  background: var(--zone-accent);
+}
+
+.hero-ledger-cta-moss::after {
+  background: var(--brand-moss);
+}
+
+.hero-ledger-cta-brass::after {
+  background: var(--brand-brass);
+}
+
+.hero-ledger-cta-rust::after {
+  background: var(--brand-rust);
+}
+
+.hero-ledger-cta:hover .relative.z-10 {
+  color: var(--zone-bg) !important;
+}
+
+.hero-ledger-cta-moss:hover .relative.z-10,
+.hero-ledger-cta-brass:hover .relative.z-10,
+.hero-ledger-cta-rust:hover .relative.z-10 {
+  color: var(--brand-surface) !important;
+}
+
+.archive-item {
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.archive-item:hover {
+  transform: translateX(0.5rem);
+  background: linear-gradient(to right, rgba(26, 77, 46, 0.05), transparent);
+}
+
+[data-zone='editorial'] .archive-item:hover {
+  background: linear-gradient(to right, rgba(184, 146, 76, 0.1), transparent);
+}
+
+[data-zone='editorial-paper'] .archive-item:hover {
+  background: linear-gradient(to right, rgba(139, 58, 47, 0.05), transparent);
+}
+
+[data-zone='editorial'] #frontispiece-section,
+[data-zone='editorial-paper'] #frontispiece-section {
+  background-color: var(--brand-rust);
+  color: var(--brand-paper);
+}
+
+.hero-directory-contact:hover .hover-zone-accent {
+  color: var(--zone-accent);
+}
+
+.hero-directory-contact:hover {
+  border-left-color: var(--zone-accent);
+}
