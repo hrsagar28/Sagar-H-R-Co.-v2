@@ -224,18 +224,18 @@ const Home: React.FC = () => {
 
                 <Reveal delay={0.6} variant="fade-up">
                   <div className="w-full overflow-hidden md:w-auto">
-                    <div className="flex flex-wrap gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-3 backdrop-blur-md transition-colors duration-300 hover:bg-white/10 md:gap-4 md:px-6 md:py-3.5">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-white/90 md:text-xs">
-                        GST
-                      </span>
-                      <span className="text-white/30">•</span>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-white/90 md:text-xs">
-                        Income Tax
-                      </span>
-                      <span className="text-white/30">•</span>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-white/90 md:text-xs">
-                        Company Law
-                      </span>
+                    <div className="w-full max-w-[min(100vw-2rem,34rem)] overflow-hidden rounded-full border border-white/10 bg-white/5 px-5 py-3 backdrop-blur-md transition-colors duration-300 hover:bg-white/10 md:w-[34rem] md:px-6 md:py-3.5">
+                      <Marquee
+                        items={SERVICES.map((service) => service.title)}
+                        direction="left"
+                        className="w-full"
+                        itemWrapperClassName="mx-4 flex items-center gap-4"
+                        itemClassName="whitespace-nowrap text-[11px] font-bold uppercase tracking-wider text-white/90 md:text-xs"
+                        dotClassName="h-1 w-1 rounded-full bg-white/30"
+                        trackClassName="[animation-duration:45s]"
+                        showMasks={false}
+                        ariaLabel="Chartered accountancy services"
+                      />
                     </div>
                   </div>
                 </Reveal>
