@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { useReducedMotion } from '../../hooks';
 
-const BG = '#06070a';
+export const STARFIELD_BG = '#06070a';
 const MOBILE_BP = 768;
-const NEBULA_COLOR = 'rgba(90,110,180,0.06)';
+export const STARFIELD_NEBULA = 'rgba(90,110,180,0.06)';
 const SHOOT_ANGLE_DEG = 215;
 const SHOOT_ANGLE_SPREAD = 15;
 const SHOOT_TRAIL_LEN = 140;
@@ -11,6 +11,7 @@ const SHOOT_FADE_IN = 180;
 const SHOOT_TRAVEL = 900;
 const SHOOT_FADE_OUT = 220;
 const SHOOT_AVG_INTERVAL = 55_000;
+const MAX_DPR = 2;
 
 interface Star {
   x: number;
@@ -45,6 +46,7 @@ interface NavigatorWithConnection extends Navigator {
 }
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
+const getCanvasDpr = () => Math.min(window.devicePixelRatio || 1, MAX_DPR);
 
 const seedBack = (w: number, h: number, n: number): Star[] =>
   Array.from({ length: n }, () => ({
@@ -77,25 +79,25 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
   const drawStatic = useCallback((canvas: HTMLCanvasElement) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = getCanvasDpr();
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.scale(dpr, dpr);
-    ctx.fillStyle = BG;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = STARFIELD_BG;
     ctx.fillRect(0, 0, w, h);
 
     // nebula
     const grad = ctx.createRadialGradient(w * 0.5, h * 0.25, 0, w * 0.5, h * 0.25, w * 0.45);
-    grad.addColorStop(0, NEBULA_COLOR);
+    grad.addColorStop(0, STARFIELD_NEBULA);
     grad.addColorStop(1, 'transparent');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
     const isMobile = w < MOBILE_BP;
-    const backStars = seedBack(w, h, isMobile ? 90 : 180);
-    const midStars = seedMid(w, h, isMobile ? 20 : 40);
+    const backStars = seedBack(w, h, isMobile ? 60 : 90);
+    const midStars = seedMid(w, h, isMobile ? 14 : 20);
 
     for (const s of backStars) {
       ctx.beginPath();
@@ -144,7 +146,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     }
 
     const ctx = canvas.getContext('2d')!;
-    let dpr = window.devicePixelRatio || 1;
+    let dpr = getCanvasDpr();
     let w = 0;
     let h = 0;
     let backStars: Star[] = [];
@@ -168,7 +170,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     };
 
     const resize = () => {
-      dpr = window.devicePixelRatio || 1;
+      dpr = getCanvasDpr();
       const rect = container.getBoundingClientRect();
       containerRect = {
         left: rect.left,
@@ -178,8 +180,8 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       };
       w = canvas.clientWidth;
       h = canvas.clientHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const isMobile = w < MOBILE_BP;
       backStars = seedBack(w, h, isMobile ? 90 : 180);
@@ -265,6 +267,10 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
 
     const loop = (now: number) => {
       if (!isLooping) return;
+      if (document.visibilityState !== 'visible') {
+        stopLoop();
+        return;
+      }
 
       const dt = lastFrame ? now - lastFrame : 16;
       lastFrame = now;
@@ -274,7 +280,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
         return;
       }
 
-      ctx.fillStyle = BG;
+      ctx.fillStyle = STARFIELD_BG;
       ctx.fillRect(0, 0, w, h);
 
       // nebula drifts in upper third on 60s cycle
@@ -282,7 +288,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       nebulaX = w * 0.5 + Math.sin(nebulaT) * w * 0.12;
       nebulaY = h * 0.2 + Math.cos(nebulaT * 0.7) * h * 0.08;
       const nebGrad = ctx.createRadialGradient(nebulaX, nebulaY, 0, nebulaX, nebulaY, w * 0.45);
-      nebGrad.addColorStop(0, NEBULA_COLOR);
+      nebGrad.addColorStop(0, STARFIELD_NEBULA);
       nebGrad.addColorStop(1, 'transparent');
       ctx.fillStyle = nebGrad;
       ctx.fillRect(0, 0, w, h);
@@ -352,6 +358,19 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     );
     io.observe(container);
 
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') {
+        stopLoop();
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+      if (rect.bottom >= -200 && rect.top <= window.innerHeight + 200) {
+        startLoop();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     return () => {
       stopLoop();
       io.disconnect();
@@ -360,6 +379,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       clearTimeout(redrawTimer);
       clearTimeout(resizeTimer);
       cancelAnimationFrame(resizeRaf);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [reducedMotion, drawStatic]);
 
@@ -368,7 +388,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       ref={containerRef}
       aria-hidden="true"
       className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
-      style={{ background: BG }}
+      style={{ background: STARFIELD_BG }}
     >
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
     </div>

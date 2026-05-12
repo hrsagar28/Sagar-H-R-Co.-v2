@@ -12,13 +12,13 @@ import {
   StarField,
   ChaosToOrder,
 } from '../components';
-import { AccentTitle } from '../components/ui/AccentTitle';
 import TrustBar from '../components/home/TrustBar';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useInsights } from '../hooks';
 import { BigCTA } from '../components/ui/BigCTA';
-import VisuallyHidden from '../components/VisuallyHidden';
 import { SITE_URL } from '../config/site';
+
+const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString().slice(0, 10);
 
 interface LazyHomeSectionProps {
   children: React.ReactNode;
@@ -79,15 +79,17 @@ const Home: React.FC = () => {
     '@graph': [
       {
         '@type': 'AccountingService',
-        '@id': 'https://casagar.co.in/#organization',
+        '@id': `${SITE_URL}/#organization`,
         name: CONTACT_INFO.name,
-        url: 'https://casagar.co.in',
+        url: SITE_URL,
         logo: {
           '@type': 'ImageObject',
-          url: 'https://casagar.co.in/logo.png',
+          url: `${SITE_URL}/logo.png`,
         },
-        image: 'https://casagar.co.in/og/og-default.png',
+        image: `${SITE_URL}/og/og-default.png`,
         description: 'Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.',
+        priceRange: '₹₹',
+        availableLanguage: CONTACT_INFO.languages,
         sameAs: [CONTACT_INFO.social.linkedin],
         areaServed: [
           { '@type': 'City', name: 'Mysuru' },
@@ -133,10 +135,11 @@ const Home: React.FC = () => {
       },
       {
         '@type': 'WebSite',
-        '@id': 'https://casagar.co.in/#website',
-        url: 'https://casagar.co.in',
+        '@id': `${SITE_URL}/#website`,
+        url: SITE_URL,
         name: CONTACT_INFO.name,
-        publisher: { '@id': 'https://casagar.co.in/#organization' },
+        publisher: { '@id': `${SITE_URL}/#organization` },
+        dateModified: BUILD_DATE,
       },
     ],
   };
@@ -152,14 +155,10 @@ const Home: React.FC = () => {
       {/* 1. CINEMATIC HERO
           Dark ink background with a quiet star field; no photographic layer.
           Animation timings are tighter than before so the headline lands inside
-          ~0.6s and the CTA is interactive by ~1s.
-          Mobile uses 100svh so Android in-app browsers / custom tabs do not
-          recenter the hero when their chrome reports a changing dynamic
-          viewport. Larger viewports can use dvh for the fuller cinematic
-          frame. */}
+          ~0.6s and the CTA is interactive by ~1s. */}
       <section
         data-hero-dark
-        className="relative flex min-h-[100svh] min-h-screen flex-col justify-start overflow-hidden px-4 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] pt-32 md:min-h-[100dvh] md:justify-center md:px-6 md:pb-0 md:pt-20"
+        className="relative flex min-h-[100dvh] flex-col justify-start overflow-hidden px-4 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] pt-32 md:justify-center md:px-6 md:pb-0 md:pt-20"
       >
         <StarField />
 
@@ -168,41 +167,46 @@ const Home: React.FC = () => {
             <Reveal delay={0.05} variant="fade-up">
               <div className="mb-8 flex flex-col gap-2">
                 <div className="inline-flex w-fit items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-xl">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-brand-accent shadow-[0_0_12px_brand-accent]"></div>
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-brand-accent shadow-[0_0_12px_var(--color-brand-accent)]"></div>
                   <span>Mysuru</span>
                 </div>
-                <h2 className="font-heading text-xl font-bold tracking-wide text-white/80 md:text-2xl">
+                <p className="font-heading text-xl font-bold tracking-wide text-white/80 md:text-2xl">
                   Sagar H R &amp; Co.
-                </h2>
+                </p>
               </div>
             </Reveal>
 
             {/* Dynamic Service-Based Headline */}
             <div className="mb-10">
-              <VisuallyHidden as="h1">
-                Sagar H R & Co. — Chartered Accountants in Mysuru: Audit, Taxation, and Advisory.
-              </VisuallyHidden>
-              <Reveal variant="reveal-mask" delay={0.1} duration={0.7} eager>
-                <AccentTitle as="div" className="max-w-full overflow-hidden text-white drop-shadow-2xl">
-                  <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Audit.</span>
-                </AccentTitle>
-              </Reveal>
-              <Reveal variant="reveal-mask" delay={0.18} duration={0.7} eager>
-                <AccentTitle as="div" className="max-w-full overflow-hidden text-white drop-shadow-2xl">
-                  <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">Taxation.</span>
-                </AccentTitle>
-              </Reveal>
-              <Reveal variant="reveal-mask" delay={0.26} duration={0.7} eager>
-                <AccentTitle
-                  as="div"
-                  className="max-w-full overflow-hidden text-white drop-shadow-2xl"
-                  accentClassName="text-[#E8F5E9]"
-                >
-                  <span className="block text-[12vw] md:text-[7rem] lg:text-[9rem]">
-                    <em>Advisory.</em>
+              <h1
+                className="font-heading font-light leading-[1] tracking-[-0.02em] text-white drop-shadow-2xl"
+                aria-label="Sagar H R & Co. — Chartered Accountants in Mysuru: Audit, Taxation, and Advisory."
+              >
+                <Reveal variant="reveal-mask" delay={0.1} duration={0.7} eager>
+                  <span
+                    aria-hidden="true"
+                    className="block max-w-full overflow-hidden text-[12vw] md:text-[7rem] lg:text-[9rem]"
+                  >
+                    Audit.
                   </span>
-                </AccentTitle>
-              </Reveal>
+                </Reveal>
+                <Reveal variant="reveal-mask" delay={0.18} duration={0.7} eager>
+                  <span
+                    aria-hidden="true"
+                    className="block max-w-full overflow-hidden text-[12vw] md:text-[7rem] lg:text-[9rem]"
+                  >
+                    Taxation.
+                  </span>
+                </Reveal>
+                <Reveal variant="reveal-mask" delay={0.26} duration={0.7} eager>
+                  <span
+                    aria-hidden="true"
+                    className="block max-w-full overflow-hidden text-[12vw] md:text-[7rem] lg:text-[9rem]"
+                  >
+                    <em className="font-serif font-normal italic text-brand-paper-mint">Advisory.</em>
+                  </span>
+                </Reveal>
+              </h1>
             </div>
 
             <div className="flex flex-col items-start gap-8">
@@ -217,8 +221,8 @@ const Home: React.FC = () => {
 
               <div className="mt-4 flex w-full flex-col items-start gap-8 md:flex-row md:items-center">
                 <Reveal delay={0.5}>
-                  <BigCTA to="/contact" tone="paper" size="lg">
-                    Engage the practice
+                  <BigCTA to="/contact" tone="paper-on-dark" size="lg">
+                    Book a consultation
                   </BigCTA>
                 </Reveal>
 
@@ -248,32 +252,24 @@ const Home: React.FC = () => {
       {/* 2. CHAOS → ORDER drag-to-compare demo
           Sits immediately after the hero. Zone-B palette. Visceral proof
           of value before any generic trust-bar noise. */}
-      <div className="[contain-intrinsic-size:auto_900px] [content-visibility:auto]">
+      <LazyHomeSection intrinsicSize="auto 900px" rootMargin="200px 0px">
         <ChaosToOrder />
-      </div>
+      </LazyHomeSection>
 
       {/* 3. FOUNDER SECTION */}
       <div className="[contain-intrinsic-size:auto_1100px] [content-visibility:auto]">
         <FounderSection />
       </div>
 
-      {/* 4. IMMERSIVE SERVICES (Horizontal Scroll)
-             Heading is passed into HorizontalScroll as a `header` slot so that
-             on desktop it lives inside the sticky pane and stays visible while
-             cards translate horizontally — no more scrolling past the title to
-             reach content. On mobile the header simply renders above the
-             scroll-snap row.
-             Mobile alignment: items-start so the heading and caption hug the
-             left edge instead of being pushed right by the desktop `items-end`
-             baseline. */}
+      {/* 4. IMMERSIVE SERVICES */}
       <LazyHomeSection intrinsicSize="auto 900px">
-        <section className="relative z-30 bg-brand-black pb-12 pt-8 text-white [contain-intrinsic-size:auto_900px] [content-visibility:auto] md:pb-16 md:pt-12">
+        <section className="relative z-30 bg-brand-black pb-12 pt-8 text-white md:pb-16 md:pt-12">
           <HorizontalScroll
             header={
               <div className="container relative z-10 mx-auto max-w-7xl px-4 pb-4 pt-10 md:px-6 md:pb-6 md:pt-14">
                 <div className="flex flex-col items-start justify-between gap-3 border-b border-white/10 pb-4 md:flex-row md:items-end md:gap-6 md:pb-6">
                   <Reveal>
-                    <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-amber-400 md:mb-3 md:text-xs">
+                    <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-brand-brass-light md:mb-3 md:text-xs">
                       Practice Areas
                     </span>
                     <h2 className="font-heading text-4xl font-bold leading-[0.95] text-white md:text-6xl lg:text-7xl">
@@ -281,7 +277,7 @@ const Home: React.FC = () => {
                     </h2>
                   </Reveal>
                   <Reveal delay={0.2} className="md:w-1/3">
-                    <p className="text-left text-sm font-medium leading-relaxed text-white/60 md:text-left md:text-base lg:text-lg">
+                    <p className="text-left text-sm font-medium leading-relaxed text-white/85 md:text-left md:text-base lg:text-lg">
                       Use the arrows or scroll to explore our practice areas.
                     </p>
                   </Reveal>
@@ -293,7 +289,7 @@ const Home: React.FC = () => {
               <Link
                 key={service.id}
                 to={service.link}
-                className="group relative flex aspect-[4/5] w-[300px] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] border border-white/5 bg-brand-dark p-8 transition-all duration-500 hover:border-brand-accent/50 hover:bg-brand-surface-dark-hover md:w-[400px] md:p-10"
+                className="group relative flex aspect-[4/5] w-[300px] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] border border-white/5 bg-brand-dark p-8 transition-all duration-500 hover:border-brand-accent/50 hover:bg-brand-surface-dark-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black md:w-[400px] md:p-10"
               >
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
 
@@ -306,13 +302,13 @@ const Home: React.FC = () => {
                     <h3 className="mb-4 font-heading text-2xl font-bold leading-tight text-white transition-colors group-hover:text-brand-accent md:text-3xl">
                       {service.title}
                     </h3>
-                    <p className="line-clamp-3 text-base font-medium leading-relaxed text-white/65 transition-colors group-hover:text-white/80">
+                    <p className="line-clamp-3 text-base font-medium leading-relaxed text-white/85 transition-colors group-hover:text-white">
                       {service.description}
                     </p>
                   </div>
 
                   <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-8">
-                    <span className="text-xs font-bold uppercase tracking-widest text-amber-300 transition-colors group-hover:text-white">
+                    <span className="text-xs font-bold uppercase tracking-widest text-brand-brass-soft transition-colors group-hover:text-white">
                       View Details
                     </span>
                     <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 shadow-[0_0_20px_rgba(74,222,128,0)] transition-all duration-300 group-hover:border-brand-accent group-hover:bg-brand-accent group-hover:text-black group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
@@ -342,19 +338,15 @@ const Home: React.FC = () => {
       {/* 5. TRUST BAR — moved below Services. Now reads as "and these are the
              sectors we've actually served", not decorative noise upfront. */}
       <LazyHomeSection intrinsicSize="auto 240px">
-        <div
-          id="after-services"
-          tabIndex={-1}
-          className="[contain-intrinsic-size:auto_240px] [content-visibility:auto]"
-        >
+        <div id="after-services" tabIndex={-1}>
           <TrustBar />
         </div>
       </LazyHomeSection>
 
-      {/* 7. RECENT INSIGHTS */}
-      {recentInsights.length > 0 && (
-        <LazyHomeSection intrinsicSize="auto 700px">
-          <section className="relative overflow-hidden border-t border-brand-border/60 bg-white px-4 py-16 [contain-intrinsic-size:auto_700px] [content-visibility:auto] md:px-6 md:py-32">
+      {/* 6. RECENT INSIGHTS */}
+      <LazyHomeSection intrinsicSize="auto 700px">
+        {recentInsights.length > 0 && (
+          <section className="relative overflow-hidden border-t border-brand-border/60 bg-white px-4 py-16 md:px-6 md:py-32">
             <div className="bg-grid pointer-events-none absolute inset-0 opacity-20" />
 
             <div className="container relative z-10 mx-auto max-w-7xl">
@@ -470,20 +462,20 @@ const Home: React.FC = () => {
               </div>
             </div>
           </section>
-        </LazyHomeSection>
-      )}
+        )}
+      </LazyHomeSection>
 
-      {/* 8. FAQ PREVIEW */}
+      {/* 7. FAQ PREVIEW */}
       <LazyHomeSection intrinsicSize="auto 900px">
         <FAQPreview />
       </LazyHomeSection>
 
-      {/* 9. MARQUEE */}
+      {/* 8. MARQUEE */}
       <LazyHomeSection intrinsicSize="auto 220px">
         <Marquee />
       </LazyHomeSection>
 
-      {/* 11. LOCATION STRIP */}
+      {/* 9. LOCATION STRIP */}
       <LazyHomeSection intrinsicSize="auto 1200px">
         <LocationStrip />
       </LazyHomeSection>

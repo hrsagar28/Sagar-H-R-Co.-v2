@@ -314,6 +314,8 @@ html {
 @layer base {
   :root {
     --sticky-offset: 8rem;
+    /* Exposes the Tailwind brand accent for arbitrary values such as shadow-[...var(--color-brand-accent)]. */
+    --color-brand-accent: #4ade80;
     /* zone-resolved tokens (default = moss zone) */
     --zone-bg: #f2f2f0;
     --zone-surface: #ffffff;
@@ -395,6 +397,32 @@ html {
   }
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@property --divider {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+
+@keyframes chaos-drift {
+  0%,
+  100% {
+    --divider: 51.2%;
+  }
+  50% {
+    --divider: 48.8%;
+  }
+}
+
+.chaos-drift {
+  animation: chaos-drift 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chaos-drift {
+    animation: none;
   }
 }
 

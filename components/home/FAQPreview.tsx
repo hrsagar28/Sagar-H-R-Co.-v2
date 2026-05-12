@@ -4,6 +4,11 @@ import { ChevronDown, ArrowRight } from 'lucide-react';
 import { FAQS } from '../../constants/faq';
 import Reveal from '../Reveal';
 
+const DESKTOP_QUERY = '(min-width: 768px)';
+
+const isDesktopViewport = () =>
+  typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(DESKTOP_QUERY).matches;
+
 interface FAQPreviewItemProps {
   faq: (typeof FAQS)[number];
   index: number;
@@ -16,6 +21,19 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
   const contentRef = useRef<HTMLDivElement>(null);
   const cachedHeight = useRef<number | null>(null);
   const rafRef = useRef<number>(0);
+  const panelId = `faq-preview-panel-${index}`;
+  const buttonId = `faq-preview-button-${index}`;
+  const supportsAutoHeight =
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('interpolate-size', 'allow-keywords');
+  const panelStyle = supportsAutoHeight
+    ? ({
+        height: isOpen ? 'auto' : '0px',
+        opacity: isOpen ? 1 : 0,
+        interpolateSize: 'allow-keywords',
+      } as React.CSSProperties)
+    : undefined;
 
   useEffect(() => {
     const panel = panelRef.current;
@@ -23,6 +41,12 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
     if (!panel || !content) return;
 
     window.cancelAnimationFrame(rafRef.current);
+
+    if (supportsAutoHeight) {
+      panel.style.height = isOpen ? 'auto' : '0px';
+      panel.style.opacity = isOpen ? '1' : '0';
+      return;
+    }
 
     rafRef.current = window.requestAnimationFrame(() => {
       const measuredHeight = cachedHeight.current ?? content.scrollHeight;
@@ -47,9 +71,11 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
     });
 
     return () => window.cancelAnimationFrame(rafRef.current);
-  }, [isOpen]);
+  }, [isOpen, supportsAutoHeight]);
 
   useEffect(() => {
+    if (supportsAutoHeight) return;
+
     const resetCachedHeight = () => {
       cachedHeight.current = null;
       if (!isOpen || !contentRef.current || !panelRef.current) return;
@@ -66,9 +92,10 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
 
     window.addEventListener('resize', resetCachedHeight, { passive: true });
     return () => window.removeEventListener('resize', resetCachedHeight);
-  }, [isOpen]);
+  }, [isOpen, supportsAutoHeight]);
 
   const handleTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
+    if (supportsAutoHeight) return;
     if (event.propertyName !== 'height' || !isOpen || !panelRef.current) return;
     panelRef.current.style.height = 'auto';
   };
@@ -89,9 +116,11 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
         <div className="pointer-events-none absolute inset-0 rounded-[1.5rem] shadow-[inset_0_0_0_1px_rgba(223,217,204,1)]" />
 
         <button
+          id={buttonId}
           onClick={onToggle}
           className="group relative z-10 flex w-full items-center justify-between gap-4 p-6 text-left focus:outline-none md:p-8"
           aria-expanded={isOpen}
+          aria-controls={panelId}
         >
           <div className="flex items-center gap-4">
             <div
@@ -122,8 +151,13 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
         </button>
 
         <div
+          id={panelId}
+          role="region"
+          aria-labelledby={buttonId}
+          aria-hidden={!isOpen}
           ref={panelRef}
           className="relative z-10 h-0 overflow-hidden opacity-0 transition-[height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          style={panelStyle}
           onTransitionEnd={handleTransitionEnd}
         >
           <div ref={contentRef} className="px-6 pb-8 pt-0 md:px-8">
@@ -140,13 +174,23 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
 const FAQPreview: React.FC = () => {
   // Get top 3 General FAQs
   const featuredFaqs = FAQS.filter((f) => f.category === 'General & Onboarding').slice(0, 3);
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(() => (isDesktopViewport() ? 0 : null));
 
-  // Open first FAQ by default on desktop only
   useEffect(() => {
-    if (window.matchMedia('(min-width: 768px)').matches) {
-      setOpenIndex(0);
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+
+    const query = window.matchMedia(DESKTOP_QUERY);
+    const handleChange = (event: MediaQueryListEvent) => {
+      setOpenIndex((current) => (event.matches ? (current ?? 0) : null));
+    };
+
+    if (typeof query.addEventListener === 'function') {
+      query.addEventListener('change', handleChange);
+      return () => query.removeEventListener('change', handleChange);
     }
+
+    query.addListener(handleChange);
+    return () => query.removeListener(handleChange);
   }, []);
 
   return (

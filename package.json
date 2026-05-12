@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run icons && tsx scripts/generate-sitemap.ts && tsx scripts/generate-responsive-images.ts && vite build",
+    "build": "npm run icons && tsx scripts/check-csp-hash.ts && tsx scripts/generate-sitemap.ts && tsx scripts/generate-responsive-images.ts && vite build",
     "icons": "tsx scripts/generate-icons.ts",
     "sitemap": "tsx scripts/generate-sitemap.ts",
     "lint:schema": "tsx scripts/validate-services-schema.ts",
@@ -16,7 +16,8 @@
     "format": "prettier --write .",
     "prepare": "husky",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:a11y": "vitest --run pages/Home.test.tsx"
   },
   "dependencies": {
     "@botpoison/browser": "^0.1.30",

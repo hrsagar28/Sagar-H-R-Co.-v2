@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 export interface BigCTAProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   to?: string;
   href?: string;
-  tone?: 'moss' | 'ink' | 'paper' | 'brass' | 'accent';
+  tone?: 'moss' | 'ink' | 'paper' | 'paper-on-dark' | 'brass' | 'accent';
   size?: 'md' | 'lg';
   children: React.ReactNode;
   ariaLabel?: string;
@@ -50,6 +50,12 @@ export function BigCTA({
           fillBg: 'bg-brand-paper',
           labelOnFill: 'group-hover:text-brand-ink',
         };
+      case 'paper-on-dark':
+        return {
+          container: 'border-brand-paper bg-transparent text-brand-paper',
+          fillBg: 'bg-brand-paper',
+          labelOnFill: 'group-hover:text-brand-ink',
+        };
       case 'brass':
         return {
           container: 'border-brand-brass text-brand-brass',
@@ -72,6 +78,11 @@ export function BigCTA({
   const hoverIconClass = isDisabled ? '' : 'group-hover:translate-x-1';
   const classes = `group relative inline-flex items-center justify-center gap-3 rounded-full overflow-hidden border font-serif italic transition-colors duration-500 ease-out-expo disabled:cursor-not-allowed disabled:opacity-70 ${interactiveClasses} ${tones.container} ${getSizeClasses()} ${className}`;
   const fillBgClass = tones.fillBg;
+  const disabledLinkProps = {
+    role: 'button',
+    'aria-disabled': true,
+    tabIndex: -1,
+  } as const;
 
   const InnerContent = () => (
     <>
@@ -91,6 +102,14 @@ export function BigCTA({
   );
 
   if (to) {
+    if (isDisabled) {
+      return (
+        <span className={classes} aria-label={ariaLabel} {...disabledLinkProps}>
+          <InnerContent />
+        </span>
+      );
+    }
+
     return (
       <Link to={to} className={classes} aria-label={ariaLabel}>
         <InnerContent />
@@ -99,6 +118,14 @@ export function BigCTA({
   }
 
   if (href) {
+    if (isDisabled) {
+      return (
+        <span className={classes} aria-label={ariaLabel} {...disabledLinkProps}>
+          <InnerContent />
+        </span>
+      );
+    }
+
     return (
       <a
         href={href}
@@ -113,7 +140,7 @@ export function BigCTA({
   }
 
   return (
-    <button className={classes} aria-label={ariaLabel} disabled={disabled} {...buttonProps}>
+    <button className={classes} aria-label={ariaLabel} aria-disabled={isDisabled} disabled={disabled} {...buttonProps}>
       <InnerContent />
     </button>
   );

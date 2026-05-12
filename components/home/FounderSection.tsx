@@ -31,7 +31,7 @@ const FounderSection: React.FC = () => {
               <figure className="relative">
                 {/* Brass hairline frame — a 1px ring with a small inset echo so
                     the portrait reads as "framed", not just cropped. */}
-                <div className="relative rounded-[4px] border border-[#b8924c]/60 bg-brand-bg p-[5px] shadow-[0_20px_40px_-24px_rgba(17,17,17,0.35)]">
+                <div className="relative rounded-[4px] border border-brand-brass/60 bg-brand-bg p-[5px] shadow-[0_20px_40px_-24px_rgba(17,17,17,0.35)]">
                   {/* aspect-[3/4] on a 9:16 source keeps more vertical content
                       visible than 4:5, so the full head (including hair) shows.
                       `object-position: 50% 18%` pulls the crop higher, letting
@@ -82,7 +82,7 @@ const FounderSection: React.FC = () => {
 
                 {/* Caption — sits below the frame, JetBrains Mono */}
                 <figcaption className="mt-4 flex items-center gap-3">
-                  <span className="h-px flex-1 bg-gradient-to-r from-transparent via-[#b8924c]/50 to-[#b8924c]/70" />
+                  <span className="h-px flex-1 bg-gradient-to-r from-transparent via-brand-brass/50 to-brand-brass/70" />
                   <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.22em] text-brand-dark/80 md:text-[11px]">
                     {CONTACT_INFO.founder.name} · {CONTACT_INFO.founder.title}
                   </span>
@@ -109,7 +109,7 @@ const FounderSection: React.FC = () => {
           {/* Right: Editorial text */}
           <div className="space-y-8">
             <Reveal variant="fade-up">
-              <span className="text-xs font-bold uppercase tracking-widest text-brand-moss">Principal Partner</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-brand-moss">Principal</span>
             </Reveal>
 
             <Reveal variant="reveal-mask" delay={0.1}>
@@ -127,22 +127,9 @@ const FounderSection: React.FC = () => {
 
             {/* Single editorial italic line, anchoring the practice to place */}
             <Reveal delay={0.35}>
-              <p className="border-l border-[#b8924c]/60 pl-6 font-serif text-lg italic text-brand-dark/80 md:text-xl">
+              <p className="border-l border-brand-brass/60 pl-6 font-serif text-lg italic text-brand-dark/80 md:text-xl">
                 A Mysuru practice, serving SMEs across Karnataka.
               </p>
-            </Reveal>
-
-            <Reveal delay={0.45}>
-              <div className="flex flex-wrap gap-3 pt-2">
-                {CONTACT_INFO.founder.specializations.map((spec, i) => (
-                  <span
-                    key={i}
-                    className="cursor-default rounded-full border border-brand-border bg-brand-bg px-4 py-2 text-sm font-bold text-brand-dark"
-                  >
-                    {spec}
-                  </span>
-                ))}
-              </div>
             </Reveal>
 
             <Reveal delay={0.55}>

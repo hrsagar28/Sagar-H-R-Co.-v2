@@ -11,7 +11,7 @@ const LocationStrip: React.FC = () => {
       <div className="relative overflow-hidden bg-brand-black py-24 text-white md:py-32">
         {/* Ambient lighting */}
         <div className="pointer-events-none absolute left-1/4 top-0 h-96 w-96 rounded-full bg-brand-moss/20 blur-[150px]" />
-        <div className="pointer-events-none absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-[#4ADE80]/10 blur-[150px]" />
+        <div className="pointer-events-none absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-brand-accent/10 blur-[150px]" />
 
         <div className="container relative z-10 mx-auto max-w-7xl px-4 md:px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
@@ -19,14 +19,14 @@ const LocationStrip: React.FC = () => {
             <div className="space-y-10">
               <div>
                 <Reveal>
-                  <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-[#4ADE80]">
+                  <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-brand-accent">
                     Location
                   </span>
                 </Reveal>
                 <Reveal delay={0.1}>
                   <h2 className="font-heading text-5xl font-bold leading-tight md:text-6xl">
                     Visit our <br />
-                    <span className="font-serif font-normal italic text-white/60">office.</span>
+                    <span className="font-serif font-normal italic text-white/85">office.</span>
                   </h2>
                 </Reveal>
               </div>
@@ -60,11 +60,11 @@ const LocationStrip: React.FC = () => {
                   <Reveal key={i} delay={0.1 * i} width="100%">
                     <div className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all duration-300 hover:bg-white/10">
                       <div className="mb-auto flex items-start gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4ADE80]/20 text-[#4ADE80]">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-accent/20 text-brand-accent">
                           {React.cloneElement(item.icon as React.ReactElement<{ size?: number }>, { size: 20 })}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="mb-1 text-xs uppercase tracking-wider text-white/50">{item.label}</div>
+                          <div className="mb-1 text-xs uppercase tracking-wider text-white/75">{item.label}</div>
                           <div className="text-sm font-medium leading-relaxed text-white">{item.value}</div>
                         </div>
                       </div>
@@ -74,7 +74,7 @@ const LocationStrip: React.FC = () => {
                             href={item.href || '#'}
                             target={item.href?.startsWith('http') ? '_blank' : undefined}
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#4ADE80] transition-all hover:gap-2"
+                            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand-accent transition-all hover:gap-2"
                           >
                             {item.action} <ArrowRight size={12} />
                           </a>

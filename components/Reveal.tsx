@@ -79,10 +79,29 @@ const Reveal: React.FC<RevealProps> = ({
     };
   }, [eager, shouldReduceMotion]);
 
+  useEffect(() => {
+    if (!isVisible || shouldReduceMotion) return;
+
+    const el = ref.current;
+    if (!el) return;
+
+    const inner = variant === 'reveal-mask' ? (el.firstElementChild as HTMLElement | null) : el;
+    if (!inner) return;
+
+    const onEnd = (event: TransitionEvent) => {
+      if (event.propertyName !== 'transform') return;
+
+      inner.style.willChange = 'auto';
+    };
+
+    inner.addEventListener('transitionend', onEnd, { once: true });
+    return () => inner.removeEventListener('transitionend', onEnd);
+  }, [isVisible, shouldReduceMotion, variant]);
+
   if (eager) {
     if (variant === 'reveal-mask') {
       return (
-        <div ref={ref} className={`relative overflow-hidden ${className}`} style={{ width }}>
+        <div ref={ref} className={`relative overflow-hidden ${className}`} style={{ width, minHeight: '1lh' }}>
           <div style={{ opacity: 1 }}>{children}</div>
         </div>
       );
@@ -119,19 +138,20 @@ const Reveal: React.FC<RevealProps> = ({
     return isVisible ? 1 : 0;
   };
 
-  const style = {
-    transitionProperty: 'all',
+  const style: React.CSSProperties = {
+    transitionProperty: 'transform, opacity',
     transitionDuration: shouldReduceMotion ? '0s' : `${duration}s`,
-    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)', // Premium ease
+    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
     transitionDelay: shouldReduceMotion ? '0s' : `${delay}s`,
     opacity: getOpacityStyle(),
     transform: getTransformStyle(),
+    willChange: shouldReduceMotion || isVisible ? undefined : 'transform, opacity',
   };
 
   // For mask reveal, we need an overflow-hidden wrapper
   if (variant === 'reveal-mask') {
     return (
-      <div ref={ref} className={`relative overflow-hidden ${className}`} style={{ width }}>
+      <div ref={ref} className={`relative overflow-hidden ${className}`} style={{ width, minHeight: '1lh' }}>
         <div style={style}>{children}</div>
       </div>
     );

@@ -192,6 +192,43 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
   );
 
   const isDisabled = isMobile || shouldReduceMotion;
+  const showLeft = scrollProgress > 0.02;
+  const showRight = scrollProgress < 0.98;
+
+  useEffect(() => {
+    if (isMobile || shouldReduceMotion) return;
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    let focusRaf = 0;
+
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target || !scrollContainer.contains(target)) return;
+
+      window.cancelAnimationFrame(focusRaf);
+      focusRaf = window.requestAnimationFrame(() => {
+        if (!metrics.current.ready) return;
+
+        const cardRect = target.getBoundingClientRect();
+        const viewportCenter = window.innerWidth / 2;
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const delta = cardCenter - viewportCenter;
+
+        if (Math.abs(delta) < 40) return;
+
+        const targetOffset = Math.max(0, Math.min(metrics.current.maxTranslate, translateX + delta));
+        window.scrollTo({ top: metrics.current.top + targetOffset, behavior: 'smooth' });
+      });
+    };
+
+    scrollContainer.addEventListener('focusin', onFocusIn);
+    return () => {
+      scrollContainer.removeEventListener('focusin', onFocusIn);
+      window.cancelAnimationFrame(focusRaf);
+    };
+  }, [isMobile, shouldReduceMotion, translateX]);
+
   const focusAfterServices = useCallback(() => {
     window.setTimeout(() => {
       document.getElementById('after-services')?.focus({ preventScroll: true });
@@ -215,11 +252,11 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
       {/*
         Desktop: sticky flex-col pane that holds the header at the top and
         fills the remaining height with the horizontally-scrolling cards.
-        Using `h-[100dvh]` (with h-screen fallback) avoids iOS Safari's
+        Using `h-[100vh] h-[100dvh]` avoids iOS Safari's
         bottom URL bar eating into the sticky region.
         Mobile: no sticky — content flows normally; header sits above cards.
       */}
-      <div className={`${isDisabled ? '' : 'sticky top-0 h-[100dvh] h-screen'} flex flex-col overflow-hidden`}>
+      <div className={`${isDisabled ? '' : 'sticky top-0 h-[100dvh] h-[100vh]'} flex flex-col overflow-hidden`}>
         {header && <div className="w-full shrink-0">{header}</div>}
 
         {/* Cards viewport — this is the positioning context for arrows,
@@ -239,9 +276,13 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
           {/* Desktop: Left Arrow (hidden at start) */}
           {!isDisabled && (
             <button
+              type="button"
               onClick={() => nudgeScroll('left')}
-              aria-label="Scroll left"
-              className={`absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-white/20 ${scrollProgress > 0.02 ? 'translate-x-0 opacity-100' : 'pointer-events-none -translate-x-4 opacity-0'} `}
+              aria-label="Scroll services left"
+              aria-hidden={!showLeft}
+              tabIndex={showLeft ? 0 : -1}
+              {...(!showLeft ? { inert: '' as unknown as boolean } : {})}
+              className={`absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${showLeft ? 'translate-x-0 opacity-100' : 'pointer-events-none -translate-x-4 opacity-0'}`}
             >
               <ChevronLeft size={22} />
             </button>
@@ -250,9 +291,13 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
           {/* Desktop: Right Arrow (hidden at end) */}
           {!isDisabled && (
             <button
+              type="button"
               onClick={() => nudgeScroll('right')}
-              aria-label="Scroll right"
-              className={`absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-white/20 ${scrollProgress < 0.98 ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-4 opacity-0'} `}
+              aria-label="Scroll services right"
+              aria-hidden={!showRight}
+              tabIndex={showRight ? 0 : -1}
+              {...(!showRight ? { inert: '' as unknown as boolean } : {})}
+              className={`absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${showRight ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-4 opacity-0'}`}
             >
               <ChevronRight size={22} />
             </button>
@@ -276,12 +321,6 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
             <div
               className="h-full rounded-full bg-[#4ADE80] transition-all duration-100 ease-linear"
               style={{ width: `${scrollProgress * 100}%` }}
-              role="progressbar"
-              aria-valuenow={Math.round(scrollProgress * 100)}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuetext={`${Math.round(scrollProgress * 100)}% through services`}
-              aria-label="Horizontal scroll progress"
             />
           </div>
         </div>
