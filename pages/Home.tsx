@@ -470,12 +470,7 @@ const Home: React.FC = () => {
         <FAQPreview />
       </LazyHomeSection>
 
-      {/* 8. MARQUEE */}
-      <LazyHomeSection intrinsicSize="auto 220px">
-        <Marquee />
-      </LazyHomeSection>
-
-      {/* 9. LOCATION STRIP */}
+      {/* 8. LOCATION STRIP */}
       <LazyHomeSection intrinsicSize="auto 1200px">
         <LocationStrip />
       </LazyHomeSection>
