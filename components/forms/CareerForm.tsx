@@ -75,7 +75,7 @@ const careerSchema = createFormSchema<CareerFormValues>({
   whyJoin: [maxLength(1500, 'Maximum 1500 characters allowed')],
 });
 
-const CareerForm = ({ initialPosition }: CareerFormProps): JSX.Element => {
+const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

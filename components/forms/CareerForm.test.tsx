@@ -156,7 +156,7 @@ describe('CareerForm', () => {
   });
 
   it('restores a saved draft when the user resumes', async () => {
-    draftLastSaved = new Date('2026-04-24T10:00:00+05:30');
+    draftLastSaved = new Date(Date.now() - 24 * 60 * 60 * 1000);
     mocks.loadDraft.mockReturnValue({
       fullName: 'Draft Candidate',
       fatherName: 'Draft Parent',

@@ -33,24 +33,20 @@ const FormField: React.FC<FormFieldProps> = ({
         {required && <span className="sr-only"> (required)</span>}
       </label>
 
-      {React.isValidElement(children)
-        ? React.cloneElement(
-            children as React.ReactElement<{
-              id?: string;
-              name?: string;
-              className?: string;
-              'aria-invalid'?: boolean;
-              'aria-describedby'?: string;
-            }>,
-            {
-              id: name,
-              name,
-              'aria-invalid': !!error,
-              'aria-describedby': error ? `${name}-error` : hint ? `${name}-hint` : undefined,
-              className:
-                `${children.props.className || ''} ${error ? 'border-red-500 ring-1 ring-red-500' : ''}`.trim(),
-            },
-          )
+      {React.isValidElement<{
+        id?: string;
+        name?: string;
+        className?: string;
+        'aria-invalid'?: boolean;
+        'aria-describedby'?: string;
+      }>(children)
+        ? React.cloneElement(children, {
+            id: name,
+            name,
+            'aria-invalid': !!error,
+            'aria-describedby': error ? `${name}-error` : hint ? `${name}-hint` : undefined,
+            className: `${children.props.className || ''} ${error ? 'border-red-500 ring-1 ring-red-500' : ''}`.trim(),
+          })
         : children}
 
       {hint && !error && (

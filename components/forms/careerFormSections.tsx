@@ -127,7 +127,7 @@ export const StepContact = React.forwardRef<HTMLInputElement, StepContactProps>(
 });
 
 interface StepProfessionalProps {
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
   values: CareerFormValues;
   errors: CareerFormErrors;
   onInputChange: TextChangeHandler;

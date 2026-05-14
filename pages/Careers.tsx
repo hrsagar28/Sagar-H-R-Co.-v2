@@ -31,7 +31,7 @@ const buildJobPostingDescription = (role: (typeof OPEN_ROLES)[number]) => {
   ].join('');
 };
 
-const Careers = (): JSX.Element => {
+const Careers = (): React.JSX.Element => {
   const [selectedPosition, setSelectedPosition] = useState<string>('');
   const { announce } = useAnnounce();
   const careersMetaDescription = `${OPEN_ROLES.length} open roles - Audit Associate (full-time) and Articled Assistant (internship) at a Mysuru-based CA firm.`;

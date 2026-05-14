@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Linkedin, ArrowUp } from 'lucide-react';
+import { Share2, ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import { toRomanNumeral } from '../utils/toRomanNumeral';
 
@@ -35,7 +35,7 @@ const Footer: React.FC = React.memo(() => {
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 transition-all hover:bg-white hover:text-brand-dark"
                   aria-label="LinkedIn Profile (opens in new window)"
                 >
-                  <Linkedin size={20} />
+                  <Share2 size={20} />
                 </a>
               </div>
             </div>

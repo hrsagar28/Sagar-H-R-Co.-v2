@@ -217,7 +217,7 @@ export const WordReveal: React.FC<WordRevealProps> = ({ children, delay = 0.15, 
       return;
     }
 
-    if (isValidElement(node)) {
+    if (isValidElement<{ children?: ReactNode }>(node)) {
       if (node.type === React.Fragment) {
         extractWords(node.props.children);
         return;

@@ -39,7 +39,7 @@ const getFocusableElements = (element: HTMLElement) =>
  * @param {RefObject<HTMLElement>} containerRef - Ref to the container element.
  * @param {() => void} [onEscape] - Optional callback when Escape key is pressed.
  */
-export const useFocusTrap = (isActive: boolean, containerRef: RefObject<HTMLElement>, onEscape?: () => void) => {
+export const useFocusTrap = (isActive: boolean, containerRef: RefObject<HTMLElement | null>, onEscape?: () => void) => {
   useEffect(() => {
     if (!isActive || !containerRef.current) return;
 

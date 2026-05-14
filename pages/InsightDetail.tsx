@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useState, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Share2, Printer, Check, Twitter, Linkedin, ArrowUp, ArrowUpRight, Bookmark } from 'lucide-react';
+import { Share2, Printer, Check, X, ArrowUp, ArrowUpRight, Bookmark } from 'lucide-react';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Button from '../components/ui/Button';
@@ -18,7 +18,16 @@ const MarkdownRenderer = React.lazy(() => import('../components/MarkdownRenderer
 const READING_PROGRESS_RADIUS = 24;
 const SHARE_RESET_DELAY = 2500;
 
-const Tooltip: React.FC<{ id: string; label: string; children: React.ReactElement }> = ({ id, label, children }) => (
+type TooltipChildProps = {
+  'aria-describedby'?: string;
+  onKeyDown?: React.KeyboardEventHandler<HTMLElement>;
+};
+
+const Tooltip: React.FC<{ id: string; label: string; children: React.ReactElement<TooltipChildProps> }> = ({
+  id,
+  label,
+  children,
+}) => (
   <span className="group relative">
     {React.cloneElement(children, {
       'aria-describedby': id,
@@ -444,7 +453,7 @@ const InsightDetail: React.FC = () => {
                   aria-label="Share on X (opens in new window)"
                   className="zone-text-muted flex h-12 w-12 items-center justify-center rounded-xl transition-all hover:bg-black/5 hover:text-black"
                 >
-                  <Twitter size={20} aria-hidden="true" focusable="false" />
+                  <X size={20} aria-hidden="true" focusable="false" />
                 </a>
                 <a
                   href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`}
@@ -453,7 +462,7 @@ const InsightDetail: React.FC = () => {
                   aria-label="Share on LinkedIn (opens in new window)"
                   className="zone-text-muted flex h-12 w-12 items-center justify-center rounded-xl transition-all hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
                 >
-                  <Linkedin size={20} aria-hidden="true" focusable="false" />
+                  <Share2 size={20} aria-hidden="true" focusable="false" />
                 </a>
               </div>
             </div>

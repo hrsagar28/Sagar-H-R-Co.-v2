@@ -4,21 +4,19 @@ type SpotlightOptions = {
   disabled?: boolean;
 };
 
-const supportsFinePointer = () => (
+const supportsFinePointer = () =>
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
-  window.matchMedia('(hover: hover) and (pointer: fine)').matches
-);
+  window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-const prefersReducedMotion = () => (
+const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches
-);
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export const useSpotlight = (
-  containerRef: RefObject<HTMLElement>,
-  { disabled = false }: SpotlightOptions = {}
+  containerRef: RefObject<HTMLElement | null>,
+  { disabled = false }: SpotlightOptions = {},
 ) => {
   const rafRef = useRef<number>(0);
 
