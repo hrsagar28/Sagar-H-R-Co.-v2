@@ -6,7 +6,7 @@ import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useFormValidation, useToast, useRateLimit, useFormDraft } from '../hooks';
-import { createFormSchema, required, email, indianPhone } from '../utils/formValidation';
+import { createFormSchema, required, email, indianPhone, validateForm } from '../utils/formValidation';
 import { apiClient, ApiError } from '../utils/api';
 import { headerSafe, normalizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
@@ -66,6 +66,15 @@ const contactSchema = createFormSchema<ContactFormData>({
   message: [required('Message is required')],
 });
 
+const CONTACT_FIELD_ORDER: (keyof ContactFormData)[] = ['name', 'phone', 'email', 'message'];
+
+const focusContactField = (field: keyof ContactFormData) => {
+  window.requestAnimationFrame(() => {
+    const target = document.querySelector<HTMLElement>(`[name="${field}"], [aria-labelledby="${field}-label"]`);
+    target?.focus({ preventScroll: true });
+  });
+};
+
 const Contact: React.FC = () => {
   const { addToast } = useToast();
   const location = useLocation();
@@ -104,7 +113,7 @@ const Contact: React.FC = () => {
     storageKey: 'contact_form_limit',
   });
 
-  const { values, handleChange, errors, validate, setValues, setErrors } = useFormValidation<ContactFormData>(
+  const { values, handleChange, errors, setValues, setErrors } = useFormValidation<ContactFormData>(
     {
       ...INITIAL_CONTACT,
       subject: initialSubject,
@@ -208,13 +217,18 @@ const Contact: React.FC = () => {
 
     recordAttempt();
 
+    const validationErrors = validateForm(values, contactSchema);
     const hasMissingOtherSubject = values.subject === 'Other' && !values.subjectOther.trim();
-    const isFormValid = validate();
 
-    if (!isFormValid || hasMissingOtherSubject) {
-      if (hasMissingOtherSubject) {
-        setErrors((prev) => ({ ...prev, subjectOther: 'Please specify your subject' }));
-      }
+    if (Object.keys(validationErrors).length > 0 || hasMissingOtherSubject) {
+      setErrors({
+        ...validationErrors,
+        ...(hasMissingOtherSubject ? { subjectOther: 'Please specify your subject' } : {}),
+      });
+      const firstErrorField =
+        CONTACT_FIELD_ORDER.find((field) => validationErrors[field]) ||
+        (hasMissingOtherSubject ? 'subjectOther' : undefined);
+      if (firstErrorField) focusContactField(firstErrorField);
       addToast('Please correct the errors in the form.', 'error');
       return;
     }

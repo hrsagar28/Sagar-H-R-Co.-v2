@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type Ref } from 'react';
 import { Briefcase } from 'lucide-react';
 import FormField from '../ui/FormField';
 import CustomDropdown from './CustomDropdown';
@@ -29,12 +29,18 @@ interface StepPersonalProps {
   onCustomChange: CustomChangeHandler;
   dobMinDate: string;
   dobMaxDate: string;
+  ref?: Ref<HTMLInputElement>;
 }
 
-export const StepPersonal = React.forwardRef<HTMLInputElement, StepPersonalProps>(function StepPersonal(
-  { values, errors, onInputChange, onCustomChange, dobMinDate, dobMaxDate },
+export function StepPersonal({
+  values,
+  errors,
+  onInputChange,
+  onCustomChange,
+  dobMinDate,
+  dobMaxDate,
   ref,
-) {
+}: StepPersonalProps) {
   return (
     <div className="animate-fade-in-up">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -78,18 +84,16 @@ export const StepPersonal = React.forwardRef<HTMLInputElement, StepPersonalProps
       </div>
     </div>
   );
-});
+}
 
 interface StepContactProps {
   values: CareerFormValues;
   errors: CareerFormErrors;
   onInputChange: TextChangeHandler;
+  ref?: Ref<HTMLInputElement>;
 }
 
-export const StepContact = React.forwardRef<HTMLInputElement, StepContactProps>(function StepContact(
-  { values, errors, onInputChange },
-  ref,
-) {
+export function StepContact({ values, errors, onInputChange, ref }: StepContactProps) {
   return (
     <div className="animate-fade-in-up">
       <div className="grid grid-cols-1 gap-8">
@@ -124,7 +128,7 @@ export const StepContact = React.forwardRef<HTMLInputElement, StepContactProps>(
       </div>
     </div>
   );
-});
+}
 
 interface StepProfessionalProps {
   containerRef: React.RefObject<HTMLDivElement | null>;

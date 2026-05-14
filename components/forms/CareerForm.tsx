@@ -11,7 +11,15 @@ import {
   StepReview,
 } from './careerFormSections';
 import { useFormValidation, useToast, useRateLimit, useFormDraft, useAnnounce, useReducedMotion } from '../../hooks';
-import { createFormSchema, required, email, indianPhone, minLength, maxLength } from '../../utils/formValidation';
+import {
+  createFormSchema,
+  required,
+  email,
+  indianPhone,
+  minLength,
+  maxLength,
+  validateForm,
+} from '../../utils/formValidation';
 import { apiClient, ApiError } from '../../utils/api';
 import { CONTACT_INFO } from '../../constants';
 import { CAREERS_CONTACT_EMAIL, CAREERS_RESPONSE_SLA_DAYS, OPEN_ROLES } from '../../constants/careers';
@@ -30,6 +38,18 @@ const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years'];
 const STEP_TRANSITION_MS = 100;
 const STEP_LABELS = ['Personal', 'Contact', 'Professional', 'Review'] as const;
 const MIN_DOB = '1940-01-01';
+const CAREER_FIELD_ORDER: (keyof CareerFormValues)[] = [
+  'fullName',
+  'fatherName',
+  'dob',
+  'mobile',
+  'email',
+  'position',
+  'qualification',
+  'experience',
+  'previousCompanies',
+  'whyJoin',
+];
 const LAST_SAVED_DATE_FORMATTER = new Intl.DateTimeFormat('en-IN', {
   day: 'numeric',
   month: 'short',
@@ -61,6 +81,15 @@ const createInitialValues = (initialPosition?: string): CareerFormValues => ({
   whyJoin: '',
   position: initialPosition || '',
 });
+
+const focusCareerField = (field: keyof CareerFormValues) => {
+  window.requestAnimationFrame(() => {
+    const target = document.querySelector<HTMLElement>(
+      `[name="${field}"], #${field}-trigger, [aria-labelledby="${field}-label"]`,
+    );
+    target?.focus({ preventScroll: true });
+  });
+};
 
 const careerSchema = createFormSchema<CareerFormValues>({
   fullName: [required('Full Name is required'), minLength(2), maxLength(100)],
@@ -206,6 +235,11 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
 
   const validateStep = (step: 1 | 2 | 3 | 4) => validate(stepSchemas[step]);
 
+  const getFirstStepErrorField = (step: 1 | 2 | 3 | 4) => {
+    const stepErrors = validateForm(values, stepSchemas[step]);
+    return CAREER_FIELD_ORDER.find((field) => stepErrors[field]);
+  };
+
   const transitionToStep = (nextStep: number) => {
     setIsTransitioning(true);
     window.setTimeout(
@@ -222,6 +256,8 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
     if (isTransitioning) return;
     const validationStep = currentStep === 3 ? 4 : (currentStep as 1 | 2 | 3);
     if (!validateStep(validationStep)) {
+      const firstErrorField = getFirstStepErrorField(validationStep);
+      if (firstErrorField) focusCareerField(firstErrorField);
       addToast('Please fill in all required fields correctly.', 'error');
       return;
     }
@@ -251,6 +287,8 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
     }
 
     if (!validateStep(4)) {
+      const firstErrorField = getFirstStepErrorField(4);
+      if (firstErrorField) focusCareerField(firstErrorField);
       addToast('Please fill in all required fields correctly.', 'error');
       return;
     }
