@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { stringifyJsonLd } from '../utils/jsonLd';
 import { SITE_URL } from '../config/site';
 
@@ -53,8 +53,8 @@ const toAbsoluteUrl = (url: string) =>
 /**
  * SEO Component
  *
- * Manages document head elements including title, meta tags, Open Graph tags,
- * and JSON-LD structured data for search engine optimization.
+ * Renders native React 19 document metadata. React hoists title, meta, link,
+ * and JSON-LD script elements into the document head and reconciles them.
  *
  * @example
  * <SEO
@@ -78,121 +78,22 @@ const SEO: React.FC<SEOProps> = ({
   faqs,
   alternates,
 }) => {
-  useEffect(() => {
-    // Update Title
-    document.title = title;
+  const breadcrumbSchema =
+    breadcrumbs && breadcrumbs.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: breadcrumbs.map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.name,
+            item: toAbsoluteUrl(item.url),
+          })),
+        }
+      : null;
 
-    // Helper to strictly find and update, or create meta tags
-    const updateMeta = (nameAttr: string, nameVal: string, content: string) => {
-      let element = document.querySelector(`meta[${nameAttr}="${nameVal}"]`);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(nameAttr, nameVal);
-        document.head.appendChild(element);
-      }
-      // Only update if content is different to minimize DOM thrashing
-      if (element.getAttribute('content') !== content) {
-        element.setAttribute('content', content);
-      }
-    };
-
-    // Standard Meta
-    updateMeta('name', 'description', description);
-    updateMeta('name', 'keywords', keywords);
-    updateMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow');
-
-    // Open Graph
-    updateMeta('property', 'og:title', title);
-    updateMeta('property', 'og:description', description);
-    updateMeta('property', 'og:url', canonicalUrl);
-    updateMeta('property', 'og:type', ogType);
-    updateMeta('property', 'og:image', ogImage);
-    updateMeta('property', 'og:locale', 'en_IN');
-
-    document.querySelectorAll('meta[data-dynamic-article-meta]').forEach((articleMeta) => articleMeta.remove());
-    if (article) {
-      const addArticleMeta = (property: string, content: string) => {
-        const articleMeta = document.createElement('meta');
-        articleMeta.setAttribute('data-dynamic-article-meta', 'true');
-        articleMeta.setAttribute('property', property);
-        articleMeta.setAttribute('content', content);
-        document.head.appendChild(articleMeta);
-      };
-
-      addArticleMeta('article:published_time', article.datePublished);
-      addArticleMeta('article:modified_time', article.dateModified || article.datePublished);
-      addArticleMeta('article:author', article.author);
-      if (article.section) addArticleMeta('article:section', article.section);
-      article.tags?.forEach((tag) => addArticleMeta('article:tag', tag));
-    }
-
-    // Twitter Card
-    updateMeta('name', 'twitter:card', 'summary_large_image');
-    updateMeta('name', 'twitter:title', title);
-    updateMeta('name', 'twitter:description', description);
-    updateMeta('name', 'twitter:image', ogImage);
-    updateMeta('name', 'twitter:site', '@casagarhr');
-    updateMeta('name', 'twitter:creator', '@casagarhr');
-
-    // Canonical Link
-    let link = document.querySelector('link[rel="canonical"]');
-    if (!link) {
-      link = document.createElement('link');
-      link.setAttribute('rel', 'canonical');
-      document.head.appendChild(link);
-    }
-    if (link.getAttribute('href') !== canonicalUrl) {
-      link.setAttribute('href', canonicalUrl);
-    }
-
-    document.querySelectorAll('link[data-dynamic-alternate]').forEach((alternate) => alternate.remove());
-    alternates?.forEach((alternate) => {
-      const alternateLink = document.createElement('link');
-      alternateLink.setAttribute('data-dynamic-alternate', 'true');
-      alternateLink.setAttribute('rel', alternate.rel || 'alternate');
-      if (alternate.type) alternateLink.setAttribute('type', alternate.type);
-      if (alternate.title) alternateLink.setAttribute('title', alternate.title);
-      alternateLink.setAttribute(
-        'href',
-        alternate.href.startsWith('http')
-          ? alternate.href
-          : `${SITE_URL}${alternate.href.startsWith('/') ? '' : '/'}${alternate.href}`,
-      );
-      document.head.appendChild(alternateLink);
-    });
-
-    // Clean up all existing dynamic JSON-LD tags
-    const existingScripts = document.querySelectorAll('script[data-dynamic-schema]');
-    existingScripts.forEach((script) => script.remove());
-
-    const addSchema = (id: string, data: object) => {
-      const script = document.createElement('script');
-      script.id = `json-ld-${id}`;
-      script.setAttribute('data-dynamic-schema', 'true');
-      script.type = 'application/ld+json';
-      script.text = stringifyJsonLd(data);
-      document.head.appendChild(script);
-    };
-
-    if (schema) {
-      addSchema('schema', schema);
-    }
-
-    if (breadcrumbs && breadcrumbs.length > 0) {
-      addSchema('breadcrumbs', {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: breadcrumbs.map((item, index) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          name: item.name,
-          item: item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url.startsWith('/') ? '' : '/'}${item.url}`,
-        })),
-      });
-    }
-
-    if (article) {
-      addSchema('article', {
+  const articleSchema = article
+    ? {
         '@context': 'https://schema.org',
         '@type': 'Article',
         headline: article.headline,
@@ -206,10 +107,7 @@ const SEO: React.FC<SEOProps> = ({
         publisher: {
           '@type': 'Organization',
           name: 'Sagar H R & Co.',
-          logo: {
-            '@type': 'ImageObject',
-            url: `${SITE_URL}/logo.png`,
-          },
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}/logo.png` },
         },
         datePublished: article.datePublished,
         ...(article.dateModified ? { dateModified: article.dateModified } : {}),
@@ -217,77 +115,96 @@ const SEO: React.FC<SEOProps> = ({
         ...(article.tags?.length ? { keywords: article.tags.join(', ') } : {}),
         ...(article.wordCount ? { wordCount: article.wordCount } : {}),
         image: article.image ? toAbsoluteUrl(article.image) : ogImage,
-        mainEntityOfPage: {
-          '@type': 'WebPage',
-          '@id': canonicalUrl,
-        },
-      });
-    }
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+      }
+    : null;
 
-    if (service) {
-      addSchema('service', {
+  const serviceSchema = service
+    ? {
         '@context': 'https://schema.org',
         '@type': 'Service',
         name: service.name,
         description: service.description,
-        provider: {
-          '@id': `${SITE_URL}/#organization`,
-        },
-        ...(service.areaServed
-          ? {
-              areaServed: {
-                '@type': 'City',
-                name: service.areaServed,
-              },
-            }
-          : {}),
-      });
-    }
+        provider: { '@id': `${SITE_URL}/#organization` },
+        ...(service.areaServed ? { areaServed: { '@type': 'City', name: service.areaServed } } : {}),
+      }
+    : null;
 
-    if (faqs && faqs.length > 0) {
-      const faqPageDateModified = faqs
-        .map((faq) => faq.dateModified)
-        .filter((date): date is string => Boolean(date))
-        .sort((left, right) => new Date(right).getTime() - new Date(left).getTime())[0];
+  const faqPageDateModified = faqs
+    ?.map((faq) => faq.dateModified)
+    .filter((date): date is string => Boolean(date))
+    .sort((left, right) => new Date(right).getTime() - new Date(left).getTime())[0];
 
-      addSchema('faqs', {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        ...(faqPageDateModified ? { dateModified: faqPageDateModified } : {}),
-        mainEntity: faqs.map((faq) => ({
-          '@type': 'Question',
-          name: faq.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: faq.answer,
-            ...(faq.dateModified ? { dateModified: faq.dateModified } : {}),
-          },
-        })),
-      });
-    }
+  const faqSchema =
+    faqs && faqs.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          ...(faqPageDateModified ? { dateModified: faqPageDateModified } : {}),
+          mainEntity: faqs.map((faq) => ({
+            '@type': 'Question',
+            name: faq.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: faq.answer,
+              ...(faq.dateModified ? { dateModified: faq.dateModified } : {}),
+            },
+          })),
+        }
+      : null;
 
-    return () => {
-      document.querySelectorAll('script[data-dynamic-schema]').forEach((s) => s.remove());
-      document.querySelectorAll('link[data-dynamic-alternate]').forEach((s) => s.remove());
-      document.querySelectorAll('meta[data-dynamic-article-meta]').forEach((s) => s.remove());
-    };
-  }, [
-    title,
-    description,
-    keywords,
-    canonicalUrl,
-    ogType,
-    noindex,
-    ogImage,
-    schema,
-    breadcrumbs,
-    article,
-    service,
-    faqs,
-    alternates,
-  ]);
+  return (
+    <>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
 
-  return null;
+      <link rel="canonical" href={canonicalUrl} />
+
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:type" content={ogType} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:locale" content="en_IN" />
+
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:site" content="@casagarhr" />
+      <meta name="twitter:creator" content="@casagarhr" />
+
+      {article && (
+        <>
+          <meta property="article:published_time" content={article.datePublished} />
+          <meta property="article:modified_time" content={article.dateModified || article.datePublished} />
+          <meta property="article:author" content={article.author} />
+          {article.section ? <meta property="article:section" content={article.section} /> : null}
+          {article.tags?.map((tag) => (
+            <meta key={tag} property="article:tag" content={tag} />
+          ))}
+        </>
+      )}
+
+      {alternates?.map((alt) => (
+        <link
+          key={alt.href}
+          rel={alt.rel || 'alternate'}
+          {...(alt.type ? { type: alt.type } : {})}
+          {...(alt.title ? { title: alt.title } : {})}
+          href={toAbsoluteUrl(alt.href)}
+        />
+      ))}
+
+      {schema && <script type="application/ld+json">{stringifyJsonLd(schema)}</script>}
+      {breadcrumbSchema && <script type="application/ld+json">{stringifyJsonLd(breadcrumbSchema)}</script>}
+      {articleSchema && <script type="application/ld+json">{stringifyJsonLd(articleSchema)}</script>}
+      {serviceSchema && <script type="application/ld+json">{stringifyJsonLd(serviceSchema)}</script>}
+      {faqSchema && <script type="application/ld+json">{stringifyJsonLd(faqSchema)}</script>}
+    </>
+  );
 };
 
 export default SEO;
