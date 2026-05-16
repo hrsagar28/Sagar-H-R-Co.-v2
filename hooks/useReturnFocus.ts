@@ -1,9 +1,8 @@
-
 import { useEffect, useRef } from 'react';
 
 /**
  * Hook to restore focus to the previously focused element when a component (like a modal) unmounts or closes.
- * 
+ *
  * @param {boolean} isOpen - Boolean indicating if the modal/overlay is currently open.
  */
 export const useReturnFocus = (isOpen: boolean) => {
@@ -15,7 +14,7 @@ export const useReturnFocus = (isOpen: boolean) => {
     } else if (lastFocusedElement.current && !isOpen) {
       // Small delay to allow the modal to unmount/close completely
       setTimeout(() => {
-          lastFocusedElement.current?.focus();
+        lastFocusedElement.current?.focus();
       }, 50);
     }
   }, [isOpen]);

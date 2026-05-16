@@ -4,7 +4,7 @@ import { Share2, ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import { toRomanNumeral } from '../utils/toRomanNumeral';
 
-const Footer: React.FC = React.memo(() => {
+const Footer: React.FC = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -178,6 +178,6 @@ const Footer: React.FC = React.memo(() => {
       </div>
     </footer>
   );
-});
+};
 
 export default Footer;

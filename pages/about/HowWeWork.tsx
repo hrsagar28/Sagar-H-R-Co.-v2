@@ -16,17 +16,19 @@ const workCards = [
 ];
 
 export const HowWeWork: React.FC = () => (
-  <section id="how-we-work" aria-labelledby="how-we-work-heading" className="py-24 px-4 md:px-6 zone-bg">
+  <section id="how-we-work" aria-labelledby="how-we-work-heading" className="zone-bg px-4 py-24 md:px-6">
     <div className="container mx-auto max-w-7xl">
       <div className="mb-12 max-w-3xl">
-        <span className="text-zone-accent font-bold tracking-widest uppercase text-xs mb-4 block">How We Work</span>
-        <h2 id="how-we-work-heading" className="text-4xl md:text-6xl font-heading font-bold zone-text leading-tight">Direct, accountable, practical.</h2>
+        <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-zone-accent">How We Work</span>
+        <h2 id="how-we-work-heading" className="zone-text font-heading text-4xl font-bold leading-tight md:text-6xl">
+          Direct, accountable, practical.
+        </h2>
       </div>
-      <ul role="list" className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <ul role="list" className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {workCards.map((card) => (
-          <li key={card.title} className="zone-surface rounded-bento border zone-border p-8 md:p-10">
-            <h3 className="text-2xl font-heading font-bold zone-text mb-4">{card.title}</h3>
-            <p className="text-zone-text-muted/90 leading-relaxed">{card.body}</p>
+          <li key={card.title} className="zone-surface zone-border rounded-bento border p-8 md:p-10">
+            <h3 className="zone-text mb-4 font-heading text-2xl font-bold">{card.title}</h3>
+            <p className="leading-relaxed text-zone-text-muted/90">{card.body}</p>
           </li>
         ))}
       </ul>

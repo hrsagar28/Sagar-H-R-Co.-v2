@@ -6,26 +6,30 @@ export interface BaseHeroProps {
   eyebrow?: string;
   title: React.ReactNode;
   blurb?: string;
-  accentTone?: 'moss' | 'brass' | 'rust';    // default derives from zone
+  accentTone?: 'moss' | 'brass' | 'rust'; // default derives from zone
 }
 export interface BasicHeroProps extends BaseHeroProps {
   variant?: 'basic';
-  tag?: string; subtitle?: string; description?: string; className?: string;
+  tag?: string;
+  subtitle?: string;
+  description?: string;
+  className?: string;
 }
 export interface SplitHeroProps extends BaseHeroProps {
   variant: 'split';
-  meta: Array<{ label: string; value: React.ReactNode }>;   // 2–4 entries, qualitative OK
+  meta: Array<{ label: string; value: React.ReactNode }>; // 2–4 entries, qualitative OK
 }
 export interface FolioHeroProps extends BaseHeroProps {
   variant: 'folio';
-  number: string;               // e.g. "I.", "II."
+  number: string; // e.g. "I.", "II."
   sideText?: string;
   compact?: boolean;
 }
 export interface LedgerHeroProps extends BaseHeroProps {
   variant: 'ledger';
   stats: Array<{ num: React.ReactNode; label: string }>;
-  ctaLabel?: string; ctaHref?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 export interface FrontispieceHeroProps extends BaseHeroProps {
   variant: 'frontispiece';
@@ -41,8 +45,13 @@ export interface DirectoryHeroProps extends BaseHeroProps {
   variant: 'directory';
   coordinates?: React.ReactNode;
   contacts: Array<{ label: string; value: string; href?: string }>;
-  ghostWord?: string;                         // default "Engage."
+  ghostWord?: string; // default "Engage."
 }
-export type PageHeroProps = BasicHeroProps | SplitHeroProps | FolioHeroProps | LedgerHeroProps | FrontispieceHeroProps | ArchiveHeroProps | DirectoryHeroProps;
-
-
+export type PageHeroProps =
+  | BasicHeroProps
+  | SplitHeroProps
+  | FolioHeroProps
+  | LedgerHeroProps
+  | FrontispieceHeroProps
+  | ArchiveHeroProps
+  | DirectoryHeroProps;

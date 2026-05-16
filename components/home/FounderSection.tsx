@@ -18,6 +18,7 @@ import Reveal from '../Reveal';
  */
 
 const FounderSection: React.FC = () => {
+  'use memo';
   return (
     <section className="relative overflow-hidden bg-brand-surface py-32">
       {/* Subtle grid background */}

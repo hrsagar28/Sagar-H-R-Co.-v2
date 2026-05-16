@@ -9,12 +9,7 @@ interface MagneticButtonProps {
   strength?: number; // How strong the magnetic pull is (higher = moves more)
 }
 
-const MagneticButton: React.FC<MagneticButtonProps> = ({ 
-  children, 
-  className = "", 
-  onClick,
-  strength = 0.5 
-}) => {
+const MagneticButton: React.FC<MagneticButtonProps> = ({ children, className = '', onClick, strength = 0.5 }) => {
   const btnRef = useRef<HTMLButtonElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -48,36 +43,29 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({
       onMouseEnter={handleMouseEnter}
       style={{
         transform: shouldReduceMotion ? 'none' : `translate(${position.x}px, ${position.y}px)`,
-        transition: isHovered ? 'transform 0.1s linear' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+        transition: isHovered ? 'transform 0.1s linear' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
       }}
-      className={`
-        relative overflow-hidden px-8 py-4 rounded-full font-bold text-sm tracking-widest uppercase
-        flex items-center justify-center gap-4 group
-        bg-white text-brand-dark border border-white/20 shadow-xl
-        hover:shadow-2xl hover:shadow-brand-moss/20
-        ${className}
-      `}
+      className={`group relative flex items-center justify-center gap-4 overflow-hidden rounded-full border border-white/20 bg-white px-8 py-4 text-sm font-bold uppercase tracking-widest text-brand-dark shadow-xl hover:shadow-2xl hover:shadow-brand-moss/20 ${className} `}
     >
       {/* Liquid Background Fill */}
-      <div className={`
-        absolute inset-0 bg-brand-moss rounded-full translate-y-full group-hover:translate-y-0
-        transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] -z-0
-        ${shouldReduceMotion ? 'duration-0' : ''}
-      `}></div>
-      
+      <div
+        className={`absolute inset-0 -z-0 translate-y-full rounded-full bg-brand-moss transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 ${shouldReduceMotion ? 'duration-0' : ''} `}
+      ></div>
+
       {/* Content */}
-      <span className="relative z-10 group-hover:text-white transition-colors duration-300 flex items-center gap-2">
+      <span className="relative z-10 flex items-center gap-2 transition-colors duration-300 group-hover:text-white">
         {children}
       </span>
-      
-      {/* Icon Circle */}
-      <div className={`
-        relative z-10 w-8 h-8 rounded-full bg-brand-dark text-white flex items-center justify-center
-        group-hover:bg-white group-hover:text-brand-dark transition-colors duration-300
-      `}>
-        <ArrowRight size={14} className={`transition-transform duration-500 ${shouldReduceMotion ? '' : 'group-hover:-rotate-45'}`} />
-      </div>
 
+      {/* Icon Circle */}
+      <div
+        className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-brand-dark text-white transition-colors duration-300 group-hover:bg-white group-hover:text-brand-dark`}
+      >
+        <ArrowRight
+          size={14}
+          className={`transition-transform duration-500 ${shouldReduceMotion ? '' : 'group-hover:-rotate-45'}`}
+        />
+      </div>
     </button>
   );
 };

@@ -1,6 +1,6 @@
 import { validateEmail, validatePhone } from './validation';
 
-export const required = (fieldName: string) => (value: string) => 
+export const required = (fieldName: string) => (value: string) =>
   !value?.toString().trim() ? `${fieldName} is required` : undefined;
 
 export const phoneValidation = (value: string) => {
@@ -9,11 +9,13 @@ export const phoneValidation = (value: string) => {
   return undefined;
 };
 
-export const emailValidation = (isRequired = true) => (value: string) => {
-  if (!value?.trim()) return isRequired ? 'Email is required' : undefined;
-  if (!validateEmail(value)) return 'Invalid email address';
-  return undefined;
-};
+export const emailValidation =
+  (isRequired = true) =>
+  (value: string) => {
+    if (!value?.trim()) return isRequired ? 'Email is required' : undefined;
+    if (!validateEmail(value)) return 'Invalid email address';
+    return undefined;
+  };
 
 export const minLength = (min: number) => (value: string) =>
   value && value.length < min ? `Must be at least ${min} characters` : undefined;

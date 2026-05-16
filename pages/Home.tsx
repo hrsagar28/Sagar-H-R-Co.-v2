@@ -14,7 +14,7 @@ import {
 } from '../components';
 import TrustBar from '../components/home/TrustBar';
 import { CONTACT_INFO, SERVICES } from '../constants';
-import { useInsights } from '../hooks';
+import { useInsights, useMediaQuery } from '../hooks';
 import { BigCTA } from '../components/ui/BigCTA';
 import { SITE_URL } from '../config/site';
 
@@ -33,6 +33,7 @@ const LazyHomeSection: React.FC<LazyHomeSectionProps> = ({
   intrinsicSize,
   rootMargin = '900px 0px',
 }) => {
+  'use memo';
   const ref = React.useRef<HTMLDivElement>(null);
   const [shouldRender, setShouldRender] = React.useState(false);
 
@@ -71,8 +72,13 @@ const LazyHomeSection: React.FC<LazyHomeSectionProps> = ({
 };
 
 const Home: React.FC = () => {
+  'use memo';
   const { insights } = useInsights();
   const recentInsights = insights.slice(0, 3);
+  // Gate the two recent-insights layouts so only the one for the current
+  // viewport mounts — avoids running the desktop card grid's Intersection
+  // observers on mobile and vice versa. `md` breakpoint = 768px.
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const schema = {
     '@context': 'https://schema.org',
@@ -167,7 +173,7 @@ const Home: React.FC = () => {
             <Reveal delay={0.05} variant="fade-up">
               <div className="mb-8 flex flex-col gap-2">
                 <div className="inline-flex w-fit items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-xl">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-brand-accent shadow-[0_0_12px_var(--color-brand-accent)]"></div>
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-brand-accent shadow-[0_0_12px_theme(colors.brand.accent)]"></div>
                   <span>Mysuru</span>
                 </div>
                 <p className="font-heading text-xl font-bold tracking-wide text-white/80 md:text-2xl">
@@ -374,92 +380,96 @@ const Home: React.FC = () => {
                 </Reveal>
               </div>
 
-              {/* Mobile: compact list view */}
-              <div className="divide-y divide-brand-border/60 md:hidden">
-                {recentInsights.map((insight, i) => (
-                  <Reveal key={insight.id} delay={i * 0.05} width="100%">
-                    <Link
-                      to={`/insights/${insight.slug}`}
-                      className="group -mx-1 flex items-center gap-4 rounded-xl px-1 py-4 transition-colors hover:bg-brand-bg/80"
-                    >
-                      <span className="w-6 shrink-0 font-mono text-xs font-bold tabular-nums text-brand-moss/70">
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="mb-1 font-heading text-base font-bold leading-snug text-brand-dark transition-colors group-hover:text-brand-moss">
-                          {insight.title}
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-brand-moss">
-                            {insight.category}
-                          </span>
-                          <span className="text-xs text-brand-border">·</span>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-brand-dark">
-                            {insight.date}
-                          </span>
-                        </div>
-                      </div>
-                      <ArrowRight
-                        size={14}
-                        className="shrink-0 text-brand-dark transition-transform group-hover:translate-x-1"
-                      />
-                    </Link>
-                  </Reveal>
-                ))}
-              </div>
-
-              {/* Desktop: card grid */}
-              <div className="hidden grid-cols-3 gap-8 md:grid">
-                {recentInsights.map((insight, i) => (
-                  <Reveal key={insight.id} delay={i * 0.1} width="100%">
-                    <Link to={`/insights/${insight.slug}`} className="group block h-full">
-                      <article className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-border bg-brand-bg transition-all duration-500 hover:-translate-y-2 hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10">
-                        <div className="h-1 w-0 bg-gradient-to-r from-brand-moss to-brand-accent transition-all duration-700 group-hover:w-full" />
-
-                        <div className="flex flex-grow flex-col p-6 md:p-8">
-                          <div className="mb-6 flex items-center justify-between">
-                            <span className="rounded-full bg-brand-moss/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-moss">
-                              {insight.category}
-                            </span>
-                            <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                              {insight.readTime}
-                            </span>
-                          </div>
-
-                          <h3 className="mb-4 line-clamp-2 font-heading text-2xl font-bold leading-tight text-brand-dark transition-colors group-hover:text-brand-moss">
+              {/* Mobile: compact list view — only mounts below the md breakpoint */}
+              {!isDesktop && (
+                <div className="divide-y divide-brand-border/60">
+                  {recentInsights.map((insight, i) => (
+                    <Reveal key={insight.id} delay={i * 0.05} width="100%">
+                      <Link
+                        to={`/insights/${insight.slug}`}
+                        className="group -mx-1 flex items-center gap-4 rounded-xl px-1 py-4 transition-colors hover:bg-brand-bg/80"
+                      >
+                        <span className="w-6 shrink-0 font-mono text-xs font-bold tabular-nums text-brand-moss/70">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="mb-1 font-heading text-base font-bold leading-snug text-brand-dark transition-colors group-hover:text-brand-moss">
                             {insight.title}
                           </h3>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-moss">
+                              {insight.category}
+                            </span>
+                            <span className="text-xs text-brand-border">·</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-dark">
+                              {insight.date}
+                            </span>
+                          </div>
+                        </div>
+                        <ArrowRight
+                          size={14}
+                          className="shrink-0 text-brand-dark transition-transform group-hover:translate-x-1"
+                        />
+                      </Link>
+                    </Reveal>
+                  ))}
+                </div>
+              )}
 
-                          <p className="mb-6 line-clamp-3 flex-grow font-medium leading-relaxed text-brand-dark">
-                            {insight.summary}
-                          </p>
+              {/* Desktop: card grid — only mounts at or above the md breakpoint */}
+              {isDesktop && (
+                <div className="grid grid-cols-3 gap-8">
+                  {recentInsights.map((insight, i) => (
+                    <Reveal key={insight.id} delay={i * 0.1} width="100%">
+                      <Link to={`/insights/${insight.slug}`} className="group block h-full">
+                        <article className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-border bg-brand-bg transition-all duration-500 hover:-translate-y-2 hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10">
+                          <div className="h-1 w-0 bg-gradient-to-r from-brand-moss to-brand-accent transition-all duration-700 group-hover:w-full" />
 
-                          <div className="flex items-center justify-between border-t border-brand-border/50 pt-6">
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-moss/10 text-xs font-bold text-brand-moss">
-                                {insight.author
-                                  .split(' ')
-                                  .map((n: string) => n[0])
-                                  .join('')}
-                              </div>
+                          <div className="flex flex-grow flex-col p-6 md:p-8">
+                            <div className="mb-6 flex items-center justify-between">
+                              <span className="rounded-full bg-brand-moss/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-moss">
+                                {insight.category}
+                              </span>
                               <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                                {insight.date}
+                                {insight.readTime}
                               </span>
                             </div>
 
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border text-brand-dark transition-all duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
-                              <ArrowRight
-                                size={16}
-                                className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
-                              />
+                            <h3 className="mb-4 line-clamp-2 font-heading text-2xl font-bold leading-tight text-brand-dark transition-colors group-hover:text-brand-moss">
+                              {insight.title}
+                            </h3>
+
+                            <p className="mb-6 line-clamp-3 flex-grow font-medium leading-relaxed text-brand-dark">
+                              {insight.summary}
+                            </p>
+
+                            <div className="flex items-center justify-between border-t border-brand-border/50 pt-6">
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-moss/10 text-xs font-bold text-brand-moss">
+                                  {insight.author
+                                    .split(' ')
+                                    .map((n: string) => n[0])
+                                    .join('')}
+                                </div>
+                                <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
+                                  {insight.date}
+                                </span>
+                              </div>
+
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border text-brand-dark transition-all duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
+                                <ArrowRight
+                                  size={16}
+                                  className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </article>
-                    </Link>
-                  </Reveal>
-                ))}
-              </div>
+                        </article>
+                      </Link>
+                    </Reveal>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         )}

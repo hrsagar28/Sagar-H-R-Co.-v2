@@ -24,6 +24,7 @@ export function BigCTA({
   disabled,
   ...buttonProps
 }: BigCTAProps) {
+  'use memo';
   const getToneClasses = () => {
     switch (tone) {
       case 'accent':

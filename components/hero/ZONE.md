@@ -5,6 +5,7 @@ The application uses an HTML `data-attribute` based cascading zoning system to s
 ## How it works
 
 At the root level of `index.css`, we define dynamic CSS variables bound to `data-zone` attributes on the HTML container.
+
 - When no wrapper is present, the `<body class="bg-[#F2F2F0]">` acts as the default "Moss" zone (warm alabaster with green action).
 - When a page root is wrapped and assigned a `data-zone` attribute, it fundamentally shifts the color palette for all descending components that listen to `.zone-*` utilities.
 
@@ -22,14 +23,15 @@ At the root level of `index.css`, we define dynamic CSS variables bound to `data
 ## Applying Zones
 
 To zone a page or sub-page, simply add the `data-zone` attribute to the top-level container of that page:
+
 ```tsx
 const AboutPage = () => {
   return (
-    <div data-zone="editorial" className="min-h-screen relative font-sans zone-bg zone-text">
-       {/* All zone-aware components within will adopt the dark/brass aesthetics automatically */}
+    <div data-zone="editorial" className="zone-bg zone-text relative min-h-screen font-sans">
+      {/* All zone-aware components within will adopt the dark/brass aesthetics automatically */}
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Important Limitations

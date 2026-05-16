@@ -4,55 +4,55 @@ import { Eyebrow } from '../ui/Eyebrow';
 import { AccentTitle } from '../ui/AccentTitle';
 import type { BasicHeroProps } from './types';
 
-export const HeroBasic: React.FC<BasicHeroProps & { className?: string, children?: React.ReactNode }> = ({ 
-  tag, 
-  title, 
-  subtitle, 
+export const HeroBasic: React.FC<BasicHeroProps & { className?: string; children?: React.ReactNode }> = ({
+  tag,
+  title,
+  subtitle,
   description,
   blurb,
   eyebrow,
-  className = "",
-  children
+  className = '',
+  children,
 }) => {
   const displayTag = tag || eyebrow;
   const displayDesc = description || blurb;
-  
+
   return (
-    <section className={`pt-32 md:pt-48 pb-20 px-4 md:px-6 bg-brand-bg relative overflow-hidden ${className}`}>
-        {/* Faded Grid Background */}
-        <div 
-          className="absolute inset-0 bg-grid pointer-events-none" 
-          style={{ 
-            maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', 
-            WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' 
-          }} 
-        />
-        <div className="container mx-auto max-w-7xl relative z-10">
-           <div className="max-w-5xl">
-              {displayTag && (
-                <Eyebrow className="mb-8 animate-fade-in-up">
-                  {displayTag}
-                </Eyebrow>
-              )}
-              <AccentTitle className="text-6xl md:text-8xl lg:text-9xl text-brand-dark mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-               <WordReveal>{title}</WordReveal>
-                {subtitle && (
-                  <>
-                    <br/>
-                    <span className="font-serif italic font-normal text-brand-stone opacity-60">{subtitle}</span>
-                  </>
-                )}
-              </AccentTitle>
-              {displayDesc && (
-                <p className="text-xl md:text-2xl text-brand-stone font-medium leading-relaxed max-w-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                   {displayDesc}
-                </p>
-              )}
-           </div>
-           {children}
+    <section className={`relative overflow-hidden bg-brand-bg px-4 pb-20 pt-32 md:px-6 md:pt-48 ${className}`}>
+      {/* Faded Grid Background */}
+      <div
+        className="bg-grid pointer-events-none absolute inset-0"
+        style={{
+          maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)',
+        }}
+      />
+      <div className="container relative z-10 mx-auto max-w-7xl">
+        <div className="max-w-5xl">
+          {displayTag && <Eyebrow className="mb-8 animate-fade-in-up">{displayTag}</Eyebrow>}
+          <AccentTitle
+            className="mb-10 animate-fade-in-up text-6xl text-brand-dark md:text-8xl lg:text-9xl"
+            style={{ animationDelay: '0.1s' }}
+          >
+            <WordReveal>{title}</WordReveal>
+            {subtitle && (
+              <>
+                <br />
+                <span className="font-serif font-normal italic text-brand-stone opacity-60">{subtitle}</span>
+              </>
+            )}
+          </AccentTitle>
+          {displayDesc && (
+            <p
+              className="max-w-2xl animate-fade-in-up text-xl font-medium leading-relaxed text-brand-stone md:text-2xl"
+              style={{ animationDelay: '0.2s' }}
+            >
+              {displayDesc}
+            </p>
+          )}
         </div>
+        {children}
+      </div>
     </section>
   );
 };
-
-

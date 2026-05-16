@@ -11,17 +11,14 @@ const toneMap = {
   moss: 'text-brand-moss',
   brass: 'text-brand-brass',
   rust: 'text-brand-rust',
-  stone: 'text-brand-stone'
+  stone: 'text-brand-stone',
 };
 
-export const Eyebrow: React.FC<EyebrowProps> = ({
-  children,
-  tone = 'moss',
-  className = '',
-  as: As = 'div'
-}) => {
+export const Eyebrow: React.FC<EyebrowProps> = ({ children, tone = 'moss', className = '', as: As = 'div' }) => {
   return (
-    <As className={`inline-flex items-center font-mono uppercase tracking-[0.2em] text-[0.7rem] ${toneMap[tone]} ${className}`}>
+    <As
+      className={`inline-flex items-center font-mono text-[0.7rem] uppercase tracking-[0.2em] ${toneMap[tone]} ${className}`}
+    >
       {children}
     </As>
   );

@@ -72,6 +72,7 @@ const seedMid = (w: number, h: number, n: number): MidStar[] =>
   }));
 
 const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
+  'use memo';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();

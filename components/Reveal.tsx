@@ -45,6 +45,7 @@ const Reveal: React.FC<RevealProps> = ({
   variant = 'fade-up',
   eager = false,
 }) => {
+  'use memo';
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const shouldReduceMotion = useReducedMotion();
@@ -165,6 +166,7 @@ const Reveal: React.FC<RevealProps> = ({
 };
 
 export const WordReveal: React.FC<WordRevealProps> = ({ children, delay = 0.15, stagger = 0.12, className = '' }) => {
+  'use memo';
   const ref = useRef<HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const shouldReduceMotion = useReducedMotion();

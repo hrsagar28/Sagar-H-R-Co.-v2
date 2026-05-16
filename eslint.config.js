@@ -35,11 +35,15 @@ export default tseslint.config(
       'react/prop-types': 'off',
       'react/display-name': 'off',
       'react/no-unescaped-entities': 'off',
-      'react-hooks/set-state-in-effect': 'off',
-      'react-hooks/static-components': 'off',
-      'react-hooks/immutability': 'off',
-      'react-hooks/refs': 'off',
-      'react-hooks/purity': 'off',
+      // React Compiler / Rules-of-React lint rules (from eslint-plugin-react-hooks v7).
+      // Set to 'warn' so Rules-of-React violations — the things that make the
+      // React Compiler silently bail out of a file — are visible without
+      // hard-failing the build. Promote to 'error' once the codebase is clean.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/static-components': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-hooks/refs': 'warn',
+      'react-hooks/purity': 'warn',
       'jsx-a11y/no-redundant-roles': 'off',
       'jsx-a11y/anchor-has-content': 'off',
       'jsx-a11y/label-has-associated-control': 'off',

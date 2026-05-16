@@ -1,18 +1,18 @@
 The revised Income Tax Bill, 2025, has addressed key ambiguities that existed in the original draft concerning the calculation of "Income from House Property." These clarifications will provide greater certainty for homeowners and real estate investors.
 
-      
-
 :::summary
+
 ### Key Takeaways
+
 - The 30% standard deduction is now explicitly calculated after deducting municipal taxes.
 - Deduction for pre-construction interest has been extended to let-out (rented) properties.
 - The new rules align with the existing Income Tax Act, 1961, ensuring consistency.
 - These changes provide greater certainty for homeowners and real estate investors.
-:::
+  :::
 
 ## Standard Deduction Calculation
 
-The new bill now explicitly states that the 30% standard deduction on the annual value of a property is to be calculated *after* deducting the municipal taxes paid. In the original draft, it was unclear whether this deduction should be applied before or after factoring in municipal taxes. This clarification ensures consistency with the current tax law.
+The new bill now explicitly states that the 30% standard deduction on the annual value of a property is to be calculated _after_ deducting the municipal taxes paid. In the original draft, it was unclear whether this deduction should be applied before or after factoring in municipal taxes. This clarification ensures consistency with the current tax law.
 
 ## Pre-Construction Interest for Let-Out Properties
 

@@ -6,11 +6,7 @@ interface HoneypotProps {
   onChange: (value: string) => void;
 }
 
-const Honeypot: React.FC<HoneypotProps> = ({
-  name,
-  value,
-  onChange
-}) => (
+const Honeypot: React.FC<HoneypotProps> = ({ name, value, onChange }) => (
   <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
     <input
       type="text"

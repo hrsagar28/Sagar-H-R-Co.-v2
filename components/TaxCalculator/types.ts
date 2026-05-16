@@ -1,4 +1,3 @@
-
 export interface TaxResult {
   grossIncome: number;
   stdDeduction: number;
@@ -67,7 +66,7 @@ export interface TaxConfig {
   oldRegimeConfig: {
     exemptions: {
       below60: number;
-      "60to80": number;
+      '60to80': number;
       above80: number;
     };
     slabs: {

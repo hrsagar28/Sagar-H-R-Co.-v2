@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useInView } from './useInView';
 import { useReducedMotion } from './useReducedMotion';
@@ -7,7 +6,7 @@ export const useCountUp = <E extends HTMLElement = HTMLDivElement>(end: number, 
   const [count, setCount] = useState(0);
   const [ref, isInView] = useInView<E>({ triggerOnce: true });
   const reduce = useReducedMotion();
-  
+
   useEffect(() => {
     if (!isInView) return;
     if (reduce) {
@@ -23,14 +22,14 @@ export const useCountUp = <E extends HTMLElement = HTMLDivElement>(end: number, 
       const progress = timestamp - startTime;
       const percentage = Math.min(progress / (duration * 1000), 1);
       const ease = percentage === 1 ? 1 : 1 - Math.pow(2, -10 * percentage);
-      
+
       setCount(Math.floor(end * ease));
 
       if (percentage < 1) {
         animationFrame = requestAnimationFrame(animate);
       }
     };
-    
+
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
   }, [isInView, end, duration, reduce]);

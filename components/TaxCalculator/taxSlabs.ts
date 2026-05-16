@@ -22,7 +22,7 @@ export const SURCHARGE_SLABS = {
 };
 
 export const AGE_MAP: Record<string, string> = {
-  'below60': 'General (Below 60)',
+  below60: 'General (Below 60)',
   '60to80': 'Senior Citizen (60-80)',
-  'above80': 'Super Senior (80+)'
+  above80: 'Super Senior (80+)',
 };

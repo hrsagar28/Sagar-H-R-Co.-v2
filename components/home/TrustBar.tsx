@@ -3,6 +3,7 @@ import { INDUSTRIES } from '../../constants';
 import Reveal from '../Reveal';
 
 const TrustBar: React.FC = () => {
+  'use memo';
   return (
     <section className="overflow-hidden border-b border-brand-border/60 bg-white py-12">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">

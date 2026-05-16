@@ -6,12 +6,7 @@ interface LiveRegionProps {
 }
 
 const LiveRegion: React.FC<LiveRegionProps> = ({ message, politeness = 'polite' }) => (
-  <div
-    role="status"
-    aria-live={politeness}
-    aria-atomic="true"
-    className="sr-only"
-  >
+  <div role="status" aria-live={politeness} aria-atomic="true" className="sr-only">
     {message}
   </div>
 );

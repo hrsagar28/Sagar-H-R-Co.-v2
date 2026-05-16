@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 
 interface ScrollState {
@@ -8,9 +7,9 @@ interface ScrollState {
 
 /**
  * Hook to track window scroll position and direction.
- * Uses requestAnimationFrame to optimize performance while ensuring 
+ * Uses requestAnimationFrame to optimize performance while ensuring
  * the final scroll state (like 0 when hitting top) is captured accurately.
- * 
+ *
  * @param _throttleMs - Deprecated: rAF handles throttling naturally to refresh rate.
  */
 export const useScrollPosition = (_throttleMs: number = 100): ScrollState => {
@@ -31,10 +30,10 @@ export const useScrollPosition = (_throttleMs: number = 100): ScrollState => {
     const updateScroll = () => {
       const currentScrollY = window.scrollY;
       const direction = currentScrollY > lastScrollY.current ? 'down' : 'up';
-      
+
       setScrollData({
         scrollY: currentScrollY,
-        direction: currentScrollY === lastScrollY.current ? null : direction
+        direction: currentScrollY === lastScrollY.current ? null : direction,
       });
 
       lastScrollY.current = currentScrollY;

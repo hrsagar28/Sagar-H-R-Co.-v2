@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { TaxConfig } from '../components/TaxCalculator/types';
 import { logger } from '../utils/logger';
@@ -27,7 +26,7 @@ export const useTaxConfig = () => {
           logger.error('Error fetching tax config:', err);
           let msg = 'Failed to load latest tax rules. Using defaults.';
           if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
-             msg = 'Offline: Using cached/default tax rules.';
+            msg = 'Offline: Using cached/default tax rules.';
           }
           setError(msg);
           setLoading(false);

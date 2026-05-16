@@ -5,6 +5,7 @@ import { CONTACT_INFO } from '../../constants';
 import Reveal from '../Reveal';
 
 const LocationStrip: React.FC = () => {
+  'use memo';
   return (
     <section className="relative">
       {/* Full-bleed dark container */}

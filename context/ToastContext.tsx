@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { ToastVariant } from '../components/Toast';
 
@@ -42,11 +41,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => window.removeEventListener('app-toast', handleGlobalToast);
   }, [addToast]);
 
-  return (
-    <ToastContext.Provider value={{ addToast, removeToast, toasts }}>
-      {children}
-    </ToastContext.Provider>
-  );
+  return <ToastContext.Provider value={{ addToast, removeToast, toasts }}>{children}</ToastContext.Provider>;
 };
 
 export const useToast = () => {

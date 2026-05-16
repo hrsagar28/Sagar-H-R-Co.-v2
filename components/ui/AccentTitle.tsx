@@ -44,6 +44,7 @@ export const AccentTitle: React.FC<AccentTitleProps> = ({
   balance = false,
   style,
 }) => {
+  'use memo';
   const baseClasses = `font-heading font-light tracking-[-0.02em] leading-[1] ${balance ? 'text-balance' : ''}`;
 
   return (

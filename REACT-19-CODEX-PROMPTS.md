@@ -469,7 +469,6 @@ The current state of the repo (from `package.json`):
 >    - `components/home/FounderSection.tsx`
 >    - `components/home/LocationStrip.tsx`
 >    - `components/home/TrustBar.tsx`
->
 > 4. Run `npm run build`. The Vite output should include `[react-compiler]` log lines naming each of the files above as successfully compiled. If the compiler errors on any file, READ the error — it usually points to a specific React rule violation (mutating props, conditional hook calls, etc.). Fix the violation; do not silence the rule.
 > 5. Run `npm test`. All tests must pass.
 > 6. `npm run dev` and walk every page that touches a compiled file. Watch the console for any new warnings. Specific things to look at:

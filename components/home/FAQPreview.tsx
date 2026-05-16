@@ -17,6 +17,7 @@ interface FAQPreviewItemProps {
 }
 
 const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onToggle }) => {
+  'use memo';
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const cachedHeight = useRef<number | null>(null);
@@ -172,6 +173,7 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
 };
 
 const FAQPreview: React.FC = () => {
+  'use memo';
   // Get top 3 General FAQs
   const featuredFaqs = FAQS.filter((f) => f.category === 'General & Onboarding').slice(0, 3);
   const [openIndex, setOpenIndex] = useState<number | null>(() => (isDesktopViewport() ? 0 : null));

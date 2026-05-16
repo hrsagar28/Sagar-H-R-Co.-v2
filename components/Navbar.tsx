@@ -8,7 +8,8 @@ interface NavbarProps {
   className?: string;
 }
 
-const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
+const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
+  'use memo';
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -224,6 +225,6 @@ const Navbar: React.FC<NavbarProps> = React.memo(({ className = '' }) => {
       />
     </nav>
   );
-});
+};
 
 export default Navbar;

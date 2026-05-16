@@ -53,10 +53,12 @@ const CHAOS_STYLE_VARS = {
   '--chaos-paper-cream': CHAOS_COLORS.paperCream,
   '--chaos-paper-cream-2': CHAOS_COLORS.paperCream2,
   '--chaos-moss-deep': CHAOS_COLORS.mossDeep,
-  '--divider': '50%',
+  // `--divider` is intentionally NOT set here — it lives on the inner panel
+  // <div> (the element `containerRef` points at and `writeDivider` mutates).
 } as React.CSSProperties;
 
 const ChaosToOrder: React.FC = () => {
+  'use memo';
   const containerRef = useRef<HTMLDivElement>(null);
   const dividerValueRef = useRef<number>(50);
   const prefersReduced = useReducedMotion();

@@ -5,12 +5,10 @@ export const sanitizeJsonLd = (value: unknown): unknown => {
     return Object.fromEntries(
       Object.entries(value)
         .map(([key, entry]) => [key, sanitizeJsonLd(entry)] as const)
-        .filter(([, entry]) => entry !== undefined)
+        .filter(([, entry]) => entry !== undefined),
     );
   }
   return value;
 };
 
-export const stringifyJsonLd = (data: object) => (
-  JSON.stringify(sanitizeJsonLd(data)).replace(/</g, '\\u003c')
-);
+export const stringifyJsonLd = (data: object) => JSON.stringify(sanitizeJsonLd(data)).replace(/</g, '\\u003c');

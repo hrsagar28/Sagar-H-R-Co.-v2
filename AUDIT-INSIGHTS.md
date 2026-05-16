@@ -1,6 +1,6 @@
 # Audit Plan — `pages/Insights.tsx`
 
-> Scope: Exhaustive multi-axis audit of the **Insights** index page. Each finding is paired with a concrete *what to do* and *how to do it* so it can be executed verbatim by Codex (ChatGPT) with no further clarification.
+> Scope: Exhaustive multi-axis audit of the **Insights** index page. Each finding is paired with a concrete _what to do_ and _how to do it_ so it can be executed verbatim by Codex (ChatGPT) with no further clarification.
 >
 > Files in scope: `pages/Insights.tsx` (≈195 LoC), data hook `hooks/useInsights.ts`, JSON source `dist/data/insights.json` & `constants/insights.ts`, hero variant `components/hero/HeroArchive.tsx`, supporting helpers `utils/formatArchiveDate.ts`, `components/Skeleton.tsx`.
 >
@@ -10,38 +10,38 @@
 
 ## 0. TL;DR — Severity Heatmap
 
-| # | Issue | Axis | Severity | Effort |
-|---|---|---|---|---|
-| I1 | Search input has no `<label>` and no `aria-label`; relies on placeholder | a11y | High | XS |
-| I2 | Category filter buttons have no `aria-pressed` or `role="tablist"` semantics | a11y | High | S |
-| I3 | Date is rendered as raw string from JSON (`"August 18, 2025"`) → not a `<time datetime>` element | a11y / SEO | High | S |
-| I4 | Search is case-sensitive only after `.toLowerCase()` on both sides — but is **not diacritic-insensitive**, **not Hindi/Kannada-aware**, and `searchTerm` is not debounced | UX / perf | Medium | S |
-| I5 | The hero `HeroArchive` shows `insights.slice(0, 4)` *raw* on first render — when `loading=true`, `insights=[]`, so the hero shows zero items in the right column for the first ~200 ms (layout shift) | UX / CLS | High | S |
-| I6 | Filter+search runs on every keystroke against the full array — fine for 6 items, but renders all `<Link>` components synchronously → no virtualization plan for when archive grows | perf / scalability | Low | M |
-| I7 | "No articles found" empty-state and error-state have no live-region announcement | a11y | Medium | XS |
-| I8 | Loading skeleton uses 3 placeholder cards, but the actual results layout has variable count → CLS at the boundary | UX | Low | S |
-| I9 | Schema's `mainEntity` is built from `filteredInsights`, not `insights` — so search/filter changes the structured data being injected on every keystroke | SEO bug | High | S |
-| I10 | URLs in schema use `https://casagar.co.in/insights/${slug}` — hard-coded host duplicates the SEO component's canonical base | SEO / DRY | Low | XS |
-| I11 | No `BlogPosting` schema is emitted from this page (each card represents a blog post; `headline`, `datePublished` etc. should be present in schema) | SEO | Medium | S |
-| I12 | No RSS / JSON feed offered; an "Insights" page typically does | feature | Medium | M |
-| I13 | Search and category state are not persisted in URL params → cannot share a filtered view, browser back kills the filter, refresh resets | UX | High | S |
-| I14 | Filter chip overflow on small screens uses flex-wrap → fine, but no horizontal scroll fallback on very narrow viewports | UI | Low | XS |
-| I15 | Search clear button is a `<button>` but has no accessible name (just `<X />` icon) | a11y | High | XS |
-| I16 | The `Calendar` icon next to the date is decorative but missing `aria-hidden` | a11y | Low | XS |
-| I17 | Insight cards use `text-brand-stone` for the summary on `bg-brand-surface` — verify ≥ 4.5:1 (depends on token values) | a11y | Medium | XS |
-| I18 | `Link to={...}` wraps an entire card containing a heading and meta — heading content not hidden, good. But the visual arrow circle is decorative; should be `aria-hidden` | a11y | Low | XS |
-| I19 | No featured / pinned post; everything ranks equally even though some posts are older | UX | Low | S |
-| I20 | No reading-time displayed; data exists (`readTime` field in JSON) but not rendered | UX / data hygiene | Low | XS |
-| I21 | No author rendered; data exists (`author`) but not used; Author E-A-T signal lost | SEO | Low | XS |
-| I22 | No tag system / no related posts; only a flat category | UX | Medium | M |
-| I23 | Hero animates with `WordReveal`; no reduced-motion gate scoped at this hero variant | a11y | Medium | XS |
-| I24 | The fetch path `${BASE_URL}data/insights.json`.replace('//', '/')` is fragile — replaces *all* `//`, including the `https://` if env injects an absolute URL | bug-risk | Medium | XS |
-| I25 | `useInsights` retains all loaded insights in memory globally? No — local state in hook. But two consumers fetch twice. Consider sharing via context or React Query | perf / DRY | Low | M |
-| I26 | Insights JSON is shipped from `dist/data/insights.json` — content updates require a rebuild & redeploy. No CMS, no MDX, no incremental update. | architecture | Medium | L |
-| I27 | The dates "August 18, 2025" are **before today** (2026-04-27) — content is stale; needs editorial cadence | content | High | ongoing |
-| I28 | Body content of each insight is HTML stored as a string in JSON; rendered downstream via `dangerouslySetInnerHTML` (verify on detail page); requires sanitizer | security | High | M |
-| I29 | The hero `formatArchiveDate` uses `en-GB` and `slice(2)` of the year — produces `Aug · 25` style; on the cards the date is the original raw string. **Two date formats in two adjacent regions of the same page.** | UI / UX | Medium | XS |
-| I30 | No pagination / "load more" — okay at 6 items, broken at 60 | scalability | Low | M |
+| #   | Issue                                                                                                                                                                                                              | Axis               | Severity | Effort  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | -------- | ------- |
+| I1  | Search input has no `<label>` and no `aria-label`; relies on placeholder                                                                                                                                           | a11y               | High     | XS      |
+| I2  | Category filter buttons have no `aria-pressed` or `role="tablist"` semantics                                                                                                                                       | a11y               | High     | S       |
+| I3  | Date is rendered as raw string from JSON (`"August 18, 2025"`) → not a `<time datetime>` element                                                                                                                   | a11y / SEO         | High     | S       |
+| I4  | Search is case-sensitive only after `.toLowerCase()` on both sides — but is **not diacritic-insensitive**, **not Hindi/Kannada-aware**, and `searchTerm` is not debounced                                          | UX / perf          | Medium   | S       |
+| I5  | The hero `HeroArchive` shows `insights.slice(0, 4)` _raw_ on first render — when `loading=true`, `insights=[]`, so the hero shows zero items in the right column for the first ~200 ms (layout shift)              | UX / CLS           | High     | S       |
+| I6  | Filter+search runs on every keystroke against the full array — fine for 6 items, but renders all `<Link>` components synchronously → no virtualization plan for when archive grows                                 | perf / scalability | Low      | M       |
+| I7  | "No articles found" empty-state and error-state have no live-region announcement                                                                                                                                   | a11y               | Medium   | XS      |
+| I8  | Loading skeleton uses 3 placeholder cards, but the actual results layout has variable count → CLS at the boundary                                                                                                  | UX                 | Low      | S       |
+| I9  | Schema's `mainEntity` is built from `filteredInsights`, not `insights` — so search/filter changes the structured data being injected on every keystroke                                                            | SEO bug            | High     | S       |
+| I10 | URLs in schema use `https://casagar.co.in/insights/${slug}` — hard-coded host duplicates the SEO component's canonical base                                                                                        | SEO / DRY          | Low      | XS      |
+| I11 | No `BlogPosting` schema is emitted from this page (each card represents a blog post; `headline`, `datePublished` etc. should be present in schema)                                                                 | SEO                | Medium   | S       |
+| I12 | No RSS / JSON feed offered; an "Insights" page typically does                                                                                                                                                      | feature            | Medium   | M       |
+| I13 | Search and category state are not persisted in URL params → cannot share a filtered view, browser back kills the filter, refresh resets                                                                            | UX                 | High     | S       |
+| I14 | Filter chip overflow on small screens uses flex-wrap → fine, but no horizontal scroll fallback on very narrow viewports                                                                                            | UI                 | Low      | XS      |
+| I15 | Search clear button is a `<button>` but has no accessible name (just `<X />` icon)                                                                                                                                 | a11y               | High     | XS      |
+| I16 | The `Calendar` icon next to the date is decorative but missing `aria-hidden`                                                                                                                                       | a11y               | Low      | XS      |
+| I17 | Insight cards use `text-brand-stone` for the summary on `bg-brand-surface` — verify ≥ 4.5:1 (depends on token values)                                                                                              | a11y               | Medium   | XS      |
+| I18 | `Link to={...}` wraps an entire card containing a heading and meta — heading content not hidden, good. But the visual arrow circle is decorative; should be `aria-hidden`                                          | a11y               | Low      | XS      |
+| I19 | No featured / pinned post; everything ranks equally even though some posts are older                                                                                                                               | UX                 | Low      | S       |
+| I20 | No reading-time displayed; data exists (`readTime` field in JSON) but not rendered                                                                                                                                 | UX / data hygiene  | Low      | XS      |
+| I21 | No author rendered; data exists (`author`) but not used; Author E-A-T signal lost                                                                                                                                  | SEO                | Low      | XS      |
+| I22 | No tag system / no related posts; only a flat category                                                                                                                                                             | UX                 | Medium   | M       |
+| I23 | Hero animates with `WordReveal`; no reduced-motion gate scoped at this hero variant                                                                                                                                | a11y               | Medium   | XS      |
+| I24 | The fetch path `${BASE_URL}data/insights.json`.replace('//', '/')`is fragile — replaces *all*`//`, including the `https://` if env injects an absolute URL                                                         | bug-risk           | Medium   | XS      |
+| I25 | `useInsights` retains all loaded insights in memory globally? No — local state in hook. But two consumers fetch twice. Consider sharing via context or React Query                                                 | perf / DRY         | Low      | M       |
+| I26 | Insights JSON is shipped from `dist/data/insights.json` — content updates require a rebuild & redeploy. No CMS, no MDX, no incremental update.                                                                     | architecture       | Medium   | L       |
+| I27 | The dates "August 18, 2025" are **before today** (2026-04-27) — content is stale; needs editorial cadence                                                                                                          | content            | High     | ongoing |
+| I28 | Body content of each insight is HTML stored as a string in JSON; rendered downstream via `dangerouslySetInnerHTML` (verify on detail page); requires sanitizer                                                     | security           | High     | M       |
+| I29 | The hero `formatArchiveDate` uses `en-GB` and `slice(2)` of the year — produces `Aug · 25` style; on the cards the date is the original raw string. **Two date formats in two adjacent regions of the same page.** | UI / UX            | Medium   | XS      |
+| I30 | No pagination / "load more" — okay at 6 items, broken at 60                                                                                                                                                        | scalability        | Low      | M       |
 
 ---
 
@@ -66,13 +66,11 @@
 
 ```ts
 const heroItems = useMemo(() => {
-  return [...insights]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 4);
+  return [...insights].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 4);
 }, [insights]);
 ```
 
-**I-IA-2 — Add a `featured?: boolean` field** to `InsightItem`. Render the *first* featured (or fall back to most-recent) as a tall hero card above the regular grid. Use `bg-brand-moss` accent to set it apart.
+**I-IA-2 — Add a `featured?: boolean` field** to `InsightItem`. Render the _first_ featured (or fall back to most-recent) as a tall hero card above the regular grid. Use `bg-brand-moss` accent to set it apart.
 
 **I-IA-3 — Normalize categories.** Either consolidate `Income Tax` and `Income Tax Updates` into one canonical `Income Tax` (recommended), or model them as a 2-level tag (`Income Tax > Updates`).
 
@@ -107,6 +105,7 @@ const linkedService = SERVICES.find(s => s.id === insight.serviceId);
 Add `serviceId?: ServiceItem['id']` to `InsightItem`.
 
 **I-IA-7 — Subscription block + RSS/JSON feed.** New section below the list:
+
 - Email opt-in (POSTs to the form endpoint already configured in `CONTACT_INFO.formEndpoint`).
 - RSS link (`/rss.xml`) and JSON Feed (`/feed.json`) generated at build by a Vite plugin.
 
@@ -129,7 +128,7 @@ Add `serviceId?: ServiceItem['id']` to `InsightItem`.
 
 ### 2.2 Plan
 
-**I-UI-1 — Single date format.** Use `formatArchiveDate` only as a *short* badge in dense layouts. In the card metadata column, render the *full* form **and** the machine-readable `<time datetime>`:
+**I-UI-1 — Single date format.** Use `formatArchiveDate` only as a _short_ badge in dense layouts. In the card metadata column, render the _full_ form **and** the machine-readable `<time datetime>`:
 
 ```tsx
 <time dateTime={toISO(insight.date)}>{formatLongDate(insight.date)}</time>
@@ -222,12 +221,14 @@ Or use explicit `order-` utilities.
 
 ```tsx
 <div role="tablist" aria-label="Filter insights by category" className="flex flex-wrap gap-2">
-  {categories.map(cat => {
+  {categories.map((cat) => {
     const id = `cat-${slugify(cat)}`;
     const selected = selectedCategory === cat;
     return (
       <button
-        key={cat} id={id} role="tab"
+        key={cat}
+        id={id}
+        role="tab"
         aria-selected={selected}
         aria-controls="insights-results"
         tabIndex={selected ? 0 : -1}
@@ -248,15 +249,12 @@ Add an `onChipKeyDown` helper that supports Left/Right arrow navigation between 
 **I-A11Y-4 — Live region for result count:**
 
 ```tsx
-<p
-  id="insights-results-count"
-  role="status"
-  aria-live="polite"
-  className="sr-only"
->
-  {loading ? 'Loading insights' :
-   error   ? `Error: ${error}` :
-            `${filteredInsights.length} ${filteredInsights.length === 1 ? 'article' : 'articles'} found`}
+<p id="insights-results-count" role="status" aria-live="polite" className="sr-only">
+  {loading
+    ? 'Loading insights'
+    : error
+      ? `Error: ${error}`
+      : `${filteredInsights.length} ${filteredInsights.length === 1 ? 'article' : 'articles'} found`}
 </p>
 ```
 
@@ -296,22 +294,25 @@ Or reuse the existing `useAnnounce()` hook from `context/AnnounceContext.tsx` so
 **I-PERF-1 — Schema must be stable across filter changes.** Build the schema from the **full** `insights` array, not `filteredInsights`. Search is a UI concern and must not pollute structured data.
 
 ```ts
-const schema = useMemo(() => ({
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Insights & Knowledge Base",
-  "publisher": { "@type": "Organization", "name": CONTACT_INFO.name },
-  "mainEntity": {
-    "@type": "ItemList",
-    "numberOfItems": insights.length,
-    "itemListElement": insights.map((insight, i) => ({
-      "@type": "ListItem",
-      "position": i + 1,
-      "url": `${SITE}/insights/${insight.slug}`,
-      "name": insight.title
-    }))
-  }
-}), [insights]);
+const schema = useMemo(
+  () => ({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Insights & Knowledge Base',
+    publisher: { '@type': 'Organization', name: CONTACT_INFO.name },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: insights.length,
+      itemListElement: insights.map((insight, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${SITE}/insights/${insight.slug}`,
+        name: insight.title,
+      })),
+    },
+  }),
+  [insights],
+);
 ```
 
 Better still, emit `Blog + BlogPosting[]` (see I-SEO-1).
@@ -320,15 +321,15 @@ Better still, emit `Blog + BlogPosting[]` (see I-SEO-1).
 
 ```ts
 const debouncedSearch = useDeferredValue(searchTerm);
-const filteredInsights = useMemo(() =>
-  insights.filter(item => {
-    const q = debouncedSearch.toLowerCase().trim();
-    if (!q) return matchesCategory(item);
-    return matchesCategory(item) &&
-           (item.title.toLowerCase().includes(q) ||
-            item.summary.toLowerCase().includes(q));
-  }),
-[insights, debouncedSearch, selectedCategory]);
+const filteredInsights = useMemo(
+  () =>
+    insights.filter((item) => {
+      const q = debouncedSearch.toLowerCase().trim();
+      if (!q) return matchesCategory(item);
+      return matchesCategory(item) && (item.title.toLowerCase().includes(q) || item.summary.toLowerCase().includes(q));
+    }),
+  [insights, debouncedSearch, selectedCategory],
+);
 ```
 
 **I-PERF-3 — Cache the JSON fetch.** Wrap `useInsights` with a module-level promise cache (or migrate to TanStack Query if already a dep — `package.json` should be checked first). Minimal patch:
@@ -352,7 +353,9 @@ const url = new URL('data/insights.json', new URL(baseUrl, window.location.origi
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  .animate-pulse { animation: none; }
+  .animate-pulse {
+    animation: none;
+  }
 }
 ```
 
@@ -384,27 +387,30 @@ Plus `[hidden] .animate-pulse { animation: none; }` at the global level.
 
 ```ts
 const SITE = 'https://casagar.co.in';
-const schema = useMemo(() => ({
-  "@context": "https://schema.org",
-  "@type": "Blog",
-  "@id": `${SITE}/insights`,
-  "name": `${CONTACT_INFO.name} — Insights`,
-  "description": "Analysis, regulatory updates, and commentary from a Mysuru-based CA practice.",
-  "publisher": { "@id": `${SITE}/#organization` },
-  "blogPost": insights.map(i => ({
-    "@type": "BlogPosting",
-    "@id": `${SITE}/insights/${i.slug}`,
-    "url": `${SITE}/insights/${i.slug}`,
-    "headline": i.title,
-    "abstract": i.summary,
-    "datePublished": toISO(i.date),
-    "dateModified":  toISO((i as any).dateModified ?? i.date),
-    "author": { "@type": "Person", "name": i.author ?? "CA Sagar H R" },
-    "articleSection": i.category,
-    "wordCount": (i as any).wordCount ?? undefined,
-    "image": (i as any).image ?? `${SITE}/og-image.jpg`
-  }))
-}), [insights]);
+const schema = useMemo(
+  () => ({
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': `${SITE}/insights`,
+    name: `${CONTACT_INFO.name} — Insights`,
+    description: 'Analysis, regulatory updates, and commentary from a Mysuru-based CA practice.',
+    publisher: { '@id': `${SITE}/#organization` },
+    blogPost: insights.map((i) => ({
+      '@type': 'BlogPosting',
+      '@id': `${SITE}/insights/${i.slug}`,
+      url: `${SITE}/insights/${i.slug}`,
+      headline: i.title,
+      abstract: i.summary,
+      datePublished: toISO(i.date),
+      dateModified: toISO((i as any).dateModified ?? i.date),
+      author: { '@type': 'Person', name: i.author ?? 'CA Sagar H R' },
+      articleSection: i.category,
+      wordCount: (i as any).wordCount ?? undefined,
+      image: (i as any).image ?? `${SITE}/og-image.jpg`,
+    })),
+  }),
+  [insights],
+);
 ```
 
 **I-SEO-2 — Pass breadcrumbs:**
@@ -456,18 +462,26 @@ Replace inline `https://casagar.co.in` in this file.
 
 ```ts
 const [searchParams, setSearchParams] = useSearchParams();
-const searchTerm     = searchParams.get('q') ?? '';
+const searchTerm = searchParams.get('q') ?? '';
 const selectedCategory = searchParams.get('cat') ?? 'All';
-const setSearch = (q: string) => setSearchParams(prev => {
-  const next = new URLSearchParams(prev);
-  q ? next.set('q', q) : next.delete('q');
-  return next;
-}, { replace: true });
-const setCategory = (cat: string) => setSearchParams(prev => {
-  const next = new URLSearchParams(prev);
-  cat === 'All' ? next.delete('cat') : next.set('cat', cat);
-  return next;
-}, { replace: true });
+const setSearch = (q: string) =>
+  setSearchParams(
+    (prev) => {
+      const next = new URLSearchParams(prev);
+      q ? next.set('q', q) : next.delete('q');
+      return next;
+    },
+    { replace: true },
+  );
+const setCategory = (cat: string) =>
+  setSearchParams(
+    (prev) => {
+      const next = new URLSearchParams(prev);
+      cat === 'All' ? next.delete('cat') : next.set('cat', cat);
+      return next;
+    },
+    { replace: true },
+  );
 ```
 
 **I-CQ-2 — Adopt `AbortController`** in `useInsights`:
@@ -475,9 +489,7 @@ const setCategory = (cat: string) => setSearchParams(prev => {
 ```ts
 useEffect(() => {
   const ac = new AbortController();
-  apiClient.get<InsightItem[]>(url, { signal: ac.signal })
-    .then(setInsights)
-    .catch(handleError);
+  apiClient.get<InsightItem[]>(url, { signal: ac.signal }).then(setInsights).catch(handleError);
   return () => ac.abort();
 }, [url]);
 ```
@@ -520,9 +532,13 @@ import Insights from './Insights';
 test('filters by search term', async () => {
   // Mock useInsights to return fixture
   // …
-  render(<MemoryRouter initialEntries={['/insights']}>
-    <Routes><Route path="/insights" element={<Insights />} /></Routes>
-  </MemoryRouter>);
+  render(
+    <MemoryRouter initialEntries={['/insights']}>
+      <Routes>
+        <Route path="/insights" element={<Insights />} />
+      </Routes>
+    </MemoryRouter>,
+  );
   await waitFor(() => screen.getByRole('searchbox'));
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'GST' } });
   expect(screen.queryByText(/sovereign credit rating/i)).toBeNull();
@@ -551,10 +567,14 @@ test('filters by search term', async () => {
 
 ```ts
 import DOMPurify from 'isomorphic-dompurify';
-const safeContent = useMemo(() => DOMPurify.sanitize(insight.content, {
-  ALLOWED_TAGS: ['p','h2','h3','ul','ol','li','strong','em','blockquote','a','code','pre','div'],
-  ALLOWED_ATTR: ['href','class','id'],
-}), [insight.content]);
+const safeContent = useMemo(
+  () =>
+    DOMPurify.sanitize(insight.content, {
+      ALLOWED_TAGS: ['p', 'h2', 'h3', 'ul', 'ol', 'li', 'strong', 'em', 'blockquote', 'a', 'code', 'pre', 'div'],
+      ALLOWED_ATTR: ['href', 'class', 'id'],
+    }),
+  [insight.content],
+);
 ```
 
 (Implementation lands in `pages/InsightDetail.tsx`, but flag here.)
@@ -582,12 +602,16 @@ const safeContent = useMemo(() => DOMPurify.sanitize(insight.content, {
 
 ```ts
 const norm = (s: string) =>
-  s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+  s
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase();
 ```
 
 Use `norm(insight.title).includes(norm(searchTerm))`.
 
 **I-I18N-3 — Compute `readTime`** at build time from `content` word count. Add a script `scripts/build-insights.mjs` that:
+
 1. Reads `dist/data/insights.json`.
 2. For each entry, strips HTML, counts words, computes `Math.ceil(words / 200)` minutes.
 3. Writes back into the JSON. Run as part of `npm run build`.

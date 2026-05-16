@@ -4,11 +4,7 @@ import React from 'react';
 // This component now acts as a simple pass-through fragment to maintain app structure
 // without interfering with native scroll events, stacking contexts, or sticky positioning.
 const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <>
-       {children}
-    </>
-  );
+  return <>{children}</>;
 };
 
 export default SmoothScroll;

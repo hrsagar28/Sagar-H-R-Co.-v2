@@ -4,4 +4,3 @@ export const normalizeSearch = (value: string): string =>
     .replace(/\p{Diacritic}/gu, '')
     .toLocaleLowerCase('en-IN')
     .trim();
-

@@ -1,10 +1,10 @@
-
 export * from './useAnnounce';
 export * from './useFocusTrap';
 export * from './useFormDraft';
 export * from './useFormValidation';
 export * from './useInView';
 export * from './useLocalStorage';
+export * from './useMediaQuery';
 export * from './useRateLimit';
 export * from './useReducedMotion';
 export * from './useReturnFocus';

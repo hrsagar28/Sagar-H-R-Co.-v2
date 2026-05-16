@@ -12,7 +12,17 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0',
     },
-    plugins: [react()],
+    plugins: [
+      react({
+        babel: {
+          // React Compiler in annotation mode: only files/functions that opt in
+          // with a `'use memo'` directive are compiled. This keeps the rollout
+          // incremental — un-annotated files behave exactly as before. To compile
+          // the whole app later, switch compilationMode to 'all' (or remove it).
+          plugins: [['babel-plugin-react-compiler', { compilationMode: 'annotation' }]],
+        },
+      }),
+    ],
     test: {
       globals: true,
       environment: 'jsdom',

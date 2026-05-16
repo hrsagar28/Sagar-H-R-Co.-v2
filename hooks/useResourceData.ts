@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { apiClient, ApiError } from '../utils/api';
 import { logger } from '../utils/logger';
@@ -26,7 +25,7 @@ export function useResourceData<T>(fileName: string) {
           logger.error(`Error fetching resource ${fileName}:`, err);
           let msg = 'Failed to load data.';
           if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
-             msg = 'Offline: Unable to fetch data.';
+            msg = 'Offline: Unable to fetch data.';
           }
           setError(msg);
           setLoading(false);

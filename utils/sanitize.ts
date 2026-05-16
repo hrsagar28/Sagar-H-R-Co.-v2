@@ -8,10 +8,7 @@ interface NormalizeInputOptions {
  * React handles HTML escaping when values are rendered. For email/form
  * transport, keep user text readable and remove control characters only.
  */
-export const normalizeInput = (
-  input: string,
-  options: NormalizeInputOptions = {}
-): string => {
+export const normalizeInput = (input: string, options: NormalizeInputOptions = {}): string => {
   if (typeof input !== 'string') return '';
 
   const controlChars = options.preserveLineBreaks

@@ -6,4 +6,3 @@ export function formatArchiveDate(input: string | Date): string {
   const year = String(date.getFullYear()).slice(2);
   return `${month} · ${year}`;
 }
-

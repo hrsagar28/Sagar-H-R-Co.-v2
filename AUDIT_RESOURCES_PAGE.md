@@ -3,7 +3,7 @@
 **Owner:** CA Sagar H R & Co. — website v3
 **Audit date:** 29 Apr 2026
 **Audited route:** `/resources` rendered by `pages/Resources.tsx` and the nine tab sub-components in `pages/Resources/*` plus the `components/TaxCalculator` tree.
-**Reviewer's note:** This document is the *plan*. ChatGPT (Codex) will execute the changes. Each finding is written as **Problem → Why it matters → How to fix** so Codex can act without further questions.
+**Reviewer's note:** This document is the _plan_. ChatGPT (Codex) will execute the changes. Each finding is written as **Problem → Why it matters → How to fix** so Codex can act without further questions.
 
 ---
 
@@ -11,24 +11,24 @@
 
 In-scope (any change made by Codex must respect these files):
 
-| Path | Role |
-|---|---|
-| `pages/Resources.tsx` | Page shell + sidebar tab nav + content router |
-| `pages/Resources/TaxCalculator.tsx` | Thin wrapper around `components/TaxCalculator` |
-| `pages/Resources/GSTCalculator.tsx` | GST add/remove calculator |
-| `pages/Resources/HRACalculator.tsx` | HRA exemption calculator |
-| `pages/Resources/CIICalculator.tsx` | Indexation / LTCG cost calculator |
-| `pages/Resources/CIITable.tsx` | CII reference table |
-| `pages/Resources/ComplianceCalendar.tsx` | Monthly compliance accordion + filter + print |
-| `pages/Resources/TDSRateChart.tsx` | TDS / TCS rates table + due-dates summary |
-| `pages/Resources/ChecklistGrid.tsx` | Grid of links to checklist detail pages |
-| `pages/Resources/ImportantLinksGrid.tsx` | Grid of external gov. portal links |
-| `components/TaxCalculator/index.tsx` | Income Tax estimator main component |
-| `components/TaxCalculator/IncomeInputs.tsx`, `DeductionsPanel.tsx`, `ResultsDisplay.tsx`, `useTaxCalculation.ts`, `taxSlabs.ts`, `types.ts` | Tax calculator internals |
-| `components/skeletons/ResourcesSkeleton.tsx` | Loading state |
-| `hooks/useResourceData.ts`, `hooks/useTaxConfig.ts` | Data fetch hooks for `/data/*.json` |
-| `public/data/cii-data.json`, `compliance-calendar.json`, `tds-rates.json`, `tax-config.json` | Static JSON used by the tabs |
-| `constants/resources.ts` | `IMPORTANT_LINKS`, `CHECKLIST_DATA`, `TDS_DUE_DATES_SUMMARY` |
+| Path                                                                                                                                        | Role                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `pages/Resources.tsx`                                                                                                                       | Page shell + sidebar tab nav + content router                |
+| `pages/Resources/TaxCalculator.tsx`                                                                                                         | Thin wrapper around `components/TaxCalculator`               |
+| `pages/Resources/GSTCalculator.tsx`                                                                                                         | GST add/remove calculator                                    |
+| `pages/Resources/HRACalculator.tsx`                                                                                                         | HRA exemption calculator                                     |
+| `pages/Resources/CIICalculator.tsx`                                                                                                         | Indexation / LTCG cost calculator                            |
+| `pages/Resources/CIITable.tsx`                                                                                                              | CII reference table                                          |
+| `pages/Resources/ComplianceCalendar.tsx`                                                                                                    | Monthly compliance accordion + filter + print                |
+| `pages/Resources/TDSRateChart.tsx`                                                                                                          | TDS / TCS rates table + due-dates summary                    |
+| `pages/Resources/ChecklistGrid.tsx`                                                                                                         | Grid of links to checklist detail pages                      |
+| `pages/Resources/ImportantLinksGrid.tsx`                                                                                                    | Grid of external gov. portal links                           |
+| `components/TaxCalculator/index.tsx`                                                                                                        | Income Tax estimator main component                          |
+| `components/TaxCalculator/IncomeInputs.tsx`, `DeductionsPanel.tsx`, `ResultsDisplay.tsx`, `useTaxCalculation.ts`, `taxSlabs.ts`, `types.ts` | Tax calculator internals                                     |
+| `components/skeletons/ResourcesSkeleton.tsx`                                                                                                | Loading state                                                |
+| `hooks/useResourceData.ts`, `hooks/useTaxConfig.ts`                                                                                         | Data fetch hooks for `/data/*.json`                          |
+| `public/data/cii-data.json`, `compliance-calendar.json`, `tds-rates.json`, `tax-config.json`                                                | Static JSON used by the tabs                                 |
+| `constants/resources.ts`                                                                                                                    | `IMPORTANT_LINKS`, `CHECKLIST_DATA`, `TDS_DUE_DATES_SUMMARY` |
 
 Out-of-scope here (not on this page): Insights page, Article detail page, global Header/Footer.
 
@@ -64,6 +64,7 @@ The remediation plan below references every concrete file:line and gives Codex a
 ### 3.1 Tab navigation & deep-linking
 
 **Problem.** `pages/Resources.tsx:20` stores the active tab only in local React state. Switching tabs:
+
 - does not update the URL,
 - does not push a history entry,
 - does not survive a refresh,
@@ -72,6 +73,7 @@ The remediation plan below references every concrete file:line and gives Codex a
 The brand sells these tools — every WhatsApp share of "use our HRA calculator" lands on `/resources` with the Tax Estimator open instead.
 
 **How to fix (Codex):**
+
 1. Refactor to nested routes via React Router. Add to the router config:
    ```
    /resources                       → redirect to /resources/income-tax
@@ -95,15 +97,17 @@ The brand sells these tools — every WhatsApp share of "use our HRA calculator"
 **Problem.** Because every tab unmounts on switch (`pages/Resources.tsx:114-124`), inputs the user typed (e.g. half-filled HRA form) vanish if they momentarily click the Compliance Calendar.
 
 **How to fix.**
+
 - Once routes exist, tab state is unmounted but stable per route. Persist user inputs to `sessionStorage` (not localStorage — these are sensitive financial inputs) under a single key per calculator: `resources:hra:v1`. Provide a visible "Clear" button (already present) which also clears storage.
 - Add a banner the first time storage is restored: "Restored your previous values — clear?".
 
 ### 3.3 Sidebar IA
 
 **Problem.** Sidebar groups (`pages/Resources.tsx:79-106`) read as:
-- *Calculators* → Tax / GST / HRA / CII
-- *Reference Data* → Calendar / TDS / CII Table
-- *(Unlabelled group)* → Checklists / Important Links
+
+- _Calculators_ → Tax / GST / HRA / CII
+- _Reference Data_ → Calendar / TDS / CII Table
+- _(Unlabelled group)_ → Checklists / Important Links
 
 The third group has no heading (line 101) which breaks the visual rhythm and a11y.
 
@@ -120,6 +124,7 @@ The third group has no heading (line 101) which breaks the visual rhythm and a11
 **Problem.** `CIITable.tsx`, `CIICalculator.tsx`, `TDSRateChart.tsx`, `ComplianceCalendar.tsx` all render `useResourceData` errors as a static red box ("Failed to load data."). There is no **Retry** button and no degraded fallback (e.g. last-known-good cached JSON).
 
 **How to fix.**
+
 - Add a `retry()` to `useResourceData` (return `{ data, loading, error, retry }`) by wrapping the body in a callback and bumping a counter dependency.
 - Render a "Try again" button next to the error message in each consumer.
 - Add a service-worker / `Cache-Storage` fallback so the JSON can be served from cache when offline. (Out of scope of this PR if SW not yet present — call it out in a follow-up ticket.)
@@ -127,12 +132,14 @@ The third group has no heading (line 101) which breaks the visual rhythm and a11
 ### 3.6 Print fidelity
 
 **Problem (multiple).**
+
 - `ComplianceCalendar.tsx:208` uses `max-h-0` to hide collapsed months. Closed months therefore print **empty**. Users hit "Print" expecting the whole calendar.
 - `pages/Resources.tsx:67` hides the hero in print but the page-level `py-12 px-4` remains, so the printed page has wasted top padding.
 - `GSTCalculator.tsx`, `HRACalculator.tsx`, `CIICalculator.tsx`, `CIITable.tsx`, `ImportantLinksGrid.tsx` have **no** `@media print` rules. Their dark "Results" panel in `bg-brand-dark text-white` ends up with white-on-white in print.
 - `TDSRateChart.tsx:77-85` prints the per-row Copy button which is meaningless on paper.
 
 **How to fix (per file):**
+
 - `ComplianceCalendar.tsx`: add `print:max-h-none print:opacity-100 print:overflow-visible` to the inner expanding panel; keep `print:hidden` only on the search bar / legend buttons; force show the next-deadline banner only if it exists.
 - All "dark hero" result panels: add `print:bg-white print:text-black print:border print:border-black`. The Tax Calculator already does this — copy that pattern (`components/TaxCalculator/index.tsx:127-153`).
 - `TDSRateChart.tsx`: add `print:hidden` to the Copy button column header (`th` line 66) and the `td` containing the button (line 77-85). Also drop the per-row `Copy` icon.
@@ -177,9 +184,17 @@ The third group has no heading (line 101) which breaks the visual rhythm and a11
 - `animate-fade-in-up` is applied to every panel — and runs **every tab switch**. After 30 seconds of clicking around, it feels twitchy. Add `prefers-reduced-motion` guard once globally in `index.css` (`@media (prefers-reduced-motion: reduce) { .animate-fade-in-up { animation: none; } }`) and shorten duration to `200ms`.
 - `ComplianceCalendar.tsx:208` uses `max-h-[2000px]` for the open state. The transition is `duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]`. With 12 months × 5 events the height can exceed 2000 px and clip. Replace with a dynamic `grid-template-rows: 1fr` trick:
   ```css
-  .accordion       { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms ease; }
-  .accordion.open  { grid-template-rows: 1fr; }
-  .accordion > div { overflow: hidden; }
+  .accordion {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 300ms ease;
+  }
+  .accordion.open {
+    grid-template-rows: 1fr;
+  }
+  .accordion > div {
+    overflow: hidden;
+  }
   ```
 
 ---
@@ -189,12 +204,14 @@ The third group has no heading (line 101) which breaks the visual rhythm and a11
 ### 5.1 Sidebar tab semantics — **P0**
 
 **Problem.** `pages/Resources.tsx:41-52` renders each tab as a plain `<button>`. The pattern is a classic tablist but lacks:
+
 - `role="tablist"` on the wrapping group,
 - `role="tab"`, `aria-selected`, `aria-controls`, `tabIndex={activeTab===id?0:-1}` on each button,
 - `role="tabpanel"`, `aria-labelledby`, and `id` on the right-hand content panel,
 - arrow-key navigation between tabs.
 
 **How to fix.** Either:
+
 - (a) **Best:** convert to nested routes (see 3.1) and use `<NavLink>` — then drop ARIA tab semantics; the navigation becomes a normal landmark `<nav aria-label="Resources">`.
 - (b) **Quick:** keep current state-driven tabs but build a small `Tabs.tsx` primitive (or pull `@radix-ui/react-tabs`) that wires up all the ARIA + arrow-key handling.
 
@@ -203,11 +220,13 @@ Pick (a). It also unlocks deep-linking, SEO, and code-splitting.
 ### 5.2 Number input safety — **P0**
 
 **Problem.** Every calculator uses `<input type="number">` with `value={…} onChange={(e)=>set(Number(e.target.value))}`. On most browsers `type="number"` allows the characters `e`, `+`, `-` and exponential notation, so:
+
 - `1e9` becomes `1,000,000,000`.
 - A pasted value with `,` becomes `NaN`.
 - The Tax calculator's `IncomeInputs.tsx:82` caps at `1e10` — good — but `GSTCalculator.tsx:64`, `HRACalculator.tsx:67`, `CIICalculator.tsx:104` have no upper bound and do not strip non-numeric input.
 
 **How to fix.** Add a `useNumericInput` helper:
+
 ```ts
 export function useNumericInput(initial = 0, { min = 0, max = 1e12 } = {}) {
   const [raw, setRaw] = useState<string>(initial ? String(initial) : '');
@@ -216,11 +235,13 @@ export function useNumericInput(initial = 0, { min = 0, max = 1e12 } = {}) {
   return { raw, setRaw, value: clamped };
 }
 ```
+
 Replace all naked `Number(e.target.value)` calls with this helper. Also add `inputMode="decimal"` and `pattern="[0-9]*"` so mobile shows the numeric keypad.
 
 ### 5.3 Tooltips — **P1**
 
 **Problem.** Tooltips in `IncomeInputs.tsx:38-46`, `DeductionsPanel.tsx:28-34`, and `CIICalculator.tsx:80-85` are CSS-only `group-hover:`. They:
+
 - never show on keyboard focus,
 - can't be dismissed with `Esc`,
 - aren't read by screen readers (no `aria-describedby`).
@@ -245,6 +266,7 @@ Replace all naked `Number(e.target.value)` calls with this helper. Also add `inp
 ### 5.7 Decorative icons
 
 `pages/Resources.tsx:47, 50` — `Icon` and `ChevronRight` get no `aria-hidden`. Add `aria-hidden="true"` to all decorative Lucide icons throughout the page (search for `<Icon ` and `<ChevronRight `, `<ChevronDown `, `<ArrowRight `, `<Globe `, `<ExternalLink `, etc.). Pattern:
+
 ```tsx
 <Icon size={18} aria-hidden="true" focusable="false" />
 ```
@@ -286,8 +308,10 @@ Replace all naked `Number(e.target.value)` calls with this helper. Also add `inp
 
 - The site has no CSP header (verify in `vite.config.ts` and any `_headers` / `vercel.json`). Add a strict CSP via meta tag:
   ```html
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+  />
   ```
   Verify nothing breaks (Lucide-react inline SVGs are fine).
 
@@ -301,47 +325,48 @@ Run `npm audit --omit=dev`. Lucide-react and React are clean as of Apr 2026. `do
 
 ### 7.1 GST Calculator — `pages/Resources/GSTCalculator.tsx`
 
-| Issue | Line | Fix |
-|---|---|---|
-| `if (!amount) return …` treats `0` as missing — but `0` is a valid input for "remove GST" mode (gives `0/0`). | 11 | Use `if (amount === '' \|\| Number.isNaN(Number(amount)))`. |
-| Inclusive mode divides by `(1 + rate/100)` without guarding `rate < 0` (impossible from UI today, but if a deep-link adds `?rate=-1`…) | 23 | Clamp `rate` to `[0, 100]` at top of `calculate()`. |
-| The "Calculating GST on ₹0 at 18%" footer leaks the placeholder zero (`amount \|\| 0`) — see 3.7. | 129 | Render only when `amount` is set. |
-| Floating-point can show `99.99` for small inputs. | 27 | Round at display time using `.toFixed(2)` consistently; current `toLocaleString({ maximumFractionDigits: 2 })` is fine but inconsistent across calculators. Standardise. |
+| Issue                                                                                                                                  | Line | Fix                                                                                                                                                                      |
+| -------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `if (!amount) return …` treats `0` as missing — but `0` is a valid input for "remove GST" mode (gives `0/0`).                          | 11   | Use `if (amount === '' \|\| Number.isNaN(Number(amount)))`.                                                                                                              |
+| Inclusive mode divides by `(1 + rate/100)` without guarding `rate < 0` (impossible from UI today, but if a deep-link adds `?rate=-1`…) | 23   | Clamp `rate` to `[0, 100]` at top of `calculate()`.                                                                                                                      |
+| The "Calculating GST on ₹0 at 18%" footer leaks the placeholder zero (`amount \|\| 0`) — see 3.7.                                      | 129  | Render only when `amount` is set.                                                                                                                                        |
+| Floating-point can show `99.99` for small inputs.                                                                                      | 27   | Round at display time using `.toFixed(2)` consistently; current `toLocaleString({ maximumFractionDigits: 2 })` is fine but inconsistent across calculators. Standardise. |
 
 ### 7.2 HRA Calculator — `pages/Resources/HRACalculator.tsx`
 
-| Issue | Line | Fix |
-|---|---|---|
-| `if (!basic \|\| !rentPaid \|\| !hraReceived)` returns `0,0` — but a valid case is `da=0`. The condition is correct only because each falsy guard checks **inputs**, not derived. However `cond2 = rentPaid - 0.10 * salary` can be **negative**; `Math.min(cond1, cond2, cond3)` would then yield negative — `Math.max(0, …)` saves us. ✅ | 21-26 | OK, but **add unit tests** in `HRACalculator.test.ts` covering: `(basic=0)`, `(rentPaid<0.10*salary)`, `(metro vs non-metro)`. |
-| Year-vs-month confusion. The labels say "(Yearly)" but most clients have monthly slip data. | 63-101 | Add a "Convert from monthly" toggle that multiplies inputs by 12. |
-| Bengaluru not in metro list (UI text 123). | 123 | Verify with the partner's policy and either add Bengaluru or keep with a footnote. |
+| Issue                                                                                                                                                                                                                                                                                                                                       | Line   | Fix                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `if (!basic \|\| !rentPaid \|\| !hraReceived)` returns `0,0` — but a valid case is `da=0`. The condition is correct only because each falsy guard checks **inputs**, not derived. However `cond2 = rentPaid - 0.10 * salary` can be **negative**; `Math.min(cond1, cond2, cond3)` would then yield negative — `Math.max(0, …)` saves us. ✅ | 21-26  | OK, but **add unit tests** in `HRACalculator.test.ts` covering: `(basic=0)`, `(rentPaid<0.10*salary)`, `(metro vs non-metro)`. |
+| Year-vs-month confusion. The labels say "(Yearly)" but most clients have monthly slip data.                                                                                                                                                                                                                                                 | 63-101 | Add a "Convert from monthly" toggle that multiplies inputs by 12.                                                              |
+| Bengaluru not in metro list (UI text 123).                                                                                                                                                                                                                                                                                                  | 123    | Verify with the partner's policy and either add Bengaluru or keep with a footnote.                                             |
 
 ### 7.3 CII Calculator — `pages/Resources/CIICalculator.tsx`
 
-| Issue | Line | Fix |
-|---|---|---|
-| `useEffect(() => calculate(), [purchaseYear, saleYear, cost])` — but `calculate` is redefined every render and reads `ciiData` from closure. Eslint react-hooks rule should warn. | 28-30 | Wrap `calculate` in `useCallback` and include it in deps; or inline the logic in the effect. |
-| Default sale year set inside an effect even though `ciiData` is a stable JSON. | 22-26 | Compute default in `useState(() => …)` initialiser, or use `useMemo` to avoid the second render. |
-| Allows purchase year > sale year, then renders an error banner (132-136) but **also** renders a stale result. | 143 | Gate the entire result block on `purchaseYear <= saleYear`. |
-| Year strings sort lexicographically; "2009-10" < "2024-25" string-wise — works for these formats but breaks if "2001-02" vs "1999-00" ever appears (it doesn't, but defensive). | — | Add a `compareFY` util that splits on `-` and compares numerically. |
-| Result is rounded with `Math.round` but UI says "Inflation Benefit ₹X" — should also round to nearest ₹100 for "estimate" framing. | 45-47 | Optional. |
+| Issue                                                                                                                                                                             | Line  | Fix                                                                                              |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------ |
+| `useEffect(() => calculate(), [purchaseYear, saleYear, cost])` — but `calculate` is redefined every render and reads `ciiData` from closure. Eslint react-hooks rule should warn. | 28-30 | Wrap `calculate` in `useCallback` and include it in deps; or inline the logic in the effect.     |
+| Default sale year set inside an effect even though `ciiData` is a stable JSON.                                                                                                    | 22-26 | Compute default in `useState(() => …)` initialiser, or use `useMemo` to avoid the second render. |
+| Allows purchase year > sale year, then renders an error banner (132-136) but **also** renders a stale result.                                                                     | 143   | Gate the entire result block on `purchaseYear <= saleYear`.                                      |
+| Year strings sort lexicographically; "2009-10" < "2024-25" string-wise — works for these formats but breaks if "2001-02" vs "1999-00" ever appears (it doesn't, but defensive).   | —     | Add a `compareFY` util that splits on `-` and compares numerically.                              |
+| Result is rounded with `Math.round` but UI says "Inflation Benefit ₹X" — should also round to nearest ₹100 for "estimate" framing.                                                | 45-47 | Optional.                                                                                        |
 
 ### 7.4 Tax Estimator — `components/TaxCalculator/useTaxCalculation.ts`
 
 This is the biggest correctness surface on the page.
 
-| Issue | Line | Fix |
-|---|---|---|
-| `getSurchargeRate` is hardcoded inside the file (150-156). The code path also pulls `config.surchargeSlabs` (`useTaxCalculation.ts:144-146`) but **only to sort**, never uses the values. So if `tax-config.json` updates surcharge thresholds, the engine ignores them. | 144-156 | Drive surcharge rates from `config.surchargeSlabs` directly. Add `rates: { '50L': 0.10, '1Cr': 0.15, '2Cr': 0.25, '5Cr': 0.37 }` to `tax-config.json` and read from it. |
-| Marginal-relief calc for 87A new regime (124-128) only handles the case `tax > excessIncome`. Edge case: when `tax <= excessIncome`, no relief is needed, but `marginalRelief87A` stays 0 ✅. However, `taxAfterRebate = max(0, tax - rebate - marginalRelief87A)` then **double counts** when both rebate and marginal relief equal tax (impossible in practice but worth a guard). | 119-137 | Compute `taxAfterRebate = Math.max(0, tax - Math.max(rebate, marginalRelief87A))`. |
-| `cess = (tax + surcharge - rebate - marginalRelief) * 0.04`. Cess is computed on `finalTaxBeforeCess` (line 202-203). ✅ | 202-203 | OK. |
-| The reducer-state for the comparison panel still toggles "regime" (`SET_REGIME`) but never uses the user's choice for an actual recommendation. The recommendation is purely automatic (`useTaxCalculation.ts:233-242`). Confusing UX: the user toggles between Old/New, but their "vote" doesn't change anything. | — | Re-design: drop the toggle, show both side-by-side, or label the toggle "View breakdown for: New / Old" with "Recommendation: New" highlighted. |
-| `IncomeInputs.tsx:84` — `value === ''` early exits to `0`, but `Number('')` is `0` already. The branch is dead code. | 84 | Remove. |
-| LTCG / STCG aren't separated from "Capital Gains". Old/New regime tax both apply slab rates to the whole figure — this **understates** tax for LTCG @ 12.5% (Sec 112A) and **overstates** for those who only have LTCG below ₹1.25 L. | — | Add two LTCG/STCG fields under Capital Gains, compute Sec 112A separately. (Big task — file as a follow-up ticket if outside this PR's scope.) |
-| Old-regime senior-citizen exemption uses `config.oldRegimeConfig.exemptions[age]` (line 35). If a deep-link sets `ageGroup` to an invalid string, fallback is `below60`. ✅ | 35 | OK. |
-| Hard-coded surcharge 37%/25% (line 151). New regime caps at 25% — already handled. But the **new regime** also has a 25% cap above ₹2 Cr per Finance Act 2023, and we currently apply 25% only above ₹2 Cr ✅. Confirm with Sagar that the cap rules still match FY 2025-26 / AY 2026-27. | 151 | Verify and write a unit test. |
+| Issue                                                                                                                                                                                                                                                                                                                                                                                | Line    | Fix                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getSurchargeRate` is hardcoded inside the file (150-156). The code path also pulls `config.surchargeSlabs` (`useTaxCalculation.ts:144-146`) but **only to sort**, never uses the values. So if `tax-config.json` updates surcharge thresholds, the engine ignores them.                                                                                                             | 144-156 | Drive surcharge rates from `config.surchargeSlabs` directly. Add `rates: { '50L': 0.10, '1Cr': 0.15, '2Cr': 0.25, '5Cr': 0.37 }` to `tax-config.json` and read from it. |
+| Marginal-relief calc for 87A new regime (124-128) only handles the case `tax > excessIncome`. Edge case: when `tax <= excessIncome`, no relief is needed, but `marginalRelief87A` stays 0 ✅. However, `taxAfterRebate = max(0, tax - rebate - marginalRelief87A)` then **double counts** when both rebate and marginal relief equal tax (impossible in practice but worth a guard). | 119-137 | Compute `taxAfterRebate = Math.max(0, tax - Math.max(rebate, marginalRelief87A))`.                                                                                      |
+| `cess = (tax + surcharge - rebate - marginalRelief) * 0.04`. Cess is computed on `finalTaxBeforeCess` (line 202-203). ✅                                                                                                                                                                                                                                                             | 202-203 | OK.                                                                                                                                                                     |
+| The reducer-state for the comparison panel still toggles "regime" (`SET_REGIME`) but never uses the user's choice for an actual recommendation. The recommendation is purely automatic (`useTaxCalculation.ts:233-242`). Confusing UX: the user toggles between Old/New, but their "vote" doesn't change anything.                                                                   | —       | Re-design: drop the toggle, show both side-by-side, or label the toggle "View breakdown for: New / Old" with "Recommendation: New" highlighted.                         |
+| `IncomeInputs.tsx:84` — `value === ''` early exits to `0`, but `Number('')` is `0` already. The branch is dead code.                                                                                                                                                                                                                                                                 | 84      | Remove.                                                                                                                                                                 |
+| LTCG / STCG aren't separated from "Capital Gains". Old/New regime tax both apply slab rates to the whole figure — this **understates** tax for LTCG @ 12.5% (Sec 112A) and **overstates** for those who only have LTCG below ₹1.25 L.                                                                                                                                                | —       | Add two LTCG/STCG fields under Capital Gains, compute Sec 112A separately. (Big task — file as a follow-up ticket if outside this PR's scope.)                          |
+| Old-regime senior-citizen exemption uses `config.oldRegimeConfig.exemptions[age]` (line 35). If a deep-link sets `ageGroup` to an invalid string, fallback is `below60`. ✅                                                                                                                                                                                                          | 35      | OK.                                                                                                                                                                     |
+| Hard-coded surcharge 37%/25% (line 151). New regime caps at 25% — already handled. But the **new regime** also has a 25% cap above ₹2 Cr per Finance Act 2023, and we currently apply 25% only above ₹2 Cr ✅. Confirm with Sagar that the cap rules still match FY 2025-26 / AY 2026-27.                                                                                            | 151     | Verify and write a unit test.                                                                                                                                           |
 
 **Action.** Add unit tests in `components/TaxCalculator/taxLogic.test.ts` (file already exists — extend it) covering at minimum:
+
 - `(salary=600000, age=below60, regime=new)` → `tax = 0` (rebate).
 - `(salary=1200000, age=below60, regime=new)` → still 0 (rebate at ₹12 L cap).
 - `(salary=1200001)` → marginal relief kicks in.
@@ -351,28 +376,28 @@ This is the biggest correctness surface on the page.
 
 ### 7.5 Compliance Calendar — `pages/Resources/ComplianceCalendar.tsx`
 
-| Issue | Line | Fix |
-|---|---|---|
-| `nextDeadline` calculation iterates every event every render (62-87). With ~60 events that's fine, but make sure the `useMemo` is **actually** stable: dependency is `[calendarData, sortedMonths]` ✅. | 62-87 | OK. |
-| `now` is created inside `useMemo` using `new Date()` — when the user opens the page on Apr 28 23:59 and reads it past midnight, the banner is stale. | 65 | Add an effect that refreshes a `Date.now()` ticker every 60 minutes. |
-| `Math.ceil(diffTime / 86400000)` for "X Days left" rounds up so 1.01 days shows as "2 days". | 127 | Use `Math.floor` and consider returning "Today" when `diffDays === 0`, "Tomorrow" when `===1`. |
-| `getUrgencyClass` re-creates a `Date` for every event in every render (89-104). | — | Pre-compute once per `monthKey/day` in a `useMemo` keyed by `[sortedMonths, calendarData, now-bucket]`. |
-| If the JSON has a year that's already past (e.g., `2024-12`), the calendar still renders the section. Confirm intent — for the FY 2025-26 calendar this is fine, but the UI offers no year selector. | — | Add an "Archive" toggle that hides past months, defaulted ON. |
+| Issue                                                                                                                                                                                                   | Line  | Fix                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------- |
+| `nextDeadline` calculation iterates every event every render (62-87). With ~60 events that's fine, but make sure the `useMemo` is **actually** stable: dependency is `[calendarData, sortedMonths]` ✅. | 62-87 | OK.                                                                                                     |
+| `now` is created inside `useMemo` using `new Date()` — when the user opens the page on Apr 28 23:59 and reads it past midnight, the banner is stale.                                                    | 65    | Add an effect that refreshes a `Date.now()` ticker every 60 minutes.                                    |
+| `Math.ceil(diffTime / 86400000)` for "X Days left" rounds up so 1.01 days shows as "2 days".                                                                                                            | 127   | Use `Math.floor` and consider returning "Today" when `diffDays === 0`, "Tomorrow" when `===1`.          |
+| `getUrgencyClass` re-creates a `Date` for every event in every render (89-104).                                                                                                                         | —     | Pre-compute once per `monthKey/day` in a `useMemo` keyed by `[sortedMonths, calendarData, now-bucket]`. |
+| If the JSON has a year that's already past (e.g., `2024-12`), the calendar still renders the section. Confirm intent — for the FY 2025-26 calendar this is fine, but the UI offers no year selector.    | —     | Add an "Archive" toggle that hides past months, defaulted ON.                                           |
 
 ### 7.6 TDS Rate Chart — `pages/Resources/TDSRateChart.tsx`
 
-| Issue | Line | Fix |
-|---|---|---|
-| `filterRates` is recreated on every render (31-35). Memoise. | 31-35 | `useCallback`. |
-| Tab list at 165-182 uses `<button>` with `onClick` setting `activeTab`. Same a11y issue as the sidebar (5.1). Convert to a small Tabs primitive. | — | See 5.1. |
+| Issue                                                                                                                                                                                       | Line      | Fix                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------------------------------------- |
+| `filterRates` is recreated on every render (31-35). Memoise.                                                                                                                                | 31-35     | `useCallback`.                            |
+| Tab list at 165-182 uses `<button>` with `onClick` setting `activeTab`. Same a11y issue as the sidebar (5.1). Convert to a small Tabs primitive.                                            | —         | See 5.1.                                  |
 | `currentData` builds even when `tdsData` is null (`getCurrentData` returns `[]`). Fine, but when `searchTerm` is non-empty and zero matches are shown, a screen reader has no announcement. | 47, 90-94 | Wrap empty-state in `aria-live="polite"`. |
 
 ### 7.7 CII Table — `pages/Resources/CIITable.tsx`
 
-| Issue | Line | Fix |
-|---|---|---|
-| Table has no `<caption>` — screen-reader users get a table with no name. | 36 | Add `<caption className="sr-only">Cost Inflation Index — base year 2001-02 = 100</caption>`. |
-| `key={idx}` on rows (44) — row order is stable from JSON, OK, but using `row.fy` is more robust. | 44 | `key={row.fy}`. |
+| Issue                                                                                            | Line | Fix                                                                                          |
+| ------------------------------------------------------------------------------------------------ | ---- | -------------------------------------------------------------------------------------------- |
+| Table has no `<caption>` — screen-reader users get a table with no name.                         | 36   | Add `<caption className="sr-only">Cost Inflation Index — base year 2001-02 = 100</caption>`. |
+| `key={idx}` on rows (44) — row order is stable from JSON, OK, but using `row.fy` is more robust. | 44   | `key={row.fy}`.                                                                              |
 
 ---
 
@@ -383,11 +408,13 @@ This is the biggest correctness surface on the page.
 - All nine tab components are imported eagerly at the top of `pages/Resources.tsx`. Even if a user only uses the GST calculator, the bundle includes the Tax Calculator (heaviest), Compliance Calendar, and ImportantLinks data.
 
 **How to fix.**
+
 ```tsx
-const TaxCalculator       = React.lazy(() => import('./Resources/TaxCalculator'));
-const GSTCalculator       = React.lazy(() => import('./Resources/GSTCalculator'));
+const TaxCalculator = React.lazy(() => import('./Resources/TaxCalculator'));
+const GSTCalculator = React.lazy(() => import('./Resources/GSTCalculator'));
 // …same for the rest
 ```
+
 Wrap the panel in `<Suspense fallback={<ResourcesSkeleton />}>`. Combine with the route split in 3.1 — Vite will create a chunk per route.
 
 ### 8.2 Duplicate fetches
@@ -397,6 +424,7 @@ Wrap the panel in `<Suspense fallback={<ResourcesSkeleton />}>`. Combine with th
 - `useTaxConfig()` is called once but has no module-level cache.
 
 **How to fix.** Add a module-level `Map<string, Promise<unknown>>` cache:
+
 ```ts
 const cache = new Map<string, Promise<unknown>>();
 function getJson<T>(url: string): Promise<T> {
@@ -404,13 +432,17 @@ function getJson<T>(url: string): Promise<T> {
   return cache.get(url) as Promise<T>;
 }
 ```
+
 Wire this into `useResourceData`. Pattern is already used by `hooks/useInsights.ts:8` (`insightsPromise`) — replicate.
 
 ### 8.3 HTTP caching
 
 - Static JSON in `/public/data/*` is served by Vercel/Netlify with default headers. Add a `vercel.json` (or `_headers` for Netlify):
   ```json
-  { "source": "/data/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, stale-while-revalidate=86400" }] }
+  {
+    "source": "/data/(.*)",
+    "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, stale-while-revalidate=86400" }]
+  }
   ```
 
 ### 8.4 Image / icon weight
@@ -436,15 +468,15 @@ Wire this into `useResourceData`. Pattern is already used by `hooks/useInsights.
 ### 9.1 Per-tab metadata
 
 - Currently only `pages/Resources.tsx:56-60` defines SEO. After route split (3.1), each tab needs its own SEO. Suggested copy:
-  - `/resources/income-tax` — *"Income Tax Calculator AY 2026-27 — Old vs New Regime | Sagar H R & Co."*
-  - `/resources/gst-calc` — *"GST Calculator (Inclusive / Exclusive) | Sagar H R & Co."*
-  - `/resources/hra-calc` — *"HRA Exemption Calculator | Sagar H R & Co."*
-  - `/resources/cii-calc` — *"Capital Gains Indexation (CII) Calculator | Sagar H R & Co."*
-  - `/resources/cii-table` — *"Cost Inflation Index Table FY 2001-02 to 2025-26 | Sagar H R & Co."*
-  - `/resources/calendar` — *"Compliance Calendar FY 2025-26 — GST, TDS, Income Tax, ROC | Sagar H R & Co."*
-  - `/resources/tds-rates` — *"TDS & TCS Rate Chart AY 2026-27 | Sagar H R & Co."*
-  - `/resources/checklist` — *"Document Checklists for Tax Filing | Sagar H R & Co."*
-  - `/resources/links` — *"Important Government Tax Portals | Sagar H R & Co."*
+  - `/resources/income-tax` — _"Income Tax Calculator AY 2026-27 — Old vs New Regime | Sagar H R & Co."_
+  - `/resources/gst-calc` — _"GST Calculator (Inclusive / Exclusive) | Sagar H R & Co."_
+  - `/resources/hra-calc` — _"HRA Exemption Calculator | Sagar H R & Co."_
+  - `/resources/cii-calc` — _"Capital Gains Indexation (CII) Calculator | Sagar H R & Co."_
+  - `/resources/cii-table` — _"Cost Inflation Index Table FY 2001-02 to 2025-26 | Sagar H R & Co."_
+  - `/resources/calendar` — _"Compliance Calendar FY 2025-26 — GST, TDS, Income Tax, ROC | Sagar H R & Co."_
+  - `/resources/tds-rates` — _"TDS & TCS Rate Chart AY 2026-27 | Sagar H R & Co."_
+  - `/resources/checklist` — _"Document Checklists for Tax Filing | Sagar H R & Co."_
+  - `/resources/links` — _"Important Government Tax Portals | Sagar H R & Co."_
 
 ### 9.2 Structured data (JSON-LD)
 
@@ -524,16 +556,16 @@ Wire this into `useResourceData`. Pattern is already used by `hooks/useInsights.
 
 ### 11.1 Breakpoints
 
-| Component | < 640 | 640-1024 | ≥ 1024 |
-|---|---|---|---|
-| Resources shell | sidebar hidden, content full-width | same | sidebar 1/4 + content 3/4 |
-| Tax Calculator | stacked input then results | same | inputs 7/12, results sticky 5/12 |
-| GST | stacked | side-by-side `md:` | same |
-| HRA | stacked | stacked then `lg:` two-col | two-col 7/5 |
-| CII Calc | stacked | stacked | two-col |
-| Calendar | stacked (works) | works | works |
-| TDS | mobile cards (works) | desktop table | same |
-| Checklist | one col | two col | two col |
+| Component       | < 640                              | 640-1024                   | ≥ 1024                           |
+| --------------- | ---------------------------------- | -------------------------- | -------------------------------- |
+| Resources shell | sidebar hidden, content full-width | same                       | sidebar 1/4 + content 3/4        |
+| Tax Calculator  | stacked input then results         | same                       | inputs 7/12, results sticky 5/12 |
+| GST             | stacked                            | side-by-side `md:`         | same                             |
+| HRA             | stacked                            | stacked then `lg:` two-col | two-col 7/5                      |
+| CII Calc        | stacked                            | stacked                    | two-col                          |
+| Calendar        | stacked (works)                    | works                      | works                            |
+| TDS             | mobile cards (works)               | desktop table              | same                             |
+| Checklist       | one col                            | two col                    | two col                          |
 
 The big mobile gap is **no tab switcher below `lg`**. Address per 4.1.
 
@@ -557,6 +589,7 @@ The big mobile gap is **no tab switcher below `lg`**. Address per 4.1.
 ## 12. Internationalisation / localisation
 
 The site is single-language (English) but uses `toLocaleString('en-IN')` for currency. Tighten:
+
 - Standardise on `Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })`. Drop hand-typed `₹ ` prefixes.
 - Date formatting in `ComplianceCalendar.tsx:125` uses `'en-US'` — should be `'en-IN'`.
 - Time-zone: `nextDeadline` uses `new Date()` (browser local). For an Indian user in another country (NRI checking from Dubai), the deadline could appear off by a day. Consider always evaluating in `Asia/Kolkata` (Intl.DateTimeFormat with `timeZone: 'Asia/Kolkata'`).
@@ -659,4 +692,4 @@ Order matters — earlier items unblock later ones.
 
 ---
 
-*End of Resources page audit.*
+_End of Resources page audit._

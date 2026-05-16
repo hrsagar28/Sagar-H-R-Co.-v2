@@ -7,25 +7,15 @@ interface SkeletonProps {
   height?: string | number;
 }
 
-const Skeleton: React.FC<SkeletonProps> = ({
-  className = '',
-  variant = 'text',
-  width,
-  height,
-}) => {
-  const baseClasses = "animate-pulse bg-brand-border/40";
-  
-  let typeClasses = "";
-  if (variant === 'text') typeClasses = "rounded-md h-4";
-  if (variant === 'circular') typeClasses = "rounded-full";
-  if (variant === 'rectangular') typeClasses = "rounded-2xl";
+const Skeleton: React.FC<SkeletonProps> = ({ className = '', variant = 'text', width, height }) => {
+  const baseClasses = 'animate-pulse bg-brand-border/40';
 
-  return (
-    <div 
-      className={`${baseClasses} ${typeClasses} ${className}`} 
-      style={{ width, height }}
-    />
-  );
+  let typeClasses = '';
+  if (variant === 'text') typeClasses = 'rounded-md h-4';
+  if (variant === 'circular') typeClasses = 'rounded-full';
+  if (variant === 'rectangular') typeClasses = 'rounded-2xl';
+
+  return <div className={`${baseClasses} ${typeClasses} ${className}`} style={{ width, height }} />;
 };
 
 export default Skeleton;

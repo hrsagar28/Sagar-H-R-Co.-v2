@@ -18,11 +18,11 @@ class RouteErrorBoundary extends React.Component<Props, RouteErrorBoundaryState>
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    logger.error("Route Error:", error, errorInfo);
+    logger.error('Route Error:', error, errorInfo);
   }
 
   handleRetry = () => {
-    // For route-level errors (often chunk loading failures), 
+    // For route-level errors (often chunk loading failures),
     // a window reload is usually the safest way to recover.
     window.location.reload();
   };
@@ -30,17 +30,15 @@ class RouteErrorBoundary extends React.Component<Props, RouteErrorBoundaryState>
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-8 text-center bg-brand-bg/50 rounded-2xl border border-brand-border my-8">
-          <AlertCircle className="text-red-500 mb-4" size={32} />
-          <h3 className="text-xl font-heading font-bold text-brand-dark mb-2">
-            Unable to load content
-          </h3>
-          <p className="text-brand-stone mb-6 max-w-md">
+        <div className="my-8 flex flex-col items-center justify-center rounded-2xl border border-brand-border bg-brand-bg/50 p-8 text-center">
+          <AlertCircle className="mb-4 text-red-500" size={32} />
+          <h3 className="mb-2 font-heading text-xl font-bold text-brand-dark">Unable to load content</h3>
+          <p className="mb-6 max-w-md text-brand-stone">
             We encountered an unexpected error while loading this section.
           </p>
           <button
             onClick={this.handleRetry}
-            className="px-6 py-2 bg-brand-dark text-white rounded-full font-bold text-sm flex items-center gap-2 hover:bg-brand-brass transition-colors"
+            className="flex items-center gap-2 rounded-full bg-brand-dark px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-brand-brass"
           >
             <RefreshCw size={14} /> Reload Page
           </button>

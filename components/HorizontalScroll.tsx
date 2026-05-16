@@ -15,6 +15,7 @@ interface HorizontalScrollProps {
 }
 
 const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className = '', header }) => {
+  'use memo';
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [dynamicHeight, setDynamicHeight] = useState('auto');

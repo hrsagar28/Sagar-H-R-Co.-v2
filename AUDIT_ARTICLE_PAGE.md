@@ -3,7 +3,7 @@
 **Owner:** CA Sagar H R & Co. — website v3
 **Audit date:** 29 Apr 2026
 **Audited route:** `/insights/:slug` rendered by `pages/InsightDetail.tsx`, with markdown body fetched from `/content/insights/<slug>.md` and metadata from `/data/insights.json`.
-**Reviewer's note:** This document is the *plan*. ChatGPT (Codex) will execute the changes. Each finding is **Problem → Why it matters → How to fix** so Codex can act without further questions. The Insights index page itself is **out of scope** for this round.
+**Reviewer's note:** This document is the _plan_. ChatGPT (Codex) will execute the changes. Each finding is **Problem → Why it matters → How to fix** so Codex can act without further questions. The Insights index page itself is **out of scope** for this round.
 
 ---
 
@@ -11,23 +11,23 @@
 
 In-scope:
 
-| Path | Role |
-|---|---|
-| `pages/InsightDetail.tsx` | The article page itself |
-| `components/MarkdownRenderer.tsx` | Renders the article body |
-| `components/skeletons/InsightDetailSkeleton.tsx` | Loading state |
-| `components/Breadcrumbs.tsx` | Breadcrumb component reused here |
-| `components/SEO.tsx` | Drives `<head>` + JSON-LD |
-| `components/ui/Button.tsx` | Used for the mobile "Consult Expert" CTA |
-| `hooks/useInsights.ts` | Fetches & validates `insights.json` |
-| `hooks/useScrollPosition.ts` | Drives the reading-progress ring |
-| `utils/insightDates.ts` | Date helpers |
-| `utils/formatArchiveDate.ts` | Date helper for the related-cards |
-| `utils/insightValidation.ts` | Runtime validation of insights payload |
-| `utils/api.ts`, `utils/logger.ts` | Network plumbing |
-| `public/data/insights.json` | Insights index |
-| `public/content/insights/*.md` | Article bodies (currently raw HTML, not markdown) |
-| `types.ts` (`InsightItem`) | Shared type |
+| Path                                             | Role                                              |
+| ------------------------------------------------ | ------------------------------------------------- |
+| `pages/InsightDetail.tsx`                        | The article page itself                           |
+| `components/MarkdownRenderer.tsx`                | Renders the article body                          |
+| `components/skeletons/InsightDetailSkeleton.tsx` | Loading state                                     |
+| `components/Breadcrumbs.tsx`                     | Breadcrumb component reused here                  |
+| `components/SEO.tsx`                             | Drives `<head>` + JSON-LD                         |
+| `components/ui/Button.tsx`                       | Used for the mobile "Consult Expert" CTA          |
+| `hooks/useInsights.ts`                           | Fetches & validates `insights.json`               |
+| `hooks/useScrollPosition.ts`                     | Drives the reading-progress ring                  |
+| `utils/insightDates.ts`                          | Date helpers                                      |
+| `utils/formatArchiveDate.ts`                     | Date helper for the related-cards                 |
+| `utils/insightValidation.ts`                     | Runtime validation of insights payload            |
+| `utils/api.ts`, `utils/logger.ts`                | Network plumbing                                  |
+| `public/data/insights.json`                      | Insights index                                    |
+| `public/content/insights/*.md`                   | Article bodies (currently raw HTML, not markdown) |
+| `types.ts` (`InsightItem`)                       | Shared type                                       |
 
 Out of scope (this round): `/insights` listing page, `/insights` filters/search, the home-page "Latest insights" carousel, sitemap generation.
 
@@ -61,14 +61,23 @@ The remediation plan below references every concrete file:line and gives Codex a
 ### 3.1 Loading & error transitions
 
 **Problem.** `pages/InsightDetail.tsx:175` returns `<InsightDetailSkeleton />` while the markdown is in flight. But:
+
 - Once `insightSchema` resolves but `mdContent` is still loading, the skeleton hides the title (which is already known). Lost opportunity to show progressive content.
 - On `fetchError` (line 178-188) the user sees a centred "Content Not Found" with a back link — fine — but there's no "Try again" and no telemetry.
 
 **How to fix.**
+
 - Render the **header** (title, date, breadcrumbs) the moment `insight` is available; show a body skeleton below it. Two-phase reveal.
 - Add a `retry` button:
   ```tsx
-  <button onClick={() => { setFetchError(false); refetch(); }}>Retry</button>
+  <button
+    onClick={() => {
+      setFetchError(false);
+      refetch();
+    }}
+  >
+    Retry
+  </button>
   ```
   — extract the body fetch into a `useArticleBody(slug)` hook so retry is straightforward.
 - Send a Sentry event (when wired) or `logger.error` with the slug.
@@ -76,6 +85,7 @@ The remediation plan below references every concrete file:line and gives Codex a
 ### 3.2 Not-found handling
 
 **Problem.** `pages/InsightDetail.tsx:56-60`:
+
 ```ts
 useEffect(() => {
   if (!loading && !insight && slug) {
@@ -83,10 +93,12 @@ useEffect(() => {
   }
 }, [loading, insight, slug, navigate]);
 ```
+
 - Silent redirect — bad for users who copy-pasted a typo'd link.
 - Returns HTTP 200 to crawlers (since this is a SPA navigation). Google indexes the dead URL.
 
 **How to fix.**
+
 - Render a dedicated 404 panel similar to `pages/NotFound.tsx`. Title the page "Article Not Found · Sagar H R & Co." and link to `/insights` plus the most-recent 3 articles.
 - For SEO, when the SPA detects a missing slug it should **set a `<meta name="robots" content="noindex">`** in `SEOProps` and render. This requires extending `components/SEO.tsx` to accept `noindex?: boolean`.
 - For full-fat SEO, pre-rendering each article (via `vite-plugin-prerender`) plus a `_redirects`/`vercel.json` rule that returns 404 for missing slugs is ideal — but at minimum, `noindex` on the dynamic 404.
@@ -96,6 +108,7 @@ useEffect(() => {
 **Problem.** Two share controls (Share, Copy Link) sit side-by-side (`pages/InsightDetail.tsx:258-280` desktop, 388-393 mobile). They do almost the same thing — Web Share API falls back to clipboard, and the explicit Copy Link button also copies. UX confusion.
 
 **How to fix.**
+
 - Keep **one** primary "Share" (uses Web Share API on capable devices, falls back to clipboard with a toast).
 - Replace the second button with **Bookmark** (`localStorage` save, badge "Saved") — the article surface is exactly where users want this.
 - Or replace with **Email** (`mailto:?subject=…&body=…`) which is the dominant share channel for finance audiences.
@@ -103,11 +116,13 @@ useEffect(() => {
 ### 3.4 Floating share rail (desktop)
 
 **Problem.** `pages/InsightDetail.tsx:254-315`:
+
 - The rail is `lg:` only — narrower laptop viewports (e.g. iPad Air landscape, 1180 px) do show it but its tooltip text overflows under the article column.
 - The "rail" is a single visual unit but each button has its own custom-styled tooltip rather than a shared component.
 - Twitter's brand colour `#1DA1F2` is the legacy Twitter blue. X (current name) uses black/white. Decide: keep "Twitter" and the bird brand, or rename to "X" and update the icon.
 
 **How to fix.**
+
 - Consolidate tooltips into one `Tooltip` component (see §5 below).
 - Remove the explicit `Twitter` brand colour or update to "X" (black). Rename `aria-label="Share on Twitter"` to `"Share on X"` — Lucide has no first-class X icon, so use the existing `Twitter` glyph but rename the visible label.
 - Add a `Threads` / `Bluesky` button if the partner's audience is on those (skip if not).
@@ -117,6 +132,7 @@ useEffect(() => {
 **Problem.** `pages/InsightDetail.tsx:387-398` — the bar is fixed at `bottom-6`, full width, with primary CTA "Consult Expert". It overlaps content at the end of the article. There's no `padding-bottom` on `<main>` to compensate, so the last paragraph hides under the bar on small phones.
 
 **How to fix.**
+
 - Add `pb-32 lg:pb-0` to `<main>` (line 318) so the article content is never covered.
 - The bar uses `bg-brand-dark/90 backdrop-blur-lg` — backdrop-blur on iOS is heavy and can cause jank on long articles. Drop the blur on mobile if perf is an issue.
 - Add `safe-area-inset-bottom`: `bottom: max(env(safe-area-inset-bottom), 1.5rem)` so it sits above the home indicator.
@@ -124,10 +140,12 @@ useEffect(() => {
 ### 3.6 Reading progress ring
 
 **Problem.** `pages/InsightDetail.tsx:67-72` computes scroll progress on every scroll event and the SVG uses `transition-all duration-100`, which on rAF-throttled scroll causes a perceptible lag on the percentage. Also:
+
 - The ring competes visually with the bottom CTA bar — both are at bottom-right on mobile (`bottom-24` for the ring, `bottom-6` for the bar). On long article they stack OK, but on sub-iPhone-SE 5G screens (375×667) they collide.
 - The "X% Read" string is exposed only via `title` — which is hover-only desktop. Add a visually-hidden `aria-live` announcement for keyboard users.
 
 **How to fix.**
+
 - Memoise `scrollProgress` per `requestAnimationFrame` tick (already done by `useScrollPosition`) but **drop the SVG `transition-all`** — the rAF tick already smooths it.
 - Hide the ring on mobile (`lg:block` only) since the mobile bottom bar already anchors the user.
 - Add `<span className="sr-only" aria-live="polite">{Math.round(scrollProgress*100)} percent read</span>` if we keep it. Probably overkill — consider removing.
@@ -135,12 +153,14 @@ useEffect(() => {
 ### 3.7 Related insights logic
 
 **Problem.** `pages/InsightDetail.tsx:155-172` — picks 3 same-category articles, then back-fills with cross-category. The fallback logic looks sound, but:
+
 - The `slice(0, 3)` is taken **before** filtering, so if there are exactly three same-category articles plus an older one in the category, the older one is silently dropped — fine, but documents.
 - No "by-tag" weighting (insights have a `tags` field — `types.ts:38`) — likely more relevant than category.
 - The "Further Reading" heading is shown even for empty results — the conditional `relatedInsights.length > 0 &&` (line 344) handles this. ✅
 - The card click target uses `<Link>` wrapping the whole card — fine for mouse, but the inner `time` and decorative arrow swallow the link semantics into "Apr · 25 [arrow]" for SR users. Add `aria-label={item.title}` to the outer `<Link>` so screen readers don't read the date and arrow as the link name.
 
 **How to fix.**
+
 - Score related = `tagOverlap*3 + sameCategory*2 + recency` then `slice(0,3)`.
 - Add `aria-label` to outer `<Link>`.
 - Memoise sorted insights; current code re-sorts every render but the input is stable.
@@ -150,6 +170,7 @@ useEffect(() => {
 **Problem.** `pages/InsightDetail.tsx:325-340` — the author block hardcodes "Senior Partner at {firm}, specializing in corporate taxation, audit assurance…" for **every** author. If a guest author publishes an article, this is wrong. Also, only the initial of the author's name is shown.
 
 **How to fix.**
+
 - Move author bio data into a `public/data/authors.json` keyed by author slug, with `{ name, title, bio, avatar, linkedin, twitter, sameAs[] }`.
 - Add an `authorId` field to `InsightItem` (`types.ts:28-43`) and reference it from each insight.
 - The author avatar is currently a coloured circle with the first initial — once `avatars.json` exists, swap to `<img>` with `width/height/alt`.
@@ -158,22 +179,43 @@ useEffect(() => {
 ### 3.9 Print
 
 **Problem.** `pages/InsightDetail.tsx` has **no `print:` rules**. Printing an article therefore:
+
 - Includes the dark fixed share rail and bottom bar (overlapping content),
 - Uses `bg-brand-bg` which is a near-cream colour wasting toner,
 - Wastes a top page on the 192 px-tall `pt-32` padding,
 - Renders the 56-px reading-progress ring in the corner of every page.
 
 **How to fix.** Add to the wrapper:
+
 ```css
 @media print {
-  .article-wrapper { color: black; }
-  aside, .fixed { display: none !important; }
-  body { background: white; }
-  .pt-32, .md\:pt-48 { padding-top: 0; }
-  h1, h2, h3 { page-break-after: avoid; }
-  pre, blockquote, img { page-break-inside: avoid; }
+  .article-wrapper {
+    color: black;
+  }
+  aside,
+  .fixed {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+  .pt-32,
+  .md\:pt-48 {
+    padding-top: 0;
+  }
+  h1,
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+  pre,
+  blockquote,
+  img {
+    page-break-inside: avoid;
+  }
 }
 ```
+
 Alternatively wire `print:hidden` onto the rail (line 254), the bottom bar (line 387), the progress ring (line 401), and the decorative blur backgrounds.
 Add a small printed footer with the firm letterhead, similar to the Tax Calculator's existing print-letterhead pattern (`components/TaxCalculator/index.tsx:127-153`).
 
@@ -203,7 +245,12 @@ Add a small printed footer with the firm letterhead, similar to the Tax Calculat
 
 - Bullet `<li>` (line 48) uses `relative pl-8` but no actual bullet glyph (the original `<ul>` removes default markers). Add a `::before` content for visual marker:
   ```css
-  .article-wrapper li::before { content: '—'; position: absolute; left: 0.5rem; color: var(--brand-moss); }
+  .article-wrapper li::before {
+    content: '—';
+    position: absolute;
+    left: 0.5rem;
+    color: var(--brand-moss);
+  }
   ```
 - `<a>` (line 45) has `decoration-0 pointer` (typo for `cursor: pointer`) and `border-b`. External links open in same tab — articles often link to gov.in pages; add `target="_blank" rel="noopener noreferrer"` for `href` starting with `http://` or `https://`. Detect via the `node.url` prop or post-process via rehype.
 - `<blockquote>` (line 64) has `pl-8 py-2` and `border-l-4` but the `pl-8` puts text 32 px from the border — visually disconnected. Try `pl-6`.
@@ -214,9 +261,10 @@ Add a small printed footer with the firm letterhead, similar to the Tax Calculat
 `pages/InsightDetail.tsx:75-114` — the entire `useEffect` that injects copy-to-clipboard buttons over `<pre>` tags. As of today none of the articles in `public/content/insights/` contain `<pre>` blocks. The block runs on every article view, queries the DOM, attaches event listeners that are **not removed** on unmount (only the `setTimeout` is cleared via line 113).
 
 **How to fix.**
+
 - Move this logic into `MarkdownRenderer.tsx` as a real React component for `pre`:
   ```tsx
-  pre: ({ node, ...props }) => <CodeBlock {...props} />
+  pre: ({ node, ...props }) => <CodeBlock {...props} />;
   ```
   where `CodeBlock` renders `<pre>` plus a real React `<button>` with `onClick={() => navigator.clipboard.writeText(...)}`. No more imperative DOM mutation.
 - Until that lands, remove the `useEffect` from `InsightDetail.tsx:75-114` (it's dead code) — delete the entire effect.
@@ -237,12 +285,14 @@ Add a small printed footer with the firm letterhead, similar to the Tax Calculat
 ### 5.1 H1 wrapped in `<em>` — **P1**
 
 **Problem.** `pages/InsightDetail.tsx:238-240`:
+
 ```tsx
 <h1 …>
   {insight.title.includes(' ') ? <>{first} <em>{rest}</em></> : <em>{insight.title}</em>}
 </h1>
 ```
-Screen readers say *"emphasis on rest of title"*. The intent is purely visual italic.
+
+Screen readers say _"emphasis on rest of title"_. The intent is purely visual italic.
 
 **How to fix.** Replace `<em>` with `<span className="italic">` (or a Tailwind `font-serif italic` class). `<em>` should be reserved for true semantic emphasis.
 
@@ -255,6 +305,7 @@ Screen readers say *"emphasis on rest of title"*. The intent is purely visual it
 ### 5.3 Decorative icons — **P1**
 
 `pages/InsightDetail.tsx` has many `<Icon size={...} />` calls without `aria-hidden="true"`:
+
 - Line 263, 275, 287 — `Check`, `Share2`, `LinkIcon`, `Printer`. Some have `aria-hidden="true"` (good), but the trailing `Check` glyphs in the Copied state need `aria-hidden`.
 - Line 372 — `<ArrowUpRight />` inside the related card (not aria-hidden).
 - Line 423 — `<ArrowUp size={20} aria-hidden="true">` ✅.
@@ -269,10 +320,15 @@ Audit every Lucide instance and add `aria-hidden="true" focusable="false"`.
 ### 5.5 Focus management on slug change
 
 `pages/InsightDetail.tsx:62-64`:
+
 ```ts
-useEffect(() => { window.scrollTo(0, 0); }, [slug]);
+useEffect(() => {
+  window.scrollTo(0, 0);
+}, [slug]);
 ```
+
 Scrolls but doesn't move focus. Screen-reader users navigating via the related-insights cards lose context — focus stays on the previous link. Fix:
+
 ```ts
 useEffect(() => {
   window.scrollTo(0, 0);
@@ -280,6 +336,7 @@ useEffect(() => {
   h1?.focus();
 }, [slug]);
 ```
+
 Add `tabIndex={-1}` to the `<h1>` so it's focusable.
 
 ### 5.6 Skip-link
@@ -302,6 +359,7 @@ Long-form articles benefit from a TOC. Currently none. Add an auto-generated TOC
 ### 5.10 Heading hierarchy
 
 In `MarkdownRenderer.tsx`:
+
 - `h1` (line 41) — articles should NOT contain `<h1>` (the page already provides one). Demote `h1` from markdown to `h2` or warn.
 - `h2`/`h3`/`h4`/`h5`/`h6` — `h4` and `h5`/`h6` aren't overridden, so they fall back to the (likely undefined) global h4 styles. Add explicit overrides.
 
@@ -318,20 +376,27 @@ In `MarkdownRenderer.tsx`:
 **Problem.** `MarkdownRenderer.tsx:13-22` detects `content.trim().startsWith('<')` and switches to `dangerouslySetInnerHTML` after `DOMPurify.sanitize(content)`. Every current article goes through this path because the `.md` files are actually HTML.
 
 DOMPurify protects against most XSS by default, but:
+
 - The Markdown path has `rehypeSanitize` (line 39) — different defaults from DOMPurify.
 - Article authors and CMS contributors don't see the HTML/markdown distinction. A copy-paste from Word with `<style>` tags, `<iframe>`, or `<script>` could slip in.
 - DOMPurify defaults strip most actives but allow `<a target>` and `data:` URIs in some configs. Verify the default config doesn't allow `data:text/html`.
 
 **How to fix.**
+
 1. **Convert all article files to real Markdown.** Each `.md` should start with a heading and use markdown syntax. The `.summary-card` div should become a custom container, e.g.:
+
    ```md
    :::summary
+
    ### Key Takeaways
+
    - point one
    - point two
-   :::
+     :::
    ```
+
    Rendered via a remark directive plugin (`remark-directive`) and a custom React component for `summary` boxes.
+
 2. **Drop the legacy-HTML branch entirely** once all files are migrated. `MarkdownRenderer.tsx:13-22` becomes:
    ```tsx
    if (!content) return null;
@@ -340,11 +405,35 @@ DOMPurify protects against most XSS by default, but:
 3. Until migration completes, **harden DOMPurify**:
    ```ts
    DOMPurify.sanitize(content, {
-     ALLOWED_TAGS: ['p','h1','h2','h3','h4','ul','ol','li','strong','em','a','blockquote','code','pre','table','thead','tbody','tr','td','th','div','span','br'],
-     ALLOWED_ATTR: ['href','class','title'],
+     ALLOWED_TAGS: [
+       'p',
+       'h1',
+       'h2',
+       'h3',
+       'h4',
+       'ul',
+       'ol',
+       'li',
+       'strong',
+       'em',
+       'a',
+       'blockquote',
+       'code',
+       'pre',
+       'table',
+       'thead',
+       'tbody',
+       'tr',
+       'td',
+       'th',
+       'div',
+       'span',
+       'br',
+     ],
+     ALLOWED_ATTR: ['href', 'class', 'title'],
      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-     FORBID_TAGS: ['style','iframe','script','object','embed','svg','math'],
-     FORBID_ATTR: ['style','onerror','onload','formaction']
+     FORBID_TAGS: ['style', 'iframe', 'script', 'object', 'embed', 'svg', 'math'],
+     FORBID_ATTR: ['style', 'onerror', 'onload', 'formaction'],
    });
    ```
 4. Migrate the seven existing `.md` files (`new-income-tax-bill-2025.md`, `gst-reforms-2.0.md`, `tds-tcs-changes-2025.md`, `gst-compliance-updates.md`, `house-property-income.md`, `sp-rating-upgrade.md`) to genuine markdown. The structure is repetitive (intro `<p>`, `summary-card` div, sections, conclusion paragraph) — write a one-shot migration script.
@@ -361,6 +450,7 @@ Line 30 of `MarkdownRenderer.tsx`. After §6.1 step 2, this line disappears. Unt
 ### 6.4 Web Share API & navigator.clipboard
 
 `pages/InsightDetail.tsx:116-149` — both APIs are guarded with capability checks (`navigator.share && navigator.canShare`). ✅ The fallback path catches errors. But:
+
 - Line 136 falls back to `alert('Unable to copy link to clipboard.')` — `alert` is intrusive. Use `addToast` instead.
 - `handleCopyLink` (141-149) has no fallback for non-secure contexts. On `http://localhost` Web Share fails too — switch to a `document.execCommand('copy')` fallback if `navigator.clipboard` rejects.
 
@@ -371,6 +461,7 @@ After migration, every `<a>` rendered via `MarkdownRenderer.tsx:45` should auto-
 ### 6.6 SSRF via fetch
 
 `pages/InsightDetail.tsx:41` — `fetch('/content/insights/${slug}.md')`. The slug comes from URL params. A malicious URL like `/insights/../../etc/passwd` would resolve at the dev server. Vite resolves to the `public` folder which sits inside the repo, so traversal is bounded to the public folder. Still, defensively whitelist:
+
 ```ts
 if (!/^[a-z0-9-]+$/i.test(slug)) {
   setFetchError(true);
@@ -395,6 +486,7 @@ Same finding as the Resources page — site-wide CSP missing. Add a strict CSP i
 `public/data/insights.json:1-67` — every article contains a `content: "<p>…<\/p>"` field that duplicates the body in `public/content/insights/<slug>.md`. The page reads only the `.md`, so the JSON `content` is **dead** but heavy (the JSON is **52 KB** with the bodies, vs. ~3 KB without).
 
 **How to fix.**
+
 1. Drop the `content` field from `insights.json`. Keep only metadata.
 2. Add a `wordCount` or `readMinutes` field computed from the `.md` body at build time (replace the hand-typed `readTime: "6 min read"`).
 3. Add a `dateModified` field everywhere (currently missing in all 6 entries).
@@ -415,6 +507,7 @@ See §3.8 — externalise author bios to `authors.json` so multiple writers can 
 ### 7.5 Markdown frontmatter
 
 Once articles are real markdown, add YAML frontmatter:
+
 ```md
 ---
 slug: gst-reforms-2.0
@@ -427,6 +520,7 @@ tags: [gst, msme, reform]
 summary: …
 ---
 ```
+
 Then a build-step (Vite plugin) reads frontmatter and emits `insights.json` automatically. One source of truth.
 
 ---
@@ -438,11 +532,13 @@ Then a build-step (Vite plugin) reads frontmatter and emits `insights.json` auto
 `pages/InsightDetail.tsx:194-211` calls `<SEO ogType="article" article={…} />` but doesn't pass `ogImage`. So every article shares the site's default OG image. Bad for click-through on LinkedIn / Twitter / WhatsApp.
 
 **How to fix.** Add `ogImage` to the `<SEO>` props and source it from `insight.image` (already in the `InsightItem` type but unused). Fall back to a deterministic generated image:
+
 - Build-time: generate a 1200×630 image per article using `satori` + `resvg`, with the title and author. Output to `public/og/<slug>.png`. Reference from `insight.image` automatically.
 
 ### 8.2 Article JSON-LD completeness
 
 `components/SEO.tsx:152-177` builds an `Article` object. Missing/improvable fields:
+
 - `articleSection` — should be `insight.category`.
 - `keywords` — should be `insight.tags?.join(', ')`.
 - `wordCount` — from `insight.wordCount`.
@@ -458,12 +554,14 @@ Then a build-step (Vite plugin) reads frontmatter and emits `insights.json` auto
 ### 8.4 Twitter Card
 
 `SEO.tsx:95-98` writes `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`. Missing:
+
 - `twitter:site` — the firm's `@handle`.
 - `twitter:creator` — the author's `@handle` (once authors.json has it).
 
 ### 8.5 Article-specific OG tags
 
 `SEO.tsx:87-92` writes `og:title`, `og:description`, `og:url`, `og:type`, `og:image`. For `ogType === 'article'` we should also emit:
+
 - `article:published_time`
 - `article:modified_time`
 - `article:author` (URL or name)
@@ -499,18 +597,21 @@ The "Related Insights" section is a UX feature, not a structured-data requiremen
 ### 9.1 Two HTTP fetches per page
 
 Every article triggers:
+
 - `GET /data/insights.json` (~52 KB today, ~3 KB after §7.1) via `useInsights`.
 - `GET /content/insights/<slug>.md` (~5 KB).
 
 Both block the article render. The metadata fetch is cached at module level (`useInsights.ts:8`) ✅. The markdown fetch isn't cached — clicking back-and-forth between two articles refetches each.
 
 **How to fix.**
+
 - Cache `mdContent` in a `Map<slug, string>` at module level inside `InsightDetail.tsx` (or a new `useArticleBody` hook).
 - Add `Cache-Control: public, max-age=3600, stale-while-revalidate=86400` for `/content/*.md` and `/data/insights.json` (in `vercel.json` or `_headers`).
 
 ### 9.2 Re-fetch on every slug change without abort
 
 Line 41 issues a fetch but only handles success/failure — there's no `AbortController`. If the user clicks a related-insight before the previous article finishes loading, you can briefly see the wrong article. Fix:
+
 ```ts
 useEffect(() => {
   if (!slug) return;
@@ -530,6 +631,7 @@ useEffect(() => {
 ### 9.4 Reading-progress ring
 
 `scrollProgress` triggers a render of the entire page on every rAF tick. The progress ring is the only consumer. Memoise more aggressively:
+
 - Move the progress ring into a separate `<ReadingProgress />` component that subscribes to `useScrollPosition` itself, so the parent doesn't re-render.
 - Drop the SVG `transition-all` (it's already smoothed by rAF).
 
@@ -544,6 +646,7 @@ No images today. Once article cover images land, mandate `<img loading="lazy" de
 ### 9.7 Bundle audit
 
 Run `vite-bundle-visualizer` and confirm the article chunk doesn't include:
+
 - `recharts`, `chart.js` (none expected),
 - `dompurify` (only article chunk),
 - the Tax Calculator code.
@@ -748,4 +851,4 @@ Order matters — earlier items unblock later ones.
 
 ---
 
-*End of Article (Insight Detail) page audit.*
+_End of Article (Insight Detail) page audit._

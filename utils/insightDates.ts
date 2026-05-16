@@ -13,4 +13,3 @@ export const formatLongDate = (input: string | Date): string => {
     year: 'numeric',
   });
 };
-
