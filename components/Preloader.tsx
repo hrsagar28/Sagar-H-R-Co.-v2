@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useReducedMotion } from '../hooks';
 import { CONTACT_INFO } from '../constants';
 
 const Preloader: React.FC = () => {
   const [animateOut, setAnimateOut] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const { pathname } = useLocation();
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (pathname === '/') {
-      setHidden(true);
-      return;
-    }
-
-    // If reduced motion is preferred, we skip the preloader entirely to avoid transition sickness
+    // Previously this component short-circuited on `pathname === '/'` so
+    // the home page never showed the animated splash — the rationale was
+    // that index.html's #preload-hero static paint already covered the
+    // initial home load. Reverted on user direction: the animated splash
+    // now runs on every first session load regardless of route. The
+    // remaining two guards are intentional:
+    //   - reduced-motion users skip the curtain (transition sickness)
+    //   - sessionStorage gates the splash to once per browser tab so
+    //     repeat navigations within a session don't see it again.
     if (shouldReduceMotion || sessionStorage.getItem('preloader_done') === '1') {
       setHidden(true);
       return;
@@ -39,7 +40,7 @@ const Preloader: React.FC = () => {
       clearTimeout(cleanup);
       sessionStorage.setItem('preloader_done', '1');
     };
-  }, [pathname, shouldReduceMotion]);
+  }, [shouldReduceMotion]);
 
   if (hidden) return null;
 

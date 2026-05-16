@@ -18,6 +18,7 @@ import { useInsights } from '../hooks';
 import { BigCTA } from '../components/ui/BigCTA';
 import { SITE_URL } from '../config/site';
 import { getAuthorInitials } from '../utils/authorInitials';
+import { observeOnce } from '../utils/sharedIntersectionObserver';
 import type { InsightItem } from '../types';
 
 const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString().slice(0, 10);
@@ -140,7 +141,29 @@ const pickHomeInsights = (insights: readonly InsightItem[]): InsightItem[] => {
 interface LazyHomeSectionProps {
   children: React.ReactNode;
   className?: string;
+  /**
+   * Reserved height for the section while its children haven't mounted
+   * yet. Format follows CSS `contain-intrinsic-size`:
+   *
+   *   - `"900px"`        — fixed reservation; identical width and height
+   *                        not needed because the wrapper is full-width.
+   *   - `"auto 900px"`   — `auto` keyword tells the browser to remember
+   *                        the rendered size after first paint, then use
+   *                        900px as the fallback before that. Preferred
+   *                        for variable-height sections (insights, FAQ)
+   *                        so the second view of the page is shift-free.
+   *
+   * Pick the reservation generously — too small a value causes a layout
+   * shift when the real section paints; too large means a slight gap of
+   * empty scroll. Audit LZ-02.
+   */
   intrinsicSize: string;
+  /**
+   * IntersectionObserver rootMargin used to decide when to mount children.
+   * Default `'900px 0px'` mounts roughly one screen of scroll early on
+   * desktop; ChaosToOrder uses a tighter `'200px 0px'` to delay its
+   * heavy DOM until just before it enters the viewport.
+   */
   rootMargin?: string;
 }
 
@@ -158,18 +181,9 @@ const LazyHomeSection: React.FC<LazyHomeSectionProps> = ({
     if (shouldRender) return;
     const element = ref.current;
     if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        setShouldRender(true);
-        observer.disconnect();
-      },
-      { rootMargin },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
+    // Audit LZ-01: shared module-level observer pool — one observer per
+    // unique rootMargin instead of one per LazyHomeSection.
+    return observeOnce(element, rootMargin, () => setShouldRender(true));
   }, [rootMargin, shouldRender]);
 
   return (
@@ -329,10 +343,12 @@ const Home: React.FC = () => {
         <ChaosToOrder />
       </LazyHomeSection>
 
-      {/* 3. FOUNDER SECTION */}
-      <div className="[contain-intrinsic-size:auto_1100px] [content-visibility:auto]">
+      {/* 3. FOUNDER SECTION — audit LZ-03: same LazyHomeSection wrapper
+             as every other section so the IntersectionObserver pooling
+             and content-visibility intrinsic-size hint stay consistent. */}
+      <LazyHomeSection intrinsicSize="auto 1100px">
         <FounderSection />
-      </div>
+      </LazyHomeSection>
 
       {/* 4. IMMERSIVE SERVICES */}
       <LazyHomeSection intrinsicSize="auto 900px">

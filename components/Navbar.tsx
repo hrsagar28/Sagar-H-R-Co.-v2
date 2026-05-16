@@ -4,6 +4,16 @@ import { NAV_LINKS, CONTACT_INFO } from '../constants';
 import { Menu, X, ArrowRight, Phone, MessageSquare } from 'lucide-react';
 import { useFocusTrap, useReturnFocus, useScrollPosition } from '../hooks';
 
+/**
+ * Total wall-clock time the mobile menu stagger reveal is allowed to use,
+ * irrespective of how many links there are. Audit N-04: previously each
+ * link's `transitionDelay` was a hard-coded `idx * 75ms`, which meant 6
+ * links → 375 ms before the last one appeared. That felt sluggish on
+ * mid-tier phones. Capping the cumulative delay at this value keeps the
+ * reveal snappy without losing the cascade feel.
+ */
+const MOBILE_MENU_STAGGER_TOTAL_MS = 200;
+
 interface NavbarProps {
   className?: string;
 }
@@ -14,6 +24,19 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  /** Whether we're currently sitting on the home route. Drives the
+   *  `aria-current` / `aria-label` swap on the logo link (audit N-02)
+   *  so screen readers don't read "Home, current page" alongside the
+   *  visible "Sagar H R & Co." text every load. */
+  const isHomeRoute = location.pathname === '/';
+
+  // Filter out the Contact entry from the mobile menu link list once,
+  // not on every render. The result also feeds the stagger delay
+  // calculation so each link's delay scales to MOBILE_MENU_STAGGER_TOTAL_MS.
+  const mobileMenuLinks = NAV_LINKS.filter((link) => link.name !== 'Contact');
+  const mobileStaggerStep =
+    mobileMenuLinks.length > 1 ? MOBILE_MENU_STAGGER_TOTAL_MS / (mobileMenuLinks.length - 1) : 0;
 
   // Use consolidated scroll hook
   const { scrollY } = useScrollPosition();
@@ -77,11 +100,17 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             : 'w-full max-w-7xl border border-brand-border/20 bg-brand-surface/70 backdrop-blur-md md:border-transparent'
         } `}
       >
-        {/* Logo - Left Pill */}
+        {/* Logo - Left Pill. Audit N-02: on the home route, drop the
+            duplicate `aria-label="Sagar H R & Co. Home"` and switch to
+            `aria-current="page"` so screen readers don't double-announce
+            ("Sagar H R & Co., Home, current page"). On any other route
+            we still want the explicit "Home" hint because clicking the
+            logo navigates back to /. */}
         <Link
           to="/"
           className="group flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border-brand-border/30 bg-brand-surface/50 px-3 py-2 shadow-none transition-all hover:border-brand-moss/30 md:gap-3 md:border md:bg-brand-surface md:px-5 md:shadow-sm"
-          aria-label="Sagar H R & Co. Home"
+          aria-current={isHomeRoute ? 'page' : undefined}
+          aria-label={isHomeRoute ? undefined : 'Sagar H R & Co. Home'}
         >
           <span className="block whitespace-nowrap font-heading text-sm font-bold tracking-tight text-brand-dark md:text-lg">
             Sagar H R & Co.
@@ -120,7 +149,21 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
 
         {/* Actions - Right Pill */}
         <div className="flex shrink-0 items-center gap-2">
-          {/* Desktop CTA - New Pill with Icon Circle */}
+          {/*
+            Desktop CTA — dark pill with moss-green icon badge.
+
+            Audit N-03 deliberately declined: the audit suggested unifying
+            this with the moss-toned CTA used in the hero / LocationStrip
+            to reduce style proliferation. After review, the dark pill on
+            this white-bg navbar is the only style that reads as a real
+            primary action against the surrounding neutrals — a moss pill
+            here would visually demote to "secondary" because the navbar
+            background already sits in the warm-neutral family. Each of
+            the three home-page Contact CTAs (this one, the hero, the
+            LocationStrip footer) is locally optimal for its background
+            context, so the on-paper inconsistency is a deliberate
+            trade-off for click-conversion.
+          */}
           <Link
             to="/contact"
             className="group hidden min-h-[44px] items-center gap-3 rounded-full bg-brand-dark py-1.5 pl-6 pr-1.5 text-sm font-bold text-brand-inverse shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:bg-brand-dark/90 hover:ring-4 hover:ring-brand-border/20 md:flex"
@@ -187,15 +230,19 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           }}
           className={`absolute right-0 top-full mt-4 flex w-[calc(100vw-32px)] origin-top-right flex-col gap-2 rounded-[2rem] border border-brand-border/60 bg-brand-surface/95 p-6 shadow-2xl backdrop-blur-2xl transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:w-80 ${isOpen ? 'visible translate-y-0 scale-100 opacity-100' : 'pointer-events-none invisible -translate-y-4 scale-95 opacity-0'} `}
         >
-          {NAV_LINKS.filter((link) => link.name !== 'Contact').map((link, idx) => (
+          {mobileMenuLinks.map((link, idx) => (
             <Link
               key={link.name}
               to={link.path}
               aria-current={location.pathname === link.path ? 'page' : undefined}
               onClick={() => setIsOpen(false)}
-              // Staggered reveal animation logic integrated into styling
+              // Staggered reveal animation logic integrated into styling.
+              // Audit N-04: previous `idx * 75ms` ran to 375 ms on six
+              // links. `mobileStaggerStep` distributes the same cascade
+              // across MOBILE_MENU_STAGGER_TOTAL_MS (200 ms) so the last
+              // link lands much sooner on slow phones.
               className={`group flex min-h-[60px] items-center justify-between rounded-xl px-4 py-4 font-heading text-xl font-bold text-brand-dark transition-all duration-500 ease-out hover:bg-brand-bg hover:text-brand-moss ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'} `}
-              style={{ transitionDelay: isOpen ? `${idx * 75}ms` : '0ms' }}
+              style={{ transitionDelay: isOpen ? `${idx * mobileStaggerStep}ms` : '0ms' }}
             >
               {link.name}
               <ArrowRight
