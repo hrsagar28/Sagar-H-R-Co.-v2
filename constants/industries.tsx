@@ -1,46 +1,46 @@
-import React from 'react';
-import { IndustryItem } from '../types';
+import type { IndustryItem } from '../types';
 import { Factory, ShoppingCart, Stethoscope, Cpu, Home, Utensils, GraduationCap, Sprout } from 'lucide-react';
 
+// Audit S-05: see comment on SERVICES — same component-reference shape.
 export const INDUSTRIES: IndustryItem[] = [
   {
     title: 'Manufacturing',
     description: 'Production units, textile mills, automotive components, and industrial manufacturing.',
-    icon: <Factory className="h-6 w-6" />,
+    Icon: Factory,
   },
   {
     title: 'Retail & E-commerce',
     description: 'Online stores, retail chains, wholesale distribution, and marketplace sellers.',
-    icon: <ShoppingCart className="h-6 w-6" />,
+    Icon: ShoppingCart,
   },
   {
     title: 'Healthcare',
     description: 'Hospitals, clinics, diagnostic centers, pharmaceutical companies, and medical practices.',
-    icon: <Stethoscope className="h-6 w-6" />,
+    Icon: Stethoscope,
   },
   {
     title: 'Technology',
     description: 'Software companies, IT services, startups, and digital agencies.',
-    icon: <Cpu className="h-6 w-6" />,
+    Icon: Cpu,
   },
   {
     title: 'Real Estate',
     description: 'Property developers, real estate agencies, construction companies, and property management.',
-    icon: <Home className="h-6 w-6" />,
+    Icon: Home,
   },
   {
     title: 'Hospitality',
     description: 'Hotels, restaurants, travel agencies, event management, and tourism businesses.',
-    icon: <Utensils className="h-6 w-6" />,
+    Icon: Utensils,
   },
   {
     title: 'Professional Services',
     description: 'Consulting firms, law firms, educational institutions, and service providers.',
-    icon: <GraduationCap className="h-6 w-6" />,
+    Icon: GraduationCap,
   },
   {
     title: 'Agriculture & Food',
     description: 'Food processing, agricultural businesses, dairy farms, and agribusiness ventures.',
-    icon: <Sprout className="h-6 w-6" />,
+    Icon: Sprout,
   },
 ];

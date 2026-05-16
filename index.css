@@ -400,29 +400,82 @@ html {
   }
 }
 
+/* ---- ChaosToOrder section --------------------------------------------- */
+
+/* Section-scoped CSS variables for the Chaos → Order demo. Lifting them out
+   of an inline `style` object keeps the JSX leaner and lets browser devtools
+   tweak the palette in place. Keep colours in sync with CHAOS_COLORS in
+   components/home/ChaosToOrder.tsx. */
+.chaos-section {
+  --chaos-ink: #0a0908;
+  --chaos-ink-rgb: 10 9 8;
+  --chaos-ink-text: #2a251d;
+  --chaos-ink-text-rgb: 42 37 29;
+  --chaos-brass: #b8924c;
+  --chaos-brass-rgb: 184 146 76;
+  --chaos-rust: #8b3a2f;
+  --chaos-rust-rgb: 139 58 47;
+  --chaos-paper: #f4f1ea;
+  --chaos-paper-rgb: 244 241 234;
+  --chaos-paper-surface: #eae5d9;
+  --chaos-paper-warm: #e5dfd0;
+  --chaos-paper-yellowed: #f5ecd6;
+  --chaos-paper-cream: #fbf7ec;
+  --chaos-paper-cream-2: #f8f5ec;
+  --chaos-moss-deep: #1a4d2e;
+  /* `--divider` is set on the inner panel <div> at runtime via
+     `containerRef.current?.style.setProperty('--divider', ...)`. */
+}
+
 @property --divider {
   syntax: '<percentage>';
   inherits: false;
   initial-value: 50%;
 }
 
+/* Pre-interaction drift hints at draggability. Bumped from ±1.2% / 7s to
+   ±2.5% / 9s after audit C-04: the previous amplitude was too subtle to
+   notice on first sight. */
 @keyframes chaos-drift {
   0%,
   100% {
-    --divider: 51.2%;
+    --divider: 52.5%;
   }
   50% {
-    --divider: 48.8%;
+    --divider: 47.5%;
   }
 }
 
 .chaos-drift {
-  animation: chaos-drift 7s ease-in-out infinite;
+  animation: chaos-drift 9s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .chaos-drift {
     animation: none;
+  }
+}
+
+/* ---- Hero word size ---------------------------------------------------- */
+
+/* Single source of truth for the three hero h1 spans ("Audit.", "Taxation.",
+   "Advisory."). Previously each span carried `text-[12vw] md:text-[7rem]
+   lg:text-[9rem]` inline — three copies that had to be kept in lockstep. The
+   preload-hero <style> block in index.html still mirrors these breakpoints,
+   so changes here must be mirrored there too. */
+.hero-word {
+  font-size: 12vw;
+}
+
+@media (min-width: 768px) {
+  .hero-word {
+    font-size: 7rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-word {
+    font-size: 9rem;
   }
 }
 

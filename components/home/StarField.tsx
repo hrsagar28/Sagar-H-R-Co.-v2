@@ -3,6 +3,9 @@ import { useReducedMotion } from '../../hooks';
 
 export const STARFIELD_BG = '#06070a';
 const MOBILE_BP = 768;
+/** Below this width the mid-layer (breathing warm stars) is skipped entirely
+ *  to save fillrate on the cheapest devices. Audit H-04. */
+const NARROW_MOBILE_BP = 360;
 export const STARFIELD_NEBULA = 'rgba(90,110,180,0.06)';
 const SHOOT_ANGLE_DEG = 215;
 const SHOOT_ANGLE_SPREAD = 15;
@@ -12,6 +15,35 @@ const SHOOT_TRAVEL = 900;
 const SHOOT_FADE_OUT = 220;
 const SHOOT_AVG_INTERVAL = 55_000;
 const MAX_DPR = 2;
+
+/** Star counts per layer, broken down by device class. Lowered on mobile
+ *  after audit H-04 — the previous 90/180 back and 20/40 mid was the single
+ *  biggest CPU sink during hero entry on mid-tier Android. */
+const STAR_COUNTS = {
+  mobile: { back: 60, mid: 14 },
+  desktop: { back: 180, mid: 40 },
+  /** Static draw — used when reduced motion / save-data is on, so we don't
+   *  bother breathing or parallaxing. Counts are intentionally lower than
+   *  the animated path because there's no temporal averaging to forgive
+   *  high density. */
+  staticMobile: { back: 60, mid: 14 },
+  staticDesktop: { back: 90, mid: 20 },
+} as const;
+
+/** Schedule a callback at the next idle opportunity, falling back to a short
+ *  setTimeout in browsers without requestIdleCallback (Safari < 17.4). */
+const scheduleIdle = (cb: () => void, timeout = 250): (() => void) => {
+  const w = window as Window & {
+    requestIdleCallback?: (cb: IdleRequestCallback, opts?: IdleRequestOptions) => number;
+    cancelIdleCallback?: (id: number) => void;
+  };
+  if (typeof w.requestIdleCallback === 'function') {
+    const id = w.requestIdleCallback(cb, { timeout });
+    return () => w.cancelIdleCallback?.(id);
+  }
+  const id = window.setTimeout(cb, 0);
+  return () => window.clearTimeout(id);
+};
 
 interface Star {
   x: number;
@@ -97,8 +129,11 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     ctx.fillRect(0, 0, w, h);
 
     const isMobile = w < MOBILE_BP;
-    const backStars = seedBack(w, h, isMobile ? 60 : 90);
-    const midStars = seedMid(w, h, isMobile ? 14 : 20);
+    const isNarrow = w < NARROW_MOBILE_BP;
+    const counts = isMobile ? STAR_COUNTS.staticMobile : STAR_COUNTS.staticDesktop;
+    const backStars = seedBack(w, h, counts.back);
+    // Skip the mid (breathing warm) layer entirely on the narrowest devices.
+    const midStars = isNarrow ? [] : seedMid(w, h, counts.mid);
 
     for (const s of backStars) {
       ctx.beginPath();
@@ -185,8 +220,12 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const isMobile = w < MOBILE_BP;
-      backStars = seedBack(w, h, isMobile ? 90 : 180);
-      midStars = seedMid(w, h, isMobile ? 20 : 40);
+      const isNarrow = w < NARROW_MOBILE_BP;
+      const counts = isMobile ? STAR_COUNTS.mobile : STAR_COUNTS.desktop;
+      backStars = seedBack(w, h, counts.back);
+      // Below NARROW_MOBILE_BP (≈ phone landscape lock or very small device)
+      // the mid layer is dropped entirely. Audit H-04.
+      midStars = isNarrow ? [] : seedMid(w, h, counts.mid);
     };
 
     const scheduleResize = () => {
@@ -331,6 +370,12 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       rafId = requestAnimationFrame(loop);
     };
 
+    /** Idle-cancel handle for the very first startLoop. Lets us avoid
+     *  starting the canvas loop until the main thread is free, so the
+     *  hero LCP paint isn't competing with our 60 fps draw on first
+     *  mount. Audit H-04. */
+    let cancelInitialIdle: (() => void) | null = null;
+
     const startLoop = () => {
       if (isLooping) return;
       isLooping = true;
@@ -338,7 +383,29 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
       rafId = requestAnimationFrame(loop);
     };
 
+    /** Defer the very first start through requestIdleCallback (with a
+     *  short timeout so we never miss it entirely) so the canvas loop
+     *  doesn't compete with hero LCP. Subsequent starts (re-entering the
+     *  viewport, tab visibility flips) run immediately because the page
+     *  is already warm by then. */
+    let hasStartedOnce = false;
+    const requestStartLoop = () => {
+      if (hasStartedOnce) {
+        startLoop();
+        return;
+      }
+      hasStartedOnce = true;
+      cancelInitialIdle?.();
+      cancelInitialIdle = scheduleIdle(() => {
+        cancelInitialIdle = null;
+        // Re-check we're still in the right state before firing.
+        if (document.visibilityState === 'visible') startLoop();
+      });
+    };
+
     const stopLoop = () => {
+      cancelInitialIdle?.();
+      cancelInitialIdle = null;
       if (!isLooping) return;
       isLooping = false;
       cancelAnimationFrame(rafId);
@@ -350,7 +417,7 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          startLoop();
+          requestStartLoop();
         } else {
           stopLoop();
         }
@@ -367,6 +434,8 @@ const StarField: React.FC<{ className?: string }> = ({ className = '' }) => {
 
       const rect = container.getBoundingClientRect();
       if (rect.bottom >= -200 && rect.top <= window.innerHeight + 200) {
+        // Tab-resume doesn't need the idle gate — the page has already
+        // painted by the time we get here.
         startLoop();
       }
     };

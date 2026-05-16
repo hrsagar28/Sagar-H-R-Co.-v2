@@ -31,21 +31,22 @@ if (preloadHero) {
   if (window.location.pathname !== '/') {
     preloadHero.remove();
   } else {
-    const startedAt = performance.now();
-    const removeWhenHeroIsReady = () => {
-      const heroWords = new Set(
-        Array.from(rootElement.querySelectorAll('span')).map((element) => element.textContent?.trim()),
-      );
-      const heroReady = ['Audit.', 'Taxation.', 'Advisory.'].every((word) => heroWords.has(word));
-
-      if (heroReady || performance.now() - startedAt > 5000) {
-        window.requestAnimationFrame(() => preloadHero.remove());
-        return;
-      }
-
-      window.setTimeout(removeWhenHeroIsReady, 100);
+    // Audit H-02: previous implementation polled the DOM every 100 ms looking
+    // for the literal hero words ("Audit.", "Taxation.", "Advisory.") as
+    // text content, which broke silently any time the hero copy changed.
+    // Now `<Home />` dispatches `app:hero-ready` after its first paint, and
+    // we remove the preload overlay on the next frame. A 5 s safety timer
+    // covers the case where the event never fires (crash before first
+    // paint, navigating away mid-mount, etc.).
+    let removed = false;
+    const remove = () => {
+      if (removed) return;
+      removed = true;
+      window.removeEventListener('app:hero-ready', remove);
+      window.clearTimeout(safetyTimer);
+      window.requestAnimationFrame(() => preloadHero.remove());
     };
-
-    removeWhenHeroIsReady();
+    const safetyTimer = window.setTimeout(remove, 5000);
+    window.addEventListener('app:hero-ready', remove, { once: true });
   }
 }

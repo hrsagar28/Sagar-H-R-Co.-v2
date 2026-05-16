@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { CONTACT_INFO } from '../../constants';
@@ -17,8 +17,27 @@ import Reveal from '../Reveal';
  * by `scripts/generate-responsive-images.ts`.
  */
 
+/** Initials shown in the brass-frame placeholder if the portrait fails to
+ *  load (audit F-04). Computed once at module scope so it doesn't depend on
+ *  any rendering context. */
+const FOUNDER_INITIALS = CONTACT_INFO.founder.name
+  // "CA Sagar H R" → drop honorific "CA", keep first letter of each remaining
+  // word. Gives a stable two-letter glyph for the placeholder.
+  .replace(/^CA\s+/i, '')
+  .split(/\s+/)
+  .map((part) => part.charAt(0))
+  .filter(Boolean)
+  .slice(0, 2)
+  .join('')
+  .toUpperCase();
+
 const FounderSection: React.FC = () => {
   'use memo';
+  /** Audit F-04: tracks whether the portrait <img> failed to load so we can
+   *  swap in a brass-monogram placeholder instead of silently collapsing the
+   *  layout. Falls back gracefully on offline / DNS-blocked / CDN-failure. */
+  const [imageFailed, setImageFailed] = useState(false);
+
   return (
     <section className="relative overflow-hidden bg-brand-surface py-32">
       {/* Subtle grid background */}
@@ -38,37 +57,62 @@ const FounderSection: React.FC = () => {
                       `object-position: 50% 18%` pulls the crop higher, letting
                       the torso be the thing that gets trimmed — not the hair. */}
                   <div className="relative aspect-[3/4] overflow-hidden rounded-[2px] bg-brand-border">
-                    <picture>
-                      <source
-                        type="image/avif"
-                        srcSet="/images/founder-400.avif 400w, /images/founder-800.avif 800w, /images/founder-1080.avif 1080w"
-                        sizes="(min-width: 1024px) 320px, (min-width: 768px) 50vw, 100vw"
-                      />
-                      <source
-                        type="image/webp"
-                        srcSet="/images/founder-400.webp 400w, /images/founder-800.webp 800w, /images/founder-1080.webp 1080w"
-                        sizes="(min-width: 1024px) 320px, (min-width: 768px) 50vw, 100vw"
-                      />
-                      <img
-                        src="/images/founder-800.jpg"
-                        srcSet="/images/founder-400.jpg 400w, /images/founder-800.jpg 800w, /images/founder-1080.jpg 1080w"
-                        sizes="(min-width: 1024px) 320px, (min-width: 768px) 50vw, 100vw"
-                        alt="Portrait of CA Sagar H R, Founder & Principal"
-                        loading="lazy"
-                        decoding="async"
-                        width="1080"
-                        height="1920"
-                        className="absolute inset-0 h-full w-full object-cover"
-                        style={{ objectPosition: '50% 18%' }}
-                        // If the image fails to load, quietly hide it so the
-                        // brass frame remains as a graceful placeholder
-                        // instead of a broken-image icon.
-                        onError={(e) => {
-                          const el = e.currentTarget;
-                          el.style.display = 'none';
-                        }}
-                      />
-                    </picture>
+                    {imageFailed ? (
+                      // Audit F-04: brass-frame placeholder so the layout
+                      // doesn't collapse if the CDN / OneDrive sync hiccups.
+                      // The frame is already drawn by the parent — this fills
+                      // the inner slot with a brass monogram on the paper tone.
+                      <div
+                        role="img"
+                        aria-label={`Portrait placeholder for ${CONTACT_INFO.founder.name}`}
+                        className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand-bg via-brand-paper to-brand-cream"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="select-none font-serif text-7xl italic text-brand-brass/70"
+                          style={{ letterSpacing: '0.04em' }}
+                        >
+                          {FOUNDER_INITIALS}
+                        </span>
+                      </div>
+                    ) : (
+                      <picture>
+                        {/* Audit F-05: the container is capped at max-w-[300px]
+                            on every viewport, so `sizes="300px"` is the honest
+                            ceiling and lets the browser stop downloading 1080w
+                            for a slot that is at most 300 CSS px wide. The
+                            1080w variant has been removed from each srcSet
+                            accordingly; 400w + 800w cover all DPR cases up to
+                            2.67×, which is every device that matters. */}
+                        <source
+                          type="image/avif"
+                          srcSet="/images/founder-400.avif 400w, /images/founder-800.avif 800w"
+                          sizes="300px"
+                        />
+                        <source
+                          type="image/webp"
+                          srcSet="/images/founder-400.webp 400w, /images/founder-800.webp 800w"
+                          sizes="300px"
+                        />
+                        <img
+                          src="/images/founder-800.jpg"
+                          srcSet="/images/founder-400.jpg 400w, /images/founder-800.jpg 800w"
+                          sizes="300px"
+                          // Audit F-02: surface practice name + city in the alt
+                          // so search engines associate the portrait with the
+                          // entity, not just the person. Keeps the descriptive
+                          // intent ("portrait of …") intact.
+                          alt={`Portrait of ${CONTACT_INFO.founder.name}, Founder of ${CONTACT_INFO.name}, Chartered Accountants in ${CONTACT_INFO.address.city}.`}
+                          loading="lazy"
+                          decoding="async"
+                          width="800"
+                          height="1067"
+                          className="absolute inset-0 h-full w-full object-cover"
+                          style={{ objectPosition: '50% 18%' }}
+                          onError={() => setImageFailed(true)}
+                        />
+                      </picture>
+                    )}
                     {/* Soft inner vignette — adds a little depth on light
                         backgrounds without tinting skin tones. */}
                     <div

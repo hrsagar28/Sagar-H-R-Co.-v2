@@ -1,41 +1,44 @@
-import React from 'react';
-import { ServiceItem, ServiceDetailContent } from '../types';
+import type { ServiceItem, ServiceDetailContent } from '../types';
 import { FileText, ShieldCheck, Calculator, Briefcase, BookOpen, Users, Gavel, Building2 } from 'lucide-react';
 
+// Audit S-05: each entry stores the icon as a *component reference*, not as
+// a pre-built JSX node. Consumers render with `<service.Icon size={n} />`,
+// dropping the React.cloneElement(...) ceremony we used to need to inject
+// the size at the call site.
 export const SERVICES: ServiceItem[] = [
   {
     id: 'gst',
     title: 'GST Registration & Filing',
     description: 'Registration, monthly returns, GSTR-9/9C, e-invoicing for >= Rs. 10 cr, and notice replies.',
-    icon: <FileText className="h-6 w-6" />,
+    Icon: FileText,
     link: '/services/gst',
   },
   {
     id: 'income-tax',
     title: 'Income Tax Services',
     description: 'ITR-1 to ITR-7, tax-audit support u/s 44AB, faceless assessment defence, and TDS/TCS.',
-    icon: <Calculator className="h-6 w-6" />,
+    Icon: Calculator,
     link: '/services/income-tax',
   },
   {
     id: 'company-law',
     title: 'Company Law & ROC',
     description: 'AOC-4, MGT-7, DIR-3 KYC, board-meeting documentation, and event-based filings.',
-    icon: <Building2 className="h-6 w-6" />,
+    Icon: Building2,
     link: '/services/company-law',
   },
   {
     id: 'litigation',
     title: 'Litigation Support',
     description: 'Notice replies (DRC-01, ASMT-10, 142(1)), CIT(A)/NFAC appeals, and ITAT representation.',
-    icon: <Gavel className="h-6 w-6" />,
+    Icon: Gavel,
     link: '/services/litigation',
   },
   {
     id: 'advisory',
     title: 'Business Advisory',
     description: 'Entity choice, project reports, CMA data for bank funding, and 15CB certifications.',
-    icon: <Briefcase className="h-6 w-6" />,
+    Icon: Briefcase,
     link: '/services/advisory',
   },
   {
@@ -43,21 +46,21 @@ export const SERVICES: ServiceItem[] = [
     title: 'Audit & Assurance',
     description:
       'Statutory audits under Companies Act, tax audits u/s 44AB, internal audits, and net-worth certificates.',
-    icon: <ShieldCheck className="h-6 w-6" />,
+    Icon: ShieldCheck,
     link: '/services/audit',
   },
   {
     id: 'bookkeeping',
     title: 'Bookkeeping & Accounting',
     description: 'Tally / Zoho Books data entry, monthly bank reconciliation, GL hygiene, and quarterly financials.',
-    icon: <BookOpen className="h-6 w-6" />,
+    Icon: BookOpen,
     link: '/services/bookkeeping',
   },
   {
     id: 'payroll',
     title: 'Payroll Management',
     description: 'Salary processing, TDS on salary u/s 192, PF/ESI returns, payslips, and Form-16 issuance.',
-    icon: <Users className="h-6 w-6" />,
+    Icon: Users,
     link: '/services/payroll',
   },
 ];

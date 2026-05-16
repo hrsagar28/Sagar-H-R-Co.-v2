@@ -14,11 +14,128 @@ import {
 } from '../components';
 import TrustBar from '../components/home/TrustBar';
 import { CONTACT_INFO, SERVICES } from '../constants';
-import { useInsights, useMediaQuery } from '../hooks';
+import { useInsights } from '../hooks';
 import { BigCTA } from '../components/ui/BigCTA';
 import { SITE_URL } from '../config/site';
+import { getAuthorInitials } from '../utils/authorInitials';
+import type { InsightItem } from '../types';
 
 const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString().slice(0, 10);
+
+/**
+ * Static AccountingService + WebSite JSON-LD for the home page.
+ *
+ * Hoisted to module scope (audit H-06) so it isn't reconstructed every render.
+ * All inputs are themselves module-scope constants (CONTACT_INFO, SERVICES,
+ * SITE_URL, BUILD_DATE), so the object is genuinely invariant for the
+ * lifetime of the bundle.
+ */
+const HOME_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'AccountingService',
+      '@id': `${SITE_URL}/#organization`,
+      name: CONTACT_INFO.name,
+      url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/logo.png`,
+      },
+      image: `${SITE_URL}/og/og-default.png`,
+      description: 'Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.',
+      priceRange: '₹₹',
+      availableLanguage: CONTACT_INFO.languages,
+      sameAs: [CONTACT_INFO.social.linkedin],
+      areaServed: [
+        { '@type': 'City', name: 'Mysuru' },
+        { '@type': 'State', name: 'Karnataka' },
+        { '@type': 'Country', name: 'India' },
+      ],
+      foundingDate: CONTACT_INFO.stats.established,
+      founder: {
+        '@type': 'Person',
+        name: CONTACT_INFO.founder.name,
+      },
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: CONTACT_INFO.address.street,
+        addressLocality: CONTACT_INFO.address.city,
+        postalCode: CONTACT_INFO.address.zip,
+        addressCountry: 'IN',
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: CONTACT_INFO.geo.latitude,
+        longitude: CONTACT_INFO.geo.longitude,
+      },
+      telephone: CONTACT_INFO.phone.value,
+      openingHoursSpecification: [
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+          opens: '10:00',
+          closes: '20:00',
+        },
+      ],
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Chartered Accountancy Services',
+        itemListElement: SERVICES.map((service) => ({
+          '@type': 'Service',
+          name: service.title,
+          description: service.description,
+          url: `${SITE_URL}${service.link}`,
+        })),
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: CONTACT_INFO.name,
+      publisher: { '@id': `${SITE_URL}/#organization` },
+      dateModified: BUILD_DATE,
+    },
+  ],
+};
+
+/** Stop pulsing the hero "Mysuru" badge after 6 s — long enough to register
+ *  the placemaker, short enough not to become noise. Also stops on the
+ *  first user scroll, whichever comes first. */
+const HERO_BADGE_PULSE_TIMEOUT_MS = 6000;
+
+/** How many recent insights the home page shows. */
+const HOME_INSIGHTS_COUNT = 3;
+
+/**
+ * Pick which insights to show on the home page (audit I-04).
+ *
+ * Preference order:
+ *   1. Insights marked `featuredOnHome: true` in `data/insights.json`,
+ *      preserving the order they appear in the file (curators control
+ *      ordering by re-ordering the JSON).
+ *   2. If fewer than HOME_INSIGHTS_COUNT carry the flag, fill the rest
+ *      with the most-recent-by-date insights (excluding ones already
+ *      picked, so we never duplicate).
+ *
+ * Keeping the fallback means a teammate adding a new insight without
+ * touching any flag still gets a sensible home rail; the curated list
+ * is a layer on top of recency, not a replacement.
+ */
+const pickHomeInsights = (insights: readonly InsightItem[]): InsightItem[] => {
+  const featured = insights.filter((insight) => insight.featuredOnHome === true);
+  if (featured.length >= HOME_INSIGHTS_COUNT) {
+    return featured.slice(0, HOME_INSIGHTS_COUNT);
+  }
+  const featuredIds = new Set(featured.map((insight) => insight.id));
+  const recent = [...insights]
+    .filter((insight) => !featuredIds.has(insight.id))
+    // Insights from data/insights.json carry ISO date strings, so a
+    // lexicographic compare yields the correct chronological order.
+    .sort((a, b) => b.date.localeCompare(a.date));
+  return [...featured, ...recent].slice(0, HOME_INSIGHTS_COUNT);
+};
 
 interface LazyHomeSectionProps {
   children: React.ReactNode;
@@ -74,88 +191,45 @@ const LazyHomeSection: React.FC<LazyHomeSectionProps> = ({
 const Home: React.FC = () => {
   'use memo';
   const { insights } = useInsights();
-  const recentInsights = insights.slice(0, 3);
-  // Gate the two recent-insights layouts so only the one for the current
-  // viewport mounts — avoids running the desktop card grid's Intersection
-  // observers on mobile and vice versa. `md` breakpoint = 768px.
-  const isDesktop = useMediaQuery('(min-width: 768px)');
+  // Audit I-04: prefer curated `featuredOnHome` items; fall back to the
+  // most-recent-by-date sort so the section always renders three.
+  // Audit I-01: both layout variants (mobile list + desktop grid) now
+  // render unconditionally — visibility is gated by Tailwind's `hidden /
+  // md:hidden / md:grid` so we don't need a JS matchMedia branch.
+  const recentInsights = pickHomeInsights(insights);
 
-  const schema = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'AccountingService',
-        '@id': `${SITE_URL}/#organization`,
-        name: CONTACT_INFO.name,
-        url: SITE_URL,
-        logo: {
-          '@type': 'ImageObject',
-          url: `${SITE_URL}/logo.png`,
-        },
-        image: `${SITE_URL}/og/og-default.png`,
-        description: 'Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.',
-        priceRange: '₹₹',
-        availableLanguage: CONTACT_INFO.languages,
-        sameAs: [CONTACT_INFO.social.linkedin],
-        areaServed: [
-          { '@type': 'City', name: 'Mysuru' },
-          { '@type': 'State', name: 'Karnataka' },
-          { '@type': 'Country', name: 'India' },
-        ],
-        foundingDate: CONTACT_INFO.stats.established,
-        founder: {
-          '@type': 'Person',
-          name: CONTACT_INFO.founder.name,
-        },
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: CONTACT_INFO.address.street,
-          addressLocality: CONTACT_INFO.address.city,
-          postalCode: CONTACT_INFO.address.zip,
-          addressCountry: 'IN',
-        },
-        geo: {
-          '@type': 'GeoCoordinates',
-          latitude: CONTACT_INFO.geo.latitude,
-          longitude: CONTACT_INFO.geo.longitude,
-        },
-        telephone: CONTACT_INFO.phone.value,
-        openingHoursSpecification: [
-          {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-            opens: '10:00',
-            closes: '20:00',
-          },
-        ],
-        hasOfferCatalog: {
-          '@type': 'OfferCatalog',
-          name: 'Chartered Accountancy Services',
-          itemListElement: SERVICES.map((service) => ({
-            '@type': 'Service',
-            name: service.title,
-            description: service.description,
-            url: `${SITE_URL}${service.link}`,
-          })),
-        },
-      },
-      {
-        '@type': 'WebSite',
-        '@id': `${SITE_URL}/#website`,
-        url: SITE_URL,
-        name: CONTACT_INFO.name,
-        publisher: { '@id': `${SITE_URL}/#organization` },
-        dateModified: BUILD_DATE,
-      },
-    ],
-  };
+  // Hero badge pulse (audit H-07): the location placemaker pulses on mount
+  // to draw attention, then settles down. Stops on whichever comes first —
+  // the user's first scroll, or HERO_BADGE_PULSE_TIMEOUT_MS.
+  const [isBadgePulsing, setIsBadgePulsing] = React.useState(true);
+
+  // Signal the preload-hero remover that the React-rendered hero has
+  // painted (audit H-02). Uses rAF so the event fires after first paint
+  // rather than just after commit. The listener in index.tsx has a 5 s
+  // safety fallback if this never arrives (e.g., a crash during render).
+  React.useEffect(() => {
+    const rafId = window.requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('app:hero-ready'));
+    });
+    return () => window.cancelAnimationFrame(rafId);
+  }, []);
+
+  React.useEffect(() => {
+    const stop = () => setIsBadgePulsing(false);
+    const timer = window.setTimeout(stop, HERO_BADGE_PULSE_TIMEOUT_MS);
+    window.addEventListener('scroll', stop, { once: true, passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('scroll', stop);
+    };
+  }, []);
 
   return (
     <div className="w-full bg-brand-bg">
       <SEO
         title={`${CONTACT_INFO.name} | Chartered Accountants | Mysuru`}
         description={`${CONTACT_INFO.name} - Chartered Accountants in Mysuru. Providing services in Audit, Taxation, and Regulatory Compliance.`}
-        schema={schema}
+        schema={HOME_SCHEMA}
       />
 
       {/* 1. CINEMATIC HERO
@@ -173,7 +247,9 @@ const Home: React.FC = () => {
             <Reveal delay={0.05} variant="fade-up">
               <div className="mb-8 flex flex-col gap-2">
                 <div className="inline-flex w-fit items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-xl">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-brand-accent shadow-[0_0_12px_theme(colors.brand.accent)]"></div>
+                  <div
+                    className={`h-2 w-2 rounded-full bg-brand-accent shadow-[0_0_12px_theme(colors.brand.accent)] ${isBadgePulsing ? 'animate-pulse' : ''}`}
+                  ></div>
                   <span>Mysuru</span>
                 </div>
                 <p className="font-heading text-xl font-bold tracking-wide text-white/80 md:text-2xl">
@@ -189,26 +265,17 @@ const Home: React.FC = () => {
                 aria-label="Sagar H R & Co. — Chartered Accountants in Mysuru: Audit, Taxation, and Advisory."
               >
                 <Reveal variant="reveal-mask" delay={0.1} duration={0.7} eager>
-                  <span
-                    aria-hidden="true"
-                    className="block max-w-full overflow-hidden text-[12vw] md:text-[7rem] lg:text-[9rem]"
-                  >
+                  <span aria-hidden="true" className="hero-word block max-w-full overflow-hidden">
                     Audit.
                   </span>
                 </Reveal>
                 <Reveal variant="reveal-mask" delay={0.18} duration={0.7} eager>
-                  <span
-                    aria-hidden="true"
-                    className="block max-w-full overflow-hidden text-[12vw] md:text-[7rem] lg:text-[9rem]"
-                  >
+                  <span aria-hidden="true" className="hero-word block max-w-full overflow-hidden">
                     Taxation.
                   </span>
                 </Reveal>
                 <Reveal variant="reveal-mask" delay={0.26} duration={0.7} eager>
-                  <span
-                    aria-hidden="true"
-                    className="block max-w-full overflow-hidden text-[12vw] md:text-[7rem] lg:text-[9rem]"
-                  >
+                  <span aria-hidden="true" className="hero-word block max-w-full overflow-hidden">
                     <em className="font-serif font-normal italic text-brand-paper-mint">Advisory.</em>
                   </span>
                 </Reveal>
@@ -301,14 +368,19 @@ const Home: React.FC = () => {
 
                 <div className="relative z-10 flex h-full flex-col">
                   <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5 bg-white/5 text-brand-accent shadow-lg shadow-black/20 transition-transform duration-500 group-hover:scale-110">
-                    {React.cloneElement(service.icon as React.ReactElement<{ size?: number }>, { size: 32 })}
+                    {/* Audit S-05: component-reference render in place of
+                        React.cloneElement(service.icon, { size: 32 }). */}
+                    <service.Icon size={32} aria-hidden="true" focusable={false} />
                   </div>
 
                   <div className="mb-auto">
                     <h3 className="mb-4 font-heading text-2xl font-bold leading-tight text-white transition-colors group-hover:text-brand-accent md:text-3xl">
                       {service.title}
                     </h3>
-                    <p className="line-clamp-3 text-base font-medium leading-relaxed text-white/85 transition-colors group-hover:text-white">
+                    {/* Audit S-04: clamped to 2 lines (was 3) so each card
+                        reserves the same vertical room regardless of how
+                        long the description happens to be. */}
+                    <p className="line-clamp-2 text-base font-medium leading-relaxed text-white/85 transition-colors group-hover:text-white">
                       {service.description}
                     </p>
                   </div>
@@ -380,11 +452,14 @@ const Home: React.FC = () => {
                 </Reveal>
               </div>
 
-              {/* Mobile: compact list view — only mounts below the md breakpoint */}
-              {!isDesktop && (
-                <div className="divide-y divide-brand-border/60">
-                  {recentInsights.map((insight, i) => (
-                    <Reveal key={insight.id} delay={i * 0.05} width="100%">
+              {/* Mobile: compact list view. Audit I-01: rendered always, but
+                  `md:hidden` excludes it from accessibility tree + layout at
+                  the md breakpoint so screen readers and crawlers see only
+                  one set of headings. */}
+              <ul className="divide-y divide-brand-border/60 md:hidden">
+                {recentInsights.map((insight, i) => (
+                  <li key={insight.id}>
+                    <Reveal delay={i * 0.05} width="100%">
                       <Link
                         to={`/insights/${insight.slug}`}
                         className="group -mx-1 flex items-center gap-4 rounded-xl px-1 py-4 transition-colors hover:bg-brand-bg/80"
@@ -400,10 +475,21 @@ const Home: React.FC = () => {
                             <span className="text-[10px] font-bold uppercase tracking-wider text-brand-moss">
                               {insight.category}
                             </span>
-                            <span className="text-xs text-brand-border">·</span>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-dark">
-                              {insight.date}
+                            {/* Audit I-03: separator is decorative; otherwise
+                                screen readers announce "middle dot" between
+                                category and date. */}
+                            <span aria-hidden="true" className="text-xs text-brand-border">
+                              ·
                             </span>
+                            {/* Audit I-02: real <time> with machine-readable
+                                ISO date so Google's article-timing signals
+                                pick the publication date up cleanly. */}
+                            <time
+                              dateTime={insight.date}
+                              className="text-[10px] font-bold uppercase tracking-wider text-brand-dark"
+                            >
+                              {insight.date}
+                            </time>
                           </div>
                         </div>
                         <ArrowRight
@@ -412,64 +498,73 @@ const Home: React.FC = () => {
                         />
                       </Link>
                     </Reveal>
-                  ))}
-                </div>
-              )}
+                  </li>
+                ))}
+              </ul>
 
-              {/* Desktop: card grid — only mounts at or above the md breakpoint */}
-              {isDesktop && (
-                <div className="grid grid-cols-3 gap-8">
-                  {recentInsights.map((insight, i) => (
-                    <Reveal key={insight.id} delay={i * 0.1} width="100%">
-                      <Link to={`/insights/${insight.slug}`} className="group block h-full">
-                        <article className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-border bg-brand-bg transition-all duration-500 hover:-translate-y-2 hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10">
-                          <div className="h-1 w-0 bg-gradient-to-r from-brand-moss to-brand-accent transition-all duration-700 group-hover:w-full" />
+              {/* Desktop: card grid. Audit I-01: same data, also rendered
+                  unconditionally; `hidden md:grid` makes it the visible
+                  variant from the md breakpoint up. */}
+              <div className="hidden grid-cols-3 gap-8 md:grid">
+                {recentInsights.map((insight, i) => (
+                  <Reveal key={insight.id} delay={i * 0.1} width="100%">
+                    <Link to={`/insights/${insight.slug}`} className="group block h-full">
+                      <article className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-border bg-brand-bg transition-all duration-500 hover:-translate-y-2 hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10">
+                        <div className="h-1 w-0 bg-gradient-to-r from-brand-moss to-brand-accent transition-all duration-700 group-hover:w-full" />
 
-                          <div className="flex flex-grow flex-col p-6 md:p-8">
-                            <div className="mb-6 flex items-center justify-between">
-                              <span className="rounded-full bg-brand-moss/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-moss">
-                                {insight.category}
-                              </span>
-                              <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                                {insight.readTime}
-                              </span>
+                        <div className="flex flex-grow flex-col p-6 md:p-8">
+                          <div className="mb-6 flex items-center justify-between">
+                            <span className="rounded-full bg-brand-moss/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-moss">
+                              {insight.category}
+                            </span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
+                              {insight.readTime}
+                            </span>
+                          </div>
+
+                          <h3 className="mb-4 line-clamp-2 font-heading text-2xl font-bold leading-tight text-brand-dark transition-colors group-hover:text-brand-moss">
+                            {insight.title}
+                          </h3>
+
+                          <p className="mb-6 line-clamp-3 flex-grow font-medium leading-relaxed text-brand-dark">
+                            {insight.summary}
+                          </p>
+
+                          <div className="flex items-center justify-between border-t border-brand-border/50 pt-6">
+                            <div className="flex items-center gap-3">
+                              <div
+                                aria-hidden="true"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-moss/10 text-xs font-bold text-brand-moss"
+                              >
+                                {/* Audit I-05: helper handles single-word
+                                    names, "CA " prefix, and caps at 2
+                                    letters. Previous inline `.split.map.join`
+                                    produced "CSHR" for "CA Sagar H R". */}
+                                {getAuthorInitials(insight.author)}
+                              </div>
+                              {/* Audit I-02: <time dateTime> for the desktop
+                                  card-grid date too. */}
+                              <time
+                                dateTime={insight.date}
+                                className="text-xs font-bold uppercase tracking-wider text-brand-dark"
+                              >
+                                {insight.date}
+                              </time>
                             </div>
 
-                            <h3 className="mb-4 line-clamp-2 font-heading text-2xl font-bold leading-tight text-brand-dark transition-colors group-hover:text-brand-moss">
-                              {insight.title}
-                            </h3>
-
-                            <p className="mb-6 line-clamp-3 flex-grow font-medium leading-relaxed text-brand-dark">
-                              {insight.summary}
-                            </p>
-
-                            <div className="flex items-center justify-between border-t border-brand-border/50 pt-6">
-                              <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-moss/10 text-xs font-bold text-brand-moss">
-                                  {insight.author
-                                    .split(' ')
-                                    .map((n: string) => n[0])
-                                    .join('')}
-                                </div>
-                                <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                                  {insight.date}
-                                </span>
-                              </div>
-
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border text-brand-dark transition-all duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
-                                <ArrowRight
-                                  size={16}
-                                  className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
-                                />
-                              </div>
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border text-brand-dark transition-all duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
+                              <ArrowRight
+                                size={16}
+                                className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
+                              />
                             </div>
                           </div>
-                        </article>
-                      </Link>
-                    </Reveal>
-                  ))}
-                </div>
-              )}
+                        </div>
+                      </article>
+                    </Link>
+                  </Reveal>
+                ))}
+              </div>
             </div>
           </section>
         )}

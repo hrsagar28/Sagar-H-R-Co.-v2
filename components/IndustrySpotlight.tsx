@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { INDUSTRIES } from '../constants';
@@ -24,7 +25,7 @@ export const IndustryChips: React.FC = () => (
           <Reveal key={ind.title} delay={index * 0.05} variant="scale" width="fit-content">
             <div className="group flex cursor-default items-center gap-3 rounded-full border border-brand-border bg-white py-2 pl-2 pr-6 transition-all duration-300 hover:border-brand-moss hover:shadow-lg hover:shadow-brand-moss/10">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-bg text-brand-moss transition-colors group-hover:bg-brand-moss group-hover:text-white">
-                {React.cloneElement(ind.icon as React.ReactElement<{ size?: number }>, { size: 18 })}
+                <ind.Icon size={18} aria-hidden="true" focusable={false} />
               </div>
               <span className="text-sm font-bold text-brand-dark transition-colors group-hover:text-brand-moss">
                 {ind.title}
@@ -58,7 +59,7 @@ export const IndustryGridDark: React.FC = () => {
       <section
         ref={containerRef}
         className="group relative overflow-hidden rounded-[2.5rem] bg-brand-black px-4 py-24 text-white md:rounded-[3rem] md:px-10"
-        style={{ '--mouse-x': '-500px', '--mouse-y': '-500px' } as React.CSSProperties}
+        style={{ '--mouse-x': '-500px', '--mouse-y': '-500px' } as CSSProperties}
       >
         <div
           className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -89,7 +90,7 @@ export const IndustryGridDark: React.FC = () => {
               >
                 <div className="pointer-events-none absolute inset-0 bg-brand-brass/5 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
                 <div className="relative z-10 mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-brand-brass/20 bg-brand-brass/10 text-brand-brass transition-transform group-hover/card:scale-105">
-                  {React.cloneElement(ind.icon as React.ReactElement<{ size?: number }>, { size: 24 })}
+                  <ind.Icon size={24} aria-hidden="true" focusable={false} />
                 </div>
                 <h3 className="relative z-10 mb-3 font-heading text-xl font-bold text-white">{ind.title}</h3>
                 <p className="relative z-10 text-sm font-medium leading-relaxed text-zinc-300">{ind.description}</p>

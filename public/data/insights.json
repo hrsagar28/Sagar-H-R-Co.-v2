@@ -12,7 +12,8 @@
     "authorId": "sagar-hr",
     "tags": ["income-tax", "tax-reform", "compliance"],
     "image": "/og/new-income-tax-bill-2025.svg",
-    "wordCount": 420
+    "wordCount": 420,
+    "featuredOnHome": true
   },
   {
     "id": "2",
@@ -27,7 +28,8 @@
     "authorId": "sagar-hr",
     "tags": ["gst", "reform", "msme"],
     "image": "/og/gst-reforms-2.0.svg",
-    "wordCount": 343
+    "wordCount": 343,
+    "featuredOnHome": true
   },
   {
     "id": "3",
@@ -42,7 +44,8 @@
     "authorId": "sagar-hr",
     "tags": ["tds", "tcs", "income-tax", "compliance"],
     "image": "/og/tds-tcs-changes-2025.svg",
-    "wordCount": 295
+    "wordCount": 295,
+    "featuredOnHome": true
   },
   {
     "id": "4",

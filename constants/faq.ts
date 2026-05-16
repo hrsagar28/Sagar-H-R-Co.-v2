@@ -27,6 +27,9 @@ export const FAQS: FAQItem[] = [
     answer:
       'Yes. While our office is physically located in Mysuru, we serve clients across India and internationally. Thanks to digital platforms, most tax and compliance services, including consultations, document handling, and filings, can be managed securely and efficiently online. We are equipped to assist you regardless of your location.',
     lastUpdated: FAQ_LAST_UPDATED,
+    // Audit Q-03: geo-disqualifier check — first thing many out-of-Mysuru
+    // prospects need answered before they'll engage.
+    featuredOnHome: true,
   },
   {
     id: 'service-fees',
@@ -35,6 +38,9 @@ export const FAQS: FAQItem[] = [
     answer:
       'Our fees are based on the scope and complexity of the services required. We believe in transparency and will provide a detailed fixed quote after an initial consultation to understand your specific needs. There are no hidden charges, and we confirm the scope before work begins.',
     lastUpdated: FAQ_LAST_UPDATED,
+    // Audit Q-03: fees-and-process anxiety, surfaced at the home FAQ rather
+    // than buried under the Onboarding bucket on /faqs.
+    featuredOnHome: true,
   },
   {
     id: 'old-vs-new-tax-regime',
@@ -59,6 +65,11 @@ export const FAQS: FAQItem[] = [
     answer:
       'Do not ignore it. The first step is to carefully read the notice to understand why it was sent and the deadline for the response. We recommend you contact us immediately. We can handle the matter through our [Litigation Support](/services/litigation) service, from drafting a robust response to representing you before the tax authorities.',
     lastUpdated: FAQ_LAST_UPDATED,
+    // Audit Q-03: high-intent / high-anxiety tax-season FAQ — the kind of
+    // search that lands a stranger on the home page at 11 pm. Mixing this
+    // into the home preview is the main reason this batch isn't just three
+    // onboarding questions.
+    featuredOnHome: true,
   },
   {
     id: 'proactive-tax-planning',

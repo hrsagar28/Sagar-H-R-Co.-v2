@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Reveal from '../Reveal';
 import { useReducedMotion } from '../../hooks';
 
@@ -22,6 +22,13 @@ import { useReducedMotion } from '../../hooks';
  * All visual content is pure CSS/SVG — no raster assets, no heavy deps.
  */
 
+/**
+ * Single source of truth for the chaos palette. The same hex values are also
+ * written into `--chaos-*` CSS variables in `index.css` (.chaos-section)
+ * (audit C-06). Update one and you update both — this constant only
+ * documents the palette in TS form for human readers; nothing here ships
+ * to the bundle as runtime styles.
+ */
 export const CHAOS_COLORS = {
   ink: '#0a0908',
   inkText: '#2A251D',
@@ -36,31 +43,15 @@ export const CHAOS_COLORS = {
   mossDeep: '#1A4D2E',
 } as const;
 
-const CHAOS_STYLE_VARS = {
-  '--chaos-ink': CHAOS_COLORS.ink,
-  '--chaos-ink-rgb': '10 9 8',
-  '--chaos-ink-text': CHAOS_COLORS.inkText,
-  '--chaos-ink-text-rgb': '42 37 29',
-  '--chaos-brass': CHAOS_COLORS.brass,
-  '--chaos-brass-rgb': '184 146 76',
-  '--chaos-rust': CHAOS_COLORS.rust,
-  '--chaos-rust-rgb': '139 58 47',
-  '--chaos-paper': CHAOS_COLORS.paper,
-  '--chaos-paper-rgb': '244 241 234',
-  '--chaos-paper-surface': CHAOS_COLORS.paperSurface,
-  '--chaos-paper-warm': CHAOS_COLORS.paperWarm,
-  '--chaos-paper-yellowed': CHAOS_COLORS.paperYellowed,
-  '--chaos-paper-cream': CHAOS_COLORS.paperCream,
-  '--chaos-paper-cream-2': CHAOS_COLORS.paperCream2,
-  '--chaos-moss-deep': CHAOS_COLORS.mossDeep,
-  // `--divider` is intentionally NOT set here — it lives on the inner panel
-  // <div> (the element `containerRef` points at and `writeDivider` mutates).
-} as React.CSSProperties;
-
 const ChaosToOrder: React.FC = () => {
   'use memo';
   const containerRef = useRef<HTMLDivElement>(null);
   const dividerValueRef = useRef<number>(50);
+  /** rAF handle for batching aria-valuenow updates. Pointer-move can fire
+   *  at 120 Hz on some devices; throttling to one React render per frame
+   *  cuts the re-render rate while keeping the visible divider (a direct
+   *  CSS-var write) instantaneous. Audit C-02. */
+  const ariaUpdateRaf = useRef<number>(0);
   const prefersReduced = useReducedMotion();
 
   const [ariaDivider, setAriaDivider] = useState<number>(50);
@@ -70,9 +61,24 @@ const ChaosToOrder: React.FC = () => {
   const writeDivider = useCallback((pct: number) => {
     const next = Math.max(6, Math.min(94, pct));
     dividerValueRef.current = next;
-    setAriaDivider(Math.round(next));
+    // CSS variable write is direct DOM mutation — runs every pointer event.
     containerRef.current?.style.setProperty('--divider', `${next}%`);
+    // React state update is rAF-batched so we re-render at most once per
+    // frame. ariaDivider only feeds aria-valuenow / aria-valuetext, which
+    // doesn't need pointer-event granularity.
+    if (ariaUpdateRaf.current) return;
+    ariaUpdateRaf.current = window.requestAnimationFrame(() => {
+      ariaUpdateRaf.current = 0;
+      setAriaDivider(Math.round(dividerValueRef.current));
+    });
   }, []);
+
+  useEffect(
+    () => () => {
+      if (ariaUpdateRaf.current) window.cancelAnimationFrame(ariaUpdateRaf.current);
+    },
+    [],
+  );
 
   const setFromClientX = useCallback(
     (clientX: number) => {
@@ -142,9 +148,8 @@ const ChaosToOrder: React.FC = () => {
 
   return (
     <section
-      className="relative overflow-hidden bg-brand-bg py-20 text-[var(--chaos-ink)] [contain-intrinsic-size:900px] [content-visibility:auto] md:py-28"
+      className="chaos-section relative overflow-hidden bg-brand-bg py-20 text-[var(--chaos-ink)] [contain-intrinsic-size:900px] [content-visibility:auto] md:py-28"
       aria-labelledby="chaos-to-order-title"
-      style={CHAOS_STYLE_VARS}
     >
       {/* Soft paper tone & faint vertical brass rule on the left margin */}
       <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[2px] bg-gradient-to-b from-transparent via-[rgb(var(--chaos-brass-rgb)_/_0.25)] to-transparent md:block" />
@@ -224,6 +229,10 @@ const ChaosToOrder: React.FC = () => {
               aria-valuemin={6}
               aria-valuemax={94}
               aria-valuenow={ariaDivider}
+              // Audit C-03: without this, screen readers announce just
+              // "Slider, 50". Spelling out both sides makes the comparison
+              // legible without sight of the panel.
+              aria-valuetext={`Showing ${ariaDivider}% messy books, ${100 - ariaDivider}% clean books`}
               data-role="handle"
               tabIndex={0}
               onPointerDown={onHandlePointerDown}
@@ -253,6 +262,28 @@ const ChaosToOrder: React.FC = () => {
                 />
               </svg>
             </button>
+
+            {/* Audit C-01: pre-interaction affordance pill. Sits a hair
+                below the handle so it doesn't compete with the chevrons,
+                disappears the first time the user touches anything inside
+                the panel. aria-hidden because the slider already announces
+                its own label and value. */}
+            {!hasInteracted && (
+              <div
+                aria-hidden="true"
+                className={`pointer-events-none absolute top-1/2 -translate-x-1/2 select-none rounded-full bg-[var(--chaos-ink)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--chaos-paper)] shadow-md transition-opacity duration-500 md:text-[11px] ${
+                  prefersReduced ? '' : 'animate-pulse'
+                }`}
+                style={{
+                  left: 'var(--divider)',
+                  // 14 (md handle) / 2 + ~14px = sits just under the handle
+                  marginTop: '2.75rem',
+                  zIndex: 4,
+                }}
+              >
+                Drag&nbsp;↔
+              </div>
+            )}
 
             {/* Corner captions */}
             <div className="pointer-events-none absolute left-3 top-3 md:left-6 md:top-5" style={{ zIndex: 3 }}>
@@ -295,44 +326,61 @@ const ChaosToOrder: React.FC = () => {
 /* -------------------------------------------------------------------------- */
 
 type DocKind = 'invoice' | 'gstr' | 'brs' | 'itr' | 'tds' | 'cheque';
+type DocTone = 'paper' | 'yellowed';
+type DocStamp = 'overdue' | 'pending' | 'unpaid' | 'mismatch' | 'late-fee' | 'not-filed';
 
-type ChaosDoc = {
+/**
+ * One scattered document in the Chaos pane. Positions are stored as bare
+ * numbers (audit C-05) so a) TS catches typos like `'2 %'`, b) downstream
+ * code can do arithmetic on them if we ever want to tween or randomise,
+ * and c) future tooling (e.g., a visual editor) can drive the layout from
+ * a typed schema instead of regex-parsing CSS strings.
+ *
+ * All percentages are relative to the chaos pane bounds.
+ */
+interface ChaosDoc {
   kind: DocKind;
-  left: string;
-  top: string;
-  width: string;
+  /** Left position as % of pane width, 0–100. */
+  leftPct: number;
+  /** Top position as % of pane height, 0–100. */
+  topPct: number;
+  /** Width as % of pane width. Height is derived from `aspectRatio`. */
+  widthPct: number;
+  /** Rotation in degrees; typically -10 to +10 for a "tossed" feel. */
   rotate: number;
+  /** Stacking order inside the pane. Higher = nearer the top of the pile. */
   z: number;
-  tone: 'paper' | 'yellowed';
-  stamp?: 'overdue' | 'pending' | 'unpaid' | 'mismatch' | 'late-fee' | 'not-filed';
+  tone: DocTone;
+  stamp?: DocStamp;
+  /** Hand-scribbled green "check this" mark across the doc. */
   scribble?: boolean;
-};
+}
 
 // Hand-placed to feel tossed, not gridded. z-index staggered so some cards
 // clearly overlap others (the chaos of a folder that was never filed).
 // The mix is intentional: it's not just invoices — it's every filing that
 // *should* have happened (GSTR, BRS, ITR, TDS) lying next to the cheque
 // nobody deposited. That's the actual chaos of a practice without a CA.
-const INVOICES: ChaosDoc[] = [
-  { kind: 'invoice', left: '2%', top: '8%', width: '26%', rotate: -6, z: 1, tone: 'paper', stamp: 'overdue' },
-  { kind: 'gstr', left: '20%', top: '18%', width: '28%', rotate: 4, z: 3, tone: 'yellowed', stamp: 'late-fee' },
+const INVOICES: readonly ChaosDoc[] = [
+  { kind: 'invoice', leftPct: 2, topPct: 8, widthPct: 26, rotate: -6, z: 1, tone: 'paper', stamp: 'overdue' },
+  { kind: 'gstr', leftPct: 20, topPct: 18, widthPct: 28, rotate: 4, z: 3, tone: 'yellowed', stamp: 'late-fee' },
   {
     kind: 'invoice',
-    left: '2%',
-    top: '44%',
-    width: '28%',
+    leftPct: 2,
+    topPct: 44,
+    widthPct: 28,
     rotate: 9,
     z: 2,
     tone: 'paper',
     stamp: 'pending',
     scribble: true,
   },
-  { kind: 'cheque', left: '32%', top: '2%', width: '26%', rotate: -3, z: 4, tone: 'paper' },
-  { kind: 'brs', left: '46%', top: '34%', width: '30%', rotate: 6, z: 5, tone: 'yellowed', stamp: 'mismatch' },
-  { kind: 'invoice', left: '34%', top: '60%', width: '26%', rotate: -8, z: 3, tone: 'paper', scribble: true },
-  { kind: 'tds', left: '62%', top: '10%', width: '28%', rotate: 3, z: 4, tone: 'yellowed', stamp: 'pending' },
-  { kind: 'itr', left: '68%', top: '48%', width: '28%', rotate: -5, z: 5, tone: 'paper', stamp: 'not-filed' },
-  { kind: 'invoice', left: '54%', top: '70%', width: '22%', rotate: 7, z: 2, tone: 'yellowed', stamp: 'unpaid' },
+  { kind: 'cheque', leftPct: 32, topPct: 2, widthPct: 26, rotate: -3, z: 4, tone: 'paper' },
+  { kind: 'brs', leftPct: 46, topPct: 34, widthPct: 30, rotate: 6, z: 5, tone: 'yellowed', stamp: 'mismatch' },
+  { kind: 'invoice', leftPct: 34, topPct: 60, widthPct: 26, rotate: -8, z: 3, tone: 'paper', scribble: true },
+  { kind: 'tds', leftPct: 62, topPct: 10, widthPct: 28, rotate: 3, z: 4, tone: 'yellowed', stamp: 'pending' },
+  { kind: 'itr', leftPct: 68, topPct: 48, widthPct: 28, rotate: -5, z: 5, tone: 'paper', stamp: 'not-filed' },
+  { kind: 'invoice', leftPct: 54, topPct: 70, widthPct: 22, rotate: 7, z: 2, tone: 'yellowed', stamp: 'unpaid' },
 ];
 
 const ChaosPane: React.FC = () => {
@@ -446,9 +494,9 @@ const ChaosPane: React.FC = () => {
  */
 const DocCard: React.FC<ChaosDoc & { seed: number }> = ({
   kind,
-  left,
-  top,
-  width,
+  leftPct,
+  topPct,
+  widthPct,
   rotate,
   z,
   tone,
@@ -465,9 +513,9 @@ const DocCard: React.FC<ChaosDoc & { seed: number }> = ({
     <div
       className="absolute"
       style={{
-        left,
-        top,
-        width,
+        left: `${leftPct}%`,
+        top: `${topPct}%`,
+        width: `${widthPct}%`,
         aspectRatio,
         transform: `rotate(${rotate}deg)`,
         zIndex: z,

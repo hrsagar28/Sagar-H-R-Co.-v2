@@ -4,10 +4,34 @@ import { ChevronDown, ArrowRight } from 'lucide-react';
 import { FAQS } from '../../constants/faq';
 import Reveal from '../Reveal';
 
-const DESKTOP_QUERY = '(min-width: 768px)';
+/** How many FAQs the home page preview shows. */
+const HOME_FAQS_COUNT = 3;
 
-const isDesktopViewport = () =>
-  typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(DESKTOP_QUERY).matches;
+/**
+ * Pick which FAQs appear on the home page (audit Q-01 + Q-03).
+ *
+ * Selection rules, mirroring the insights picker:
+ *   1. Prefer FAQs explicitly marked `featuredOnHome: true` in
+ *      `constants/faq.ts`. The order they appear in the source file
+ *      controls home-page order, so curators can re-rank by editing one
+ *      file.
+ *   2. If fewer than HOME_FAQS_COUNT are flagged, fall back to the
+ *      legacy "first three General & Onboarding" behaviour so we never
+ *      render an empty section.
+ *
+ * Hoisted to module scope so the filter doesn't re-run every render and
+ * the React Compiler can treat the result as a stable reference. Audit
+ * Q-01 also dropped the equivalent in-component `useMemo` ceremony.
+ */
+const HOME_FAQS = (() => {
+  const featured = FAQS.filter((faq) => faq.featuredOnHome === true);
+  if (featured.length >= HOME_FAQS_COUNT) {
+    return featured.slice(0, HOME_FAQS_COUNT);
+  }
+  const featuredIds = new Set(featured.map((faq) => faq.id));
+  const fallback = FAQS.filter((faq) => !featuredIds.has(faq.id) && faq.category === 'General & Onboarding');
+  return [...featured, ...fallback].slice(0, HOME_FAQS_COUNT);
+})();
 
 interface FAQPreviewItemProps {
   faq: (typeof FAQS)[number];
@@ -151,9 +175,13 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
           </div>
         </button>
 
+        {/* Audit Q-04: dropped `role="region"`. A landmark per FAQ is more
+            noise than signal in screen-reader landmark menus, and the
+            `aria-labelledby` + `aria-hidden` pair is already the standard
+            disclosure pattern (the button carries `aria-expanded` /
+            `aria-controls`). */}
         <div
           id={panelId}
-          role="region"
           aria-labelledby={buttonId}
           aria-hidden={!isOpen}
           ref={panelRef}
@@ -174,26 +202,11 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
 
 const FAQPreview: React.FC = () => {
   'use memo';
-  // Get top 3 General FAQs
-  const featuredFaqs = FAQS.filter((f) => f.category === 'General & Onboarding').slice(0, 3);
-  const [openIndex, setOpenIndex] = useState<number | null>(() => (isDesktopViewport() ? 0 : null));
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-
-    const query = window.matchMedia(DESKTOP_QUERY);
-    const handleChange = (event: MediaQueryListEvent) => {
-      setOpenIndex((current) => (event.matches ? (current ?? 0) : null));
-    };
-
-    if (typeof query.addEventListener === 'function') {
-      query.addEventListener('change', handleChange);
-      return () => query.removeEventListener('change', handleChange);
-    }
-
-    query.addListener(handleChange);
-    return () => query.removeListener(handleChange);
-  }, []);
+  // Audit Q-02: initial state is `null` on every viewport — no auto-open.
+  // The previous behaviour pre-expanded the 0-th card on desktop, which
+  // caused a layout shift during mount and tied the component to a
+  // matchMedia subscription (Q-05) that's no longer needed.
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <section className="relative bg-brand-bg px-4 py-32 md:px-6">
@@ -212,9 +225,9 @@ const FAQPreview: React.FC = () => {
 
         {/* FAQ Cards */}
         <div className="space-y-4">
-          {featuredFaqs.map((faq, i) => (
+          {HOME_FAQS.map((faq, i) => (
             <FAQPreviewItem
-              key={faq.question}
+              key={faq.id}
               faq={faq}
               index={i}
               isOpen={openIndex === i}

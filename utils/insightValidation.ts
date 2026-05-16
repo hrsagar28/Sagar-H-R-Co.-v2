@@ -24,6 +24,10 @@ export const isValidInsight = (item: unknown): item is InsightItem => {
   if (candidate.wordCount !== undefined && (typeof candidate.wordCount !== 'number' || candidate.wordCount < 0))
     return false;
   if (candidate.dateModified !== undefined && typeof candidate.dateModified !== 'string') return false;
+  // Audit I-04: featuredOnHome is optional; reject only on wrong type.
+  if (candidate.featuredOnHome !== undefined && typeof candidate.featuredOnHome !== 'boolean') return false;
+  // `featured` (legacy / unrelated) is similarly typed as boolean if present.
+  if (candidate.featured !== undefined && typeof candidate.featured !== 'boolean') return false;
   return true;
 };
 
