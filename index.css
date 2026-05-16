@@ -427,9 +427,18 @@ html {
      `containerRef.current?.style.setProperty('--divider', ...)`. */
 }
 
+/* `--divider` is set on the ChaosToOrder panel and read by descendants
+   (clip-path on the Order pane, the divider rule, the handle's `left`,
+   the "Drag ↔" affordance pill, and the @keyframes drift animation).
+   `inherits: true` is critical: without it, descendants would resolve
+   `var(--divider)` to the initial 50% regardless of how far the user
+   has dragged, because non-inherited registered custom properties fall
+   back to the initial-value on every element that doesn't declare them
+   explicitly. We still need the registration so @keyframes can
+   interpolate the percentage smoothly. */
 @property --divider {
   syntax: '<percentage>';
-  inherits: false;
+  inherits: true;
   initial-value: 50%;
 }
 
