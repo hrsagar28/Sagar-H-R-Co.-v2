@@ -1,4 +1,5 @@
 import React from 'react';
+import Reveal from '../../components/Reveal';
 
 const workCards = [
   {
@@ -19,17 +20,23 @@ export const HowWeWork: React.FC = () => (
   <section id="how-we-work" aria-labelledby="how-we-work-heading" className="zone-bg px-4 py-24 md:px-6">
     <div className="container mx-auto max-w-7xl">
       <div className="mb-12 max-w-3xl">
-        <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-zone-accent">How We Work</span>
-        <h2 id="how-we-work-heading" className="zone-text font-heading text-4xl font-bold leading-tight md:text-6xl">
-          Direct, accountable, practical.
-        </h2>
+        <Reveal delay={0}>
+          <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-zone-accent">How We Work</span>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <h2 id="how-we-work-heading" className="zone-text font-heading text-4xl font-bold leading-tight md:text-6xl">
+            Direct, accountable, practical.
+          </h2>
+        </Reveal>
       </div>
       <ul role="list" className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {workCards.map((card) => (
-          <li key={card.title} className="zone-surface zone-border rounded-bento border p-8 md:p-10">
-            <h3 className="zone-text mb-4 font-heading text-2xl font-bold">{card.title}</h3>
-            <p className="leading-relaxed text-zone-text-muted/90">{card.body}</p>
-          </li>
+        {workCards.map((card, i) => (
+          <Reveal key={card.title} width="100%" delay={Math.min(i * 0.06, 0.3)}>
+            <li className="zone-surface zone-border rounded-bento border p-8 md:p-10">
+              <h3 className="zone-text mb-4 font-heading text-2xl font-bold">{card.title}</h3>
+              <p className="leading-relaxed text-zone-text-muted/90">{card.body}</p>
+            </li>
+          </Reveal>
         ))}
       </ul>
     </div>

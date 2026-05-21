@@ -161,7 +161,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
             decoding={priority ? 'sync' : 'async'}
             onLoad={handleLoad}
             onError={handleError}
-            className={`relative z-0 block h-full w-full object-cover transition-all duration-700 ease-in-out ${
+            className={`relative z-0 block h-full w-full object-cover transition-[transform,opacity] duration-700 ease-in-out ${
               priority && (srcAvif || srcWebp || srcAvifSet || srcWebpSet)
                 ? 'scale-100 opacity-100'
                 : isLoaded
@@ -184,7 +184,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           decoding={priority ? 'sync' : 'async'}
           onLoad={handleLoad}
           onError={handleError}
-          className={`relative z-0 block h-full w-full object-cover transition-all duration-700 ease-in-out ${
+          className={`relative z-0 block h-full w-full object-cover transition-[transform,opacity] duration-700 ease-in-out ${
             isLoaded ? 'scale-100 opacity-100' : 'scale-105 opacity-0'
           } ${imgClassName}`}
         />

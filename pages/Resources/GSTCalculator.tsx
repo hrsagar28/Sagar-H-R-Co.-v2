@@ -35,7 +35,7 @@ const GSTCalculator: React.FC = () => {
   };
 
   return (
-    <div className="animate-fade-in-up rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
+    <div className="rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h2 className="font-heading text-3xl font-bold text-brand-dark">GST Calculator</h2>
@@ -61,7 +61,7 @@ const GSTCalculator: React.FC = () => {
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                className="w-full rounded-2xl border border-brand-border bg-brand-bg py-4 pl-10 pr-6 font-heading text-lg font-bold text-brand-dark transition-all placeholder:text-brand-stone/30 focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
+                className="w-full rounded-2xl border border-brand-border bg-brand-bg py-4 pl-10 pr-6 font-heading text-lg font-bold text-brand-dark transition-[border-color,box-shadow] placeholder:text-brand-stone/30 focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
                 placeholder="Enter Amount"
               />
             </div>
@@ -75,7 +75,7 @@ const GSTCalculator: React.FC = () => {
                 <button
                   key={r}
                   onClick={() => setRate(r)}
-                  className={`flex-1 rounded-xl px-4 py-3 font-bold transition-all ${rate === r ? 'bg-brand-moss text-white shadow-md' : 'bg-brand-bg text-brand-stone hover:bg-brand-border/50'}`}
+                  className={`flex-1 rounded-xl px-4 py-3 font-bold transition-[background-color,color,box-shadow] ${rate === r ? 'bg-brand-moss text-white shadow-md' : 'bg-brand-bg text-brand-stone hover:bg-brand-border/50'}`}
                 >
                   {r}%
                 </button>
@@ -91,13 +91,13 @@ const GSTCalculator: React.FC = () => {
             <div className="flex rounded-2xl bg-brand-bg p-1.5">
               <button
                 onClick={() => setType('exclusive')}
-                className={`flex-1 rounded-xl py-3 text-sm font-bold transition-all ${type === 'exclusive' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-stone hover:text-brand-dark'}`}
+                className={`flex-1 rounded-xl py-3 text-sm font-bold transition-[background-color,color,box-shadow] ${type === 'exclusive' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-stone hover:text-brand-dark'}`}
               >
                 Tax Exclusive (Add GST)
               </button>
               <button
                 onClick={() => setType('inclusive')}
-                className={`flex-1 rounded-xl py-3 text-sm font-bold transition-all ${type === 'inclusive' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-stone hover:text-brand-dark'}`}
+                className={`flex-1 rounded-xl py-3 text-sm font-bold transition-[background-color,color,box-shadow] ${type === 'inclusive' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-stone hover:text-brand-dark'}`}
               >
                 Tax Inclusive (Remove GST)
               </button>

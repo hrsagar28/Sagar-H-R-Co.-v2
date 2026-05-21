@@ -147,7 +147,7 @@ const TDSRateChart: React.FC = () => {
   );
 
   return (
-    <div className="animate-fade-in-up rounded-[2.5rem] border border-brand-border bg-brand-surface p-6 shadow-sm md:p-12">
+    <div className="rounded-[2.5rem] border border-brand-border bg-brand-surface p-6 shadow-sm md:p-12">
       {/* Header & Search */}
       <div className="mb-10 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
         <div>
@@ -161,7 +161,7 @@ const TDSRateChart: React.FC = () => {
             placeholder="Search Section or Nature..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-2xl border border-brand-border bg-brand-bg py-3 pl-11 pr-4 text-sm font-medium transition-all focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss lg:w-80"
+            className="w-full rounded-2xl border border-brand-border bg-brand-bg py-3 pl-11 pr-4 text-sm font-medium transition-[border-color,box-shadow] focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss lg:w-80"
           />
         </div>
       </div>
@@ -176,7 +176,7 @@ const TDSRateChart: React.FC = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as TabType)}
-            className={`rounded-xl px-6 py-3 text-sm font-bold transition-all duration-300 ${
+            className={`rounded-xl px-6 py-3 text-sm font-bold transition-[background-color,color,box-shadow] duration-300 ${
               activeTab === tab.id
                 ? 'bg-white text-brand-moss shadow-sm ring-1 ring-black/5'
                 : 'text-brand-stone hover:bg-white/50 hover:text-brand-dark'
@@ -224,7 +224,7 @@ const TDSRateChart: React.FC = () => {
           {TDS_DUE_DATES_SUMMARY.map((item, index) => (
             <div
               key={index}
-              className="group flex flex-col justify-between gap-4 rounded-2xl border border-brand-border bg-white p-6 shadow-sm transition-all hover:border-brand-moss/50 hover:shadow-md md:flex-row md:items-center"
+              className="group flex flex-col justify-between gap-4 rounded-2xl border border-brand-border bg-white p-6 shadow-sm transition-[border-color,box-shadow] hover:border-brand-moss/50 hover:shadow-md md:flex-row md:items-center"
             >
               <div className="flex items-start gap-5">
                 <div className="hidden shrink-0 rounded-full bg-brand-bg p-3 text-brand-stone transition-colors group-hover:bg-brand-moss/10 group-hover:text-brand-moss md:flex">
@@ -244,7 +244,7 @@ const TDSRateChart: React.FC = () => {
                     Due Date
                   </span>
                 </div>
-                <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm font-bold text-brand-dark transition-all group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white md:w-auto">
+                <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm font-bold text-brand-dark transition-[border-color,background-color,color] group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white md:w-auto">
                   <Calendar size={16} />
                   {item.due}
                 </div>

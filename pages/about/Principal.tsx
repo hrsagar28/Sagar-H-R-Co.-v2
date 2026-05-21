@@ -1,5 +1,6 @@
 import React from 'react';
 import { CONTACT_INFO } from '../../constants';
+import Reveal from '../../components/Reveal';
 
 export const Principal: React.FC = () => {
   const { founder } = CONTACT_INFO;
@@ -47,21 +48,27 @@ export const Principal: React.FC = () => {
           </div>
 
           <div className="flex flex-col justify-center p-10 md:p-16 lg:w-3/5">
-            <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-zone-accent">Principal</span>
-            <h2 id="principal-heading" className="zone-text mb-2 font-heading text-4xl font-bold md:text-6xl">
-              {founder.name}
-            </h2>
-            <p className="mb-8 text-sm font-bold uppercase tracking-widest text-zone-text-muted">ACA</p>
+            <Reveal delay={0}>
+              <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-zone-accent">Principal</span>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h2 id="principal-heading" className="zone-text mb-2 font-heading text-4xl font-bold md:text-6xl">
+                {founder.name}
+              </h2>
+            </Reveal>
+            <Reveal delay={0.16}>
+              <p className="mb-8 text-sm font-bold uppercase tracking-widest text-zone-text-muted">ACA</p>
 
-            <div className="max-w-prose space-y-6 text-lg font-medium leading-relaxed text-zone-text-muted/90">
-              <p>{founder.bio}</p>
-              <blockquote className="zone-border border-l-2 pl-6 italic text-zone-text">
-                <p>{founder.quote}</p>
-                <footer className="mt-2 text-sm not-italic text-zone-text-muted">
-                  - {founder.name}, {founder.title}
-                </footer>
-              </blockquote>
-            </div>
+              <div className="max-w-prose space-y-6 text-lg font-medium leading-relaxed text-zone-text-muted/90">
+                <p>{founder.bio}</p>
+                <blockquote className="zone-border border-l-2 pl-6 italic text-zone-text">
+                  <p>{founder.quote}</p>
+                  <footer className="mt-2 text-sm not-italic text-zone-text-muted">
+                    - {founder.name}, {founder.title}
+                  </footer>
+                </blockquote>
+              </div>
+            </Reveal>
           </div>
         </div>
       </div>

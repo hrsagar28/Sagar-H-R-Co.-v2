@@ -95,16 +95,16 @@ const ServiceBento: React.FC = () => {
           <Reveal key={service.id} delay={index * 0.05} className={v.span} variant="fade-up" width="100%">
             <Link
               to={service.link}
-              className={`card-surface-hover group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] border p-6 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] md:min-h-[260px] md:p-8 ${v.container} `}
+              className={`card-surface-hover group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] border p-6 transition-[transform,box-shadow,border-color] duration-500 ease-out-expo md:min-h-[260px] md:p-8 ${v.container} `}
               aria-label={`View details for ${service.title}`}
             >
               {/* 3C. Top Border Reveal */}
-              <div className="absolute left-0 top-0 z-20 h-1 w-0 bg-gradient-to-r from-brand-moss to-[#4ADE80] transition-all duration-700 ease-out group-hover:w-full"></div>
+              <div className="absolute left-0 top-0 z-20 h-1 w-0 bg-gradient-to-r from-brand-moss to-[#4ADE80] transition-[width] duration-700 ease-out group-hover:w-full"></div>
 
               {/* 4. Arrow Button */}
               <div className="relative z-10 mb-4 flex justify-end">
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border shadow-sm backdrop-blur-sm transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:rotate-45 md:h-12 md:w-12 ${v.arrowBtn} `}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full border shadow-sm backdrop-blur-sm transition-[transform,background-color,border-color,color] duration-500 ease-out-expo group-hover:rotate-45 md:h-12 md:w-12 ${v.arrowBtn} `}
                 >
                   <ArrowUpRight size={20} strokeWidth={1.5} />
                 </div>
@@ -118,7 +118,7 @@ const ServiceBento: React.FC = () => {
                   {service.title}
                 </h3>
                 <p
-                  className={`max-w-sm text-sm font-medium leading-relaxed opacity-90 transition-all duration-500 group-hover:opacity-100 md:text-base ${v.textDesc} `}
+                  className={`max-w-sm text-sm font-medium leading-relaxed opacity-90 transition-opacity duration-500 group-hover:opacity-100 md:text-base ${v.textDesc} `}
                 >
                   {service.description}
                 </p>
@@ -132,7 +132,7 @@ const ServiceBento: React.FC = () => {
       <Reveal delay={0.4} className="md:order-9 md:col-span-2 lg:order-9 lg:col-span-1" variant="fade-up" width="100%">
         <Link
           to="/contact"
-          className="group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] border border-transparent bg-card-moss-cta p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-moss/30 md:min-h-[260px] md:p-8"
+          className="group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] border border-transparent bg-card-moss-cta p-6 transition-shadow duration-500 hover:shadow-2xl hover:shadow-brand-moss/30 md:min-h-[260px] md:p-8"
         >
           {/* Decorative Glows */}
           <div className="pointer-events-none absolute right-0 top-0 h-32 w-32 -translate-y-10 translate-x-10 rounded-full bg-white/20 blur-[40px] transition-transform duration-700 group-hover:translate-x-0 group-hover:translate-y-0"></div>
@@ -148,7 +148,7 @@ const ServiceBento: React.FC = () => {
           </div>
 
           <div className="relative z-10 mt-auto flex justify-end">
-            <div className="flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-brand-moss shadow-lg transition-all duration-300 group-hover:bg-brand-dark group-hover:text-white group-hover:shadow-xl">
+            <div className="flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-brand-moss shadow-lg transition-[background-color,color,box-shadow] duration-300 group-hover:bg-brand-dark group-hover:text-white group-hover:shadow-xl">
               Book Consultation <ArrowUpRight size={16} />
             </div>
           </div>

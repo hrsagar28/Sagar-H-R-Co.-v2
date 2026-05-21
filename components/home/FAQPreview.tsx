@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { FAQS } from '../../constants/faq';
 import Reveal from '../Reveal';
+import MarkdownRenderer from '../MarkdownRenderer';
 
 /** How many FAQs the home page preview shows. */
 const HOME_FAQS_COUNT = 3;
@@ -191,7 +192,13 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
         >
           <div ref={contentRef} className="px-6 pb-8 pt-0 md:px-8">
             <div className="border-l-2 border-brand-moss/20 pl-14">
-              <p className="text-lg font-medium leading-relaxed text-brand-stone">{faq.answer}</p>
+              {/* FAQ answers carry inline markdown links like
+                  `[Resources](/resources)`. Rendering them as plain text
+                  was a bug — users saw the literal `[text](url)` syntax
+                  and the links didn't work. Routing through
+                  MarkdownRenderer reuses the same anchor styling and
+                  external-link handling the /faqs page already uses. */}
+              <MarkdownRenderer content={faq.answer} className="text-lg font-medium leading-relaxed text-brand-stone" />
             </div>
           </div>
         </div>
@@ -241,7 +248,7 @@ const FAQPreview: React.FC = () => {
           <div className="mt-12 text-center">
             <Link
               to="/faqs"
-              className="group inline-flex items-center gap-3 rounded-full border border-brand-border bg-white px-8 py-4 font-bold text-brand-dark shadow-lg transition-all duration-300 hover:border-brand-moss hover:bg-brand-moss hover:text-white hover:shadow-xl"
+              className="group inline-flex items-center gap-3 rounded-full border border-brand-border bg-white px-8 py-4 font-bold text-brand-dark shadow-lg transition-[border-color,background-color,color,box-shadow] duration-300 hover:border-brand-moss hover:bg-brand-moss hover:text-white hover:shadow-xl"
             >
               View All FAQs
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />

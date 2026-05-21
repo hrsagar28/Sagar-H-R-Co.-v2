@@ -12,7 +12,7 @@ const CIITable: React.FC = () => {
   const { data: ciiData, loading, error } = useResourceData<CIIRow[]>('cii-data.json');
 
   return (
-    <div className="animate-fade-in-up rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
+    <div className="rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
       <div className="mb-8">
         <h2 className="font-heading text-3xl font-bold text-brand-dark">Cost Inflation Index</h2>
         <p className="mt-1 text-brand-stone">For Long Term Capital Gains Calculation</p>

@@ -9,6 +9,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import ReactMarkdown from 'react-markdown';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { useToast } from '../hooks/useToast';
+import Reveal from '../components/Reveal';
 import './route-styles.css';
 
 const ChecklistDetail: React.FC = () => {
@@ -134,7 +135,7 @@ const ChecklistDetail: React.FC = () => {
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-brand-border">
             <div
-              className="h-full bg-brand-moss transition-all duration-500 ease-out"
+              className="h-full bg-brand-moss transition-[width] duration-500 ease-out"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -162,57 +163,59 @@ const ChecklistDetail: React.FC = () => {
 
           <div className="space-y-10 print:space-y-6">
             {checklist.sections.map((section, idx) => (
-              <div key={idx} className="break-inside-avoid">
-                <h3 className="mb-6 border-b border-brand-border/50 pb-2 font-heading text-xl font-bold text-brand-dark print:mb-3 print:border-black print:pb-1 print:text-lg print:text-black">
-                  {section.title}
-                </h3>
-                <ul className="space-y-4 print:space-y-2">
-                  {section.items.map((item, i) => {
-                    const key = `${section.title}-${i}`;
-                    const isChecked = !!checkedItems[key];
+              <Reveal key={idx} width="100%" delay={Math.min(idx * 0.06, 0.3)}>
+                <div className="break-inside-avoid">
+                  <h3 className="mb-6 border-b border-brand-border/50 pb-2 font-heading text-xl font-bold text-brand-dark print:mb-3 print:border-black print:pb-1 print:text-lg print:text-black">
+                    {section.title}
+                  </h3>
+                  <ul className="space-y-4 print:space-y-2">
+                    {section.items.map((item, i) => {
+                      const key = `${section.title}-${i}`;
+                      const isChecked = !!checkedItems[key];
 
-                    return (
-                      <li
-                        key={i}
-                        className={`flex items-start gap-4 rounded-xl p-3 transition-colors print:gap-2 print:p-0 ${isChecked ? 'bg-brand-moss/5 print:bg-transparent' : 'hover:bg-brand-bg print:hover:bg-transparent'}`}
-                      >
-                        <div
-                          className="mt-1 shrink-0 cursor-pointer print:cursor-default"
-                          onClick={() => toggleItem(section.title, i)}
+                      return (
+                        <li
+                          key={i}
+                          className={`flex items-start gap-4 rounded-xl p-3 transition-colors print:gap-2 print:p-0 ${isChecked ? 'bg-brand-moss/5 print:bg-transparent' : 'hover:bg-brand-bg print:hover:bg-transparent'}`}
                         >
-                          {/* Interactive Checkbox for Web */}
                           <div
-                            className={`flex h-5 w-5 items-center justify-center rounded border transition-all print:hidden ${isChecked ? 'border-brand-moss bg-brand-moss text-white' : 'border-brand-stone/40 bg-white'}`}
+                            className="mt-1 shrink-0 cursor-pointer print:cursor-default"
+                            onClick={() => toggleItem(section.title, i)}
                           >
-                            {isChecked && <Check size={14} />}
+                            {/* Interactive Checkbox for Web */}
+                            <div
+                              className={`flex h-5 w-5 items-center justify-center rounded border transition-colors print:hidden ${isChecked ? 'border-brand-moss bg-brand-moss text-white' : 'border-brand-stone/40 bg-white'}`}
+                            >
+                              {isChecked && <Check size={14} />}
+                            </div>
+
+                            {/* Print Representation */}
+                            <div className="hidden h-4 w-4 border border-black print:block">
+                              {isChecked && <span className="-mt-1 block text-center font-bold">✓</span>}
+                            </div>
                           </div>
 
-                          {/* Print Representation */}
-                          <div className="hidden h-4 w-4 border border-black print:block">
-                            {isChecked && <span className="-mt-1 block text-center font-bold">✓</span>}
-                          </div>
-                        </div>
-
-                        <div
-                          className={`flex-grow cursor-pointer select-none text-lg font-medium leading-relaxed text-brand-stone print:select-auto print:text-base print:text-black ${isChecked ? 'line-through opacity-70 print:no-underline print:opacity-100' : ''}`}
-                          onClick={() => toggleItem(section.title, i)}
-                        >
-                          <ReactMarkdown
-                            components={{
-                              p: ({ node, ...props }) => <span {...props} />,
-                              strong: ({ node, ...props }) => (
-                                <strong className="font-bold text-brand-dark print:text-black" {...props} />
-                              ),
-                            }}
+                          <div
+                            className={`flex-grow cursor-pointer select-none text-lg font-medium leading-relaxed text-brand-stone print:select-auto print:text-base print:text-black ${isChecked ? 'line-through opacity-70 print:no-underline print:opacity-100' : ''}`}
+                            onClick={() => toggleItem(section.title, i)}
                           >
-                            {item}
-                          </ReactMarkdown>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+                            <ReactMarkdown
+                              components={{
+                                p: ({ node, ...props }) => <span {...props} />,
+                                strong: ({ node, ...props }) => (
+                                  <strong className="font-bold text-brand-dark print:text-black" {...props} />
+                                ),
+                              }}
+                            >
+                              {item}
+                            </ReactMarkdown>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </Reveal>
             ))}
           </div>
 

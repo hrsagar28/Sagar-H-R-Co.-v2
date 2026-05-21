@@ -52,7 +52,7 @@ function Button({
   }
 
   const baseStyles =
-    'rounded-full font-heading font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2';
+    'rounded-full font-heading font-semibold transition-[transform,background-color,box-shadow,opacity] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2';
 
   const combinedClassName = `${baseStyles} ${sizeStyles} ${variantStyles} ${className}`.trim();
 

@@ -12,6 +12,7 @@ import { formatArchiveDate } from '../utils/formatArchiveDate';
 import { formatLongDate, toISODate } from '../utils/insightDates';
 import { extractMarkdownHeadings } from '../utils/markdownHeadings';
 import { SITE_URL } from '../config/site';
+import Reveal from '../components/Reveal';
 import './route-styles.css';
 
 const MarkdownRenderer = React.lazy(() => import('../components/MarkdownRenderer'));
@@ -114,7 +115,7 @@ const ReadingProgress: React.FC = () => {
 
   return (
     <div
-      className={`print-hidden fixed bottom-24 right-6 z-fixed hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:right-10 lg:block ${scrollProgress > 0.05 ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-10 opacity-0'}`}
+      className={`print-hidden fixed bottom-24 right-6 z-fixed hidden transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:right-10 lg:block ${scrollProgress > 0.05 ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-10 opacity-0'}`}
     >
       <button
         onClick={scrollToTop}
@@ -295,7 +296,7 @@ const InsightDetail: React.FC = () => {
           </p>
           <Link
             to="/insights"
-            className="inline-flex rounded-full bg-brand-moss px-6 py-3 font-bold text-white transition-all hover:bg-brand-dark"
+            className="inline-flex rounded-full bg-brand-moss px-6 py-3 font-bold text-white transition-colors hover:bg-brand-dark"
           >
             Back to Insights
           </Link>
@@ -409,7 +410,7 @@ const InsightDetail: React.FC = () => {
                   <button
                     onClick={handleShare}
                     aria-label="Share article"
-                    className="zone-text-muted hover:zone-bg flex h-12 w-12 items-center justify-center rounded-xl transition-all hover:text-brand-moss"
+                    className="zone-text-muted hover:zone-bg flex h-12 w-12 items-center justify-center rounded-xl transition-colors hover:text-brand-moss"
                   >
                     {shareCopied ? (
                       <Check size={20} aria-hidden="true" focusable="false" className="text-green-600" />
@@ -424,7 +425,7 @@ const InsightDetail: React.FC = () => {
                     onClick={handleBookmark}
                     aria-label={bookmarked ? 'Remove saved article' : 'Save article'}
                     aria-pressed={bookmarked}
-                    className="zone-text-muted hover:zone-bg flex h-12 w-12 items-center justify-center rounded-xl transition-all hover:text-brand-moss"
+                    className="zone-text-muted hover:zone-bg flex h-12 w-12 items-center justify-center rounded-xl transition-colors hover:text-brand-moss"
                   >
                     {bookmarked ? (
                       <Check size={20} aria-hidden="true" focusable="false" className="text-green-600" />
@@ -438,7 +439,7 @@ const InsightDetail: React.FC = () => {
                   <button
                     onClick={handlePrint}
                     aria-label="Print article"
-                    className="zone-text-muted hover:zone-bg flex h-12 w-12 items-center justify-center rounded-xl transition-all hover:text-brand-moss"
+                    className="zone-text-muted hover:zone-bg flex h-12 w-12 items-center justify-center rounded-xl transition-colors hover:text-brand-moss"
                   >
                     <Printer size={20} aria-hidden="true" focusable="false" />
                   </button>
@@ -451,7 +452,7 @@ const InsightDetail: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Share on X (opens in new window)"
-                  className="zone-text-muted flex h-12 w-12 items-center justify-center rounded-xl transition-all hover:bg-black/5 hover:text-black"
+                  className="zone-text-muted flex h-12 w-12 items-center justify-center rounded-xl transition-colors hover:bg-black/5 hover:text-black"
                 >
                   <X size={20} aria-hidden="true" focusable="false" />
                 </a>
@@ -460,7 +461,7 @@ const InsightDetail: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Share on LinkedIn (opens in new window)"
-                  className="zone-text-muted flex h-12 w-12 items-center justify-center rounded-xl transition-all hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
+                  className="zone-text-muted flex h-12 w-12 items-center justify-center rounded-xl transition-colors hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
                 >
                   <Share2 size={20} aria-hidden="true" focusable="false" />
                 </a>
@@ -483,13 +484,13 @@ const InsightDetail: React.FC = () => {
                     <button
                       type="button"
                       onClick={refetch}
-                      className="rounded-full bg-brand-moss px-6 py-2 font-bold text-white transition-all hover:bg-brand-dark"
+                      className="rounded-full bg-brand-moss px-6 py-2 font-bold text-white transition-colors hover:bg-brand-dark"
                     >
                       Retry
                     </button>
                     <Link
                       to="/insights"
-                      className="zone-border zone-text rounded-full border bg-white px-6 py-2 font-bold transition-all hover:bg-brand-dark hover:text-white"
+                      className="zone-border zone-text rounded-full border bg-white px-6 py-2 font-bold transition-colors hover:bg-brand-dark hover:text-white"
                     >
                       Back to Insights
                     </Link>
@@ -518,7 +519,7 @@ const InsightDetail: React.FC = () => {
                   </p>
                   <Link
                     to="/contact"
-                    className="zone-border zone-text inline-block rounded-full border bg-white px-6 py-2 text-sm font-bold shadow-sm transition-all hover:bg-brand-dark hover:text-white"
+                    className="zone-border zone-text inline-block rounded-full border bg-white px-6 py-2 text-sm font-bold shadow-sm transition-colors hover:bg-brand-dark hover:text-white"
                   >
                     Book Consultation
                   </Link>
@@ -552,26 +553,26 @@ const InsightDetail: React.FC = () => {
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   {relatedInsights.map((item, index) => (
-                    <Link
-                      to={`/insights/${item.slug}`}
-                      key={item.id}
-                      aria-label={item.title}
-                      className="zone-surface zone-border group flex h-full flex-col rounded-[1.5rem] border p-6 transition-all duration-300 hover:border-brand-moss hover:shadow-lg motion-safe:animate-fade-in-up"
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      <span className="zone-bg zone-text-muted mb-4 inline-block w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors group-hover:bg-brand-moss group-hover:text-white">
-                        {item.category}
-                      </span>
-                      <h4 className="zone-text mb-3 line-clamp-2 font-heading text-lg font-bold transition-colors group-hover:text-brand-moss">
-                        {item.title}
-                      </h4>
-                      <div className="zone-border/50 zone-text mt-auto flex items-center justify-between border-t pt-4 text-xs font-semibold">
-                        <time dateTime={toISODate(item.date)}>{formatArchiveDate(item.date)}</time>
-                        <div className="zone-bg flex h-8 w-8 items-center justify-center rounded-full transition-all group-hover:bg-brand-moss group-hover:text-white">
-                          <ArrowUpRight size={14} aria-hidden="true" focusable="false" />
+                    <Reveal key={item.id} width="100%" delay={Math.min(index * 0.06, 0.3)}>
+                      <Link
+                        to={`/insights/${item.slug}`}
+                        aria-label={item.title}
+                        className="zone-surface zone-border group flex h-full flex-col rounded-[1.5rem] border p-6 transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-lg"
+                      >
+                        <span className="zone-bg zone-text-muted mb-4 inline-block w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors group-hover:bg-brand-moss group-hover:text-white">
+                          {item.category}
+                        </span>
+                        <h4 className="zone-text mb-3 line-clamp-2 font-heading text-lg font-bold transition-colors group-hover:text-brand-moss">
+                          {item.title}
+                        </h4>
+                        <div className="zone-border/50 zone-text mt-auto flex items-center justify-between border-t pt-4 text-xs font-semibold">
+                          <time dateTime={toISODate(item.date)}>{formatArchiveDate(item.date)}</time>
+                          <div className="zone-bg flex h-8 w-8 items-center justify-center rounded-full transition-colors group-hover:bg-brand-moss group-hover:text-white">
+                            <ArrowUpRight size={14} aria-hidden="true" focusable="false" />
+                          </div>
                         </div>
-                      </div>
-                    </Link>
+                      </Link>
+                    </Reveal>
                   ))}
                 </div>
               </section>

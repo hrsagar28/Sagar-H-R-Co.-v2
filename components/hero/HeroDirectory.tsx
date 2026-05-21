@@ -26,10 +26,10 @@ export const HeroDirectory: React.FC<DirectoryHeroProps> = ({
             {eyebrow && (
               <div className="mb-8 animate-fade-in-up font-mono text-eyebrow uppercase tracking-[0.2em]">{eyebrow}</div>
             )}
+            {/* Audit MA-04: WordReveal is the headline's only entrance. */}
             <h1
               id="hero-directory-title"
-              className="mb-6 animate-fade-in-up text-balance font-heading text-display-xl leading-[0.9] tracking-[-0.02em] [&_em]:font-serif [&_em]:font-normal [&_em]:italic"
-              style={{ animationDelay: '0.1s' }}
+              className="mb-6 text-balance font-heading text-display-xl leading-[0.9] tracking-[-0.02em] [&_em]:font-serif [&_em]:font-normal [&_em]:italic"
             >
               <WordReveal>{title}</WordReveal>
             </h1>

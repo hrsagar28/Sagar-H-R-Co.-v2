@@ -386,7 +386,7 @@ const Contact: React.FC = () => {
                   <div className="space-y-6">
                     {/* Office */}
                     <div className="group flex items-start gap-5">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-[transform,background-color,color] duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                         <MapPin size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -400,7 +400,7 @@ const Contact: React.FC = () => {
 
                     {/* Email */}
                     <div className="group relative flex items-start gap-5">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-[transform,background-color,color] duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                         <Mail size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
@@ -409,7 +409,7 @@ const Contact: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleCopy(CONTACT_INFO.email, 'Email')}
-                            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-all duration-200 hover:text-white focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent active:scale-90 group-hover:opacity-100"
+                            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-[transform,color,opacity] duration-200 hover:text-white focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent active:scale-90 group-hover:opacity-100"
                             aria-label="Copy Email"
                             title="Copy Email"
                           >
@@ -427,7 +427,7 @@ const Contact: React.FC = () => {
 
                     {/* Phone */}
                     <div className="group relative flex items-start gap-5">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-[transform,background-color,color] duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                         <Phone size={18} aria-hidden="true" />
                       </div>
                       <div className="flex-1">
@@ -436,7 +436,7 @@ const Contact: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleCopy(CONTACT_INFO.phone.value, 'Phone Number')}
-                            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-all duration-200 hover:text-white focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent active:scale-90 group-hover:opacity-100"
+                            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl p-2 text-gray-400 opacity-40 transition-[transform,color,opacity] duration-200 hover:text-white focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent active:scale-90 group-hover:opacity-100"
                             aria-label="Copy Phone"
                             title="Copy Phone"
                           >
@@ -455,7 +455,7 @@ const Contact: React.FC = () => {
                     {/* WhatsApp */}
                     {CONTACT_INFO.social.whatsapp && (
                       <div className="group relative flex items-start gap-5">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-[transform,background-color,color] duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                           <MessageCircle size={18} aria-hidden="true" />
                         </div>
                         <div className="flex-1">
@@ -477,7 +477,7 @@ const Contact: React.FC = () => {
 
                     {/* Working Hours */}
                     <div className="group flex items-start gap-5">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-white/10 text-brand-accent transition-[transform,background-color,color] duration-300 group-hover:scale-110 group-hover:bg-brand-accent group-hover:text-brand-ink">
                         <Clock size={18} aria-hidden="true" />
                       </div>
                       <div>
@@ -493,7 +493,7 @@ const Contact: React.FC = () => {
 
           {/* Right Column: Contact Form */}
           <Reveal className="lg:col-span-8" delay={0.1} width="100%">
-            <div className="relative flex h-full flex-col justify-center overflow-hidden rounded-[2.5rem] border-none bg-transparent p-8 text-white transition-all duration-500 focus-within:shadow-brand-accent/5 md:p-12">
+            <div className="relative flex h-full flex-col justify-center overflow-hidden rounded-[2.5rem] border-none bg-transparent p-8 text-white transition-shadow duration-500 focus-within:shadow-brand-accent/5 md:p-12">
               <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
                 {successAnnouncement}
               </div>
@@ -698,7 +698,7 @@ const Contact: React.FC = () => {
           <div
             role="figure"
             aria-labelledby="map-caption"
-            className="zone-border group relative -mx-4 h-[280px] w-[calc(100%+2rem)] cursor-auto overflow-hidden rounded-none border-0 shadow-2xl grayscale-0 transition-all duration-700 hover:grayscale-0 md:mx-0 md:h-[350px] md:w-full md:rounded-[3rem] md:border md:grayscale"
+            className="zone-border group relative -mx-4 h-[280px] w-[calc(100%+2rem)] cursor-auto overflow-hidden rounded-none border-0 shadow-2xl grayscale-0 transition-[filter] duration-700 hover:grayscale-0 md:mx-0 md:h-[350px] md:w-full md:rounded-[3rem] md:border md:grayscale"
             data-hide-cursor="true"
           >
             <h2 id="map-caption" className="sr-only">
@@ -719,7 +719,7 @@ const Contact: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Get directions on Google Maps (opens in new window)"
-                className="mt-2 inline-block text-xs font-bold uppercase tracking-wider text-white transition-all hover:text-white/80 hover:underline"
+                className="mt-2 inline-block text-xs font-bold uppercase tracking-wider text-white transition-colors hover:text-white/80 hover:underline"
               >
                 Get Directions
               </a>

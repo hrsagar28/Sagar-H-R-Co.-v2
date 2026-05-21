@@ -389,7 +389,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
               aria-hidden={!showLeft}
               tabIndex={showLeft ? 0 : -1}
               {...(!showLeft ? { inert: true } : {})}
-              className={`absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${showLeft ? 'translate-x-0 opacity-100' : 'pointer-events-none -translate-x-4 opacity-0'}`}
+              className={`absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-[transform,opacity,background-color] duration-300 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${showLeft ? 'translate-x-0 opacity-100' : 'pointer-events-none -translate-x-4 opacity-0'}`}
             >
               <ChevronLeft size={22} />
             </button>
@@ -406,7 +406,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
               aria-hidden={!showRight}
               tabIndex={showRight ? 0 : -1}
               {...(!showRight ? { inert: true } : {})}
-              className={`absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${showRight ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-4 opacity-0'}`}
+              className={`absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-[transform,opacity,background-color] duration-300 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${showRight ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-4 opacity-0'}`}
             >
               <ChevronRight size={22} />
             </button>
@@ -435,7 +435,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
           <div className="absolute bottom-0 left-0 right-0 z-20 h-[3px] bg-white/10">
             <div
               ref={progressFillRef}
-              className="h-full rounded-full bg-[#4ADE80] transition-all duration-100 ease-linear"
+              className="h-full rounded-full bg-[#4ADE80] transition-[width] duration-100 ease-linear"
               // Audit S-01: width set directly via DOM by `applyProgress`.
               // Inline width here just guards against an unstyled first paint.
               style={{ width: '0%' }}

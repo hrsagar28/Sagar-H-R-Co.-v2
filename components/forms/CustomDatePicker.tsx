@@ -292,7 +292,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
           aria-labelledby={labelId}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : undefined}
-          className={`w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss ${error ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'}`}
+          className={`w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-[border-color,box-shadow] focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss ${error ? 'border-red-500 ring-1 ring-red-500' : 'border-brand-border'}`}
         />
       ) : (
         <button
@@ -306,7 +306,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
           aria-describedby={error ? errorId : undefined}
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={handleTriggerKeyDown}
-          className={`group flex w-full items-center justify-between rounded-2xl border bg-brand-bg px-6 py-4 text-left text-brand-dark transition-all focus:border-brand-moss focus:outline-none focus:ring-2 focus:ring-brand-moss ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'}`}
+          className={`group flex w-full items-center justify-between rounded-2xl border bg-brand-bg px-6 py-4 text-left text-brand-dark transition-[border-color,box-shadow] focus:border-brand-moss focus:outline-none focus:ring-2 focus:ring-brand-moss ${error ? 'border-red-500 ring-1 ring-red-500' : isOpen ? 'border-brand-moss ring-1 ring-brand-moss' : 'border-brand-border'}`}
         >
           <span className={value ? 'font-medium text-brand-dark' : 'font-medium text-brand-stone/40'}>
             {formatDateDisplay(value)}
@@ -326,7 +326,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelId}
-        className={`absolute left-0 w-full md:w-80 ${position === 'top' ? 'bottom-full mb-2 origin-bottom-left' : 'top-full mt-2 origin-top-left'} z-[1000] overflow-hidden rounded-2xl border border-brand-border bg-white shadow-2xl transition-all duration-300 ${isOpen ? 'visible scale-100 opacity-100' : 'pointer-events-none invisible scale-95 opacity-0'} `}
+        className={`absolute left-0 w-full md:w-80 ${position === 'top' ? 'bottom-full mb-2 origin-bottom-left' : 'top-full mt-2 origin-top-left'} z-[1000] overflow-hidden rounded-2xl border border-brand-border bg-white shadow-2xl transition-[transform,opacity] duration-300 ${isOpen ? 'visible scale-100 opacity-100' : 'pointer-events-none invisible scale-95 opacity-0'} `}
       >
         <div className="flex items-center justify-between border-b border-brand-border/50 bg-brand-bg/50 p-4">
           <button
@@ -405,7 +405,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                       aria-current={isToday ? 'date' : undefined}
                       disabled={isDisabled}
                       onClick={() => handleDateSelect(day)}
-                      className={`mx-auto flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all focus:outline-none ${isSelected ? 'bg-brand-moss text-white shadow-md' : ''} ${isDisabled ? 'cursor-not-allowed text-brand-stone/30 hover:bg-transparent hover:text-brand-stone/30' : ''} ${!isSelected && isFocused ? 'bg-brand-bg text-brand-dark ring-2 ring-brand-moss' : ''} ${!isSelected && !isFocused && !isDisabled ? 'text-brand-dark hover:bg-brand-bg hover:text-brand-moss' : ''} `}
+                      className={`mx-auto flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-[background-color,color,box-shadow] focus:outline-none ${isSelected ? 'bg-brand-moss text-white shadow-md' : ''} ${isDisabled ? 'cursor-not-allowed text-brand-stone/30 hover:bg-transparent hover:text-brand-stone/30' : ''} ${!isSelected && isFocused ? 'bg-brand-bg text-brand-dark ring-2 ring-brand-moss' : ''} ${!isSelected && !isFocused && !isDisabled ? 'text-brand-dark hover:bg-brand-bg hover:text-brand-moss' : ''} `}
                     >
                       {day}
                     </button>

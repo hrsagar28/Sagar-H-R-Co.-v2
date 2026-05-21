@@ -57,7 +57,13 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
     setIsOpen(false);
   }, [location]);
 
-  // Body Scroll Lock Only
+  // Body scroll lock. Audit CQ-06: this effect mutates `document.body.style`
+  // — a global DOM property React doesn't track — and the React Compiler's
+  // purity rule flags it. The escape hatch is intentional: locking the
+  // page scroll while the mobile menu sheet is open is the only sensible
+  // way to keep the underlying content from rubber-banding on iOS while
+  // the user pans inside the overlay. The cleanup branch unconditionally
+  // resets `overflow` so the lock can never leak across unmounts.
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -94,7 +100,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       className={`pointer-events-none fixed left-0 top-4 z-fixed flex w-full justify-center px-2 md:top-6 md:px-4 ${className}`}
     >
       <div
-        className={`pointer-events-auto relative flex items-center justify-between rounded-full px-2 py-2 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:px-3 md:py-3 ${
+        className={`pointer-events-auto relative flex items-center justify-between rounded-full px-2 py-2 transition-[max-width,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:px-3 md:py-3 ${
           scrolled
             ? 'w-full max-w-6xl border border-brand-border/50 bg-brand-surface/90 shadow-xl shadow-brand-dark/5 backdrop-blur-xl'
             : 'w-full max-w-7xl border border-brand-border/20 bg-brand-surface/70 backdrop-blur-md md:border-transparent'
@@ -108,7 +114,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             logo navigates back to /. */}
         <Link
           to="/"
-          className="group flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border-brand-border/30 bg-brand-surface/50 px-3 py-2 shadow-none transition-all hover:border-brand-moss/30 md:gap-3 md:border md:bg-brand-surface md:px-5 md:shadow-sm"
+          className="group flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border-brand-border/30 bg-brand-surface/50 px-3 py-2 shadow-none transition-colors hover:border-brand-moss/30 md:gap-3 md:border md:bg-brand-surface md:px-5 md:shadow-sm"
           aria-current={isHomeRoute ? 'page' : undefined}
           aria-label={isHomeRoute ? undefined : 'Sagar H R & Co. Home'}
         >
@@ -127,7 +133,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               key={link.name}
               to={link.path}
               aria-current={location.pathname === link.path ? 'page' : undefined}
-              className={`group relative flex min-h-[44px] items-center overflow-hidden whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+              className={`group relative flex min-h-[44px] items-center overflow-hidden whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-300 ${
                 location.pathname === link.path
                   ? 'bg-brand-moss text-brand-inverse shadow-md'
                   : 'text-brand-stone hover:bg-brand-bg'
@@ -166,11 +172,11 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           */}
           <Link
             to="/contact"
-            className="group hidden min-h-[44px] items-center gap-3 rounded-full bg-brand-dark py-1.5 pl-6 pr-1.5 text-sm font-bold text-brand-inverse shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:bg-brand-dark/90 hover:ring-4 hover:ring-brand-border/20 md:flex"
+            className="group hidden min-h-[44px] items-center gap-3 rounded-full bg-brand-dark py-1.5 pl-6 pr-1.5 text-sm font-bold text-brand-inverse shadow-lg shadow-brand-dark/10 transition-[background-color,box-shadow] duration-300 hover:bg-brand-dark/90 hover:ring-4 hover:ring-brand-border/20 md:flex"
             aria-label="Contact Us"
           >
             <span className="pl-1 transition-transform duration-300 group-hover:translate-x-0.5">Contact</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-moss text-white transition-all duration-300 group-hover:scale-110 group-hover:bg-white group-hover:text-brand-dark">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-moss text-white transition-[transform,background-color,color] duration-300 group-hover:scale-110 group-hover:bg-white group-hover:text-brand-dark">
               <MessageSquare size={14} className="transition-transform duration-300 group-hover:rotate-12" />
             </div>
           </Link>
@@ -228,7 +234,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               setIsOpen(false);
             }
           }}
-          className={`absolute right-0 top-full mt-4 flex w-[calc(100vw-32px)] origin-top-right flex-col gap-2 rounded-[2rem] border border-brand-border/60 bg-brand-surface/95 p-6 shadow-2xl backdrop-blur-2xl transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:w-80 ${isOpen ? 'visible translate-y-0 scale-100 opacity-100' : 'pointer-events-none invisible -translate-y-4 scale-95 opacity-0'} `}
+          className={`absolute right-0 top-full mt-4 flex w-[calc(100vw-32px)] origin-top-right flex-col gap-2 rounded-[2rem] border border-brand-border/60 bg-brand-surface/95 p-6 shadow-2xl backdrop-blur-2xl transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:w-80 ${isOpen ? 'visible translate-y-0 scale-100 opacity-100' : 'pointer-events-none invisible -translate-y-4 scale-95 opacity-0'} `}
         >
           {mobileMenuLinks.map((link, idx) => (
             <Link
@@ -241,18 +247,18 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               // links. `mobileStaggerStep` distributes the same cascade
               // across MOBILE_MENU_STAGGER_TOTAL_MS (200 ms) so the last
               // link lands much sooner on slow phones.
-              className={`group flex min-h-[60px] items-center justify-between rounded-xl px-4 py-4 font-heading text-xl font-bold text-brand-dark transition-all duration-500 ease-out hover:bg-brand-bg hover:text-brand-moss ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'} `}
+              className={`group flex min-h-[60px] items-center justify-between rounded-xl px-4 py-4 font-heading text-xl font-bold text-brand-dark transition-[transform,opacity,background-color,color] duration-500 ease-out hover:bg-brand-bg hover:text-brand-moss ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'} `}
               style={{ transitionDelay: isOpen ? `${idx * mobileStaggerStep}ms` : '0ms' }}
             >
               {link.name}
               <ArrowRight
                 size={20}
-                className="-translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+                className="-translate-x-2 opacity-0 transition-[transform,opacity] duration-300 group-hover:translate-x-0 group-hover:opacity-100"
               />
             </Link>
           ))}
           <div
-            className={`mt-4 border-t border-brand-border/50 pt-4 transition-all delay-300 duration-500 ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+            className={`mt-4 border-t border-brand-border/50 pt-4 transition-[transform,opacity] delay-300 duration-500 ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
           >
             <Link
               to="/contact"

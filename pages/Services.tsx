@@ -6,6 +6,7 @@ import { buildServicesSchema } from '../constants/servicesSchema';
 import SEO from '../components/SEO';
 import { PageHero } from '../components/hero';
 import ConsultationBanner from '../components/ConsultationBanner';
+import Reveal from '../components/Reveal';
 import './route-styles.css';
 import '../components/hero/PageHero.css';
 import '../components/ServiceBento.css';
@@ -40,15 +41,21 @@ const Services: React.FC = () => {
         <div className="container mx-auto mb-16 max-w-7xl px-4 md:px-6">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-brand-moss">
-                Core Capabilities
-              </span>
-              <h2 className="font-heading text-4xl font-bold text-brand-dark md:text-6xl">What We Do</h2>
+              <Reveal delay={0}>
+                <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-brand-moss">
+                  Core Capabilities
+                </span>
+              </Reveal>
+              <Reveal delay={0.08}>
+                <h2 className="font-heading text-4xl font-bold text-brand-dark md:text-6xl">What We Do</h2>
+              </Reveal>
             </div>
-            <p className="max-w-md text-lg font-medium text-brand-stone">
-              A holistic suite of financial services designed to navigate the complexities of the modern economic
-              landscape.
-            </p>
+            <Reveal delay={0.16}>
+              <p className="max-w-md text-lg font-medium text-brand-stone">
+                A holistic suite of financial services designed to navigate the complexities of the modern economic
+                landscape.
+              </p>
+            </Reveal>
           </div>
         </div>
         <div className="container mx-auto max-w-7xl px-4 md:px-6">

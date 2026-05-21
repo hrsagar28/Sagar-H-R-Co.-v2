@@ -32,7 +32,7 @@ const Footer: React.FC = () => {
                   href={CONTACT_INFO.social.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 transition-all hover:bg-white hover:text-brand-dark"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 transition-colors hover:bg-white hover:text-brand-dark"
                   aria-label="LinkedIn Profile (opens in new window)"
                 >
                   <Share2 size={20} />

@@ -53,7 +53,7 @@ export function StepPersonal({
               onChange={onInputChange}
               placeholder="John Doe"
               autoComplete="name"
-              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
+              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-[border-color,box-shadow] focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
             />
           </FormField>
         </div>
@@ -65,7 +65,7 @@ export function StepPersonal({
             onChange={onInputChange}
             placeholder="Father's Full Name"
             autoComplete="off"
-            className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
+            className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-[border-color,box-shadow] focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
           />
         </FormField>
 
@@ -108,7 +108,7 @@ export function StepContact({ values, errors, onInputChange, ref }: StepContactP
               value={values.mobile}
               onChange={onInputChange}
               placeholder="+91 98765 43210"
-              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
+              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-[border-color,box-shadow] focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
             />
           </FormField>
         </div>
@@ -121,7 +121,7 @@ export function StepContact({ values, errors, onInputChange, ref }: StepContactP
               onChange={onInputChange}
               placeholder="john@example.com"
               autoComplete="email"
-              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
+              className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-[border-color,box-shadow] focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
             />
           </FormField>
         </div>
@@ -171,7 +171,7 @@ export const StepProfessional: React.FC<StepProfessionalProps> = ({
             value={values.qualification}
             onChange={onInputChange}
             placeholder="e.g. B.Com, CA Inter, MBA"
-            className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
+            className="w-full rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-[border-color,box-shadow] focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
           />
         </FormField>
       </div>
@@ -196,7 +196,7 @@ export const StepProfessional: React.FC<StepProfessionalProps> = ({
             maxLength={1000}
             rows={3}
             placeholder="List your previous employers..."
-            className="w-full resize-none rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
+            className="w-full resize-none rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-[border-color,box-shadow] focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
           ></textarea>
         </FormField>
       </div>
@@ -210,7 +210,7 @@ export const StepProfessional: React.FC<StepProfessionalProps> = ({
             maxLength={1500}
             rows={4}
             placeholder="Tell us what draws you to this role or firm..."
-            className="w-full resize-none rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-all focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
+            className="w-full resize-none rounded-2xl border bg-brand-bg px-6 py-4 text-brand-dark transition-[border-color,box-shadow] focus:outline-none focus-visible:border-brand-moss focus-visible:ring-2 focus-visible:ring-brand-moss"
           ></textarea>
         </FormField>
       </div>

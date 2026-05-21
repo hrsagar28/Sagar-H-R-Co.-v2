@@ -83,13 +83,13 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ comparison, regime, set
           <div className="relative flex w-full rounded-2xl bg-brand-bg p-1.5 print:hidden">
             <button
               onClick={() => setRegime('new')}
-              className={`relative z-10 flex-1 rounded-xl py-3 text-sm font-bold transition-all duration-300 ${regime === 'new' ? 'bg-white text-brand-moss shadow-sm ring-1 ring-black/5' : 'text-brand-stone hover:text-brand-dark'}`}
+              className={`relative z-10 flex-1 rounded-xl py-3 text-sm font-bold transition-[background-color,color,box-shadow] duration-300 ${regime === 'new' ? 'bg-white text-brand-moss shadow-sm ring-1 ring-black/5' : 'text-brand-stone hover:text-brand-dark'}`}
             >
               New Regime
             </button>
             <button
               onClick={() => setRegime('old')}
-              className={`relative z-10 flex-1 rounded-xl py-3 text-sm font-bold transition-all duration-300 ${regime === 'old' ? 'bg-white text-brand-moss shadow-sm ring-1 ring-black/5' : 'text-brand-stone hover:text-brand-dark'}`}
+              className={`relative z-10 flex-1 rounded-xl py-3 text-sm font-bold transition-[background-color,color,box-shadow] duration-300 ${regime === 'old' ? 'bg-white text-brand-moss shadow-sm ring-1 ring-black/5' : 'text-brand-stone hover:text-brand-dark'}`}
             >
               Old Regime
             </button>

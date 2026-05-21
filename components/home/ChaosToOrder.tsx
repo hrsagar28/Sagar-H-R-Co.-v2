@@ -271,9 +271,10 @@ const ChaosToOrder: React.FC = () => {
             {!hasInteracted && (
               <div
                 aria-hidden="true"
-                className={`pointer-events-none absolute top-1/2 -translate-x-1/2 select-none rounded-full bg-[var(--chaos-ink)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--chaos-paper)] shadow-md transition-opacity duration-500 md:text-[11px] ${
-                  prefersReduced ? '' : 'animate-pulse'
-                }`}
+                // Audit MA-07: the endless `animate-pulse` was removed. The
+                // 9s `chaos-drift` on the divider is the draggability cue;
+                // a second infinite loop on this pill was redundant noise.
+                className="pointer-events-none absolute top-1/2 -translate-x-1/2 select-none rounded-full bg-[var(--chaos-ink)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--chaos-paper)] shadow-md transition-opacity duration-500 md:text-[11px]"
                 style={{
                   left: 'var(--divider)',
                   // 14 (md handle) / 2 + ~14px = sits just under the handle

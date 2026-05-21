@@ -182,7 +182,7 @@ const FounderSection: React.FC = () => {
                 <span className="text-sm font-bold uppercase tracking-widest text-brand-dark transition-colors group-hover:text-brand-moss">
                   View Profile
                 </span>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border transition-all duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border transition-colors duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
                   <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
                 </div>
               </Link>

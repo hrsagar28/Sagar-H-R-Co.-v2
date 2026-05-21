@@ -46,7 +46,7 @@ const DeductionInput: React.FC<DeductionInputProps> = ({ field, label, placehold
       type="number"
       value={value || ''}
       onChange={(e) => onChange(field, e.target.value)}
-      className="w-full rounded-2xl border border-brand-border bg-brand-bg px-6 py-4 font-medium text-brand-dark transition-all placeholder:text-brand-stone/30 focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
+      className="w-full rounded-2xl border border-brand-border bg-brand-bg px-6 py-4 font-medium text-brand-dark transition-[border-color,box-shadow] placeholder:text-brand-stone/30 focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
       placeholder={placeholder}
     />
   </div>
@@ -81,7 +81,7 @@ const DeductionsPanel: React.FC<DeductionsPanelProps> = ({
 
   return (
     <div
-      className={`rounded-[2rem] border border-brand-border bg-white shadow-sm transition-all duration-300 ${overflowVisible ? 'overflow-visible' : 'overflow-hidden'}`}
+      className={`rounded-[2rem] border border-brand-border bg-white shadow-sm transition-colors duration-300 ${overflowVisible ? 'overflow-visible' : 'overflow-hidden'}`}
     >
       <button
         onClick={() => setShowDeductions(!showDeductions)}
@@ -98,14 +98,14 @@ const DeductionsPanel: React.FC<DeductionsPanelProps> = ({
           </div>
         </div>
         <div
-          className={`flex h-8 w-8 items-center justify-center rounded-full border border-brand-border transition-all duration-300 ${showDeductions ? 'rotate-180 border-brand-moss bg-brand-moss text-white' : 'bg-transparent text-brand-stone'}`}
+          className={`flex h-8 w-8 items-center justify-center rounded-full border border-brand-border transition-[transform,background-color,border-color,color] duration-300 ${showDeductions ? 'rotate-180 border-brand-moss bg-brand-moss text-white' : 'bg-transparent text-brand-stone'}`}
         >
           <ChevronDown size={16} />
         </div>
       </button>
 
       <div
-        className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${showDeductions ? 'max-h-[1600px] opacity-100' : 'max-h-0 overflow-hidden opacity-0'}`}
+        className={`transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${showDeductions ? 'max-h-[1600px] opacity-100' : 'max-h-0 overflow-hidden opacity-0'}`}
       >
         <div className="border-t border-brand-border/50 bg-white p-6 pt-0 md:p-8">
           <div className="my-6 rounded-2xl border border-brand-border/50 bg-brand-bg p-4 text-sm font-medium text-brand-stone">

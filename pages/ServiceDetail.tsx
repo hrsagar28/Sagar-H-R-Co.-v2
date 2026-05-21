@@ -7,6 +7,7 @@ import { CONTACT_INFO } from '../constants';
 import { PageHero } from '../components/hero';
 import { SERVICE_HERO_META } from '../constants/serviceHeroMeta';
 import NotFound from './NotFound';
+import Reveal from '../components/Reveal';
 import './route-styles.css';
 import '../components/hero/PageHero.css';
 
@@ -66,43 +67,48 @@ const ServiceDetail: React.FC = () => {
           <div className="order-2 lg:order-1 lg:col-span-5 print:mb-8">
             <div className="sticky top-32 space-y-10 print:static print:space-y-6">
               <div className="rounded-[2rem] border border-brand-border bg-brand-surface p-10 shadow-lg print:rounded-none print:border-0 print:p-0 print:shadow-none">
-                <h3 className="mb-6 font-heading text-2xl font-bold text-brand-dark print:mb-3 print:text-xl">
-                  Overview
-                </h3>
-                <p className="text-lg font-medium leading-relaxed text-brand-stone print:text-base print:text-black">
-                  {service.longDescription}
-                </p>
+                <Reveal delay={0}>
+                  <h3 className="mb-6 font-heading text-2xl font-bold text-brand-dark print:mb-3 print:text-xl">
+                    Overview
+                  </h3>
+                </Reveal>
+                <Reveal delay={0.08}>
+                  <p className="text-lg font-medium leading-relaxed text-brand-stone print:text-base print:text-black">
+                    {service.longDescription}
+                  </p>
+                </Reveal>
               </div>
             </div>
           </div>
 
           {/* Right Column: Features Grid */}
           <div className="order-1 lg:order-2 lg:col-span-7">
-            <h3 className="mb-10 font-heading text-3xl font-bold text-brand-dark print:mb-6 print:text-2xl">
-              Services Included
-            </h3>
+            <Reveal delay={0}>
+              <h3 className="mb-10 font-heading text-3xl font-bold text-brand-dark print:mb-6 print:text-2xl">
+                Services Included
+              </h3>
+            </Reveal>
             <div className="grid gap-6 print:grid-cols-1 print:gap-4">
               {service.features.map((feature, idx) => (
-                <div
-                  key={idx}
-                  className="group relative break-inside-avoid overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 shadow-sm transition-all duration-300 hover:border-brand-moss hover:shadow-xl md:p-10 print:rounded-lg print:border-black print:p-4 print:shadow-none"
-                >
-                  <div className="absolute right-0 top-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-brand-moss/5 transition-transform duration-700 group-hover:scale-150 print:hidden"></div>
+                <Reveal key={idx} width="100%" delay={Math.min(idx * 0.06, 0.3)}>
+                  <div className="group relative break-inside-avoid overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 shadow-sm transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-xl md:p-10 print:rounded-lg print:border-black print:p-4 print:shadow-none">
+                    <div className="absolute right-0 top-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-brand-moss/5 transition-transform duration-700 group-hover:scale-150 print:hidden"></div>
 
-                  <div className="relative z-10 flex items-start gap-6 print:gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-brand-border bg-brand-bg text-brand-moss transition-colors group-hover:bg-brand-moss group-hover:text-white print:h-8 print:w-8 print:border-black print:bg-white print:text-black">
-                      <CheckCircle2 size={24} strokeWidth={1.5} className="print:h-5 print:w-5" />
-                    </div>
-                    <div>
-                      <h4 className="mb-3 font-heading text-xl font-bold text-brand-dark transition-colors group-hover:text-brand-moss md:text-2xl print:mb-1 print:text-lg print:text-black">
-                        {feature.title}
-                      </h4>
-                      <p className="text-base font-medium leading-relaxed text-brand-stone md:text-lg print:text-sm print:text-black">
-                        {feature.description}
-                      </p>
+                    <div className="relative z-10 flex items-start gap-6 print:gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-brand-border bg-brand-bg text-brand-moss transition-colors group-hover:bg-brand-moss group-hover:text-white print:h-8 print:w-8 print:border-black print:bg-white print:text-black">
+                        <CheckCircle2 size={24} strokeWidth={1.5} className="print:h-5 print:w-5" />
+                      </div>
+                      <div>
+                        <h4 className="mb-3 font-heading text-xl font-bold text-brand-dark transition-colors group-hover:text-brand-moss md:text-2xl print:mb-1 print:text-lg print:text-black">
+                          {feature.title}
+                        </h4>
+                        <p className="text-base font-medium leading-relaxed text-brand-stone md:text-lg print:text-sm print:text-black">
+                          {feature.description}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>

@@ -23,7 +23,7 @@ export const IndustryChips: React.FC = () => (
       <div className="flex flex-wrap justify-center gap-4">
         {INDUSTRIES.map((ind, index) => (
           <Reveal key={ind.title} delay={index * 0.05} variant="scale" width="fit-content">
-            <div className="group flex cursor-default items-center gap-3 rounded-full border border-brand-border bg-white py-2 pl-2 pr-6 transition-all duration-300 hover:border-brand-moss hover:shadow-lg hover:shadow-brand-moss/10">
+            <div className="group flex cursor-default items-center gap-3 rounded-full border border-brand-border bg-white py-2 pl-2 pr-6 transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-lg hover:shadow-brand-moss/10">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-bg text-brand-moss transition-colors group-hover:bg-brand-moss group-hover:text-white">
                 <ind.Icon size={18} aria-hidden="true" focusable={false} />
               </div>
@@ -36,7 +36,7 @@ export const IndustryChips: React.FC = () => (
         <Reveal delay={0.4} variant="scale" width="fit-content">
           <Link
             to="/services"
-            className="group flex items-center gap-2 rounded-full bg-brand-dark px-6 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-brand-moss"
+            className="group flex items-center gap-2 rounded-full bg-brand-dark px-6 py-3 text-sm font-bold text-white shadow-md transition-colors hover:bg-brand-moss"
           >
             View All{' '}
             <ArrowUpRight
@@ -85,7 +85,7 @@ export const IndustryGridDark: React.FC = () => {
               <Link
                 key={ind.title}
                 to="/contact"
-                className="group/card relative flex h-full flex-col items-start overflow-hidden rounded-[2rem] border border-white/5 bg-brand-dark p-8 transition-all duration-300 hover:-translate-y-1 hover:bg-brand-surface-dark-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass"
+                className="group/card relative flex h-full flex-col items-start overflow-hidden rounded-[2rem] border border-white/5 bg-brand-dark p-8 transition-[transform,background-color] duration-300 hover:-translate-y-1 hover:bg-brand-surface-dark-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass"
                 aria-label={`Discuss ${ind.title} services`}
               >
                 <div className="pointer-events-none absolute inset-0 bg-brand-brass/5 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
@@ -101,12 +101,12 @@ export const IndustryGridDark: React.FC = () => {
           <div className="relative z-10 mt-20 flex justify-center">
             <Link
               to="/contact"
-              className="group inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:bg-white hover:text-black"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-4 text-sm font-bold text-white transition-colors duration-300 hover:bg-white hover:text-black"
             >
               Industry not listed? Contact Us{' '}
               <ArrowUpRight
                 size={16}
-                className="text-brand-brass transition-all group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-brand-moss"
+                className="text-brand-brass transition-[transform,color] group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-brand-moss"
                 aria-hidden="true"
                 focusable={false}
               />

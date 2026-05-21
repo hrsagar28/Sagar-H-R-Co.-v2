@@ -61,7 +61,7 @@ const Resources: React.FC = () => {
   const NavItem = ({ id, label, icon: Icon }: { id: ResourceTab; label: string; icon: LucideIcon }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-bold transition-all ${activeTab === id ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
+      className={`group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-bold transition-[background-color,color,box-shadow] ${activeTab === id ? 'bg-brand-moss text-white shadow-md' : 'text-brand-stone hover:bg-brand-bg hover:text-brand-dark'}`}
     >
       <div className="flex items-center gap-3">
         <Icon

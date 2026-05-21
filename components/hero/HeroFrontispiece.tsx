@@ -32,10 +32,10 @@ export const HeroFrontispiece: React.FC<FrontispieceHeroProps> = ({
           </div>
         )}
 
+        {/* Audit MA-04: WordReveal is the headline's only entrance. */}
         <h1
           id="hero-frontispiece-title"
-          className="mb-8 animate-fade-in-up text-balance font-heading text-display-lg leading-[0.95] tracking-[-0.02em] [&_em]:font-serif [&_em]:font-normal [&_em]:italic"
-          style={{ animationDelay: '0.2s' }}
+          className="mb-8 text-balance font-heading text-display-lg leading-[0.95] tracking-[-0.02em] [&_em]:font-serif [&_em]:font-normal [&_em]:italic"
         >
           <WordReveal>{title}</WordReveal>
         </h1>

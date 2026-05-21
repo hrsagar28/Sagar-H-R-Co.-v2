@@ -70,7 +70,7 @@ const CIICalculator: React.FC = () => {
   // Allow sale year only >= purchase year (handled in logic or UI validation)
 
   return (
-    <div className="animate-fade-in-up rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
+    <div className="rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h2 className="font-heading text-3xl font-bold text-brand-dark">Capital Gains Indexation</h2>
@@ -105,7 +105,7 @@ const CIICalculator: React.FC = () => {
                 type="number"
                 value={cost}
                 onChange={(e) => setCost(Number(e.target.value))}
-                className="w-full rounded-2xl border border-brand-border bg-brand-bg py-4 pl-10 pr-6 font-heading text-lg font-bold text-brand-dark transition-all placeholder:text-brand-stone/30 focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
+                className="w-full rounded-2xl border border-brand-border bg-brand-bg py-4 pl-10 pr-6 font-heading text-lg font-bold text-brand-dark transition-[border-color,box-shadow] placeholder:text-brand-stone/30 focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
                 placeholder="Enter Purchase Price"
               />
             </div>

@@ -30,15 +30,21 @@ export const HeroBasic: React.FC<BasicHeroProps & { className?: string; children
       <div className="container relative z-10 mx-auto max-w-7xl">
         <div className="max-w-5xl">
           {displayTag && <Eyebrow className="mb-8 animate-fade-in-up">{displayTag}</Eyebrow>}
-          <AccentTitle
-            className="mb-10 animate-fade-in-up text-6xl text-brand-dark md:text-8xl lg:text-9xl"
-            style={{ animationDelay: '0.1s' }}
-          >
+          {/* Audit MA-04: the title's entrance is now WordReveal alone — the
+              block-level `animate-fade-in-up` was removed so the headline no
+              longer plays two stacked entrances. The optional ghost subtitle
+              keeps a single fade of its own. */}
+          <AccentTitle className="mb-10 text-6xl text-brand-dark md:text-8xl lg:text-9xl">
             <WordReveal>{title}</WordReveal>
             {subtitle && (
               <>
                 <br />
-                <span className="font-serif font-normal italic text-brand-stone opacity-60">{subtitle}</span>
+                <span
+                  className="inline-block animate-fade-in-up font-serif font-normal italic text-brand-stone opacity-60"
+                  style={{ animationDelay: '0.25s' }}
+                >
+                  {subtitle}
+                </span>
               </>
             )}
           </AccentTitle>

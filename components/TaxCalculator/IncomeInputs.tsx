@@ -53,7 +53,7 @@ const InputRow: React.FC<InputRowProps> = ({
           type="number"
           value={value || ''}
           onChange={(e) => onChange(field, e.target.value)}
-          className={`w-full rounded-2xl border bg-brand-bg py-4 pl-10 pr-6 font-heading text-lg font-bold text-brand-dark transition-all placeholder:text-brand-stone/30 focus:outline-none focus:ring-1 ${
+          className={`w-full rounded-2xl border bg-brand-bg py-4 pl-10 pr-6 font-heading text-lg font-bold text-brand-dark transition-[border-color,box-shadow] placeholder:text-brand-stone/30 focus:outline-none focus:ring-1 ${
             showWarning
               ? 'border-orange-300 focus:border-orange-500 focus:ring-orange-500'
               : 'border-brand-border focus:border-brand-moss focus:ring-brand-moss'

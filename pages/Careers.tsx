@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Briefcase, ArrowRight } from 'lucide-react';
 import CareerForm from '../components/forms/CareerForm';
 import SEO from '../components/SEO';
+import Reveal from '../components/Reveal';
 import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
 import { CAREERS_APPLY_URL, OPEN_ROLES } from '../constants/careers';
@@ -114,42 +115,45 @@ const Careers = (): React.JSX.Element => {
             {/* Left Column: Jobs & Application Form */}
             <div className="space-y-12 lg:col-span-2">
               <div className="space-y-6">
-                <div className="mb-10 flex items-center gap-3">
-                  <div className="rounded-lg bg-brand-moss/10 p-2">
-                    <Briefcase className="text-brand-moss" size={24} />
+                <Reveal width="100%">
+                  <div className="mb-10 flex items-center gap-3">
+                    <div className="rounded-lg bg-brand-moss/10 p-2">
+                      <Briefcase className="text-brand-moss" size={24} />
+                    </div>
+                    <h2 id="open-positions-heading" className="font-heading text-3xl font-bold text-brand-dark">
+                      Open Positions
+                    </h2>
                   </div>
-                  <h2 id="open-positions-heading" className="font-heading text-3xl font-bold text-brand-dark">
-                    Open Positions
-                  </h2>
-                </div>
+                </Reveal>
 
                 <ul aria-labelledby="open-positions-heading" className="space-y-6">
-                  {OPEN_ROLES.map((job) => (
-                    <li
-                      id={job.id}
-                      key={job.id}
-                      className="group relative overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-10 transition-all duration-300 focus-within:border-brand-moss focus-within:shadow-xl hover:border-brand-moss hover:shadow-xl"
-                    >
-                      <div className="relative z-10 mb-4 flex items-start justify-between">
-                        <h3 className="font-heading text-2xl font-bold text-brand-dark transition-colors group-focus-within:text-brand-moss group-hover:text-brand-moss">
-                          {job.role}
-                        </h3>
-                        <span className="rounded-full border border-brand-border bg-brand-bg px-4 py-1 text-[0.8rem] font-bold uppercase tracking-widest text-brand-stone transition-colors group-focus-within:bg-brand-moss group-focus-within:text-white group-hover:bg-brand-moss group-hover:text-white">
-                          {job.type}
-                        </span>
-                      </div>
-                      <p className="relative z-10 mb-8 text-base font-medium text-brand-stone">
-                        {job.location} •{' '}
-                        {job.experience.toLowerCase() === 'fresher' ? 'Fresher' : `${job.experience} of experience`}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => handleApplyClick(job.role)}
-                        className="relative z-10 flex items-center gap-2 rounded-md text-sm font-bold text-brand-dark transition-all hover:text-brand-moss focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-4 focus-visible:ring-offset-brand-bg group-hover:gap-4 group-focus-visible:gap-4"
+                  {OPEN_ROLES.map((job, i) => (
+                    <Reveal key={job.id} width="100%" delay={Math.min(i * 0.06, 0.3)}>
+                      <li
+                        id={job.id}
+                        className="group relative overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-10 transition-[border-color,box-shadow] duration-300 focus-within:border-brand-moss focus-within:shadow-xl hover:border-brand-moss hover:shadow-xl"
                       >
-                        Apply Now <ArrowRight size={16} />
-                      </button>
-                    </li>
+                        <div className="relative z-10 mb-4 flex items-start justify-between">
+                          <h3 className="font-heading text-2xl font-bold text-brand-dark transition-colors group-focus-within:text-brand-moss group-hover:text-brand-moss">
+                            {job.role}
+                          </h3>
+                          <span className="rounded-full border border-brand-border bg-brand-bg px-4 py-1 text-[0.8rem] font-bold uppercase tracking-widest text-brand-stone transition-colors group-focus-within:bg-brand-moss group-focus-within:text-white group-hover:bg-brand-moss group-hover:text-white">
+                            {job.type}
+                          </span>
+                        </div>
+                        <p className="relative z-10 mb-8 text-base font-medium text-brand-stone">
+                          {job.location} •{' '}
+                          {job.experience.toLowerCase() === 'fresher' ? 'Fresher' : `${job.experience} of experience`}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyClick(job.role)}
+                          className="relative z-10 flex items-center gap-2 rounded-md text-sm font-bold text-brand-dark transition-[color,gap] hover:text-brand-moss focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-4 focus-visible:ring-offset-brand-bg group-hover:gap-4 group-focus-visible:gap-4"
+                        >
+                          Apply Now <ArrowRight size={16} />
+                        </button>
+                      </li>
+                    </Reveal>
                   ))}
                 </ul>
               </div>

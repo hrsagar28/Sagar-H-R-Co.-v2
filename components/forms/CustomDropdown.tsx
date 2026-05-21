@@ -186,7 +186,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         aria-describedby={error ? errorId : undefined}
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
-        className={`zone-bg zone-text group flex w-full items-center justify-between rounded-2xl border px-6 py-4 text-left transition-all duration-200 focus:outline-none focus-visible:border-[var(--zone-accent)] focus-visible:ring-2 focus-visible:ring-[var(--zone-accent)] ${error ? 'border-red-500 ring-1 ring-red-500 focus-visible:border-red-500 focus-visible:ring-red-500' : isOpen ? 'border-[var(--zone-accent)] ring-1 ring-[var(--zone-accent)]' : 'zone-border'} ${buttonClassName} `}
+        className={`zone-bg zone-text group flex w-full items-center justify-between rounded-2xl border px-6 py-4 text-left transition-[border-color,box-shadow] duration-200 focus:outline-none focus-visible:border-[var(--zone-accent)] focus-visible:ring-2 focus-visible:ring-[var(--zone-accent)] ${error ? 'border-red-500 ring-1 ring-red-500 focus-visible:border-red-500 focus-visible:ring-red-500' : isOpen ? 'border-[var(--zone-accent)] ring-1 ring-[var(--zone-accent)]' : 'zone-border'} ${buttonClassName} `}
       >
         <span className={value ? 'zone-text font-medium' : 'zone-text-muted font-medium opacity-70'}>
           {value || placeholder}
@@ -211,7 +211,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         aria-labelledby={labelId}
         aria-hidden={!isOpen}
         tabIndex={-1}
-        className={`zone-surface zone-border no-scrollbar absolute left-0 top-full z-popover mt-2 max-h-60 w-full origin-top overflow-hidden overflow-y-auto rounded-2xl border py-2 shadow-xl outline-none transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`zone-surface zone-border no-scrollbar absolute left-0 top-full z-popover mt-2 max-h-60 w-full origin-top overflow-hidden overflow-y-auto rounded-2xl border py-2 shadow-xl outline-none transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen
             ? 'pointer-events-auto visible translate-y-0 scale-100 opacity-100'
             : 'pointer-events-none invisible -translate-y-2 scale-95 opacity-0'

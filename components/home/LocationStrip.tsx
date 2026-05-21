@@ -121,7 +121,7 @@ const LocationStrip: React.FC = () => {
                       </div>
                       {item.action && (
                         <div
-                          className="mt-4 flex items-center gap-1 border-t border-white/5 pt-4 text-xs font-bold uppercase tracking-wider text-brand-accent transition-all"
+                          className="mt-4 flex items-center gap-1 border-t border-white/5 pt-4 text-xs font-bold uppercase tracking-wider text-brand-accent transition-[transform,color]"
                           aria-hidden="true"
                         >
                           {item.action} <ArrowRight size={12} />
@@ -135,7 +135,7 @@ const LocationStrip: React.FC = () => {
                   // WCAG 2.2 24×24 minimum on the smallest viewports
                   // (audit L-03) — actual cards always render taller.
                   const frame =
-                    'group flex h-full min-h-[120px] flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all duration-300 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent';
+                    'group flex h-full min-h-[120px] flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-colors duration-300 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent';
 
                   return (
                     <Reveal key={item.label} delay={0.1 * i} width="100%">
@@ -160,7 +160,7 @@ const LocationStrip: React.FC = () => {
               <Reveal delay={0.5}>
                 <Link
                   to="/contact"
-                  className="group inline-flex items-center gap-4 rounded-full border border-brand-moss bg-brand-moss px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:bg-white hover:text-brand-dark"
+                  className="group inline-flex items-center gap-4 rounded-full border border-brand-moss bg-brand-moss px-8 py-4 font-bold text-white shadow-lg transition-colors duration-300 hover:bg-white hover:text-brand-dark"
                 >
                   <MessageSquare size={20} />
                   Contact Us

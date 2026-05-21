@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import SEO from '../components/SEO';
+import Reveal from '../components/Reveal';
 import { PageHero } from '../components/hero';
 import { FAQ_CATEGORIES, FAQS } from '../constants';
 import { markdownToHtml } from '../utils/markdownToHtml';
@@ -244,7 +245,7 @@ const FAQ: React.FC = () => {
                         <div
                           key={faq.id}
                           id={faq.id}
-                          className={`rounded-3xl border bg-brand-surface p-5 transition-all duration-300 md:p-8 ${
+                          className={`rounded-3xl border bg-brand-surface p-5 transition-[border-color,box-shadow] duration-300 md:p-8 ${
                             isExpanded
                               ? 'border-brand-moss shadow-lg ring-1 ring-brand-moss/20'
                               : 'border-brand-border hover:border-brand-moss/30 hover:shadow-lg'
@@ -282,7 +283,7 @@ const FAQ: React.FC = () => {
                                 </span>
                                 <span
                                   aria-hidden="true"
-                                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
+                                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors duration-300 ${
                                     isExpanded ? 'bg-brand-moss text-white' : 'bg-brand-bg text-brand-dark'
                                   }`}
                                 >
@@ -316,16 +317,22 @@ const FAQ: React.FC = () => {
           </div>
 
           <div className="mt-20 rounded-[2.5rem] border border-brand-border bg-brand-surface p-10 text-center shadow-sm">
-            <h2 className="mb-4 font-heading text-3xl font-bold text-brand-dark">Still have questions?</h2>
-            <p className="mb-8 text-lg font-medium text-brand-stone">
-              If you can&apos;t find the answer you&apos;re looking for, please don&apos;t hesitate to reach out.
-            </p>
-            <Link
-              to="/contact"
-              className="inline-block rounded-full bg-brand-dark px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:bg-brand-moss"
-            >
-              Schedule a Consultation
-            </Link>
+            <Reveal width="100%" delay={0}>
+              <h2 className="mb-4 font-heading text-3xl font-bold text-brand-dark">Still have questions?</h2>
+            </Reveal>
+            <Reveal width="100%" delay={0.08}>
+              <p className="mb-8 text-lg font-medium text-brand-stone">
+                If you can&apos;t find the answer you&apos;re looking for, please don&apos;t hesitate to reach out.
+              </p>
+            </Reveal>
+            <Reveal delay={0.16}>
+              <Link
+                to="/contact"
+                className="inline-block rounded-full bg-brand-dark px-8 py-4 font-bold text-white shadow-lg transition-colors duration-300 hover:bg-brand-moss"
+              >
+                Schedule a Consultation
+              </Link>
+            </Reveal>
           </div>
         </div>
       </div>

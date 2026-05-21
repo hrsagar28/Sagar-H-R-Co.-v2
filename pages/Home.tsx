@@ -261,9 +261,19 @@ const Home: React.FC = () => {
             <Reveal delay={0.05} variant="fade-up">
               <div className="mb-8 flex flex-col gap-2">
                 <div className="inline-flex w-fit items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-xl">
-                  <div
-                    className={`h-2 w-2 rounded-full bg-brand-accent shadow-[0_0_12px_theme(colors.brand.accent)] ${isBadgePulsing ? 'animate-pulse' : ''}`}
-                  ></div>
+                  {/* Audit MA-17: location placemaker. The generic opacity
+                      throb (animate-pulse) is replaced with a radar "ping" —
+                      an expanding ring behind a steady dot — which reads as a
+                      live location marker rather than a blinking light. */}
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    {isBadgePulsing && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-accent opacity-75"
+                      ></span>
+                    )}
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-accent shadow-[0_0_12px_theme(colors.brand.accent)]"></span>
+                  </span>
                   <span>Mysuru</span>
                 </div>
                 <p className="font-heading text-xl font-bold tracking-wide text-white/80 md:text-2xl">
@@ -378,7 +388,7 @@ const Home: React.FC = () => {
               <Link
                 key={service.id}
                 to={service.link}
-                className="group relative flex aspect-[4/5] w-[300px] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] border border-white/5 bg-brand-dark p-8 transition-all duration-500 hover:border-brand-accent/50 hover:bg-brand-surface-dark-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black md:w-[400px] md:p-10"
+                className="group relative flex aspect-[4/5] w-[300px] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] border border-white/5 bg-brand-dark p-8 transition-[border-color,background-color] duration-500 hover:border-brand-accent/50 hover:bg-brand-surface-dark-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 focus-visible:ring-offset-brand-black md:w-[400px] md:p-10"
               >
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
 
@@ -405,7 +415,7 @@ const Home: React.FC = () => {
                     <span className="text-xs font-bold uppercase tracking-widest text-brand-brass-soft transition-colors group-hover:text-white">
                       View Details
                     </span>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 shadow-[0_0_20px_rgba(74,222,128,0)] transition-all duration-300 group-hover:border-brand-accent group-hover:bg-brand-accent group-hover:text-black group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 shadow-[0_0_20px_rgba(74,222,128,0)] transition-[border-color,background-color,color,box-shadow] duration-300 group-hover:border-brand-accent group-hover:bg-brand-accent group-hover:text-black group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
                       <ArrowRight
                         size={20}
                         className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"
@@ -417,7 +427,7 @@ const Home: React.FC = () => {
             ))}
             <div className="flex aspect-[4/5] w-[300px] shrink-0 snap-center items-center justify-center md:w-[400px]">
               <Link to="/services" className="group text-center">
-                <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full border border-white/20 transition-all duration-500 group-hover:bg-white group-hover:text-black">
+                <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full border border-white/20 transition-colors duration-500 group-hover:bg-white group-hover:text-black">
                   <ArrowRight size={32} />
                 </div>
                 <h3 className="font-heading text-3xl font-bold text-white transition-colors group-hover:text-brand-accent">
@@ -525,8 +535,8 @@ const Home: React.FC = () => {
                 {recentInsights.map((insight, i) => (
                   <Reveal key={insight.id} delay={i * 0.1} width="100%">
                     <Link to={`/insights/${insight.slug}`} className="group block h-full">
-                      <article className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-border bg-brand-bg transition-all duration-500 hover:-translate-y-2 hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10">
-                        <div className="h-1 w-0 bg-gradient-to-r from-brand-moss to-brand-accent transition-all duration-700 group-hover:w-full" />
+                      <article className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-border bg-brand-bg transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-2 hover:border-brand-moss/30 hover:shadow-2xl hover:shadow-brand-dark/10">
+                        <div className="h-1 w-0 bg-gradient-to-r from-brand-moss to-brand-accent transition-[width] duration-700 group-hover:w-full" />
 
                         <div className="flex flex-grow flex-col p-6 md:p-8">
                           <div className="mb-6 flex items-center justify-between">
@@ -568,7 +578,7 @@ const Home: React.FC = () => {
                               </time>
                             </div>
 
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border text-brand-dark transition-all duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-border text-brand-dark transition-colors duration-300 group-hover:border-brand-moss group-hover:bg-brand-moss group-hover:text-white">
                               <ArrowRight
                                 size={16}
                                 className="-rotate-45 transition-transform duration-300 group-hover:rotate-0"

@@ -39,7 +39,7 @@ const HRACalculator: React.FC = () => {
   };
 
   return (
-    <div className="animate-fade-in-up rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
+    <div className="rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h2 className="font-heading text-3xl font-bold text-brand-dark">HRA Calculator</h2>
@@ -118,13 +118,13 @@ const HRACalculator: React.FC = () => {
             <div className="flex max-w-md rounded-2xl bg-brand-bg p-1.5">
               <button
                 onClick={() => setIsMetro(true)}
-                className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold transition-all ${isMetro ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-stone hover:text-brand-dark'}`}
+                className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold transition-[background-color,color,box-shadow] ${isMetro ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-stone hover:text-brand-dark'}`}
               >
                 Metro (50%)
               </button>
               <button
                 onClick={() => setIsMetro(false)}
-                className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold transition-all ${!isMetro ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-stone hover:text-brand-dark'}`}
+                className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold transition-[background-color,color,box-shadow] ${!isMetro ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-stone hover:text-brand-dark'}`}
               >
                 Non-Metro (40%)
               </button>

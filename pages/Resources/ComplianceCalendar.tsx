@@ -115,7 +115,7 @@ const ComplianceCalendar: React.FC = () => {
   };
 
   return (
-    <div className="animate-fade-in-up rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12 print:border-0 print:p-0 print:shadow-none">
+    <div className="rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12 print:border-0 print:p-0 print:shadow-none">
       {/* Next Deadline Banner */}
       {nextDeadline && (
         <div className="relative mb-8 overflow-hidden rounded-2xl bg-brand-dark p-6 text-white shadow-lg print:hidden">
@@ -205,7 +205,7 @@ const ComplianceCalendar: React.FC = () => {
               return (
                 <div
                   key={idx}
-                  className={`break-inside-avoid overflow-hidden rounded-2xl border shadow-sm transition-all duration-300 ${isExpanded ? 'border-brand-moss/30 bg-white ring-4 ring-brand-moss/5' : 'border-brand-border bg-white hover:shadow-md'}`}
+                  className={`break-inside-avoid overflow-hidden rounded-2xl border shadow-sm transition-[border-color,box-shadow] duration-300 ${isExpanded ? 'border-brand-moss/30 bg-white ring-4 ring-brand-moss/5' : 'border-brand-border bg-white hover:shadow-md'}`}
                 >
                   <button
                     onClick={() => toggleMonth(monthKey)}
@@ -225,21 +225,21 @@ const ComplianceCalendar: React.FC = () => {
                       </h3>
                     </div>
                     <div
-                      className={`rounded-full border p-2 transition-all duration-300 ${isExpanded ? 'rotate-180 border-brand-moss bg-brand-moss text-white' : 'border-brand-border bg-white text-brand-stone'}`}
+                      className={`rounded-full border p-2 transition-[transform,border-color,background-color,color] duration-300 ${isExpanded ? 'rotate-180 border-brand-moss bg-brand-moss text-white' : 'border-brand-border bg-white text-brand-stone'}`}
                     >
                       <ChevronDown size={20} />
                     </div>
                   </button>
 
                   <div
-                    className={`overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
+                    className={`overflow-hidden transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
                   >
                     <div className="border-t border-brand-border/30 p-5 pt-0">
                       <div className="mt-4 grid gap-3">
                         {filteredEvents.map((event, i) => (
                           <div
                             key={i}
-                            className={`flex items-center gap-4 rounded-xl border border-brand-border/50 bg-white p-4 transition-all hover:shadow-sm ${getUrgencyClass(monthKey, event.day)}`}
+                            className={`flex items-center gap-4 rounded-xl border border-brand-border/50 bg-white p-4 transition-shadow hover:shadow-sm ${getUrgencyClass(monthKey, event.day)}`}
                           >
                             <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-lg border border-brand-border bg-brand-bg shadow-sm">
                               <span className="text-xs font-bold uppercase leading-none text-brand-moss">
@@ -274,7 +274,7 @@ const ComplianceCalendar: React.FC = () => {
                 <button
                   key={key}
                   onClick={() => setCalFilter(calFilter === key ? 'all' : key)}
-                  className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition-all ${
+                  className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition-colors ${
                     calFilter === key || calFilter === 'all'
                       ? badgeColors[key]
                       : 'border-gray-100 bg-gray-50 text-gray-400'

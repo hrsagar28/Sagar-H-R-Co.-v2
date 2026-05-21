@@ -398,7 +398,7 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
             setCurrentStep(1);
             setValues(createInitialValues(initialPosition));
           }}
-          className="relative z-10 rounded-full border border-brand-border bg-brand-bg px-8 py-4 font-bold text-brand-dark transition-all duration-300 hover:bg-brand-moss hover:text-white"
+          className="relative z-10 rounded-full border border-brand-border bg-brand-bg px-8 py-4 font-bold text-brand-dark transition-colors duration-300 hover:bg-brand-moss hover:text-white"
         >
           Submit Another Application
         </button>
@@ -498,7 +498,7 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
           <span className="sr-only">{`Step ${currentStep} of ${STEP_LABELS.length}`}</span>
           <div className="absolute left-0 top-1/2 -z-10 h-1 w-full rounded-full bg-brand-border"></div>
           <div
-            className="absolute left-0 top-1/2 -z-10 h-1 rounded-full bg-brand-moss transition-all duration-500"
+            className="absolute left-0 top-1/2 -z-10 h-1 rounded-full bg-brand-moss transition-[width] duration-500"
             style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
           ></div>
 
@@ -513,7 +513,7 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
                 aria-label={`Step ${step} of ${STEP_LABELS.length}: ${STEP_LABELS[step - 1]}`}
               >
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-bold transition-all duration-300 ${isActive ? 'scale-110 border-brand-moss bg-brand-moss text-white shadow-lg shadow-brand-moss/30' : 'border-brand-border bg-brand-surface text-brand-stone'}`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-bold transition-[transform,background-color,border-color,color,box-shadow] duration-300 ${isActive ? 'scale-110 border-brand-moss bg-brand-moss text-white shadow-lg shadow-brand-moss/30' : 'border-brand-border bg-brand-surface text-brand-stone'}`}
                 >
                   {isActive ? <Check size={16} /> : step}
                 </div>

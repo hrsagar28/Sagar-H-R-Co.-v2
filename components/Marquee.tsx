@@ -54,33 +54,55 @@ const Marquee: React.FC<MarqueeProps> = ({
   const [ref, isVisible] = useInView({ rootMargin: '100px' });
 
   const isPlaying = isVisible && !shouldReduceMotion;
-  const animationStyle = {
-    animationDirection: direction === 'right' ? 'reverse' : 'normal',
-    animationPlayState: isPlaying ? 'running' : 'paused',
-  };
+
+  // Audit M-02: animation state was previously baked into an inline
+  // `style={{animationDirection, animationPlayState}}` object on each
+  // track. Inline styles win against the `group-hover:[...]` Tailwind
+  // utility that was supposed to pause the marquee on hover, so the
+  // pause-on-hover effect quietly never worked. Routing both pieces of
+  // state through data attributes lets the Tailwind data-[] modifiers
+  // and the parent's group-hover both reach the animation properties at
+  // ordinary class specificity, so hover-pause now actually pauses.
+  //
+  // The data-attribute → animation-property mapping uses Tailwind
+  // arbitrary-value modifiers directly on the track element rather than
+  // bespoke CSS in index.css, keeping the styling close to the markup.
+  const trackClasses = [
+    'flex shrink-0 animate-marquee items-center',
+    'data-[direction=right]:[animation-direction:reverse]',
+    'data-[playing=false]:[animation-play-state:paused]',
+    'group-hover:[animation-play-state:paused]',
+    trackClassName,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
-      className={`group relative flex select-none overflow-hidden ${className}`}
+      // Audit M-01: explicit role lifts this group out of generic-div
+      // semantics so the aria-label has a recognised container to
+      // describe. `role="marquee"` is intentionally avoided — its NVDA
+      // / JAWS handling is inconsistent and noisy.
+      role="group"
       aria-label={ariaLabel}
+      className={`group relative flex select-none overflow-hidden ${className}`}
     >
       {/* Gradient Masks for smooth fade in/out */}
       {showMasks && (
         <>
           <div
+            aria-hidden="true"
             className={`absolute bottom-0 left-0 top-0 w-24 bg-gradient-to-r md:w-48 ${maskClassName} pointer-events-none z-10 to-transparent`}
           ></div>
           <div
+            aria-hidden="true"
             className={`absolute bottom-0 right-0 top-0 w-24 bg-gradient-to-l md:w-48 ${maskClassName} pointer-events-none z-10 to-transparent`}
           ></div>
         </>
       )}
 
-      <div
-        className={`flex shrink-0 animate-marquee items-center group-hover:[animation-play-state:paused] ${trackClassName}`}
-        style={animationStyle}
-      >
+      <div className={trackClasses} data-direction={direction} data-playing={isPlaying ? 'true' : 'false'}>
         <MarqueeItems
           items={items}
           itemWrapperClassName={itemWrapperClassName}
@@ -89,8 +111,9 @@ const Marquee: React.FC<MarqueeProps> = ({
         />
       </div>
       <div
-        className={`flex shrink-0 animate-marquee items-center group-hover:[animation-play-state:paused] ${trackClassName}`}
-        style={animationStyle}
+        className={trackClasses}
+        data-direction={direction}
+        data-playing={isPlaying ? 'true' : 'false'}
         aria-hidden="true"
       >
         <MarqueeItems

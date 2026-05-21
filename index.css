@@ -163,6 +163,25 @@ html {
   animation: bounce-x 1s infinite;
 }
 
+/* Route transition (audit MA-16). A short fade + lift applied to the routed
+   view each time the path changes — the wrapper in App.tsx is keyed by
+   pathname so this re-triggers on every navigation. Kept deliberately quick
+   (220ms) so it never delays perceived navigation. The global
+   prefers-reduced-motion override below collapses this to an instant swap. */
+@keyframes route-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.route-fade {
+  animation: route-fade-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 /* ACCESSIBILITY FOCUS STYLES */
 :focus-visible {
   outline: 2px solid var(--zone-accent, #1a4d2e);
@@ -492,7 +511,6 @@ html {
    This covers Tailwind's animate-* classes and any custom keyframes.
    React hooks (useReducedMotion) cover JS-driven animations separately. */
 @media (prefers-reduced-motion: reduce) {
-  .animate-blob,
   .animate-fade-in-up,
   .animate-pulse,
   [data-animate] {

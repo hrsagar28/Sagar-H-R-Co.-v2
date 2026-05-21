@@ -105,152 +105,153 @@ const MainContent = () => {
       tabIndex={-1}
     >
       <Suspense fallback={<PageLoader tone={loaderTone} />}>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <RouteErrorBoundary>
-                <Home />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/about"
-            element={
-              <RouteErrorBoundary>
-                <About />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/services"
-            element={
-              <RouteErrorBoundary>
-                <Services />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/services/:slug"
-            element={
-              <RouteErrorBoundary>
-                <Suspense fallback={<ServiceDetailSkeleton />}>
-                  <ServiceDetail />
-                </Suspense>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/insights"
-            element={
-              <RouteErrorBoundary>
-                <Insights />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/insights/:slug"
-            element={
-              <RouteErrorBoundary>
-                <Suspense fallback={<InsightDetailSkeleton />}>
-                  <InsightDetail />
-                </Suspense>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/faqs"
-            element={
-              <RouteErrorBoundary>
-                <Suspense fallback={<FAQSkeleton />}>
-                  <FAQ />
-                </Suspense>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/resources"
-            element={
-              <RouteErrorBoundary>
-                <Suspense fallback={<ResourcesSkeleton />}>
-                  <Resources />
-                </Suspense>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/resources/checklist/:slug"
-            element={
-              <RouteErrorBoundary>
-                <ChecklistDetail />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/careers"
-            element={
-              <RouteErrorBoundary>
-                <Careers />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/contact"
-            element={
-              <RouteErrorBoundary>
-                <Suspense fallback={<ContactSkeleton />}>
-                  <Contact />
-                </Suspense>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/disclaimer"
-            element={
-              <RouteErrorBoundary>
-                <Disclaimer />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/privacy"
-            element={
-              <RouteErrorBoundary>
-                <Privacy />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/terms"
-            element={
-              <RouteErrorBoundary>
-                <Terms />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <RouteErrorBoundary>
-                <NotFound />
-              </RouteErrorBoundary>
-            }
-          />
-        </Routes>
+        {/* Audit MA-16: a short (~220ms) fade/lift on the routed view when
+            the path changes, so navigation feels composed rather than an
+            instant cut. Keyed by pathname so the `route-fade` animation
+            re-triggers each navigation. The persistent chrome (Navbar,
+            Footer, fixed elements) sits outside this wrapper and never
+            animates. Reduced-motion users get an instant swap via the
+            global prefers-reduced-motion override in index.css. */}
+        <div key={pathname} className="route-fade">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <RouteErrorBoundary>
+                  <Home />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <RouteErrorBoundary>
+                  <About />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/services"
+              element={
+                <RouteErrorBoundary>
+                  <Services />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/services/:slug"
+              element={
+                <RouteErrorBoundary>
+                  <Suspense fallback={<ServiceDetailSkeleton />}>
+                    <ServiceDetail />
+                  </Suspense>
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/insights"
+              element={
+                <RouteErrorBoundary>
+                  <Insights />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/insights/:slug"
+              element={
+                <RouteErrorBoundary>
+                  <Suspense fallback={<InsightDetailSkeleton />}>
+                    <InsightDetail />
+                  </Suspense>
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/faqs"
+              element={
+                <RouteErrorBoundary>
+                  <Suspense fallback={<FAQSkeleton />}>
+                    <FAQ />
+                  </Suspense>
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/resources"
+              element={
+                <RouteErrorBoundary>
+                  <Suspense fallback={<ResourcesSkeleton />}>
+                    <Resources />
+                  </Suspense>
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/resources/checklist/:slug"
+              element={
+                <RouteErrorBoundary>
+                  <ChecklistDetail />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/careers"
+              element={
+                <RouteErrorBoundary>
+                  <Careers />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/contact"
+              element={
+                <RouteErrorBoundary>
+                  <Suspense fallback={<ContactSkeleton />}>
+                    <Contact />
+                  </Suspense>
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/disclaimer"
+              element={
+                <RouteErrorBoundary>
+                  <Disclaimer />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/privacy"
+              element={
+                <RouteErrorBoundary>
+                  <Privacy />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/terms"
+              element={
+                <RouteErrorBoundary>
+                  <Terms />
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <RouteErrorBoundary>
+                  <NotFound />
+                </RouteErrorBoundary>
+              }
+            />
+          </Routes>
+        </div>
       </Suspense>
     </main>
   );
 };
 
 const App: React.FC = () => {
-  const [showCursor, setShowCursor] = React.useState(false);
-
-  useEffect(() => {
-    // Render custom cursor only after first paint
-    const timer = setTimeout(() => setShowCursor(true), 0);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <AnnounceProvider>
       <ToastProvider>
@@ -266,7 +267,16 @@ const App: React.FC = () => {
           <div className="print:hidden">
             <NetworkStatus />
             <Preloader />
-            <Suspense fallback={null}>{showCursor && <CustomCursor />}</Suspense>
+            {/* Audit CQ-12: CustomCursor is lazy-loaded via React.lazy at
+                the top of this file, so its chunk fetch is already
+                deferred to a separate request. The previous
+                useState+useEffect+setTimeout(0) gate was derived state
+                that delayed the React mount by a frame without changing
+                what hit the network. Suspense + lazy do the same job
+                without the rules-of-React noise. */}
+            <Suspense fallback={null}>
+              <CustomCursor />
+            </Suspense>
             <WhatsAppFloat />
             <CookieConsent />
           </div>

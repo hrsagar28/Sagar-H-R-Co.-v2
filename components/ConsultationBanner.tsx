@@ -29,7 +29,7 @@ const ConsultationBanner: React.FC = () => {
 
             <a
               href={`tel:${CONTACT_INFO.phone.value}`}
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-8 py-4 text-base font-bold text-white backdrop-blur-sm transition-all hover:bg-white/20 sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-8 py-4 text-base font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:w-auto"
             >
               <Phone size={18} /> {CONTACT_INFO.phone.display}
             </a>

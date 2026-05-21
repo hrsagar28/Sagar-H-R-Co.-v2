@@ -12,6 +12,7 @@ import { normalizeSearch } from '../utils/normalizeSearch';
 import { SITE_URL } from '../config/site';
 import './route-styles.css';
 import '../components/hero/PageHero.css';
+import Reveal from '../components/Reveal';
 
 const HERO_PLACEHOLDERS = Array.from({ length: 4 }, (_, index) => ({
   num: String(index + 1).padStart(2, '0'),
@@ -209,7 +210,7 @@ const Insights: React.FC = () => {
                         data-category={cat}
                         onClick={() => updateFilters({ cat })}
                         onKeyDown={(event) => onCategoryKeyDown(event, index)}
-                        className={`inline-flex shrink-0 snap-start items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-brand-moss focus:ring-offset-2 ${
+                        className={`inline-flex shrink-0 snap-start items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-[color,background-color,border-color,box-shadow] focus:outline-none focus:ring-2 focus:ring-brand-moss focus:ring-offset-2 ${
                           selected
                             ? 'bg-brand-moss text-white shadow-md'
                             : 'border border-brand-border bg-white text-brand-stone hover:border-brand-moss'
@@ -243,7 +244,7 @@ const Insights: React.FC = () => {
                     aria-controls="insights-results"
                     aria-describedby="insights-results-count"
                     data-analytics="insights_search"
-                    className="w-full rounded-full border border-brand-border bg-white py-3 pl-11 pr-10 text-sm font-medium transition-all focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
+                    className="w-full rounded-full border border-brand-border bg-white py-3 pl-11 pr-10 text-sm font-medium transition-[border-color,box-shadow] focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
                   />
                   {searchTerm && (
                     <button
@@ -302,58 +303,57 @@ const Insights: React.FC = () => {
               <>
                 {filteredInsights.length > 0 ? (
                   <div id="insights-results" className="grid gap-6">
-                    {filteredInsights.map((insight) => {
+                    {filteredInsights.map((insight, i) => {
                       const serviceLink =
                         SERVICE_LINKS[insight.category] || SERVICE_LINKS[getCanonicalCategory(insight.category)];
                       return (
-                        <article
-                          key={insight.slug}
-                          className="group relative flex flex-col items-start gap-8 overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 transition-all duration-300 hover:border-brand-moss hover:shadow-xl motion-reduce:hover:shadow-none md:flex-row md:gap-12 md:p-12"
-                        >
-                          <div className="absolute inset-0 bg-brand-moss/0 transition-colors group-hover:bg-brand-moss/[0.02]" />
+                        <Reveal key={insight.slug} width="100%" delay={Math.min(i * 0.06, 0.3)}>
+                          <article className="group relative flex flex-col items-start gap-8 overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-xl motion-reduce:hover:shadow-none md:flex-row md:gap-12 md:p-12">
+                            <div className="absolute inset-0 bg-brand-moss/0 transition-colors group-hover:bg-brand-moss/[0.02]" />
 
-                          <div className="relative z-10 order-3 md:order-1 md:w-1/4">
-                            <span className="mb-4 inline-block rounded-full border border-brand-border bg-brand-bg px-4 py-1 text-xs font-bold uppercase tracking-wider text-brand-dark">
-                              {getCanonicalCategory(insight.category)}
-                            </span>
-                            <div className="flex items-center gap-2 text-sm font-bold text-brand-stone">
-                              <Calendar size={14} aria-hidden="true" />
-                              <time dateTime={toISODate(insight.date)}>{formatLongDate(insight.date)}</time>
-                            </div>
-                            <div className="mt-3 grid gap-2 text-xs font-bold text-brand-stone">
-                              <span className="inline-flex items-center gap-2">
-                                <Clock size={12} aria-hidden="true" />
-                                {insight.readTime}
+                            <div className="relative z-10 order-3 md:order-1 md:w-1/4">
+                              <span className="mb-4 inline-block rounded-full border border-brand-border bg-brand-bg px-4 py-1 text-xs font-bold uppercase tracking-wider text-brand-dark">
+                                {getCanonicalCategory(insight.category)}
                               </span>
+                              <div className="flex items-center gap-2 text-sm font-bold text-brand-stone">
+                                <Calendar size={14} aria-hidden="true" />
+                                <time dateTime={toISODate(insight.date)}>{formatLongDate(insight.date)}</time>
+                              </div>
+                              <div className="mt-3 grid gap-2 text-xs font-bold text-brand-stone">
+                                <span className="inline-flex items-center gap-2">
+                                  <Clock size={12} aria-hidden="true" />
+                                  {insight.readTime}
+                                </span>
+                              </div>
+                              {serviceLink && (
+                                <Link
+                                  to={serviceLink.href}
+                                  data-analytics="insights_service_crosslink"
+                                  className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-moss hover:text-brand-dark"
+                                >
+                                  {serviceLink.label}
+                                  <ArrowUpRight size={14} aria-hidden="true" />
+                                </Link>
+                              )}
                             </div>
-                            {serviceLink && (
-                              <Link
-                                to={serviceLink.href}
-                                data-analytics="insights_service_crosslink"
-                                className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-moss hover:text-brand-dark"
-                              >
-                                {serviceLink.label}
-                                <ArrowUpRight size={14} aria-hidden="true" />
-                              </Link>
-                            )}
-                          </div>
-                          <div className="relative z-10 order-1 md:order-2 md:w-2/4">
-                            <h3 className="mb-4 font-heading text-2xl font-bold leading-tight text-brand-dark transition-colors group-hover:text-brand-moss md:text-3xl">
-                              <Link to={`/insights/${insight.slug}`} data-analytics="insights_card_click">
-                                <span className="absolute inset-0 z-0" aria-hidden="true" />
-                                <span className="relative z-10">{insight.title}</span>
-                              </Link>
-                            </h3>
-                            <p className="relative z-10 font-medium leading-relaxed text-brand-stone">
-                              {insight.summary}
-                            </p>
-                          </div>
-                          <div className="relative z-10 order-2 flex w-full justify-start md:order-3 md:w-1/4 md:justify-end">
-                            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-brand-border bg-brand-bg text-brand-dark transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-moss group-hover:text-brand-inverse motion-reduce:group-hover:scale-100">
-                              <ArrowUpRight size={20} aria-hidden="true" />
+                            <div className="relative z-10 order-1 md:order-2 md:w-2/4">
+                              <h3 className="mb-4 font-heading text-2xl font-bold leading-tight text-brand-dark transition-colors group-hover:text-brand-moss md:text-3xl">
+                                <Link to={`/insights/${insight.slug}`} data-analytics="insights_card_click">
+                                  <span className="absolute inset-0 z-0" aria-hidden="true" />
+                                  <span className="relative z-10">{insight.title}</span>
+                                </Link>
+                              </h3>
+                              <p className="relative z-10 font-medium leading-relaxed text-brand-stone">
+                                {insight.summary}
+                              </p>
                             </div>
-                          </div>
-                        </article>
+                            <div className="relative z-10 order-2 flex w-full justify-start md:order-3 md:w-1/4 md:justify-end">
+                              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-brand-border bg-brand-bg text-brand-dark transition-[transform,background-color,color] duration-300 group-hover:scale-110 group-hover:bg-brand-moss group-hover:text-brand-inverse motion-reduce:group-hover:scale-100">
+                                <ArrowUpRight size={20} aria-hidden="true" />
+                              </div>
+                            </div>
+                          </article>
+                        </Reveal>
                       );
                     })}
                   </div>

@@ -29,7 +29,7 @@ const NotFound: React.FC = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Link
             to="/"
-            className="group flex flex-col items-center gap-4 rounded-2xl border border-brand-border bg-brand-surface p-6 transition-all hover:border-brand-moss hover:shadow-lg"
+            className="group flex flex-col items-center gap-4 rounded-2xl border border-brand-border bg-brand-surface p-6 transition-[border-color,box-shadow] hover:border-brand-moss hover:shadow-lg"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-bg text-brand-dark transition-colors group-hover:bg-brand-moss group-hover:text-white">
               <Home size={20} />
@@ -38,7 +38,7 @@ const NotFound: React.FC = () => {
           </Link>
           <Link
             to="/services"
-            className="group flex flex-col items-center gap-4 rounded-2xl border border-brand-border bg-brand-surface p-6 transition-all hover:border-brand-moss hover:shadow-lg"
+            className="group flex flex-col items-center gap-4 rounded-2xl border border-brand-border bg-brand-surface p-6 transition-[border-color,box-shadow] hover:border-brand-moss hover:shadow-lg"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-bg text-brand-dark transition-colors group-hover:bg-brand-moss group-hover:text-white">
               <FileText size={20} />
@@ -47,7 +47,7 @@ const NotFound: React.FC = () => {
           </Link>
           <Link
             to="/contact"
-            className="group flex flex-col items-center gap-4 rounded-2xl border border-brand-border bg-brand-surface p-6 transition-all hover:border-brand-moss hover:shadow-lg"
+            className="group flex flex-col items-center gap-4 rounded-2xl border border-brand-border bg-brand-surface p-6 transition-[border-color,box-shadow] hover:border-brand-moss hover:shadow-lg"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-bg text-brand-dark transition-colors group-hover:bg-brand-moss group-hover:text-white">
               <MessageSquare size={20} />

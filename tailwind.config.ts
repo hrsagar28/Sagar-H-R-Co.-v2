@@ -76,8 +76,12 @@ export default {
         'card-moss-cta': 'linear-gradient(135deg, #1A4D2E 0%, #15803d 100%)',
       },
       transitionTimingFunction: {
-        'out-expo': 'cubic-bezier(0.23, 1, 0.32, 1)',
-        'out-quart': 'cubic-bezier(0.25, 1, 0.5, 1)',
+        // House easing curve (audit MA-09). One expo-out curve is used for
+        // entrances and any sizeable transform or opacity move. Both token
+        // names resolve to it, so the value is the single source of truth.
+        // The previously-unused out-quart token was removed.
+        'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        brand: 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
       fontSize: {
         eyebrow: ['clamp(0.65rem, 0.7vw, 0.75rem)', { lineHeight: '1' }],
@@ -88,10 +92,8 @@ export default {
         'display-xl': ['clamp(4rem, 12vw, 12rem)', { lineHeight: '0.9' }],
       },
       animation: {
-        'spin-slow': 'spin 12s linear infinite',
         marquee: 'marquee 25s linear infinite',
-        blob: 'blob 7s infinite',
-        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'scale-in': 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'expand-width': 'expandWidth 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
@@ -99,12 +101,6 @@ export default {
         marquee: {
           '0%': { transform: 'translateX(0%)' },
           '100%': { transform: 'translateX(-100%)' },
-        },
-        blob: {
-          '0%': { transform: 'translate(0px, 0px) scale(1)' },
-          '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-          '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-          '100%': { transform: 'translate(0px, 0px) scale(1)' },
         },
         fadeInUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },

@@ -34,10 +34,10 @@ export const HeroLedger: React.FC<LedgerHeroProps> = ({
             {eyebrow && (
               <div className="mb-8 animate-fade-in-up font-mono text-eyebrow uppercase tracking-[0.2em]">{eyebrow}</div>
             )}
+            {/* Audit MA-04: WordReveal is the headline's only entrance. */}
             <h1
               id="hero-ledger-title"
-              className="animate-fade-in-up text-balance font-heading text-display-md leading-[1] tracking-[-0.02em] [&_em]:font-serif [&_em]:font-normal [&_em]:italic"
-              style={{ animationDelay: '0.1s' }}
+              className="text-balance font-heading text-display-md leading-[1] tracking-[-0.02em] [&_em]:font-serif [&_em]:font-normal [&_em]:italic"
             >
               <WordReveal>{title}</WordReveal>
             </h1>
@@ -71,7 +71,7 @@ export const HeroLedger: React.FC<LedgerHeroProps> = ({
             {ctaLabel && (
               <Link
                 to={ctaHref || '#'}
-                className={`hero-ledger-cta group block w-full border-y py-6 text-center ${accentTone ? borderClass : ''} ${accentClass} font-mono text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 ${ctaAccentClass}`}
+                className={`hero-ledger-cta group block w-full border-y py-6 text-center ${accentTone ? borderClass : ''} ${accentClass} font-mono text-xs font-bold uppercase tracking-[0.2em] transition-colors duration-300 ${ctaAccentClass}`}
                 style={
                   !accentTone ? { borderTopColor: 'var(--zone-accent)', borderBottomColor: 'var(--zone-accent)' } : {}
                 }

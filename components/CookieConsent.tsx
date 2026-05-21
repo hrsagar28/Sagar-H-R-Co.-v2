@@ -1,11 +1,66 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useFocusTrap, useReturnFocus } from '../hooks';
 
+/**
+ * Append the Google Tag Manager script and bootstrap `gtag` / `dataLayer`.
+ *
+ * Lifted to module scope so it isn't recreated on every render. The check
+ * for `window.gtag` makes it idempotent — calling twice is harmless. No-ops
+ * when `VITE_GA_MEASUREMENT_ID` isn't configured (dev / preview builds).
+ */
+const loadGoogleAnalytics = () => {
+  if (typeof window === 'undefined' || window.gtag) return;
+
+  const id = import.meta.env.VITE_GA_MEASUREMENT_ID;
+  if (!id) return;
+
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+  document.head.appendChild(script);
+
+  window.dataLayer = window.dataLayer || [];
+  const gtag: Gtag = (...args) => {
+    window.dataLayer?.push(args);
+  };
+  gtag('js', new Date());
+  gtag('config', id);
+  window.gtag = gtag;
+};
+
 const CookieConsent: React.FC = () => {
+  'use memo';
   const [isVisible, setIsVisible] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Audit K-01: handlers are declared BEFORE the hooks that consume them.
+  // Previously `useFocusTrap(isVisible, dialogRef, handleDecline)` was
+  // called above `const handleDecline = ...`, which works at runtime
+  // (functions hoist closures) but the React Compiler flagged it as
+  // "cannot access variable before declared" and bailed out of compiling
+  // the whole component. Wrapping in useCallback gives stable references.
+  const handleAccept = useCallback(() => {
+    localStorage.setItem('cookie_consent', 'granted');
+    setIsVisible(false);
+    // Audit K-02: load analytics BEFORE dispatching the change event so
+    // any listener that reads `window.gtag` synchronously gets a defined
+    // reference. The script itself is async, but the global hook is set
+    // up before the event fires either way.
+    loadGoogleAnalytics();
+    window.dispatchEvent(
+      new CustomEvent('cookie-consent-change', { detail: { key: 'cookie_consent', value: 'granted' } }),
+    );
+  }, []);
+
+  const handleDecline = useCallback(() => {
+    localStorage.setItem('cookie_consent', 'declined');
+    setIsVisible(false);
+    window.dispatchEvent(
+      new CustomEvent('cookie-consent-change', { detail: { key: 'cookie_consent', value: 'declined' } }),
+    );
+  }, []);
 
   useEffect(() => {
     // Check local storage for consent on mount
@@ -29,43 +84,6 @@ const CookieConsent: React.FC = () => {
     }
   }, []);
 
-  const loadGoogleAnalytics = () => {
-    if (window.gtag) return; // Already loaded
-
-    const id = import.meta.env.VITE_GA_MEASUREMENT_ID;
-    if (!id) return;
-
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
-    document.head.appendChild(script);
-
-    window.dataLayer = window.dataLayer || [];
-    const gtag: Gtag = (...args) => {
-      window.dataLayer?.push(args);
-    };
-    gtag('js', new Date());
-    gtag('config', id);
-    window.gtag = gtag;
-  };
-
-  const handleAccept = () => {
-    localStorage.setItem('cookie_consent', 'granted');
-    window.dispatchEvent(
-      new CustomEvent('cookie-consent-change', { detail: { key: 'cookie_consent', value: 'granted' } }),
-    );
-    setIsVisible(false);
-    loadGoogleAnalytics();
-  };
-
-  const handleDecline = () => {
-    localStorage.setItem('cookie_consent', 'declined');
-    window.dispatchEvent(
-      new CustomEvent('cookie-consent-change', { detail: { key: 'cookie_consent', value: 'declined' } }),
-    );
-    setIsVisible(false);
-  };
-
   useReturnFocus(isVisible);
   useFocusTrap(isVisible, dialogRef, handleDecline);
 
@@ -78,7 +96,7 @@ const CookieConsent: React.FC = () => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isVisible]);
+  }, [isVisible, handleDecline]);
 
   if (!isVisible) return null;
 
@@ -92,8 +110,12 @@ const CookieConsent: React.FC = () => {
         aria-describedby="cc-desc"
         className="relative mx-auto flex max-w-7xl flex-col items-stretch justify-between gap-3 overflow-hidden rounded-xl border border-brand-border bg-brand-surface p-4 shadow-2xl md:flex-row md:items-center md:gap-6 md:rounded-2xl md:p-6"
       >
-        {/* Subtle Decorative Elements */}
-        <div className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-full bg-brand-moss opacity-5 blur-3xl"></div>
+        {/* Subtle Decorative Elements — audit K-03: aria-hidden + role
+            "presentation" so it never appears in the AT tree. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-full bg-brand-moss opacity-5 blur-3xl"
+        ></div>
 
         <div className="flex-1">
           <h2 id="cc-title" className="mb-2 font-heading text-lg font-bold text-brand-dark">
@@ -113,20 +135,21 @@ const CookieConsent: React.FC = () => {
               Accept All
             </button>
           </div>
+          {/* Audit K-04: the mobile "Details" toggle expanded the paragraph
+              but didn't reveal new information — the line clamp was the
+              only thing it removed. Replaced with a real "Privacy Policy"
+              link that takes the user to the actual policy. */}
           <p id="cc-desc" className="max-w-3xl text-sm font-medium leading-relaxed text-brand-stone">
-            <span className={`${showDetails ? '' : 'line-clamp-2'} md:line-clamp-none`}>
+            <span className="line-clamp-2 md:line-clamp-none">
               We use Google Analytics to understand how our website is being used to improve our services. By clicking
               "Accept All", you consent to our use of these tracking cookies. Declining will disable this tracking.
             </span>
-            {!showDetails && (
-              <button
-                type="button"
-                onClick={() => setShowDetails(true)}
-                className="ml-1 font-bold text-brand-dark underline underline-offset-2 md:hidden"
-              >
-                Details
-              </button>
-            )}
+            <Link
+              to="/privacy"
+              className="ml-1 inline-block font-bold text-brand-dark underline underline-offset-2 hover:text-brand-moss"
+            >
+              Privacy policy
+            </Link>
           </p>
         </div>
 

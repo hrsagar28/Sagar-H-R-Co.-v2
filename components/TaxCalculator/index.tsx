@@ -167,7 +167,7 @@ const TaxCalculator: React.FC = () => {
         </div>
         <button
           onClick={handlePrint}
-          className="group rounded-full bg-brand-bg p-4 text-brand-dark shadow-sm transition-all hover:bg-brand-moss hover:text-white hover:shadow-lg print:hidden"
+          className="group rounded-full bg-brand-bg p-4 text-brand-dark shadow-sm transition-[background-color,color,box-shadow] hover:bg-brand-moss hover:text-white hover:shadow-lg print:hidden"
           aria-label="Print Calculation"
         >
           <Printer size={20} className="transition-transform group-hover:scale-110" />
@@ -248,7 +248,7 @@ const TaxCalculator: React.FC = () => {
                 <div className="flex flex-col gap-3">
                   <button
                     onClick={handleCalculate}
-                    className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-white py-5 text-lg font-bold text-brand-dark shadow-lg transition-all hover:bg-brand-moss hover:text-white"
+                    className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-white py-5 text-lg font-bold text-brand-dark shadow-lg transition-colors hover:bg-brand-moss hover:text-white"
                   >
                     Calculate Tax <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
                   </button>

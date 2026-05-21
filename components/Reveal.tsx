@@ -1,6 +1,17 @@
 import React, { Children, isValidElement, useRef, useEffect, useState, ReactNode } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
+/**
+ * Hard upper bound, in ms, on how long content inside a Reveal is allowed
+ * to stay invisible before we force it to render. Audit R-01: under
+ * normal scroll the IntersectionObserver fires within a frame or two of
+ * the element entering view, but bots, AT browsing modes, very narrow
+ * viewports, and certain `content-visibility: auto` reflow timings can
+ * silently prevent the observer from ever firing. This safety net makes
+ * sure content is never hidden indefinitely.
+ */
+const REVEAL_SAFETY_TIMEOUT_MS = 1500;
+
 interface RevealProps {
   /** The content to be animated */
   children: ReactNode;
@@ -40,7 +51,11 @@ const Reveal: React.FC<RevealProps> = ({
   children,
   width = 'fit-content',
   delay = 0,
-  duration = 0.8,
+  // Audit MA-11: dropped from 0.8s to 0.55s. 800ms was a cinematic
+  // duration; current interface-motion practice favours shorter, more
+  // confident content entrances (~350-550ms). The hero passes an
+  // explicit `duration` so it can still run a touch slower.
+  duration = 0.55,
   className = '',
   variant = 'fade-up',
   eager = false,
@@ -61,13 +76,38 @@ const Reveal: React.FC<RevealProps> = ({
       return;
     }
 
+    let safetyTimer: ReturnType<typeof setTimeout> | null = null;
+
+    /**
+     * Audit CQ-03: this helper transitions the component to its visible
+     * state. The setState call inside is reachable from an
+     * IntersectionObserver callback AND from a setTimeout — both are
+     * asynchronous boundaries that fire AFTER the effect has settled, so
+     * they're functionally event handlers, not synchronous-in-effect
+     * mutations. The eslint `react-hooks/set-state-in-effect` rule can't
+     * statically distinguish "setState during effect setup" from
+     * "setState in an async callback set up by the effect", so the rule
+     * fires here. The React Compiler annotation mode bails on this file
+     * for the same reason. Both are accepted: this is the canonical
+     * IntersectionObserver-to-state-machine bridge and there's no
+     * cleaner shape that doesn't reintroduce a different anti-pattern
+     * (e.g., useSyncExternalStore with per-element observers undoes the
+     * shared-observer pooling LZ-01 just landed).
+     */
+    const reveal = () => {
+      setIsVisible(true);
+      observer.disconnect();
+      if (safetyTimer) {
+        clearTimeout(safetyTimer);
+        safetyTimer = null;
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-
-          setIsVisible(true);
-          observer.unobserve(entry.target);
+          reveal();
         });
       },
       { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
@@ -75,8 +115,16 @@ const Reveal: React.FC<RevealProps> = ({
 
     observer.observe(element);
 
+    // Audit R-01: belt-and-braces — if the observer hasn't fired within
+    // REVEAL_SAFETY_TIMEOUT_MS, reveal anyway. Prevents the failure mode
+    // where the wrapping content-visibility:auto parent never reflows
+    // the Reveal into the viewport and the user is left looking at an
+    // invisible block.
+    safetyTimer = setTimeout(reveal, REVEAL_SAFETY_TIMEOUT_MS);
+
     return () => {
       observer.disconnect();
+      if (safetyTimer) clearTimeout(safetyTimer);
     };
   }, [eager, shouldReduceMotion]);
 
@@ -242,7 +290,7 @@ export const WordReveal: React.FC<WordRevealProps> = ({ children, delay = 0.15, 
         <React.Fragment key={index}>
           <span className="-mb-[0.25em] inline-flex overflow-hidden pb-[0.25em] align-bottom">
             <span
-              className="inline-block whitespace-nowrap transition-all duration-700 ease-out motion-reduce:transition-none"
+              className="inline-block whitespace-nowrap transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
               style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? 'translateY(0)' : 'translateY(40%)',
