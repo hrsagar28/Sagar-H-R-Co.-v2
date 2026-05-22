@@ -67,9 +67,8 @@ const About: React.FC = () => {
   return (
     <div data-zone="editorial" className="zone-bg min-h-screen">
       <SEO
-        title={`${CONTACT_INFO.name} - Chartered Accountants in Mysuru | About the Firm & Principal`}
+        title={`About — ${CONTACT_INFO.name} | Chartered Accountants, Mysuru`}
         description={`${CONTACT_INFO.founder.name}, ACA, leads ${CONTACT_INFO.name} from Mysuru - a small practice in audit, tax, GST and ROC compliance. Read about how we work.`}
-        ogType="profile"
         ogImage={ABOUT_OG_IMAGE}
         schema={schema}
         breadcrumbs={aboutBreadcrumbs}
@@ -91,7 +90,6 @@ const About: React.FC = () => {
           { label: 'Credential', value: 'ACA' },
           { label: 'Office', value: CONTACT_INFO.address.city },
         ]}
-        accentTone="brass"
       />
 
       <Snapshot />

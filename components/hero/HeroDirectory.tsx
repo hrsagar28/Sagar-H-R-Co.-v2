@@ -57,15 +57,21 @@ export const HeroDirectory: React.FC<DirectoryHeroProps> = ({
           style={{ animationDelay: '0.4s' }}
         >
           {contacts.map((contact, i) => {
-            const Content = contact.href ? 'a' : 'div';
+            const isLink = Boolean(contact.href);
+            const Content = isLink ? 'a' : 'div';
             return (
               <Content
                 key={i}
                 href={contact.href}
-                className={`hero-directory-contact zone-border flex flex-col gap-4 border-l pl-6 ${contact.href ? 'group transition-colors' : ''}`}
+                className={`hero-directory-contact zone-border flex flex-col gap-4 border-l pl-6 ${isLink ? 'group transition-colors' : ''}`}
               >
                 <span className="zone-text-muted font-mono text-xs uppercase tracking-[0.1em]">{contact.label}</span>
-                <span className="hover-zone-accent font-heading text-2xl transition-colors">{contact.value}</span>
+                {/* Audit AB-16: the hover colour shift is applied only to
+                    cells that are real links, so static cells no longer
+                    imply interactivity. */}
+                <span className={`font-heading text-2xl ${isLink ? 'hover-zone-accent transition-colors' : ''}`}>
+                  {contact.value}
+                </span>
               </Content>
             );
           })}

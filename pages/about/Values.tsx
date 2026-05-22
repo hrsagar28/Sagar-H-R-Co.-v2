@@ -29,7 +29,7 @@ export const Values: React.FC = () => (
   <section
     id="values"
     aria-labelledby="values-heading"
-    className="zone-bg zone-surface relative overflow-hidden px-4 py-24 md:px-6"
+    className="zone-surface relative overflow-hidden px-4 py-24 md:px-6"
   >
     <div className="bg-noise absolute inset-0 opacity-[0.08]" aria-hidden="true"></div>
     <div className="container relative z-10 mx-auto max-w-7xl">
@@ -44,18 +44,20 @@ export const Values: React.FC = () => (
             </h2>
           </Reveal>
         </div>
-        <div className="zone-border grid grid-cols-1 gap-12 border-t pt-12 md:w-2/3 md:grid-cols-2">
+        {/* Audit AB-05: the four values are a list; marked up as <ul>/<li>
+            so assistive tech announces them as "list of 4". */}
+        <ul role="list" className="zone-border grid grid-cols-1 gap-12 border-t pt-12 md:w-2/3 md:grid-cols-2">
           {values.map(({ icon: Icon, title, body }, i) => (
-            <Reveal key={title} width="100%" delay={Math.min(i * 0.06, 0.3)}>
-              <div>
+            <li key={title}>
+              <Reveal width="100%" delay={Math.min(i * 0.06, 0.3)}>
                 <h3 className="zone-text mb-4 flex items-center gap-3 text-xl font-bold">
                   <Icon className="text-zone-accent" aria-hidden="true" focusable="false" /> {title}
                 </h3>
                 <p className="leading-relaxed text-zone-text-muted/90">{body}</p>
-              </div>
-            </Reveal>
+              </Reveal>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   </section>

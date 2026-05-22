@@ -91,8 +91,10 @@ const Reveal: React.FC<RevealProps> = ({
      * for the same reason. Both are accepted: this is the canonical
      * IntersectionObserver-to-state-machine bridge and there's no
      * cleaner shape that doesn't reintroduce a different anti-pattern
-     * (e.g., useSyncExternalStore with per-element observers undoes the
-     * shared-observer pooling LZ-01 just landed).
+     * (e.g., useSyncExternalStore with a per-element observer is a
+     * heavier rewrite for no behavioural gain). Each Reveal owns a
+     * single IntersectionObserver that disconnects the moment it has
+     * fired, so there is no pooling layer to preserve here.
      */
     const reveal = () => {
       setIsVisible(true);

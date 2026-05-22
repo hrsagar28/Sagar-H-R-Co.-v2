@@ -31,16 +31,19 @@ export const Principal: React.FC = () => {
                     loading="lazy"
                     decoding="async"
                     width="1080"
-                    height="1920"
+                    height="1440"
                     className="absolute inset-0 h-full w-full object-cover"
                     style={{ objectPosition: '50% 18%' }}
                   />
                 </picture>
+                {/* Audit AB-15: bottom-edge gradient strengthened from 8%
+                    to 32% so it actually grounds the portrait against the
+                    card instead of being imperceptible. */}
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0"
                   style={{
-                    background: 'linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(10,9,8,0.08) 100%)',
+                    background: 'linear-gradient(180deg, rgba(10,9,8,0) 55%, rgba(10,9,8,0.32) 100%)',
                   }}
                 />
               </div>

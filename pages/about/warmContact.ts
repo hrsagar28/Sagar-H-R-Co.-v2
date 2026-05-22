@@ -1,17 +1,8 @@
-const routeWarmers = {
-  contact: () => import('../Contact'),
-  resources: () => import('../Resources'),
-  hraCalculator: () => import('../Resources/HRACalculator'),
-  gstCalculator: () => import('../Resources/GSTCalculator'),
-  incomeTaxCalculator: () => import('../../components/TaxCalculator'),
-} as const;
-
-export type PrefetchRouteName = keyof typeof routeWarmers;
-
-export const prefetchRoute = (route: PrefetchRouteName) => {
-  void routeWarmers[route]();
-};
-
+/**
+ * Warms the Contact route's lazy chunk so navigating from the About page
+ * to /contact does not pay a chunk-fetch wait. Called on idle from
+ * About.tsx and on hover / focus of the CTA from Cta.tsx.
+ */
 export const warmContactRoute = () => {
-  prefetchRoute('contact');
+  void import('../Contact');
 };

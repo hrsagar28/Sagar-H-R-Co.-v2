@@ -15,19 +15,27 @@ const parseCountValue = (value: string) => {
 const CountUpStat: React.FC<{ label: string; value: string }> = ({ label, value }) => {
   const { end, suffix } = parseCountValue(value);
   const { count, ref } = useCountUp<HTMLDivElement>(end, 1.4);
+  const finalValue = `${end.toLocaleString('en-IN')}${suffix}`;
 
   return (
     <div ref={ref as React.RefObject<HTMLDivElement>}>
       <dt className="font-mono text-eyebrow uppercase tracking-[0.2em] text-zone-text-muted/80">{label}</dt>
       <dd className="mt-1 font-heading text-2xl text-zone-text">
-        <span aria-hidden="true">
-          {count.toLocaleString('en-IN')}
-          {suffix}
+        {/* Audit AB-04: the live count and a hidden copy of the final value
+            share a single grid cell, so the cell is always sized to the
+            final number and the count-up no longer reflows the row as
+            digits are added. tabular-nums keeps digit advance-widths
+            uniform while the value climbs. */}
+        <span className="inline-grid tabular-nums">
+          <span aria-hidden="true" className="col-start-1 row-start-1">
+            {count.toLocaleString('en-IN')}
+            {suffix}
+          </span>
+          <span aria-hidden="true" className="invisible col-start-1 row-start-1">
+            {finalValue}
+          </span>
         </span>
-        <span className="sr-only">
-          {end.toLocaleString('en-IN')}
-          {suffix}
-        </span>
+        <span className="sr-only">{finalValue}</span>
       </dd>
     </div>
   );

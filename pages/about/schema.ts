@@ -1,8 +1,8 @@
 import { CONTACT_INFO } from '../../constants';
+import { SITE_URL } from '../../config/site';
 
 type ContactInfo = typeof CONTACT_INFO;
 
-const SITE_URL = ((import.meta as any).env?.VITE_SITE_URL ?? 'https://casagar.co.in').replace(/\/$/, '');
 const OG_IMAGE = `${SITE_URL}/og-about.png`;
 
 export const aboutBreadcrumbs = [

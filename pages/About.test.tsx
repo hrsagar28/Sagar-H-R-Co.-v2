@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
@@ -9,7 +9,6 @@ import About from './About';
 
 const mocks = vi.hoisted(() => ({
   warmContactRoute: vi.fn(),
-  prefetchRoute: vi.fn(),
 }));
 
 expect.extend(matchers);
@@ -34,7 +33,6 @@ vi.mock('../hooks/useCountUp', () => ({
 
 vi.mock('./about/warmContact', () => ({
   warmContactRoute: mocks.warmContactRoute,
-  prefetchRoute: mocks.prefetchRoute,
 }));
 
 const mockMotionPreference = (matches: boolean) => {
@@ -63,7 +61,6 @@ describe('About', () => {
   beforeEach(() => {
     localStorage.clear();
     mocks.warmContactRoute.mockClear();
-    mocks.prefetchRoute.mockClear();
     mockMotionPreference(false);
   });
 
@@ -95,6 +92,24 @@ describe('About', () => {
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent(/on the principal, briefly/i);
     expect(heading.querySelectorAll('span')).toHaveLength(1);
+  });
+
+  it('renders the work approach, values, and principal content', () => {
+    renderAbout();
+
+    expect(screen.getByRole('heading', { name: /single point of contact/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /accuracy/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /integrity/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /portrait of ca sagar h r/i })).toBeInTheDocument();
+  });
+
+  it('exposes How We Work and Values as semantic lists', () => {
+    renderAbout();
+
+    const itemCounts = screen.getAllByRole('list').map((list) => within(list).queryAllByRole('listitem').length);
+
+    // How We Work has 3 cards; Values has 4 entries.
+    expect(itemCounts).toEqual(expect.arrayContaining([3, 4]));
   });
 
   it('renders no axe violations for static markup', async () => {
