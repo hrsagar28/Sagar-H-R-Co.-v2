@@ -65,7 +65,7 @@ export const Snapshot: React.FC = () => (
       style={{ animationDelay: '0.2s' }}
     >
       <div className="lg:col-span-7">
-        <div className="zone-border zone-surface relative overflow-hidden rounded-bento border p-8 shadow-2xl md:p-12">
+        <div className="zone-border zone-surface relative overflow-hidden rounded-bento border p-8 md:p-12">
           <dl className="grid grid-cols-2 gap-x-8 gap-y-6">
             {stats.map((stat) =>
               stat.kind === 'count' ? (

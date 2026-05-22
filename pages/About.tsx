@@ -64,8 +64,11 @@ const About: React.FC = () => {
     };
   }, []);
 
+  // Audit AB-22: the editorial colour zone and dark background are applied
+  // by the main element in App.tsx, so this page wrapper no longer
+  // re-declares them.
   return (
-    <div data-zone="editorial" className="zone-bg min-h-screen">
+    <div className="min-h-screen">
       <SEO
         title={`About — ${CONTACT_INFO.name} | Chartered Accountants, Mysuru`}
         description={`${CONTACT_INFO.founder.name}, ACA, leads ${CONTACT_INFO.name} from Mysuru - a small practice in audit, tax, GST and ROC compliance. Read about how we work.`}

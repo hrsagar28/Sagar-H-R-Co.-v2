@@ -10,7 +10,7 @@ export const Principal: React.FC = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="zone-surface zone-border flex flex-col overflow-hidden rounded-bento border lg:flex-row">
           <div className="zone-border flex items-stretch justify-center border-b p-6 md:p-8 lg:w-2/5 lg:border-b-0 lg:border-r">
-            <div className="zone-border zone-bg relative w-full max-w-sm overflow-hidden rounded-card border shadow-sm lg:max-w-none">
+            <div className="zone-border zone-bg relative w-full max-w-sm overflow-hidden rounded-card border lg:max-w-none">
               <div className="relative aspect-[3/4] min-h-[320px] md:min-h-[420px] lg:min-h-full">
                 <picture>
                   <source

@@ -46,14 +46,9 @@ export const buildAboutSchema = (contact: ContactInfo): object[] => [
       latitude: contact.geo.latitude,
       longitude: contact.geo.longitude,
     },
-    openingHoursSpecification: [
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        opens: '10:00',
-        closes: '20:00',
-      },
-    ],
+    // Audit AB-21: single-sourced from CONTACT_INFO.hours.value, which is
+    // already stored in schema.org openingHours short form ("Mo-Sa 10:00-20:00").
+    openingHours: contact.hours.value,
     sameAs: [contact.social.linkedin],
     knowsAbout: ['Taxation', 'Audit', 'Financial Advisory', 'GST', 'Company Law'],
     founder: { '@id': `${SITE_URL}/#founder` },

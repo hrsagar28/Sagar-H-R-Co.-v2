@@ -108,7 +108,6 @@ describe('About', () => {
 
     const itemCounts = screen.getAllByRole('list').map((list) => within(list).queryAllByRole('listitem').length);
 
-    // How We Work has 3 cards; Values has 4 entries.
     expect(itemCounts).toEqual(expect.arrayContaining([3, 4]));
   });
 
