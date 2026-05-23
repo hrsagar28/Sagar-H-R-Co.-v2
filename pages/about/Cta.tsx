@@ -8,23 +8,26 @@ export const Cta: React.FC = () => (
     <div className="container mx-auto max-w-7xl">
       {/* Audit AB-26: panel uses the editorial palette's rust (zone-accent-alt)
           instead of the off-zone moss green. AB-27: the invisible shadow-2xl
-          was dropped — the colour block defines itself. */}
+          was dropped — the colour block defines itself.
+          Each Reveal is width="100%" so it fills the centred column; without
+          it the wrapper defaults to fit-content and the panel's text-center
+          has nothing to centre against. */}
       <div className="relative overflow-hidden rounded-bento bg-brand-rust p-12 text-center md:p-24">
         <div className="bg-noise absolute inset-0 opacity-20 mix-blend-multiply" aria-hidden="true"></div>
 
         <div className="relative z-10 mx-auto max-w-3xl">
-          <Reveal delay={0}>
+          <Reveal width="100%" delay={0}>
             <h2 id="contact-cta-heading" className="mb-8 font-heading text-4xl font-bold text-brand-paper md:text-6xl">
               Start a conversation
             </h2>
           </Reveal>
-          <Reveal delay={0.08}>
+          <Reveal width="100%" delay={0.08}>
             <p className="mb-12 text-xl font-medium leading-relaxed text-brand-paper/85">
               You don't need to have everything organised before reaching out. Share what you have. We'll figure out the
               rest from there.
             </p>
           </Reveal>
-          <Reveal delay={0.16}>
+          <Reveal width="100%" delay={0.16}>
             <Link
               to="/contact"
               onMouseEnter={warmContactRoute}
@@ -37,7 +40,7 @@ export const Cta: React.FC = () => (
           {/* Audit AB-19: a low-emphasis secondary path for visitors who
               aren't ready to make contact yet — doubles as an internal
               link to the Services page. */}
-          <Reveal delay={0.24}>
+          <Reveal width="100%" delay={0.24}>
             <p className="mt-8">
               <Link
                 to="/services"

@@ -80,7 +80,7 @@ export const Snapshot: React.FC = () => (
       <div className="pb-4 lg:col-span-5">
         <p className="mb-8 max-w-prose text-xl font-medium leading-relaxed text-zone-text-muted md:text-2xl">
           {CONTACT_INFO.name} is a Mysuru-based Chartered Accountancy practice for owner-led businesses, professionals,
-          and growing teams that need clear compliance ownership.
+          and growing teams.
         </p>
         <div className="zone-border flex flex-col gap-4 border-l pl-6">
           <p className="max-w-prose text-lg text-zone-text-muted/80">
