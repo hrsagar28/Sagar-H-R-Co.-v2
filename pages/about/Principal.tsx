@@ -9,10 +9,12 @@ export const Principal: React.FC = () => {
     <section id="principal" aria-labelledby="principal-heading" className="zone-bg px-4 py-24 md:px-6">
       <div className="container mx-auto max-w-7xl">
         <div className="zone-surface zone-border flex flex-col overflow-hidden rounded-bento border lg:flex-row">
-          {/* The portrait fills the panel flush to the rounded-bento frame.
-              The previous inner mat (padding + a second border) was removed
-              so the image — not empty dark space — carries the left side. */}
-          <div className="relative h-[420px] md:h-[540px] lg:h-auto lg:min-h-[480px] lg:w-2/5">
+          {/* The portrait is flush to the rounded-bento frame and keeps a 3:4
+              box, so the full portrait is shown rather than a tight crop. The
+              image box drives the panel height; the text column centres
+              itself against it (justify-center), which yields the breathing
+              room above and below the copy. */}
+          <div className="relative aspect-[3/4] lg:w-2/5">
             <picture>
               <source
                 type="image/avif"
