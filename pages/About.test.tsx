@@ -97,7 +97,7 @@ describe('About', () => {
   it('renders the work approach, values, and principal content', () => {
     renderAbout();
 
-    expect(screen.getByRole('heading', { name: /single point of contact/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /reviewed before filing/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /accuracy/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /integrity/i })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /portrait of ca sagar h r/i })).toBeInTheDocument();

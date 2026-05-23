@@ -3,12 +3,12 @@ import Reveal from '../../components/Reveal';
 
 const workCards = [
   {
-    title: 'Single point of contact',
-    body: 'When you have a question, you call Sagar. When a document needs signing, Sagar signs it. The same person who understood the brief at the start is the one who closes it out.',
+    title: 'Reviewed before filing',
+    body: 'Every return and filing is reviewed against the underlying records before it is submitted, so errors are caught here rather than surfacing later as a notice or revision.',
   },
   {
     title: 'Retainer or assignment',
-    body: 'Most clients take an annual retainer covering tax, GST and ROC. We also accept stand-alone engagements - audits, due-diligence, one-off filings.',
+    body: 'Engage the practice the way that suits you: an annual retainer covering tax, GST and ROC, or a stand-alone assignment such as an audit, a due-diligence review, or a one-off filing.',
   },
   {
     title: 'Working from Mysuru, India-wide',

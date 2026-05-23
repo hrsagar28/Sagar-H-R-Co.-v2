@@ -12,32 +12,11 @@ import { warmContactRoute } from './about/warmContact';
 import './route-styles.css';
 import '../components/hero/PageHero.css';
 
-const ordinalSuffix = (value: number) => {
-  const mod100 = value % 100;
-  if (mod100 >= 11 && mod100 <= 13) return 'th';
-
-  switch (value % 10) {
-    case 1:
-      return 'st';
-    case 2:
-      return 'nd';
-    case 3:
-      return 'rd';
-    default:
-      return 'th';
-  }
-};
+const HERO_BLURB =
+  'A Mysuru chartered-accountancy practice for owner-led businesses and professionals. Your compliance, owned end to end.';
 
 const About: React.FC = () => {
   const schema = useMemo(() => buildAboutSchema(CONTACT_INFO), []);
-  const heroBlurb = useMemo(() => {
-    const establishedYear = Number(CONTACT_INFO.stats.established);
-    const yearsInPractice = Number.isFinite(establishedYear)
-      ? Math.max(new Date().getFullYear() - establishedYear + 1, 1)
-      : 1;
-
-    return `Sagar H R practises as the sole proprietor of the firm. ACA member of the ICAI; ${yearsInPractice}${ordinalSuffix(yearsInPractice)} year of practice.`;
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,7 +64,7 @@ const About: React.FC = () => {
             On the principal, <em>briefly</em>.
           </>
         }
-        blurb={heroBlurb}
+        blurb={HERO_BLURB}
         coordinates="Mysuru - Est. MMXXIII"
         ghostWord="Firm."
         contacts={[

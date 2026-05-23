@@ -84,8 +84,7 @@ export const Snapshot: React.FC = () => (
         </p>
         <div className="zone-border flex flex-col gap-4 border-l pl-6">
           <p className="max-w-prose text-lg text-zone-text-muted/80">
-            The firm keeps the practice intentionally direct: the person who understands the facts also signs the
-            advice.
+            Compliance dates are monitored here, so returns are prepared ahead of time, not remembered after.
           </p>
         </div>
       </div>
