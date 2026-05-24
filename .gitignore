@@ -23,3 +23,6 @@ vite.config.ts.timestamp-*.mjs
 *.njsproj
 *.sln
 *.sw?
+
+# Local one-click helper scripts (Cowork-generated, not part of the project)
+*.bat
