@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import { SERVICE_DETAILS } from '../constants';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import SEO from '../components/SEO';
 import { CONTACT_INFO } from '../constants';
 import { PageHero } from '../components/hero';
@@ -16,11 +16,14 @@ const ServiceDetail: React.FC = () => {
 
   const service = slug ? SERVICE_DETAILS[slug] : null;
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [slug]);
-
   if (!service) return <NotFound />;
+
+  // Audit SV-16: derive a readable eyebrow from the service's discipline
+  // (e.g. "Practice · Direct Tax") instead of printing the raw slug
+  // ("Practice · INCOME-TAX").
+  const heroMeta = SERVICE_HERO_META[slug ?? ''] ?? [];
+  const discipline = heroMeta.find((item) => item.label === 'Discipline')?.value;
+  const eyebrow = typeof discipline === 'string' ? `Practice · ${discipline}` : 'Practice';
 
   return (
     <div className="bg-grid min-h-screen bg-brand-bg px-4 pb-20 pt-32 md:px-6 md:pt-40 print:h-auto print:bg-white print:pb-0 print:pt-0">
@@ -44,7 +47,7 @@ const ServiceDetail: React.FC = () => {
         <div className="mb-12">
           <PageHero
             variant="split"
-            eyebrow={slug ? `Practice · ${slug.toUpperCase()}` : 'Practice'}
+            eyebrow={eyebrow}
             title={
               service.title.includes(' ') ? (
                 <>
@@ -57,7 +60,7 @@ const ServiceDetail: React.FC = () => {
               )
             }
             blurb={service.shortDescription}
-            meta={SERVICE_HERO_META[slug || ''] || []}
+            meta={heroMeta}
           />
         </div>
 
@@ -68,9 +71,9 @@ const ServiceDetail: React.FC = () => {
             <div className="sticky top-32 space-y-10 print:static print:space-y-6">
               <div className="rounded-[2rem] border border-brand-border bg-brand-surface p-10 shadow-lg print:rounded-none print:border-0 print:p-0 print:shadow-none">
                 <Reveal delay={0}>
-                  <h3 className="mb-6 font-heading text-2xl font-bold text-brand-dark print:mb-3 print:text-xl">
+                  <h2 className="mb-6 font-heading text-2xl font-bold text-brand-dark print:mb-3 print:text-xl">
                     Overview
-                  </h3>
+                  </h2>
                 </Reveal>
                 <Reveal delay={0.08}>
                   <p className="text-lg font-medium leading-relaxed text-brand-stone print:text-base print:text-black">
@@ -84,13 +87,13 @@ const ServiceDetail: React.FC = () => {
           {/* Right Column: Features Grid */}
           <div className="order-1 lg:order-2 lg:col-span-7">
             <Reveal delay={0}>
-              <h3 className="mb-10 font-heading text-3xl font-bold text-brand-dark print:mb-6 print:text-2xl">
+              <h2 className="mb-10 font-heading text-3xl font-bold text-brand-dark print:mb-6 print:text-2xl">
                 Services Included
-              </h3>
+              </h2>
             </Reveal>
             <div className="grid gap-6 print:grid-cols-1 print:gap-4">
               {service.features.map((feature, idx) => (
-                <Reveal key={idx} width="100%" delay={Math.min(idx * 0.06, 0.3)}>
+                <Reveal key={feature.title} width="100%" delay={Math.min(idx * 0.06, 0.3)}>
                   <div className="group relative break-inside-avoid overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 shadow-sm transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-xl md:p-10 print:rounded-lg print:border-black print:p-4 print:shadow-none">
                     <div className="absolute right-0 top-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-brand-moss/5 transition-transform duration-700 group-hover:scale-150 print:hidden"></div>
 
@@ -99,9 +102,9 @@ const ServiceDetail: React.FC = () => {
                         <CheckCircle2 size={24} strokeWidth={1.5} className="print:h-5 print:w-5" />
                       </div>
                       <div>
-                        <h4 className="mb-3 font-heading text-xl font-bold text-brand-dark transition-colors group-hover:text-brand-moss md:text-2xl print:mb-1 print:text-lg print:text-black">
+                        <h3 className="mb-3 font-heading text-xl font-bold text-brand-dark transition-colors group-hover:text-brand-moss md:text-2xl print:mb-1 print:text-lg print:text-black">
                           {feature.title}
-                        </h4>
+                        </h3>
                         <p className="text-base font-medium leading-relaxed text-brand-stone md:text-lg print:text-sm print:text-black">
                           {feature.description}
                         </p>

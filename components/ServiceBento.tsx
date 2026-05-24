@@ -31,7 +31,7 @@ const VARIANT: Record<string, Variant> = {
   },
   'income-tax': {
     span: 'md:col-span-1 lg:col-span-1 md:order-2 lg:order-2',
-    container: 'bg-card-moss-deep border-transparent',
+    container: 'bg-card-moss-deep border-transparent bento-card-dark',
     textTitle: 'text-white',
     textDesc: 'text-white/85',
     arrowBtn:
@@ -46,7 +46,8 @@ const VARIANT: Record<string, Variant> = {
   },
   litigation: {
     span: 'md:col-span-2 lg:col-span-2 md:order-4 lg:order-7',
-    container: 'bg-gradient-to-br from-zinc-800 via-zinc-900 to-brand-black border-zinc-700 hover:border-zinc-600',
+    container:
+      'bg-gradient-to-br from-zinc-800 via-zinc-900 to-brand-black border-zinc-700 hover:border-zinc-600 bento-card-dark',
     textTitle: 'text-white',
     textDesc: 'text-zinc-300',
     arrowBtn:
@@ -56,7 +57,10 @@ const VARIANT: Record<string, Variant> = {
     span: 'md:col-span-1 lg:col-span-1 md:order-5 lg:order-5',
     container: 'bg-gradient-to-br from-[#fafaf9] to-[#e7e5e4] border-transparent hover:border-brand-moss/20',
     textTitle: 'text-brand-dark',
-    textDesc: 'text-brand-stone',
+    // Audit SV-21: darker warm stone (was text-brand-stone #746d68) so the
+    // description stays >= 4.5:1 AA over this card's darker gradient stop
+    // (#e7e5e4). The gradient itself is intentionally left untouched.
+    textDesc: 'text-[#5f594f]',
     arrowBtn:
       'border-brand-border text-brand-dark group-hover:bg-brand-moss group-hover:text-white group-hover:border-brand-moss bg-white/50',
   },
@@ -76,7 +80,8 @@ const VARIANT: Record<string, Variant> = {
   },
   payroll: {
     span: 'md:col-span-1 lg:col-span-1 md:order-8 lg:order-8',
-    container: 'bg-gradient-to-br from-neutral-900 to-brand-black border-neutral-800 hover:border-neutral-700',
+    container:
+      'bg-gradient-to-br from-neutral-900 to-brand-black border-neutral-800 hover:border-neutral-700 bento-card-dark',
     textTitle: 'text-white',
     textDesc: 'text-zinc-300',
     arrowBtn:
@@ -96,7 +101,8 @@ const ServiceBento: React.FC = () => {
             <Link
               to={service.link}
               className={`card-surface-hover group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] border p-6 transition-[transform,box-shadow,border-color] duration-500 ease-out-expo md:min-h-[260px] md:p-8 ${v.container} `}
-              aria-label={`View details for ${service.title}`}
+              aria-labelledby={`bento-${service.id}-title`}
+              aria-describedby={`bento-${service.id}-desc`}
             >
               {/* 3C. Top Border Reveal */}
               <div className="absolute left-0 top-0 z-20 h-1 w-0 bg-gradient-to-r from-brand-moss to-[#4ADE80] transition-[width] duration-700 ease-out group-hover:w-full"></div>
@@ -113,11 +119,13 @@ const ServiceBento: React.FC = () => {
               {/* Content */}
               <div className="relative z-10 mt-auto">
                 <h3
+                  id={`bento-${service.id}-title`}
                   className={`mb-3 font-heading text-2xl font-bold leading-tight tracking-tight transition-transform duration-500 group-hover:translate-x-1 md:text-4xl ${v.textTitle} `}
                 >
                   {service.title}
                 </h3>
                 <p
+                  id={`bento-${service.id}-desc`}
                   className={`max-w-sm text-sm font-medium leading-relaxed opacity-90 transition-opacity duration-500 group-hover:opacity-100 md:text-base ${v.textDesc} `}
                 >
                   {service.description}
@@ -132,7 +140,7 @@ const ServiceBento: React.FC = () => {
       <Reveal delay={0.4} className="md:order-9 md:col-span-2 lg:order-9 lg:col-span-1" variant="fade-up" width="100%">
         <Link
           to="/contact"
-          className="group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] border border-transparent bg-card-moss-cta p-6 transition-shadow duration-500 hover:shadow-2xl hover:shadow-brand-moss/30 md:min-h-[260px] md:p-8"
+          className="bento-card-dark group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] border border-transparent bg-card-moss-cta p-6 transition-shadow duration-500 hover:shadow-2xl hover:shadow-brand-moss/30 md:min-h-[260px] md:p-8"
         >
           {/* Decorative Glows */}
           <div className="pointer-events-none absolute right-0 top-0 h-32 w-32 -translate-y-10 translate-x-10 rounded-full bg-white/20 blur-[40px] transition-transform duration-700 group-hover:translate-x-0 group-hover:translate-y-0"></div>
@@ -142,8 +150,8 @@ const ServiceBento: React.FC = () => {
             <span className="mb-4 inline-block rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-md">
               Get Started
             </span>
-            <h3 className="font-heading text-2xl font-bold leading-tight text-white md:text-3xl">
-              Need Expert <br /> Guidance?
+            <h3 className="text-balance font-heading text-2xl font-bold leading-tight text-white md:text-3xl">
+              Need Expert Guidance?
             </h3>
           </div>
 

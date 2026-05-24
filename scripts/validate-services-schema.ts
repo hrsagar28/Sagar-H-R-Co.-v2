@@ -1,5 +1,6 @@
-import { buildServicesSchema, SITE_URL } from '../constants/servicesSchema';
+import { buildServicesSchema } from '../constants/servicesSchema';
 import { SERVICES } from '../constants/services';
+import { SITE_URL } from '../config/site';
 
 type SchemaObject = Record<string, any>;
 

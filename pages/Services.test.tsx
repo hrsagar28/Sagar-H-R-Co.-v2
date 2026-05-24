@@ -70,23 +70,19 @@ describe('Services', () => {
     renderServices();
 
     SERVICES.forEach((service) => {
-      expect(screen.getByRole('link', { name: `View details for ${service.title}` })).toHaveAttribute(
-        'href',
-        service.link,
-      );
+      expect(screen.getByRole('link', { name: service.title })).toHaveAttribute('href', service.link);
     });
   });
 
-  it('renders the industries section', () => {
+  it('renders the industries section as non-interactive cards', () => {
     renderServices();
 
     expect(screen.getByRole('heading', { name: /industries we serve/i })).toBeInTheDocument();
     INDUSTRIES.forEach((industry) => {
-      expect(screen.getByRole('link', { name: `Discuss ${industry.title} services` })).toHaveAttribute(
-        'href',
-        '/contact',
-      );
+      expect(screen.getByRole('heading', { name: industry.title })).toBeInTheDocument();
     });
+    // Audit SV-15: the industry cards are no longer links.
+    expect(screen.queryByRole('link', { name: /discuss .* services/i })).toBeNull();
   });
 
   it('renders the consultation banner', () => {

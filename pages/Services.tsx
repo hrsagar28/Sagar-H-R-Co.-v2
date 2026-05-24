@@ -37,7 +37,7 @@ const Services: React.FC = () => {
       />
 
       {/* 2. SERVICES LIST - BENTO GRID */}
-      <section className="bg-brand-bg pb-32 pt-20">
+      <section aria-labelledby="what-we-do-heading" className="bg-brand-bg pb-32 pt-20">
         <div className="container mx-auto mb-16 max-w-7xl px-4 md:px-6">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
@@ -47,7 +47,9 @@ const Services: React.FC = () => {
                 </span>
               </Reveal>
               <Reveal delay={0.08}>
-                <h2 className="font-heading text-4xl font-bold text-brand-dark md:text-6xl">What We Do</h2>
+                <h2 id="what-we-do-heading" className="font-heading text-4xl font-bold text-brand-dark md:text-6xl">
+                  What We Do
+                </h2>
               </Reveal>
             </div>
             <Reveal delay={0.16}>

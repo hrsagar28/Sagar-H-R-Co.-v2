@@ -1,7 +1,9 @@
 import { CONTACT_INFO } from './contact';
 import { SERVICES } from './services';
-
-export const SITE_URL = 'https://casagar.co.in';
+// Audit SV-07: single-source the site URL. Previously this file declared
+// its own hard-coded SITE_URL, so the services JSON-LD ignored the
+// env-aware value in config/site.ts (VITE_SITE_URL) used everywhere else.
+import { SITE_URL } from '../config/site';
 
 export const buildServicesSchema = () => [
   {

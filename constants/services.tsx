@@ -97,7 +97,7 @@ export const SERVICE_DETAILS: Record<string, ServiceDetailContent> = {
   },
   'company-law': {
     id: 'company-law',
-    title: 'Company Law & ROC Matters',
+    title: 'Company Law & ROC',
     shortDescription: 'Secretarial and statutory compliance services under the Companies Act.',
     longDescription:
       'We assist companies in complying with the requirements of the Companies Act and filings with the Registrar of Companies (ROC).',
@@ -129,7 +129,7 @@ export const SERVICE_DETAILS: Record<string, ServiceDetailContent> = {
   },
   advisory: {
     id: 'advisory',
-    title: 'Advisory & Consulting',
+    title: 'Business Advisory',
     shortDescription: 'Business setup and reporting services.',
     longDescription:
       'We provide assistance with business incorporation, registration, and preparation of financial reports.',

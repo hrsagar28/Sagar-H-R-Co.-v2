@@ -58,6 +58,7 @@ export const IndustryGridDark: React.FC = () => {
     <div className="bg-brand-bg px-2 pb-4 md:px-4">
       <section
         ref={containerRef}
+        aria-labelledby="industries-heading"
         className="group relative overflow-hidden rounded-[2.5rem] bg-brand-black px-4 py-24 text-white md:rounded-[3rem] md:px-10"
         style={{ '--mouse-x': '-500px', '--mouse-y': '-500px' } as CSSProperties}
       >
@@ -73,7 +74,9 @@ export const IndustryGridDark: React.FC = () => {
           <div className="mb-16 flex flex-col justify-between gap-8 border-b border-white/10 pb-12 md:flex-row md:items-start">
             <div className="max-w-2xl">
               <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-brand-brass">SECTORS</span>
-              <h2 className="mb-0 font-heading text-4xl font-bold text-white md:text-6xl">Industries We Serve</h2>
+              <h2 id="industries-heading" className="mb-0 font-heading text-4xl font-bold text-white md:text-6xl">
+                Industries We Serve
+              </h2>
             </div>
             <p className="max-w-xs text-left text-lg font-medium leading-relaxed text-white/60">
               Specialized knowledge across diverse verticals ensures relevant and impactful advice.
@@ -81,20 +84,23 @@ export const IndustryGridDark: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* Audit SV-15: the industry cards previously all linked to the
+                same bare /contact with no industry context. They are now
+                static, non-interactive informational cards — hover
+                affordances and focus handling removed accordingly. The
+                "Industry not listed? Contact Us" link below remains the
+                section's single, intentional contact path. */}
             {INDUSTRIES.map((ind) => (
-              <Link
+              <div
                 key={ind.title}
-                to="/contact"
-                className="group/card relative flex h-full flex-col items-start overflow-hidden rounded-[2rem] border border-white/5 bg-brand-dark p-8 transition-[transform,background-color] duration-300 hover:-translate-y-1 hover:bg-brand-surface-dark-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-brass"
-                aria-label={`Discuss ${ind.title} services`}
+                className="flex h-full flex-col items-start overflow-hidden rounded-[2rem] border border-white/5 bg-brand-dark p-8"
               >
-                <div className="pointer-events-none absolute inset-0 bg-brand-brass/5 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
-                <div className="relative z-10 mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-brand-brass/20 bg-brand-brass/10 text-brand-brass transition-transform group-hover/card:scale-105">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-brand-brass/20 bg-brand-brass/10 text-brand-brass">
                   <ind.Icon size={24} aria-hidden="true" focusable={false} />
                 </div>
-                <h3 className="relative z-10 mb-3 font-heading text-xl font-bold text-white">{ind.title}</h3>
-                <p className="relative z-10 text-sm font-medium leading-relaxed text-zinc-300">{ind.description}</p>
-              </Link>
+                <h3 className="mb-3 font-heading text-xl font-bold text-white">{ind.title}</h3>
+                <p className="text-sm font-medium leading-relaxed text-zinc-300">{ind.description}</p>
+              </div>
             ))}
           </div>
 

@@ -2,3 +2,15 @@
   transform: translateY(-0.5rem);
   box-shadow: 0 25px 50px -12px rgb(17 17 17 / 0.1);
 }
+
+/* Audit SV-02: the global :focus-visible outline resolves to moss green
+   (var(--zone-accent)), which is invisible on the dark / saturated bento
+   surfaces (income-tax, litigation, payroll, and the moss CTA card).
+   Re-point the zone accent to white on those cards so the existing global
+   focus outline + glow become clearly visible for keyboard users. No
+   descendant of a bento card consumes --zone-accent, so this override is
+   scoped to the focus indicator only. */
+.bento-card-dark {
+  --zone-accent: #ffffff;
+  --zone-accent-rgb: 255 255 255;
+}
