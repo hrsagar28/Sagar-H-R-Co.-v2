@@ -232,7 +232,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               setIsOpen(false);
             }
           }}
-          className={`absolute right-0 top-full mt-4 flex w-[calc(100vw-32px)] origin-top-right flex-col gap-2 rounded-[2rem] border border-brand-border/60 bg-brand-surface/95 p-6 shadow-2xl backdrop-blur-2xl transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:w-80 ${isOpen ? 'visible translate-y-0 scale-100 opacity-100' : 'pointer-events-none invisible -translate-y-4 scale-95 opacity-0'} `}
+          className={`absolute right-0 top-full mt-4 flex max-h-[calc(100dvh-8rem)] w-[calc(100vw-32px)] origin-top-right flex-col gap-2 overflow-y-auto overscroll-contain rounded-[2rem] border border-brand-border/60 bg-brand-surface/95 p-6 shadow-2xl backdrop-blur-2xl transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:w-80 ${isOpen ? 'visible translate-y-0 scale-100 opacity-100' : 'pointer-events-none invisible -translate-y-4 scale-95 opacity-0'} `}
         >
           {mobileMenuLinks.map((link, idx) => (
             <Link
