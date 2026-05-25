@@ -101,9 +101,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
     >
       <div
         className={`pointer-events-auto relative flex items-center justify-between rounded-full px-2 py-2 transition-[max-width,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:px-3 md:py-3 ${
-          scrolled
-            ? 'w-full max-w-6xl border border-brand-border/50 bg-brand-surface/90 shadow-xl shadow-brand-dark/5 backdrop-blur-xl'
-            : 'w-full max-w-7xl border border-brand-border/20 bg-brand-surface/70 backdrop-blur-md md:border-transparent'
+          scrolled ? 'glass-strong w-full max-w-6xl' : 'glass w-full max-w-7xl'
         } `}
       >
         {/* Logo - Left Pill. Audit N-02: on the home route, drop the

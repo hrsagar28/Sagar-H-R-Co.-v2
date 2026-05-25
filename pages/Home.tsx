@@ -260,7 +260,7 @@ const Home: React.FC = () => {
           <div className="max-w-6xl">
             <Reveal delay={0.05} variant="fade-up">
               <div className="mb-8 flex flex-col gap-2">
-                <div className="inline-flex w-fit items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-xl">
+                <div className="glass-dark inline-flex w-fit items-center gap-3 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white/90">
                   {/* Audit MA-17: location placemaker. The generic opacity
                       throb (animate-pulse) is replaced with a radar "ping" —
                       an expanding ring behind a steady dot — which reads as a
@@ -325,7 +325,7 @@ const Home: React.FC = () => {
 
                 <Reveal delay={0.6} variant="fade-up">
                   <div className="w-full overflow-hidden md:w-auto">
-                    <div className="w-full max-w-[min(100vw-2rem,34rem)] overflow-hidden rounded-full border border-white/10 bg-white/5 px-5 py-3 backdrop-blur-md transition-colors duration-300 hover:bg-white/10 md:w-[34rem] md:px-6 md:py-3.5">
+                    <div className="glass-dark w-full max-w-[min(100vw-2rem,34rem)] overflow-hidden rounded-full px-5 py-3 transition-colors duration-300 hover:bg-white/10 md:w-[34rem] md:px-6 md:py-3.5">
                       <Marquee
                         items={SERVICES.map((service) => service.title)}
                         direction="left"

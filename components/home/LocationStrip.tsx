@@ -135,7 +135,7 @@ const LocationStrip: React.FC = () => {
                   // WCAG 2.2 24×24 minimum on the smallest viewports
                   // (audit L-03) — actual cards always render taller.
                   const frame =
-                    'group flex h-full min-h-[120px] flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-colors duration-300 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent';
+                    'group glass-dark flex h-full min-h-[120px] flex-col rounded-2xl p-6 transition-colors duration-300 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent';
 
                   return (
                     <Reveal key={item.label} delay={0.1 * i} width="100%">
