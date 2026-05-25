@@ -63,6 +63,10 @@ const FAQ: React.FC = () => {
   const [revealedIds, setRevealedIds] = useState<Set<string>>(() => new Set());
   const headerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  // Set while a category-jump smooth-scroll is travelling. It pins the active
+  // highlight to the clicked category so the scroll-spy doesn't light up every
+  // category the scroll passes over on the way there.
+  const jumpRef = useRef<{ slug: string; deadline: number } | null>(null);
 
   const groupedFaqs = useMemo(
     () =>
@@ -120,9 +124,12 @@ const FAQ: React.FC = () => {
       'matchMedia' in window &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Keep the URL shareable; the active highlight is driven by the scroll-spy.
+    // Keep the URL shareable.
     window.history.replaceState(null, '', `#${targetId}`);
+    // Pin the highlight to the clicked category until the smooth scroll
+    // arrives, so the scroll-spy doesn't flash through every category between.
     setActiveCategoryId(targetId);
+    jumpRef.current = { slug: targetId, deadline: Date.now() + 1500 };
     scrollToTarget(targetId, prefersReducedMotion ? 'auto' : 'smooth');
   };
 
@@ -168,41 +175,81 @@ const FAQ: React.FC = () => {
     scrollToTarget(targetId);
   }, [hash]);
 
-  // FQ-03: scroll-spy. Marks the category whose section currently sits near
-  // the top of the viewport as active, keeping both the sticky chip bar and
-  // the desktop sidebar in sync as the user scrolls.
+  // FQ-03: scroll-spy. The active category is the last section whose top has
+  // crossed a trigger line just below the fixed chrome — with a bottom-of-page
+  // guard so the final category still wins when the page can't scroll its
+  // heading all the way up to the line (the previous "first section touching a
+  // band" heuristic mis-fired there). Driven by a passive, rAF-throttled
+  // scroll listener; the initial value is seeded from the hash above.
   useEffect(() => {
-    const sections = ORDERED_CATEGORIES.map((category) => sectionRefs.current[category.slug]).filter(
-      (element): element is HTMLElement => Boolean(element),
-    );
-    if (sections.length === 0) {
-      return;
-    }
+    // A jumped-to heading lands at its `scrollMarginTop` (~224px) with the
+    // index kicker just above it, so a trigger near 220px catches the jumped
+    // section while staying clear of the next one.
+    const TRIGGER_OFFSET = 220;
 
-    const visible = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const slug = entry.target.getAttribute('data-category');
-          if (!slug) {
-            return;
-          }
-          if (entry.isIntersecting) {
-            visible.add(slug);
-          } else {
-            visible.delete(slug);
+    const computeActive = () => {
+      const sections = ORDERED_CATEGORIES.map((category) => sectionRefs.current[category.slug]).filter(
+        (element): element is HTMLElement => Boolean(element),
+      );
+      const first = sections[0];
+      const last = sections[sections.length - 1];
+      if (!first || !last) {
+        return;
+      }
+
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+
+      let active = first;
+      if (atBottom) {
+        // The last section often can't be scrolled up to the trigger line;
+        // once the page bottoms out it is unambiguously the active one.
+        active = last;
+      } else {
+        sections.forEach((section) => {
+          if (section.getBoundingClientRect().top <= TRIGGER_OFFSET) {
+            active = section;
           }
         });
-        const firstVisible = ORDERED_CATEGORIES.find((category) => visible.has(category.slug));
-        if (firstVisible) {
-          setActiveCategoryId(firstVisible.slug);
-        }
-      },
-      { rootMargin: '-130px 0px -60% 0px', threshold: 0 },
-    );
+      }
 
-    sections.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
+      const slug = active.getAttribute('data-category');
+      if (!slug) {
+        return;
+      }
+
+      // While a category jump is animating, keep the highlight pinned to the
+      // clicked category until the scroll reaches it (or the safety deadline
+      // passes) — otherwise it flashes through every category scrolled past.
+      const jump = jumpRef.current;
+      if (jump) {
+        if (slug === jump.slug || Date.now() > jump.deadline) {
+          jumpRef.current = null;
+        } else {
+          return;
+        }
+      }
+
+      setActiveCategoryId(slug);
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) {
+        return;
+      }
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        computeActive();
+        ticking = false;
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   return (
@@ -303,9 +350,20 @@ const FAQ: React.FC = () => {
                       data-category={categoryId}
                       aria-labelledby={categoryId}
                     >
+                      {/* Ledger-index kicker — a leading-zero mono numeral
+                          that echoes the numbered nav and the ledger identity
+                          of an accountancy practice. aria-hidden so it stays
+                          out of the h2's accessible name (which must match the
+                          category label used by the nav and FAQ schema). */}
+                      <div aria-hidden="true" className="mb-2 flex items-center gap-2.5">
+                        <span className="font-mono text-xs font-medium tracking-[0.14em] text-brand-moss">
+                          {String(catIdx + 1).padStart(2, '0')}
+                        </span>
+                        <span className="h-px w-5 bg-brand-moss/45" />
+                      </div>
                       <h2
                         id={categoryId}
-                        className="mb-6 border-l-4 border-brand-moss bg-gradient-to-r from-brand-moss/5 to-transparent pl-2 font-heading text-2xl font-bold text-brand-dark"
+                        className="mb-6 font-heading text-2xl font-bold text-brand-dark"
                         style={{ scrollMarginTop: 'calc(var(--sticky-offset) + 6rem)' }}
                       >
                         {category}
@@ -410,7 +468,7 @@ const FAQ: React.FC = () => {
                 If you can&apos;t find the answer you&apos;re looking for, please don&apos;t hesitate to reach out.
               </p>
             </Reveal>
-            <Reveal delay={0.16}>
+            <Reveal width="100%" delay={0.16}>
               <Link
                 to="/contact"
                 className="inline-block rounded-full bg-brand-dark px-8 py-4 font-bold text-white shadow-lg transition-colors duration-300 hover:bg-brand-moss"
