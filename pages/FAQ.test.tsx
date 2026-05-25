@@ -136,8 +136,8 @@ describe('FAQ', () => {
   it('renders category jump links and scrolls matching fragment targets into view', async () => {
     renderFaq('/faqs#income-tax-planning');
 
-    const topNav = screen.getByRole('navigation', { name: 'FAQ category jump links' });
-    const jumpLink = within(topNav).getByRole('link', { name: /income tax & planning/i });
+    const sectionNav = screen.getByRole('navigation', { name: 'FAQ section navigation' });
+    const jumpLink = within(sectionNav).getByRole('link', { name: /income tax & planning/i });
     expect(jumpLink).toHaveAttribute('href', '#income-tax-planning');
 
     const categoryHeading = document.getElementById('income-tax-planning');

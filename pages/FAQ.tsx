@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Plus, ChevronDown, Check } from 'lucide-react';
 import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
 import { PageHero } from '../components/hero';
@@ -47,8 +47,121 @@ const scrollToTarget = (targetId: string, behavior: ScrollBehavior = 'auto') => 
   target.scrollIntoView({ behavior, block: 'start' });
 };
 
+interface SectionPickerProps {
+  sections: readonly { slug: string; label: string }[];
+  activeSlug: string | null;
+  onSelect: (slug: string) => void;
+}
+
+/**
+ * Mobile / tablet section picker — a dropdown disclosure. The closed state is a
+ * compact control (label + the section you're currently in, tracked by the
+ * scroll-spy); opening it reveals every section at once. Replaces a
+ * horizontally scrolling chip strip that read as a content card and only ever
+ * showed one or two sections.
+ */
+const SectionPicker: React.FC<SectionPickerProps> = ({ sections, activeSlug, onSelect }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelId = 'faq-section-picker-panel';
+
+  const activeLabel = sections.find((section) => section.slug === activeSlug)?.label ?? sections[0]?.label ?? '';
+
+  // Close the panel on an outside click or Escape.
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    const onPointerDown = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen]);
+
+  const handleSelect = (slug: string) => {
+    onSelect(slug);
+    setIsOpen(false);
+    buttonRef.current?.focus();
+  };
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        onClick={() => setIsOpen((open) => !open)}
+        className="flex w-full items-center gap-3 rounded-2xl border border-brand-border bg-brand-surface px-5 py-3 text-left shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-brand-moss/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-brand-moss">
+            Jump to section
+          </span>
+          <span className="mt-0.5 block truncate font-heading text-base font-bold text-brand-dark">{activeLabel}</span>
+        </span>
+        <span
+          aria-hidden="true"
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-bg text-brand-dark transition-transform duration-300 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        >
+          <ChevronDown size={18} />
+        </span>
+      </button>
+
+      <div
+        id={panelId}
+        className={`absolute inset-x-0 top-full z-popover mt-2 origin-top overflow-hidden rounded-2xl border border-brand-border bg-brand-surface shadow-xl transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isOpen
+            ? 'visible translate-y-0 scale-100 opacity-100'
+            : 'pointer-events-none invisible -translate-y-1 scale-95 opacity-0'
+        }`}
+      >
+        {sections.map((section, index) => {
+          const isActive = section.slug === activeSlug;
+          return (
+            <button
+              key={section.slug}
+              type="button"
+              onClick={() => handleSelect(section.slug)}
+              aria-current={isActive ? 'true' : undefined}
+              className={`flex w-full items-center gap-3 px-5 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-moss ${
+                isActive ? 'bg-brand-moss/10' : 'hover:bg-brand-bg'
+              }`}
+            >
+              <span className={`font-mono text-xs font-medium ${isActive ? 'text-brand-moss' : 'text-brand-stone'}`}>
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span className={`flex-1 text-sm font-bold ${isActive ? 'text-brand-moss' : 'text-brand-dark'}`}>
+                {section.label}
+              </span>
+              {isActive && <Check size={16} aria-hidden="true" className="shrink-0 text-brand-moss" />}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const FAQ: React.FC = () => {
   const { hash } = useLocation();
+  const navigate = useNavigate();
   const [activeId, setActiveId] = useState<string | null>(null);
   // FQ-02 / FQ-03: the active section is tracked by a scroll-spy
   // IntersectionObserver, not derived from the URL hash — `history.replaceState`
@@ -116,21 +229,24 @@ const FAQ: React.FC = () => {
     setActiveId((currentId) => (currentId === faqId ? null : faqId));
   };
 
-  const handleCategoryJump = (event: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    event.preventDefault();
-
+  // Scroll to a category and pin the highlight to it until the smooth scroll
+  // arrives, so the scroll-spy doesn't flash through every category in between.
+  const jumpToCategory = (slug: string) => {
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
       'matchMedia' in window &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Keep the URL shareable.
-    window.history.replaceState(null, '', `#${targetId}`);
-    // Pin the highlight to the clicked category until the smooth scroll
-    // arrives, so the scroll-spy doesn't flash through every category between.
-    setActiveCategoryId(targetId);
-    jumpRef.current = { slug: targetId, deadline: Date.now() + 1500 };
-    scrollToTarget(targetId, prefersReducedMotion ? 'auto' : 'smooth');
+    window.history.replaceState(null, '', `#${slug}`); // keep the URL shareable
+    setActiveCategoryId(slug);
+    jumpRef.current = { slug, deadline: Date.now() + 1500 };
+    scrollToTarget(slug, prefersReducedMotion ? 'auto' : 'smooth');
+  };
+
+  // Desktop sidebar links are real anchors — cancel the native jump first.
+  const handleCategoryJump = (event: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    event.preventDefault();
+    jumpToCategory(targetId);
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, faqId: string) => {
@@ -154,6 +270,42 @@ const FAQ: React.FC = () => {
       event.preventDefault();
       headerRefs.current[FAQS[lastIndex]?.id || '']?.focus();
     }
+  };
+
+  // FQ-09: answers render from an HTML string (dangerouslySetInnerHTML), so
+  // their internal links are plain <a> tags that would otherwise trigger a
+  // full document reload. Delegate clicks here and route same-origin paths
+  // through React Router instead. Modified clicks (open-in-new-tab etc.),
+  // new-tab/download links, external URLs, mailto:/tel:, and in-page hash
+  // jumps are all left to the browser's native behaviour.
+  const handleAnswerNavigation = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    const anchor = (event.target as HTMLElement).closest('a');
+    if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) {
+      return;
+    }
+
+    const url = new URL(anchor.href, window.location.href);
+    if (url.origin !== window.location.origin) {
+      return;
+    }
+    // Pure in-page hash jumps keep their native scroll behaviour.
+    if (url.pathname === window.location.pathname && url.hash) {
+      return;
+    }
+
+    event.preventDefault();
+    navigate(`${url.pathname}${url.search}${url.hash}`);
   };
 
   // Deep-link handling: open and scroll to a question, or scroll to a category.
@@ -282,34 +434,15 @@ const FAQ: React.FC = () => {
           {/* Wrapper establishes the sticky containing block for the category
               nav — it must span the question grid for `sticky` to travel. */}
           <div>
-            {/* FQ-04 / FQ-05 / FQ-B1: category nav for mobile + tablet only
-                (the desktop sidebar takes over on lg+). Sticky so it stays
-                reachable while scrolling, and frosted glass so it reads
-                cleanly once question cards scroll beneath it. */}
-            <nav
-              aria-label="FAQ category jump links"
-              className="glass-strong sticky top-28 z-sticky mb-12 rounded-3xl px-5 py-5 lg:hidden"
-            >
-              <p className="mb-4 text-xs font-bold uppercase tracking-widest text-[#5f594f]">Jump to a section</p>
-              <ul className="no-scrollbar flex gap-3 overflow-x-auto py-1">
-                {groupedFaqs.map(({ category, categoryId }) => (
-                  <li key={categoryId} className="shrink-0">
-                    <a
-                      href={`#${categoryId}`}
-                      onClick={(event) => handleCategoryJump(event, categoryId)}
-                      aria-current={activeCategoryId === categoryId ? 'true' : undefined}
-                      className={`inline-flex items-center whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-4 focus-visible:ring-offset-brand-bg ${
-                        activeCategoryId === categoryId
-                          ? 'border-brand-moss bg-brand-moss text-white'
-                          : 'border-brand-border bg-brand-surface text-brand-dark hover:border-brand-moss hover:text-brand-moss'
-                      }`}
-                    >
-                      {category}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            {/* Mobile + tablet section picker (the desktop sidebar takes over
+                on lg+). A dropdown rather than a chip strip: it reads clearly
+                as a control, shows every section at once without horizontal
+                scrolling, and its closed state doubles as a "you are here"
+                indicator driven by the scroll-spy. Sticky so it stays
+                reachable while scrolling the answers. */}
+            <div className="sticky top-28 z-sticky mb-12 lg:hidden">
+              <SectionPicker sections={ORDERED_CATEGORIES} activeSlug={activeCategoryId} onSelect={jumpToCategory} />
+            </div>
 
             <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 xl:gap-14">
               <aside className="hidden lg:block">
@@ -440,6 +573,9 @@ const FAQ: React.FC = () => {
                                       // `inert` keeps a collapsed answer (and its
                                       // links) out of the tab order and a11y tree.
                                       inert={!isExpanded}
+                                      // FQ-09: keep internal links as SPA
+                                      // navigations rather than full reloads.
+                                      onClick={handleAnswerNavigation}
                                       // Safe: answers are static authored content
                                       // and markdownToHtml escapes HTML + sanitises
                                       // URLs before re-introducing whitelisted tags.
