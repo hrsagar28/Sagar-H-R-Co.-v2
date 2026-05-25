@@ -140,6 +140,8 @@ const SEO: React.FC<SEOProps> = ({
       ? {
           '@context': 'https://schema.org',
           '@type': 'FAQPage',
+          '@id': `${canonicalUrl}#faqpage`,
+          inLanguage: 'en-IN',
           ...(faqPageDateModified ? { dateModified: faqPageDateModified } : {}),
           mainEntity: faqs.map((faq) => ({
             '@type': 'Question',

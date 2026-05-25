@@ -9,7 +9,9 @@ export const FAQ_CATEGORIES = [
 
 export const CATEGORY_ORDER: FAQItem['category'][] = FAQ_CATEGORIES.map(({ label }) => label);
 
-const FAQ_LAST_UPDATED = '2026-04-24';
+// Single source of truth for the FAQ "last reviewed" date. Exported so the
+// FAQ page can reuse it as the schema fallback instead of re-declaring it.
+export const FAQ_LAST_UPDATED = '2026-04-24';
 
 export const FAQS: FAQItem[] = [
   {

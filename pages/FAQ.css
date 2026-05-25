@@ -1,0 +1,65 @@
+/* FAQ answer styling.
+   FQ-08: FAQ answers only ever contain paragraphs and inline links, so they
+   are rendered from the lightweight `markdownToHtml` helper rather than the
+   full ReactMarkdown pipeline. That helper emits class-less HTML, so the
+   element styling lives here instead of as a long arbitrary-variant string.
+   `.faq-answer` is also referenced by the page's `speakable` schema. */
+
+.faq-answer {
+  padding-top: 1.5rem;
+}
+
+.faq-answer p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #746d68; /* brand-stone — AA on the white card surface */
+}
+
+.faq-answer p:last-child {
+  margin-bottom: 0;
+}
+
+.faq-answer a {
+  font-weight: 700;
+  color: #1a4d2e; /* brand-moss */
+  border-bottom: 1px solid rgba(26, 77, 46, 0.4);
+  word-break: break-word;
+  transition: border-color 0.2s ease;
+}
+
+.faq-answer a:hover {
+  border-bottom-color: #1a4d2e;
+}
+
+.faq-answer ul,
+.faq-answer ol {
+  margin: 1rem 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.faq-answer ul {
+  list-style: disc;
+}
+
+.faq-answer ol {
+  list-style: decimal;
+}
+
+.faq-answer li {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #746d68;
+}
+
+@media (min-width: 768px) {
+  .faq-answer p,
+  .faq-answer li {
+    font-size: 1.125rem;
+  }
+}

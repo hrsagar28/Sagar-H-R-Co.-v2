@@ -48,7 +48,7 @@ describe('FAQ', () => {
     });
   });
 
-  it('renders accordion buttons with accessible relationships and toggles their panel', () => {
+  it('renders accordion buttons with accessible relationships and toggles the answer', () => {
     renderFaq();
 
     const questionButton = screen.getByRole('button', {
@@ -60,21 +60,22 @@ describe('FAQ', () => {
 
     const panelId = questionButton.getAttribute('aria-controls');
     expect(panelId).toBeTruthy();
+    expect(document.getElementById(panelId as string)).toBeInTheDocument();
 
-    const panel = document.getElementById(panelId as string);
-    expect(panel).toHaveAttribute('role', 'region');
-    expect(panel).toHaveAttribute('aria-labelledby', questionButton.id);
-    expect(panel).toHaveAttribute('hidden');
+    // The answer is mounted lazily — absent until the card is first opened.
+    expect(document.querySelector('.faq-answer')).not.toBeInTheDocument();
 
     fireEvent.click(questionButton);
 
     expect(questionButton).toHaveAttribute('aria-expanded', 'true');
-    expect(panel).not.toHaveAttribute('hidden');
+    const answer = document.querySelector('.faq-answer');
+    expect(answer).toBeInTheDocument();
+    expect(answer).not.toHaveAttribute('inert');
 
     fireEvent.click(questionButton);
 
     expect(questionButton).toHaveAttribute('aria-expanded', 'false');
-    expect(panel).toHaveAttribute('hidden');
+    expect(document.querySelector('.faq-answer')).toHaveAttribute('inert');
   });
 
   it('renders authored markdown inside answers as rich content', () => {
