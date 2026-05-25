@@ -5,6 +5,16 @@ on:
     branches: ['**']
   pull_request:
 
+# CI only needs to read the repository.
+permissions:
+  contents: read
+
+# A newer push to the same ref cancels an in-progress run, so push + PR on the
+# same branch do not pile up duplicate work.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest

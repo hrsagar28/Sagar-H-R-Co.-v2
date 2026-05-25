@@ -442,34 +442,47 @@ html {
   }
 }
 
-@layer utilities {
-  .zone-bg {
-    background-color: var(--zone-bg);
-  }
-  .zone-surface {
-    background-color: var(--zone-surface);
-  }
-  .zone-text {
-    color: rgb(var(--zone-text-rgb) / 1);
-  }
-  .zone-text-muted {
-    color: rgb(var(--zone-text-muted-rgb) / 1);
-  }
-  .zone-accent {
-    color: rgb(var(--zone-accent-rgb) / 1);
-  }
-  .zone-accent-alt {
-    color: var(--zone-accent-alt);
-  }
-  .zone-border {
-    border-color: var(--zone-hairline);
-  }
-  .zone-hairline {
-    background-color: var(--zone-hairline);
-  }
-  .text-balance {
-    text-wrap: balance;
-  }
+/* ---- Global zone + text utilities ------------------------------------ */
+/* PLAIN top-level CSS, deliberately NOT wrapped in `@layer utilities`.
+   Tailwind tree-shakes the utilities layer against the content list of the
+   config active for a stylesheet, and index.css uses the narrow
+   `tailwind.home.config.ts`. A class defined in `@layer utilities` here is
+   therefore purged on any route the home config does not scan — it would
+   render unstyled with no error (this is the bug that made the FAQ dropdown
+   lose its background). Plain CSS is never purged, so these resolve on every
+   route — the same reason `.bg-grid`, `.bg-noise` and the `.glass*` surfaces
+   above are plain CSS. Do not move these back inside `@layer utilities`.
+   See IMPROVEMENT-PLAN.md, Item 3.
+
+   Note: `.text-balance` duplicates Tailwind 3.4's built-in `text-balance`
+   utility — kept here for now so it is never purged; a candidate for removal
+   in IMPROVEMENT-PLAN.md Item 5 (drift cleanup). */
+.zone-bg {
+  background-color: var(--zone-bg);
+}
+.zone-surface {
+  background-color: var(--zone-surface);
+}
+.zone-text {
+  color: rgb(var(--zone-text-rgb) / 1);
+}
+.zone-text-muted {
+  color: rgb(var(--zone-text-muted-rgb) / 1);
+}
+.zone-accent {
+  color: rgb(var(--zone-accent-rgb) / 1);
+}
+.zone-accent-alt {
+  color: var(--zone-accent-alt);
+}
+.zone-border {
+  border-color: var(--zone-hairline);
+}
+.zone-hairline {
+  background-color: var(--zone-hairline);
+}
+.text-balance {
+  text-wrap: balance;
 }
 
 /* ---- ChaosToOrder section --------------------------------------------- */
