@@ -7,6 +7,7 @@ import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
 import { CAREERS_APPLY_URL, OPEN_ROLES } from '../constants/careers';
 import { useAnnounce } from '../hooks';
+import { staggerDelay } from '../utils/stagger';
 import './route-styles.css';
 import '../components/hero/PageHero.css';
 
@@ -128,7 +129,7 @@ const Careers = (): React.JSX.Element => {
 
                 <ul aria-labelledby="open-positions-heading" className="space-y-6">
                   {OPEN_ROLES.map((job, i) => (
-                    <Reveal key={job.id} width="100%" delay={Math.min(i * 0.06, 0.3)}>
+                    <Reveal key={job.id} width="100%" delay={staggerDelay(i)}>
                       <li
                         id={job.id}
                         className="group relative overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-10 transition-[border-color,box-shadow] duration-300 focus-within:border-brand-moss focus-within:shadow-xl hover:border-brand-moss hover:shadow-xl"

@@ -68,9 +68,11 @@ export default tseslint.config(
       //      carry an eslint-disable-next-line (the comment is already
       //      in place from CQ-06; add the suppression line when flipping).
       //   5. 'react-hooks/set-state-in-effect' — last because
-      //      `components/Reveal.tsx`'s IntersectionObserver callback is
-      //      already annotated with eslint-disable-next-line (CQ-03), but
-      //      similar IO bridges elsewhere may need the same treatment.
+      //      `components/Reveal.tsx`'s IntersectionObserver callback sets
+      //      state from an effect. (MNT-2: there is currently NO
+      //      eslint-disable in Reveal.tsx — an earlier version of this note
+      //      wrongly claimed one existed. When promoting this rule, add the
+      //      suppression or refactor the IO bridges then.)
       //
       // Once all five are 'error', delete this block and rely on
       // `eslint-plugin-react-hooks`'s default error level.

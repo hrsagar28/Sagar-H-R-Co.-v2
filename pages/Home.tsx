@@ -62,6 +62,9 @@ const HOME_SCHEMA = {
         '@type': 'PostalAddress',
         streetAddress: CONTACT_INFO.address.street,
         addressLocality: CONTACT_INFO.address.city,
+        // SEO-7: include addressRegion so the home schema matches the About
+        // schema on the same @id (previously omitted here).
+        addressRegion: CONTACT_INFO.address.state,
         postalCode: CONTACT_INFO.address.zip,
         addressCountry: 'IN',
       },

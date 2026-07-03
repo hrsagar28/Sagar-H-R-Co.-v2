@@ -8,7 +8,12 @@ export * from './navigation';
 export * from './services';
 export * from './servicesSchema';
 export * from './industries';
-export * from './insights';
 export * from './faq';
 export * from './resources';
-export * from './contact';
+// MNT-5: point straight at the source of truth (was a one-line re-export in
+// constants/contact.ts, now deleted).
+export * from '../config/contact';
+// MNT-7: previously omitted from the barrel despite living in this directory.
+export * from './careers';
+export * from './serviceHeroMeta';
+export * from './taxConfig';

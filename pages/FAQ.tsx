@@ -9,7 +9,8 @@ import { markdownToHtml } from '../utils/markdownToHtml';
 import { SITE_URL } from '../config/site';
 import './route-styles.css';
 import '../components/hero/PageHero.css';
-import './FAQ.css';
+// UX-1 / PERF-1: `.faq-answer` styling now lives globally in index.css so the
+// home-page FAQ preview shares one source of truth (was pages/FAQ.css).
 
 const FAQ_CANONICAL_URL = `${SITE_URL}/faqs`;
 const FAQ_OG_IMAGE = `${SITE_URL}/og-faq.png`;

@@ -357,11 +357,12 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, className
       {/*
         Desktop: sticky flex-col pane that holds the header at the top and
         fills the remaining height with the horizontally-scrolling cards.
-        Using `h-[100vh] h-[100dvh]` avoids iOS Safari's
-        bottom URL bar eating into the sticky region.
+        UX-6: uses the repo's `.h-screen-safe` (vh with a dvh @supports
+        override) so iOS Safari's bottom URL bar doesn't eat the sticky region
+        — the correctly-ordered fallback, replacing an ad-hoc `h-[100dvh] h-[100vh]`.
         Mobile: no sticky — content flows normally; header sits above cards.
       */}
-      <div className={`${isDisabled ? '' : 'sticky top-0 h-[100dvh] h-[100vh]'} flex flex-col overflow-hidden`}>
+      <div className={`${isDisabled ? '' : 'h-screen-safe sticky top-0'} flex flex-col overflow-hidden`}>
         {header && <div className="w-full shrink-0">{header}</div>}
 
         {/* Cards viewport — this is the positioning context for arrows,

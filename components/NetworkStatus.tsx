@@ -20,8 +20,13 @@ const NetworkStatus: React.FC = () => {
   if (isOnline) return null;
 
   return (
-    <div className="fixed left-0 right-0 top-0 z-network-status flex animate-fade-in-up items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-center text-sm font-bold text-white shadow-md">
-      <WifiOff size={16} />
+    <div
+      // UX-7: announce the offline state to assistive tech (was visual-only).
+      role="status"
+      aria-live="polite"
+      className="fixed left-0 right-0 top-0 z-network-status flex animate-fade-in-up items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-center text-sm font-bold text-white shadow-md"
+    >
+      <WifiOff size={16} aria-hidden="true" />
       You are currently offline. Some features may be unavailable.
     </div>
   );

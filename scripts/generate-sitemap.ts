@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 import { SERVICES } from '../constants/services.tsx';
 import { CHECKLIST_DATA } from '../constants/resources.ts';
-import type { InsightItem } from '../types.ts';
+import type { InsightItem } from '../types/index.ts';
 import { getLeadingH1Warning } from '../utils/insightValidation.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -36,7 +36,9 @@ const getPublicInsights = (): InsightItem[] => {
 
 const getContentLastmod = (relativePath: string): string => {
   try {
-    const result = execSync(`git log -1 --format=%cs -- "${relativePath}"`, {
+    // SEC-6: execFileSync passes the path as a discrete argv entry (no shell),
+    // so a malicious/typo'd insight slug can't inject a build-time command.
+    const result = execFileSync('git', ['log', '-1', '--format=%cs', '--', relativePath], {
       cwd: repoRoot,
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'ignore'],

@@ -70,15 +70,19 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
-/* ---- Liquid glass surfaces ------------------------------------------- */
-/* The iOS 26 / Android 16 "liquid glass" idiom: a tinted, saturated
-   backdrop blur with a 1px top-edge highlight that catches light.
-   Two light flavours (.glass, .glass-strong) carry dark text; .glass-dark
-   carries light text over rich/dark backgrounds.
+/* ---- Frosted glass surfaces ------------------------------------------ */
+/* A frosted backdrop blur: a milky, matte tint that diffuses the colours
+   behind rather than amplifying them. Two light flavours (.glass,
+   .glass-strong) carry dark text; .glass-dark carries light text over
+   rich/dark backgrounds.
+
+   Saturation is held near 100% (a frosted pane scatters light, it does
+   not make colour pop) and the top-edge highlight is only a whisper —
+   the glossy "liquid glass" sheen is deliberately avoided.
 
    Each base rule below is an OPAQUE-ENOUGH fallback: on browsers (or GPUs)
    without backdrop-filter, the tint alone keeps text contrast safe. The
-   @supports block then layers on the real glass. backdrop-filter is
+   @supports block then layers on the real frosted blur. backdrop-filter is
    deliberately kept OUT of every transition list at the call sites —
    animating the blur radius is the expensive, janky path; tint, border
    and shadow animate instead. */
@@ -97,29 +101,29 @@
 
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {
-    background-color: rgba(255, 255, 255, 0.55);
-    -webkit-backdrop-filter: blur(16px) saturate(185%);
-    backdrop-filter: blur(16px) saturate(185%);
-    border-color: rgba(255, 255, 255, 0.62);
+    background-color: rgba(255, 255, 255, 0.66);
+    -webkit-backdrop-filter: blur(20px) saturate(105%);
+    backdrop-filter: blur(20px) saturate(105%);
+    border-color: rgba(255, 255, 255, 0.45);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.75),
-      0 10px 30px rgba(17, 17, 17, 0.06);
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 10px 30px rgba(17, 17, 17, 0.08);
   }
   .glass-strong {
-    background-color: rgba(255, 255, 255, 0.7);
-    -webkit-backdrop-filter: blur(22px) saturate(195%);
-    backdrop-filter: blur(22px) saturate(195%);
-    border-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter: blur(26px) saturate(105%);
+    backdrop-filter: blur(26px) saturate(105%);
+    border-color: rgba(255, 255, 255, 0.5);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
       0 12px 34px rgba(17, 17, 17, 0.1);
   }
   .glass-dark {
-    background-color: rgba(10, 9, 8, 0.28);
-    -webkit-backdrop-filter: blur(12px) saturate(170%);
-    backdrop-filter: blur(12px) saturate(170%);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    background-color: rgba(10, 9, 8, 0.42);
+    -webkit-backdrop-filter: blur(16px) saturate(108%);
+    backdrop-filter: blur(16px) saturate(108%);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -393,8 +397,9 @@ html {
     --zone-surface: #ffffff;
     --zone-text: #111111;
     --zone-text-rgb: 17 17 17;
-    --zone-text-muted: #78716c;
-    --zone-text-muted-rgb: 120 113 108;
+    /* A11Y-1: darkened from #78716c (~4.3:1) to meet WCAG AA (~5:1 on #f2f2f0). */
+    --zone-text-muted: #6b645f;
+    --zone-text-muted-rgb: 107 100 95;
     --zone-accent: #1a4d2e; /* moss */
     --zone-accent-rgb: 26 77 46;
     --zone-accent-alt: #8b3a2f; /* rust as secondary */
@@ -421,8 +426,9 @@ html {
     --zone-surface: #eae5d9;
     --zone-text: #0a0908;
     --zone-text-rgb: 10 9 8;
-    --zone-text-muted: #7a7366;
-    --zone-text-muted-rgb: 122 115 102;
+    /* A11Y-1: darkened from #7a7366 (~4.2:1) to meet WCAG AA (~5:1 on #f4f1ea). */
+    --zone-text-muted: #6d6559;
+    --zone-text-muted-rgb: 109 101 89;
     --zone-accent: #8b3a2f; /* rust dominates on paper */
     --zone-accent-rgb: 139 58 47;
     --zone-accent-alt: #b8924c;
@@ -483,6 +489,65 @@ html {
 }
 .text-balance {
   text-wrap: balance;
+}
+
+/* ---- FAQ answer styling (global) -------------------------------------- */
+/* UX-1 / PERF-1: FAQ answers render from the lightweight `markdownToHtml`
+   helper (class-less HTML) on BOTH the /faqs page and the home-page
+   `FAQPreview`. Previously these rules lived in `pages/FAQ.css` (route bundle
+   only), so the home preview — which the home Tailwind config scans — had no
+   list/typography styling and ordered lists rendered without numbers on a
+   fresh landing. Kept as PLAIN top-level CSS here so it is never purged and
+   resolves on every route. `.faq-answer` is also referenced by the FAQ page's
+   `speakable` schema. */
+.faq-answer {
+  padding-top: 1.5rem;
+}
+.faq-answer p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #746d68; /* brand-stone — AA on the white card surface */
+}
+.faq-answer p:last-child {
+  margin-bottom: 0;
+}
+.faq-answer a {
+  font-weight: 700;
+  color: #1a4d2e; /* brand-moss */
+  border-bottom: 1px solid rgba(26, 77, 46, 0.4);
+  word-break: break-word;
+  transition: border-color 0.2s ease;
+}
+.faq-answer a:hover {
+  border-bottom-color: #1a4d2e;
+}
+.faq-answer ul,
+.faq-answer ol {
+  margin: 1rem 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.faq-answer ul {
+  list-style: disc;
+}
+.faq-answer ol {
+  list-style: decimal;
+}
+.faq-answer li {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #746d68;
+}
+@media (min-width: 768px) {
+  .faq-answer p,
+  .faq-answer li {
+    font-size: 1.125rem;
+  }
 }
 
 /* ---- ChaosToOrder section --------------------------------------------- */

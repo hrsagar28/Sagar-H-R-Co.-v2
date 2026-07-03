@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { logger } from '../utils/logger';
 import { getLeadingH1Warning } from '../utils/insightValidation';
+import { getBaseUrl } from '../utils/baseUrl';
 
 const getArticleBodyUrl = (slug: string) => {
-  const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
+  const baseUrl = getBaseUrl();
   const path = `content/insights/${slug}.md`;
   if (typeof window === 'undefined') return `${baseUrl.replace(/\/$/, '')}/${path}`;
   return new URL(path, new URL(baseUrl, window.location.origin)).toString();

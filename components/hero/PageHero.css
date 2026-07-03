@@ -21,16 +21,20 @@
   background: var(--zone-accent);
 }
 
+/* UX-5: these referenced `var(--brand-*)` custom properties that are defined
+   nowhere (the brand palette lives in Tailwind's theme, not as CSS variables),
+   so the fills rendered transparent. Use the literal brand hex values that
+   match tailwind.config.ts. */
 .hero-ledger-cta-moss::after {
-  background: var(--brand-moss);
+  background: #1a4d2e; /* brand-moss */
 }
 
 .hero-ledger-cta-brass::after {
-  background: var(--brand-brass);
+  background: #b8924c; /* brand-brass */
 }
 
 .hero-ledger-cta-rust::after {
-  background: var(--brand-rust);
+  background: #8b3a2f; /* brand-rust */
 }
 
 .hero-ledger-cta:hover .relative.z-10 {
@@ -40,7 +44,7 @@
 .hero-ledger-cta-moss:hover .relative.z-10,
 .hero-ledger-cta-brass:hover .relative.z-10,
 .hero-ledger-cta-rust:hover .relative.z-10 {
-  color: var(--brand-surface) !important;
+  color: #ffffff !important; /* brand-surface */
 }
 
 .archive-item {
@@ -64,8 +68,8 @@
 
 [data-zone='editorial'] #frontispiece-section,
 [data-zone='editorial-paper'] #frontispiece-section {
-  background-color: var(--brand-rust);
-  color: var(--brand-paper);
+  background-color: #8b3a2f; /* brand-rust */
+  color: #f4f1ea; /* brand-paper */
 }
 
 .hero-directory-contact:hover .hover-zone-accent {

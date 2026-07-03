@@ -54,20 +54,30 @@ async function fetchWithRetry(url: string, options: RequestInit, config: ApiConf
       clearTimeout(id);
 
       if (!response.ok) {
+        // Surface the function's JSON `{ error }` body when present so callers
+        // can show an honest, status-specific message (CF-6).
+        let serverMessage = '';
+        try {
+          const data = await response.clone().json();
+          if (data && typeof data.error === 'string') serverMessage = data.error;
+        } catch {
+          // Non-JSON error body — fall back to a generic message.
+        }
+
         // Handle HTTP errors
         if (response.status === 429) {
-          throw new ApiError('Too many requests. Please try again later.', 429, 'RATE_LIMIT');
+          throw new ApiError(serverMessage || 'Too many requests. Please try again later.', 429, 'RATE_LIMIT');
         }
         if (response.status >= 500) {
           throw new ApiError(
-            `Server error (${response.status}). Our team has been notified.`,
+            serverMessage || `Server error (${response.status}). Our team has been notified.`,
             response.status,
             'SERVER_ERROR',
           );
         }
         // Client errors (4xx)
         throw new ApiError(
-          `Request failed (${response.status}): ${response.statusText}`,
+          serverMessage || `Request failed (${response.status}): ${response.statusText}`,
           response.status,
           'CLIENT_ERROR',
         );
@@ -80,11 +90,13 @@ async function fetchWithRetry(url: string, options: RequestInit, config: ApiConf
 
       const isAbort = error instanceof DOMException && error.name === 'AbortError';
       const isNetwork = error instanceof TypeError; // fetch network errors
-      const isServerError = error instanceof ApiError && error.code === 'SERVER_ERROR';
-      const isRateLimit = error instanceof ApiError && error.code === 'RATE_LIMIT';
 
-      // Decide whether to retry
-      const shouldRetry = (isNetwork || isServerError || isRateLimit || isAbort) && attempt <= (retries || 0);
+      // CF-2: only retry genuine connection failures, where the request almost
+      // certainly never reached the server. We deliberately do NOT retry:
+      //   - 429 (retrying just burns the daily rate-limit bucket → 24h lockout);
+      //   - timeouts/aborts (the request may have been delivered → duplicate email);
+      //   - 5xx (the function returns an honest status we should show immediately).
+      const shouldRetry = isNetwork && attempt <= (retries || 0);
 
       if (!shouldRetry) {
         if (isAbort) throw new ApiError('Request timed out. Please try again.', 408, 'TIMEOUT');

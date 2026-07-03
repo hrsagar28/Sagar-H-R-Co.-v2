@@ -1,11 +1,23 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import './route-styles.css';
 
 const Disclaimer: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-bg px-4 pb-20 pt-32 md:px-6 md:pt-40">
+      {/* SEO-3: legal pages previously rendered no metadata despite being in
+          the sitemap. */}
+      <SEO
+        title="Disclaimer | Sagar H R & Co."
+        description="Important disclaimers regarding the professional information published on the Sagar H R & Co. website. Content is general in nature and not a substitute for professional advice."
+        canonicalUrl="https://casagar.co.in/disclaimer"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Disclaimer', url: '/disclaimer' },
+        ]}
+      />
       <div className="container mx-auto max-w-4xl">
         {/* Back Link */}
         <div className="mb-12">

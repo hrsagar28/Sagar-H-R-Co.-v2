@@ -8,6 +8,7 @@ import { useAnnounce, useInsights } from '../hooks';
 import Skeleton from '../components/Skeleton';
 import { formatArchiveDate } from '../utils/formatArchiveDate';
 import { formatLongDate, toISODate } from '../utils/insightDates';
+import { staggerDelay } from '../utils/stagger';
 import { normalizeSearch } from '../utils/normalizeSearch';
 import { SITE_URL } from '../config/site';
 import './route-styles.css';
@@ -307,7 +308,7 @@ const Insights: React.FC = () => {
                       const serviceLink =
                         SERVICE_LINKS[insight.category] || SERVICE_LINKS[getCanonicalCategory(insight.category)];
                       return (
-                        <Reveal key={insight.slug} width="100%" delay={Math.min(i * 0.06, 0.3)}>
+                        <Reveal key={insight.slug} width="100%" delay={staggerDelay(i)}>
                           <article className="group relative flex flex-col items-start gap-8 overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-xl motion-reduce:hover:shadow-none md:flex-row md:gap-12 md:p-12">
                             <div className="absolute inset-0 bg-brand-moss/0 transition-colors group-hover:bg-brand-moss/[0.02]" />
 

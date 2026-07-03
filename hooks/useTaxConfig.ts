@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { TaxConfig } from '../components/TaxCalculator/types';
 import { logger } from '../utils/logger';
 import { apiClient, ApiError } from '../utils/api';
+import { getBaseUrl } from '../utils/baseUrl';
 
 export const useTaxConfig = () => {
   const [config, setConfig] = useState<TaxConfig | null>(null);
@@ -12,7 +13,7 @@ export const useTaxConfig = () => {
     let isMounted = true;
 
     const fetchConfig = async () => {
-      const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
+      const baseUrl = getBaseUrl();
       const url = `${baseUrl}data/tax-config.json`.replace('//', '/');
 
       try {

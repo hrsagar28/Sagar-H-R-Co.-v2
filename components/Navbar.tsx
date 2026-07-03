@@ -96,7 +96,10 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   }, [isOpen]);
 
   return (
-    <nav
+    // A11Y-5: this is a positioning wrapper, not a landmark. Demoted from <nav>
+    // to <div> so it no longer creates a second, unnamed navigation landmark
+    // around the named "Primary Navigation" nav below.
+    <div
       className={`pointer-events-none fixed left-0 top-4 z-fixed flex w-full justify-center px-2 md:top-6 md:px-4 ${className}`}
     >
       <div
@@ -205,9 +208,12 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         <div
           ref={menuRef}
           id="mobile-menu"
-          role="dialog"
-          aria-modal="true"
+          // A11Y-5: only present as a modal dialog while actually open; when
+          // closed it's inert and makes no dialog/modal claim.
+          role={isOpen ? 'dialog' : undefined}
+          aria-modal={isOpen ? true : undefined}
           aria-label="Mobile Navigation"
+          inert={!isOpen}
           onTouchStart={(e) => {
             const touch = e.touches[0];
             if (!touch) return;
@@ -274,7 +280,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         className={`fixed inset-0 -z-10 bg-black/20 backdrop-blur-sm transition-opacity duration-500 lg:hidden ${isOpen ? 'visible opacity-100' : 'pointer-events-none invisible opacity-0'}`}
         onClick={() => setIsOpen(false)}
       />
-    </nav>
+    </div>
   );
 };
 

@@ -13,6 +13,7 @@
     "sitemap": "tsx scripts/generate-sitemap.ts",
     "lint:schema": "tsx scripts/validate-services-schema.ts",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "prepare": "husky",
     "preview": "vite preview",

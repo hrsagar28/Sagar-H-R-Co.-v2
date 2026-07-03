@@ -1,6 +1,7 @@
 import React from 'react';
 import { BookOpen, ShieldCheck, Target, TrendingUp } from 'lucide-react';
 import Reveal from '../../components/Reveal';
+import { staggerDelay } from '../../utils/stagger';
 
 const values = [
   {
@@ -49,7 +50,7 @@ export const Values: React.FC = () => (
         <ul role="list" className="zone-border grid grid-cols-1 gap-12 border-t pt-12 md:w-2/3 md:grid-cols-2">
           {values.map(({ icon: Icon, title, body }, i) => (
             <li key={title}>
-              <Reveal width="100%" delay={Math.min(i * 0.06, 0.3)}>
+              <Reveal width="100%" delay={staggerDelay(i)}>
                 <h3 className="zone-text mb-4 flex items-center gap-3 text-xl font-bold">
                   <Icon className="text-zone-accent" aria-hidden="true" focusable="false" /> {title}
                 </h3>

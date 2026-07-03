@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
@@ -16,6 +16,13 @@ const Toast: React.FC<ToastProps> = ({ id, message, variant, duration = 5000, on
   const [isVisible, setIsVisible] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
+  // UX-3 / WCAG 2.2.1: the auto-dismiss timer pauses while the toast is hovered
+  // or keyboard-focused, so error toasts carrying recovery steps can be read at
+  // the user's pace. We track remaining time rather than restarting from full.
+  const dismissTimer = useRef<number | undefined>(undefined);
+  const remainingRef = useRef(duration);
+  const startedAtRef = useRef(0);
+
   const handleClose = useCallback(() => {
     setIsVisible(false);
     // Wait for exit animation to finish before removing from DOM
@@ -24,16 +31,41 @@ const Toast: React.FC<ToastProps> = ({ id, message, variant, duration = 5000, on
     }, 300);
   }, [id, onClose]);
 
+  const clearDismissTimer = useCallback(() => {
+    if (dismissTimer.current !== undefined) {
+      window.clearTimeout(dismissTimer.current);
+      dismissTimer.current = undefined;
+    }
+  }, []);
+
+  const startDismissTimer = useCallback(
+    (ms: number) => {
+      clearDismissTimer();
+      startedAtRef.current = Date.now();
+      remainingRef.current = ms;
+      dismissTimer.current = window.setTimeout(handleClose, ms);
+    },
+    [clearDismissTimer, handleClose],
+  );
+
+  const pauseDismissTimer = useCallback(() => {
+    if (dismissTimer.current === undefined) return;
+    clearDismissTimer();
+    remainingRef.current = Math.max(0, remainingRef.current - (Date.now() - startedAtRef.current));
+  }, [clearDismissTimer]);
+
+  const resumeDismissTimer = useCallback(() => {
+    if (dismissTimer.current !== undefined) return;
+    startDismissTimer(remainingRef.current > 0 ? remainingRef.current : duration);
+  }, [duration, startDismissTimer]);
+
   useEffect(() => {
     // Trigger entry animation
     requestAnimationFrame(() => setIsVisible(true));
 
-    const timer = setTimeout(() => {
-      handleClose();
-    }, duration);
-
-    return () => clearTimeout(timer);
-  }, [duration, handleClose]);
+    startDismissTimer(duration);
+    return () => clearDismissTimer();
+  }, [duration, startDismissTimer, clearDismissTimer]);
 
   const getIcon = () => {
     switch (variant) {
@@ -70,20 +102,25 @@ const Toast: React.FC<ToastProps> = ({ id, message, variant, duration = 5000, on
     : isVisible
       ? 'translate-x-0 opacity-100'
       : 'translate-x-full opacity-0';
-  const isUrgent = variant === 'error' || variant === 'warning';
 
   return (
+    // A11Y-4: the toast is presentational; the message is announced once via the
+    // persistent live region (see ToastContainer), so no role/aria-live here to
+    // avoid double announcements.
     <div
       className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border p-4 shadow-xl backdrop-blur-md transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${getStyles()} ${animationClass} `}
-      role={isUrgent ? 'alert' : 'status'}
-      aria-live={isUrgent ? 'assertive' : 'polite'}
+      onMouseEnter={pauseDismissTimer}
+      onMouseLeave={resumeDismissTimer}
+      onFocus={pauseDismissTimer}
+      onBlur={resumeDismissTimer}
     >
       <div className="mt-0.5 shrink-0">{getIcon()}</div>
       <p className="flex-1 text-sm font-medium leading-relaxed">{message}</p>
+      {/* A11Y-4: 44px touch target (was a bare 16px icon). */}
       <button
         onClick={handleClose}
-        className="shrink-0 text-gray-400 transition-colors hover:text-gray-600"
-        aria-label="Close"
+        className="-mr-1 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+        aria-label="Close notification"
       >
         <X size={16} />
       </button>

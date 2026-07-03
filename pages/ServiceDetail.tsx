@@ -8,6 +8,7 @@ import { PageHero } from '../components/hero';
 import { SERVICE_HERO_META } from '../constants/serviceHeroMeta';
 import NotFound from './NotFound';
 import Reveal from '../components/Reveal';
+import { staggerDelay } from '../utils/stagger';
 import './route-styles.css';
 import '../components/hero/PageHero.css';
 
@@ -93,7 +94,7 @@ const ServiceDetail: React.FC = () => {
             </Reveal>
             <div className="grid gap-6 print:grid-cols-1 print:gap-4">
               {service.features.map((feature, idx) => (
-                <Reveal key={feature.title} width="100%" delay={Math.min(idx * 0.06, 0.3)}>
+                <Reveal key={feature.title} width="100%" delay={staggerDelay(idx)}>
                   <div className="group relative break-inside-avoid overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 shadow-sm transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-xl md:p-10 print:rounded-lg print:border-black print:p-4 print:shadow-none">
                     <div className="absolute right-0 top-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-brand-moss/5 transition-transform duration-700 group-hover:scale-150 print:hidden"></div>
 

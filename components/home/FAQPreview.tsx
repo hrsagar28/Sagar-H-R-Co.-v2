@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { FAQS } from '../../constants/faq';
 import Reveal from '../Reveal';
-import MarkdownRenderer from '../MarkdownRenderer';
+// UX-1 / PERF-1: FAQ answers only use paragraphs, inline links and simple
+// lists, so they render through the lightweight `markdownToHtml` helper (which
+// escapes HTML and sanitises URLs) instead of pulling the full markdown-vendor
+// chunk (react-markdown/remark/rehype) onto the home route. This also fixes the
+// purge footgun where list/typography classes were tree-shaken out of the home
+// bundle, so ordered lists rendered without numbers on a fresh landing.
+import { markdownToHtml } from '../../utils/markdownToHtml';
 
 /** How many FAQs the home page preview shows. */
 const HOME_FAQS_COUNT = 3;
@@ -34,6 +40,9 @@ const HOME_FAQS = (() => {
   return [...featured, ...fallback].slice(0, HOME_FAQS_COUNT);
 })();
 
+// Pre-render each shown answer once at module scope (answers are static).
+const HOME_FAQ_ANSWER_HTML = new Map(HOME_FAQS.map((faq) => [faq.id, markdownToHtml(faq.answer)]));
+
 interface FAQPreviewItemProps {
   faq: (typeof FAQS)[number];
   index: number;
@@ -43,6 +52,7 @@ interface FAQPreviewItemProps {
 
 const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onToggle }) => {
   'use memo';
+  const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const cachedHeight = useRef<number | null>(null);
@@ -126,6 +136,31 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
     panelRef.current.style.height = 'auto';
   };
 
+  // Answers render from an HTML string (dangerouslySetInnerHTML), so internal
+  // links are plain <a> tags. Route same-origin clicks through React Router to
+  // avoid a full document reload; leave modified/new-tab/external links native.
+  const handleAnswerNavigation = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    const anchor = (event.target as HTMLElement).closest('a');
+    if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+
+    const url = new URL(anchor.href, window.location.href);
+    if (url.origin !== window.location.origin) return;
+    if (url.pathname === window.location.pathname && url.hash) return;
+
+    event.preventDefault();
+    navigate(`${url.pathname}${url.search}${url.hash}`);
+  };
+
   return (
     <Reveal delay={index * 0.1} width="100%">
       <div
@@ -193,12 +228,16 @@ const FAQPreviewItem: React.FC<FAQPreviewItemProps> = ({ faq, index, isOpen, onT
           <div ref={contentRef} className="px-6 pb-8 pt-0 md:px-8">
             <div className="border-l-2 border-brand-moss/20 pl-14">
               {/* FAQ answers carry inline markdown links like
-                  `[Resources](/resources)`. Rendering them as plain text
-                  was a bug — users saw the literal `[text](url)` syntax
-                  and the links didn't work. Routing through
-                  MarkdownRenderer reuses the same anchor styling and
-                  external-link handling the /faqs page already uses. */}
-              <MarkdownRenderer content={faq.answer} className="text-lg font-medium leading-relaxed text-brand-stone" />
+                  `[Resources](/resources)` and simple lists. `.faq-answer`
+                  (global, in index.css) styles the class-less HTML that
+                  `markdownToHtml` emits — the same source used by /faqs. */}
+              <div
+                className="faq-answer"
+                onClick={handleAnswerNavigation}
+                // Safe: answers are static authored content and markdownToHtml
+                // escapes HTML + sanitises URLs before re-introducing tags.
+                dangerouslySetInnerHTML={{ __html: HOME_FAQ_ANSWER_HTML.get(faq.id) ?? '' }}
+              />
             </div>
           </div>
         </div>

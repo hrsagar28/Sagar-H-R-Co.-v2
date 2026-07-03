@@ -11,6 +11,7 @@ import InsightDetailSkeleton from '../components/skeletons/InsightDetailSkeleton
 import { formatArchiveDate } from '../utils/formatArchiveDate';
 import { formatLongDate, toISODate } from '../utils/insightDates';
 import { extractMarkdownHeadings } from '../utils/markdownHeadings';
+import { staggerDelay } from '../utils/stagger';
 import { SITE_URL } from '../config/site';
 import Reveal from '../components/Reveal';
 import './route-styles.css';
@@ -469,8 +470,11 @@ const InsightDetail: React.FC = () => {
             </div>
           </aside>
 
-          {/* Main Content */}
-          <main id="main-content" aria-labelledby={articleTitleId} className="lg:col-span-8">
+          {/* Main Content — SEO-6: a labelled <section>, not a second
+              <main id="main-content">. The site-wide <main> lives in App.tsx;
+              duplicating the id/landmark here was invalid HTML and confused the
+              skip link and route-change focus. */}
+          <section aria-labelledby={articleTitleId} className="lg:col-span-8">
             <article className="motion-safe:animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               {/* Using New Markdown Renderer */}
               {bodyLoading && <BodySkeleton />}
@@ -553,7 +557,7 @@ const InsightDetail: React.FC = () => {
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   {relatedInsights.map((item, index) => (
-                    <Reveal key={item.id} width="100%" delay={Math.min(index * 0.06, 0.3)}>
+                    <Reveal key={item.id} width="100%" delay={staggerDelay(index)}>
                       <Link
                         to={`/insights/${item.slug}`}
                         aria-label={item.title}
@@ -577,7 +581,7 @@ const InsightDetail: React.FC = () => {
                 </div>
               </section>
             )}
-          </main>
+          </section>
 
           <aside className="print-hidden hidden lg:col-span-2 lg:block" aria-label="Table of contents">
             {articleHeadings.length > 0 && (

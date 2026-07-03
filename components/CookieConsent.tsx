@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { useFocusTrap, useReturnFocus } from '../hooks';
 
 /**
  * Append the Google Tag Manager script and bootstrap `gtag` / `dataLayer`.
@@ -33,7 +32,6 @@ const loadGoogleAnalytics = () => {
 const CookieConsent: React.FC = () => {
   'use memo';
   const [isVisible, setIsVisible] = useState(false);
-  const dialogRef = useRef<HTMLDivElement>(null);
 
   // Audit K-01: handlers are declared BEFORE the hooks that consume them.
   // Previously `useFocusTrap(isVisible, dialogRef, handleDecline)` was
@@ -84,9 +82,10 @@ const CookieConsent: React.FC = () => {
     }
   }, []);
 
-  useReturnFocus(isVisible);
-  useFocusTrap(isVisible, dialogRef, handleDecline);
-
+  // A11Y-3: the banner is a NON-modal notice — the rest of the page stays
+  // usable — so we no longer trap focus or grab it on mount (which yanked
+  // keyboard/SR users off the skip link). Escape still dismisses it as a
+  // convenience while it is visible.
   useEffect(() => {
     if (!isVisible) return;
 
@@ -101,11 +100,11 @@ const CookieConsent: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[1200] animate-fade-in-up p-3 md:p-6 print:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-consent animate-fade-in-up p-3 md:p-6 print:hidden">
+      {/* A11Y-3: a labelled region, not a modal dialog — the page behind it is
+          still fully operable, so aria-modal/role=dialog would misrepresent it. */}
       <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
+        role="region"
         aria-labelledby="cc-title"
         aria-describedby="cc-desc"
         className="relative mx-auto flex max-w-7xl flex-col items-stretch justify-between gap-3 overflow-hidden rounded-xl border border-brand-border bg-brand-surface p-4 shadow-2xl md:flex-row md:items-center md:gap-6 md:rounded-2xl md:p-6"
@@ -121,20 +120,6 @@ const CookieConsent: React.FC = () => {
           <h2 id="cc-title" className="mb-2 font-heading text-lg font-bold text-brand-dark">
             We value your privacy
           </h2>
-          <div className="mb-2 flex shrink-0 items-center gap-2 md:hidden">
-            <button
-              onClick={handleDecline}
-              className="flex-1 rounded-xl border border-brand-border px-4 py-3 text-sm font-bold text-brand-dark transition-colors hover:bg-brand-bg"
-            >
-              Decline
-            </button>
-            <button
-              onClick={handleAccept}
-              className="flex-1 rounded-xl bg-brand-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand-dark/10 transition-colors hover:bg-brand-brass"
-            >
-              Accept All
-            </button>
-          </div>
           {/* Audit K-04: the mobile "Details" toggle expanded the paragraph
               but didn't reveal new information — the line clamp was the
               only thing it removed. Replaced with a real "Privacy Policy"
@@ -151,6 +136,22 @@ const CookieConsent: React.FC = () => {
               Privacy policy
             </Link>
           </p>
+          {/* A11Y-3: on mobile the action buttons now follow the consent text
+              they act on (DOM + reading order), not precede it. */}
+          <div className="mt-3 flex shrink-0 items-center gap-2 md:hidden">
+            <button
+              onClick={handleDecline}
+              className="flex-1 rounded-xl border border-brand-border px-4 py-3 text-sm font-bold text-brand-dark transition-colors hover:bg-brand-bg"
+            >
+              Decline
+            </button>
+            <button
+              onClick={handleAccept}
+              className="flex-1 rounded-xl bg-brand-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand-dark/10 transition-colors hover:bg-brand-brass"
+            >
+              Accept All
+            </button>
+          </div>
         </div>
 
         <div className="hidden shrink-0 items-center gap-3 md:flex">

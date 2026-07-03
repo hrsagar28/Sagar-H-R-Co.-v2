@@ -1,5 +1,6 @@
 import React from 'react';
 import Reveal from '../../components/Reveal';
+import { staggerDelay } from '../../utils/stagger';
 
 const workCards = [
   {
@@ -35,7 +36,7 @@ export const HowWeWork: React.FC = () => (
              <div> now sits inside the list item, keeping the list markup
              valid and the list semantics intact. */
           <li key={card.title} className="zone-surface zone-border rounded-bento border p-8 md:p-10">
-            <Reveal width="100%" delay={Math.min(i * 0.06, 0.3)}>
+            <Reveal width="100%" delay={staggerDelay(i)}>
               <h3 className="zone-text mb-4 font-heading text-2xl font-bold">{card.title}</h3>
               <p className="leading-relaxed text-zone-text-muted/90">{card.body}</p>
             </Reveal>

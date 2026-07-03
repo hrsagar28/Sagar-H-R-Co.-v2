@@ -15,7 +15,6 @@ export * from './useFormDraft';
 export * from './useFormValidation';
 export * from './useInView';
 export * from './useLocalStorage';
-export * from './useMediaQuery';
 export * from './useRateLimit';
 export * from './useReducedMotion';
 export * from './useReturnFocus';
@@ -27,3 +26,6 @@ export * from './useScrollPosition';
 export * from './useCountUp';
 export * from './useConsent';
 export * from './useSpotlight';
+// MNT-7: previously omitted from the barrel despite being consumed by the
+// Resources calculators/tables.
+export * from './useResourceData';

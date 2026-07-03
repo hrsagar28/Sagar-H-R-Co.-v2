@@ -39,21 +39,10 @@ jobs:
         run: npm run lint
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: Test
         run: npm test -- --run
 
       - name: Build
         run: npm run build
-
-      - name: Upload Playwright and Lighthouse artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: browser-audit-artifacts
-          path: |
-            playwright-report/
-            test-results/
-            lighthouse-results/
-          if-no-files-found: ignore

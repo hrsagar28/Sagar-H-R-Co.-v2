@@ -1,4 +1,4 @@
-import { CONTACT_INFO } from './contact';
+import { CONTACT_INFO } from '../config/contact';
 import { SERVICES } from './services';
 // Audit SV-07: single-source the site URL. Previously this file declared
 // its own hard-coded SITE_URL, so the services JSON-LD ignored the

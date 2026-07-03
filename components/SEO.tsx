@@ -43,8 +43,12 @@ interface SEOProps {
 }
 
 const getDefaultCanonicalUrl = () => {
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-  return `${SITE_URL}${pathname}`;
+  const rawPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+  // SEO-7: normalise case and trailing slashes so e.g. /Faqs, /faqs/ and /faqs
+  // don't split into three "different" canonical URLs.
+  let pathname = rawPath.toLowerCase();
+  if (pathname.length > 1) pathname = pathname.replace(/\/+$/, '');
+  return `${SITE_URL}${pathname || '/'}`;
 };
 
 const toAbsoluteUrl = (url: string) =>

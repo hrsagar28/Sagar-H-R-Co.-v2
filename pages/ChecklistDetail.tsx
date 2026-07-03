@@ -8,6 +8,7 @@ import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ReactMarkdown from 'react-markdown';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { staggerDelay } from '../utils/stagger';
 import { useToast } from '../hooks/useToast';
 import Reveal from '../components/Reveal';
 import './route-styles.css';
@@ -163,7 +164,7 @@ const ChecklistDetail: React.FC = () => {
 
           <div className="space-y-10 print:space-y-6">
             {checklist.sections.map((section, idx) => (
-              <Reveal key={idx} width="100%" delay={Math.min(idx * 0.06, 0.3)}>
+              <Reveal key={idx} width="100%" delay={staggerDelay(idx)}>
                 <div className="break-inside-avoid">
                   <h3 className="mb-6 border-b border-brand-border/50 pb-2 font-heading text-xl font-bold text-brand-dark print:mb-3 print:border-black print:pb-1 print:text-lg print:text-black">
                     {section.title}

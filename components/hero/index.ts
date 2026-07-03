@@ -9,4 +9,3 @@ export * from './HeroArchive';
 export * from './HeroDirectory';
 export * from '../ui/Crosshair';
 export * from '../ui/GhostWord';
-export * from '../ui/SectionSymbol';

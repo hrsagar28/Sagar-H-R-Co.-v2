@@ -2,11 +2,23 @@ import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CONTACT_INFO } from '../constants';
+import SEO from '../components/SEO';
 import './route-styles.css';
 
 const Privacy: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-bg px-4 pb-20 pt-32 md:px-6 md:pt-40">
+      {/* SEO-3: legal pages previously rendered no metadata despite being in
+          the sitemap. */}
+      <SEO
+        title="Privacy Policy | Sagar H R & Co."
+        description="How Sagar H R & Co. collects, uses and protects your personal data, in compliance with India's DPDP Act, 2023."
+        canonicalUrl="https://casagar.co.in/privacy"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Privacy Policy', url: '/privacy' },
+        ]}
+      />
       <div className="container mx-auto max-w-4xl">
         {/* Back Link */}
         <div className="mb-12">

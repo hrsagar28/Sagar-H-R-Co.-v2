@@ -95,7 +95,9 @@ const RouteHandler = () => {
 const MainContent = () => {
   const { pathname } = useLocation();
   const mainZone = pathname === '/about' ? 'editorial' : undefined;
-  const loaderTone = pathname === '/' ? 'ink' : 'paper';
+  // UX-2: /about renders in the dark editorial zone, so its loader must be the
+  // dark ('ink') tone too — a 'paper' loader flashed light before the dark page.
+  const loaderTone = pathname === '/' || pathname === '/about' ? 'ink' : 'paper';
 
   return (
     <main

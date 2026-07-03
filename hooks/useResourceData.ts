@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient, ApiError } from '../utils/api';
 import { logger } from '../utils/logger';
+import { getBaseUrl } from '../utils/baseUrl';
 
 export function useResourceData<T>(fileName: string) {
   const [data, setData] = useState<T | null>(null);
@@ -11,7 +12,7 @@ export function useResourceData<T>(fileName: string) {
     let isMounted = true;
 
     const fetchData = async () => {
-      const baseUrl = (import.meta as any)?.env?.BASE_URL || '/';
+      const baseUrl = getBaseUrl();
       const url = `${baseUrl}data/${fileName}`.replace('//', '/');
 
       try {

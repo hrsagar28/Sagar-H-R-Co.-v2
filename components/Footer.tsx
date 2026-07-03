@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import { Share2, ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import { toRomanNumeral } from '../utils/toRomanNumeral';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const Footer: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // UX-6: honour prefers-reduced-motion (Contact.tsx already does this).
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
   };
 
   return (
@@ -131,13 +134,15 @@ const Footer: React.FC = () => {
                   · Sagar H R & Co.
                 </span>
               </div>
-              <Link to="/privacy" className="transition-colors hover:text-zinc-300">
+              {/* UX-6: hover now lightens to white for a visible state (was
+                  hover:text-zinc-300 on a zinc-300 parent — a no-op). */}
+              <Link to="/privacy" className="transition-colors hover:text-white">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="transition-colors hover:text-zinc-300">
+              <Link to="/terms" className="transition-colors hover:text-white">
                 Terms of Service
               </Link>
-              <Link to="/disclaimer" className="transition-colors hover:text-zinc-300">
+              <Link to="/disclaimer" className="transition-colors hover:text-white">
                 Disclaimer
               </Link>
               <a
@@ -145,7 +150,7 @@ const Footer: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Staff Portal (opens in new window)"
-                className="transition-colors hover:text-zinc-300"
+                className="transition-colors hover:text-white"
               >
                 Staff Portal
               </a>
@@ -161,8 +166,11 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Large Watermark Text */}
-        <div className="pointer-events-none absolute bottom-0 left-0 w-full select-none overflow-hidden leading-none opacity-[0.03]">
+        {/* Large Watermark Text — A11Y-5: decorative, hidden from assistive tech. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-0 w-full select-none overflow-hidden leading-none opacity-[0.03]"
+        >
           {/* Mobile View: Stacked */}
           <div className="flex w-full flex-col items-center justify-end pb-10 md:hidden">
             <span className="block text-center font-heading text-[18vw] font-bold tracking-tighter">SAGAR H R</span>

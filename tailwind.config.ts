@@ -28,6 +28,9 @@ export default {
         cursor: '1300',
         preloader: '1000',
         'network-status': '1100',
+        // UX-6: named layer for the cookie-consent banner (was magic z-[1200]).
+        // Sits above the offline banner (1100) and below the custom cursor (1300).
+        consent: '1200',
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'sans-serif'],

@@ -72,10 +72,10 @@ background because it used `zone-surface` on a page the home config ignores.)
 `.bg-noise`, and the `.glass*` utilities (all plain CSS in `index.css`) never
 break. Only put a class in `@layer utilities` if it is genuinely home-only.
 
-> Known issue: the `zone-*` utilities are currently still inside
-> `@layer utilities` in `index.css`. Fixing that is Item 3 of
-> `IMPROVEMENT-PLAN.md`. Until then, be cautious using `zone-*` classes on
-> non-home pages.
+> Resolved (IMPROVEMENT-PLAN Item 3, done): the `zone-*` utilities are now
+> **plain top-level CSS** in `index.css` (see the "Global zone + text utilities"
+> block), not `@layer utilities`, so they are never purged and are safe to use
+> on any route.
 
 ### Stylesheet entry points
 
@@ -140,7 +140,9 @@ All tokens live in the **`theme.extend`** block of `tailwind.config.ts`:
 ### The `.glass` surfaces
 
 `.glass`, `.glass-strong` (light, dark text) and `.glass-dark` (light text on
-dark) are the "liquid glass" surfaces — defined as **plain CSS** in
+dark) are the **frosted-glass** surfaces — a milky, matte backdrop blur with
+saturation held near 100% and only a whisper of edge highlight (the glossy
+"liquid glass" sheen is deliberately avoided). Defined as **plain CSS** in
 `index.css`. Each has an opaque-enough fallback plus an `@supports` block that
 layers on the real `backdrop-filter`. **Never** put `backdrop-filter` in a
 transition list — animating the blur radius is the janky path; tint, border,

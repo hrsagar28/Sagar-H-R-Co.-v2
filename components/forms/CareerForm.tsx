@@ -322,10 +322,25 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
       setSubmitStatus('error');
       logger.error('Career form submission failed:', error);
 
-      let message = 'Something went wrong. Please try again.';
+      // CF-6: give applicants an honest, status-specific message instead of a
+      // single catch-all, surfacing the function's own text where available.
+      let message = `Something went wrong. Please email us directly at ${CAREERS_CONTACT_EMAIL}`;
       if (error instanceof ApiError) {
-        if (error.code === 'NETWORK_ERROR') message = 'Network error. Please check your internet.';
-        else if (error.code === 'TIMEOUT') message = 'Request timed out. Please try again.';
+        if (error.code === 'NETWORK_ERROR') {
+          message = 'Network error. Please check your internet and try again.';
+        } else if (error.code === 'TIMEOUT') {
+          message = 'The request timed out. Please check your connection and try again.';
+        } else if (error.status === 429) {
+          message = error.message || `You've reached the submission limit. Please email us at ${CAREERS_CONTACT_EMAIL}`;
+        } else if (error.status === 422 || error.status === 400) {
+          message =
+            error.message ||
+            `We couldn't verify your submission. Please refresh the page and try again, or email us at ${CAREERS_CONTACT_EMAIL}`;
+        } else {
+          message =
+            error.message ||
+            `Our application system is temporarily unavailable. Please email us at ${CAREERS_CONTACT_EMAIL}`;
+        }
       }
       addToast(message, 'error');
     } finally {

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mail, Phone, MapPin, Loader2, CheckCircle, Clock, MessageCircle, Copy, Save } from 'lucide-react';
 import { PageHero } from '../components/hero';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
 import { CONTACT_INFO, SERVICES } from '../constants';
@@ -215,8 +215,6 @@ const Contact: React.FC = () => {
       return;
     }
 
-    recordAttempt();
-
     const validationErrors = validateForm(values, contactSchema);
     const hasMissingOtherSubject = values.subject === 'Other' && !values.subjectOther.trim();
 
@@ -232,6 +230,10 @@ const Contact: React.FC = () => {
       addToast('Please correct the errors in the form.', 'error');
       return;
     }
+
+    // CF-7: only count an attempt once the form is valid and we're about to hit
+    // the network, so validation mistakes don't burn the client rate limit.
+    recordAttempt();
 
     setIsSubmitting(true);
 
@@ -258,13 +260,26 @@ const Contact: React.FC = () => {
       addToast('Message sent successfully!', 'success');
     } catch (error) {
       logger.error('Contact form error', { error, form: 'contact', canSubmit, timeUntilReset });
-      let msg = 'Failed to send message. Please try again.';
+      // CF-6: distinguish "wait a day" from "outage" from "bad connection", and
+      // surface the function's own message where it is more specific.
+      let msg = `Failed to send message. Please email us directly at ${CONTACT_INFO.email}`;
       if (error instanceof ApiError) {
-        if (error.code === 'NETWORK_ERROR') msg = 'Network unavailable. Please check your connection.';
-        else if (error.code === 'TIMEOUT') msg = 'Request timed out.';
-        else msg = `Server error. Please email us directly at ${CONTACT_INFO.email}`;
-      } else {
-        msg = `An error occurred. Please email us directly at ${CONTACT_INFO.email}`;
+        if (error.code === 'NETWORK_ERROR') {
+          msg = 'Network unavailable. Please check your connection and try again.';
+        } else if (error.code === 'TIMEOUT') {
+          msg = 'The request timed out. Please check your connection and try again.';
+        } else if (error.status === 429) {
+          msg =
+            error.message || `You've reached the submission limit. Please email us directly at ${CONTACT_INFO.email}`;
+        } else if (error.status === 422 || error.status === 400) {
+          msg =
+            error.message ||
+            `We couldn't verify your submission. Please refresh the page and try again, or email us at ${CONTACT_INFO.email}`;
+        } else {
+          msg =
+            error.message ||
+            `Our contact system is temporarily unavailable. Please email us directly at ${CONTACT_INFO.email}`;
+        }
       }
       addToast(msg, 'error');
     } finally {
@@ -667,22 +682,26 @@ const Contact: React.FC = () => {
                       <>Send</>
                     )}
                   </BigCTA>
+                  {/* A11Y-2: helper copy raised from white/40 to white/70 for AA,
+                      and the draft-saved line bumped from 10px to 11px. */}
                   <div className="mt-4 space-y-2 text-center">
                     {lastSaved && (
-                      <p className="inline-flex items-center justify-center gap-1 text-[10px] uppercase tracking-wider text-white/40">
+                      <p className="inline-flex items-center justify-center gap-1 text-[11px] uppercase tracking-wider text-white/70">
                         <Save size={12} aria-hidden="true" /> Draft saved{' '}
                         {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     )}
-                    <p className="text-sm font-medium text-white/40">We typically reply within one business day.</p>
-                    <p className="text-xs font-medium text-white/40">
+                    <p className="text-sm font-medium text-white/70">We typically reply within one business day.</p>
+                    <p className="text-xs font-medium text-white/70">
                       By submitting, you agree to our{' '}
-                      <a
-                        href="/privacy"
+                      {/* UX-6: <Link> keeps this an in-app navigation instead of
+                          a full document reload. */}
+                      <Link
+                        to="/privacy"
                         className="underline underline-offset-2 transition-colors hover:text-brand-accent"
                       >
                         Privacy Policy
-                      </a>
+                      </Link>
                       . We only use your details to reply to this enquiry.
                     </p>
                   </div>

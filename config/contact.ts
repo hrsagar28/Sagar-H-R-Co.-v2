@@ -12,8 +12,11 @@ const getEnv = (key: string): string => {
   return '';
 };
 
+// CF-8: VITE_FORM_ENDPOINT is optional. When unset the forms post to the
+// internal '/api/contact' Netlify function (the safe default), NOT a public
+// gateway — so this is informational, not a security warning.
 if (import.meta.env?.PROD && !import.meta.env.VITE_FORM_ENDPOINT) {
-  console.warn('Security Warning: VITE_FORM_ENDPOINT is not defined. Contact forms may fallback to public gateway.');
+  console.info("VITE_FORM_ENDPOINT is not set; using the internal '/api/contact' function endpoint.");
 }
 
 export const CONTACT_INFO = {

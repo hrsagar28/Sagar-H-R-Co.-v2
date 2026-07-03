@@ -34,6 +34,10 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      // PERF-3: pin a modern baseline so Vite/esbuild stop emitting legacy
+      // down-levelling for syntax all supported browsers already handle,
+      // shaving a little output size. (Default is a broad 'modules' target.)
+      target: 'es2022',
       rollupOptions: {
         output: {
           manualChunks(id) {

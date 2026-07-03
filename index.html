@@ -35,6 +35,32 @@
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
+
+    <!-- SEO-2: static fallback metadata. Social/link scrapers (WhatsApp,
+         LinkedIn, X, Facebook) don't run JavaScript, so without these the raw
+         HTML had no title/description/preview and every share was blank. When
+         JS runs, the per-route <SEO> component (React 19 document metadata)
+         supplies the exact per-page title/description/canonical. A full
+         prerendering pass will later render correct per-page meta server-side. -->
+    <title>Sagar H R &amp; Co. — Chartered Accountants in Mysuru | Audit, Tax, GST &amp; Advisory</title>
+    <meta
+      name="description"
+      content="Sagar H R &amp; Co. is a Chartered Accountancy firm in Mysuru, Karnataka offering Audit &amp; Assurance, Direct Tax, GST and Business Advisory services for individuals and businesses."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Sagar H R &amp; Co. — Chartered Accountants in Mysuru" />
+    <meta
+      property="og:description"
+      content="Audit &amp; Assurance, Direct Tax, GST and Business Advisory from a Mysuru-based CA firm."
+    />
+    <meta property="og:image" content="https://casagar.co.in/og/og-default.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sagar H R &amp; Co. — Chartered Accountants in Mysuru" />
+    <meta
+      name="twitter:description"
+      content="Audit &amp; Assurance, Direct Tax, GST and Business Advisory from a Mysuru-based CA firm."
+    />
+    <meta name="twitter:image" content="https://casagar.co.in/og/og-default.png" />
     <style>
       /* Keep this background in sync with STARFIELD_BG in components/home/StarField.tsx. */
       #preload-hero {

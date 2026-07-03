@@ -6,10 +6,6 @@ import { INDUSTRIES } from '../constants';
 import { useSpotlight } from '../hooks';
 import Reveal from './Reveal';
 
-interface IndustrySpotlightProps {
-  variant?: 'default' | 'compact';
-}
-
 export const IndustryChips: React.FC = () => (
   <section className="relative overflow-hidden bg-brand-bg px-4 py-24 md:px-6">
     <div className="container mx-auto max-w-6xl text-center">
@@ -124,7 +120,6 @@ export const IndustryGridDark: React.FC = () => {
   );
 };
 
-const IndustrySpotlight: React.FC<IndustrySpotlightProps> = ({ variant = 'default' }) =>
-  variant === 'compact' ? <IndustryChips /> : <IndustryGridDark />;
-
-export default IndustrySpotlight;
+// MNT-1: the `IndustrySpotlight` default-export wrapper had no importers
+// (consumers use the named `IndustryGridDark` / `IndustryChips` directly), so
+// it and its props type were removed.

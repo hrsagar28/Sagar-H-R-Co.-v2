@@ -18,11 +18,15 @@ export default {
     './components/CookieConsent.tsx',
     './components/Toast.tsx',
     './components/ToastContainer.tsx',
+    // MNT-9: LiveRegion renders globally (via AnnounceProvider) but was unscanned;
+    // it only survived by coincidence (its lone `sr-only` class is used elsewhere).
+    './components/LiveRegion.tsx',
     './components/ErrorBoundary.tsx',
     './components/RouteErrorBoundary.tsx',
     './components/Reveal.tsx',
     './components/HorizontalScroll.tsx',
-    './components/IndustrySpotlight.tsx',
+    // MNT-9: IndustrySpotlight is never rendered on the home route — removed from
+    // the home content list (it's still scanned by the routes config for Services).
     './components/Marquee.tsx',
     './components/SEO.tsx',
     './components/VisuallyHidden.tsx',
