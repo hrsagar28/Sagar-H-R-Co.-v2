@@ -14,6 +14,39 @@
   to = "/faqs"
   status = 301
 
+# Retired Aug-2025 insight articles (replaced by the 2025-Act refresh).
+# 301 to the topical successor where one exists, else to the insights index,
+# so old inbound links and search results don't 404.
+[[redirects]]
+  from = "/insights/new-income-tax-bill-2025"
+  to = "/insights/income-tax-act-2025-in-force"
+  status = 301
+
+[[redirects]]
+  from = "/insights/gst-reforms-2.0"
+  to = "/insights/gst-2-0-one-year-on-msmes"
+  status = 301
+
+[[redirects]]
+  from = "/insights/tds-tcs-changes-2025"
+  to = "/insights/tds-new-act-renumbering-thresholds"
+  status = 301
+
+[[redirects]]
+  from = "/insights/house-property-income"
+  to = "/insights"
+  status = 301
+
+[[redirects]]
+  from = "/insights/gst-compliance-updates"
+  to = "/insights"
+  status = 301
+
+[[redirects]]
+  from = "/insights/sp-rating-upgrade"
+  to = "/insights"
+  status = 301
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

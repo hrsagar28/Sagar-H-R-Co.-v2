@@ -16,34 +16,34 @@ beforeAll(() => {
 
 const mockInsights = [
   {
-    id: 'older-gst',
-    title: 'GST Compliance Updates',
+    id: '7',
+    title: 'GST 2.0, One Year On',
     category: 'GST & Compliance',
-    date: '2025-08-14',
-    summary: 'MFA and e-invoicing changes for GST taxpayers.',
-    slug: 'gst-compliance-updates',
+    date: '2026-06-29',
+    summary: 'Pricing, ITC and classification lessons for MSMEs a year into the two-slab structure.',
+    slug: 'gst-2-0-one-year-on-msmes',
     author: 'CA Sagar H R',
     readTime: '5 min read',
   },
   {
-    id: 'newer-tax',
-    title: 'New Income Tax Bill',
+    id: '1',
+    title: 'The Income-tax Act, 2025 Is Now in Force',
     category: 'Income Tax',
-    date: '2025-08-18',
-    summary: 'A simpler direct tax law for individuals and businesses.',
-    slug: 'new-income-tax-bill-2025',
-    author: 'CA Sagar H R',
-    readTime: '6 min read',
-  },
-  {
-    id: 'middle-economy',
-    title: 'S&P Rating Upgrade',
-    category: 'Economic Analysis',
-    date: '2025-08-15',
-    summary: 'India receives a sovereign credit rating upgrade.',
-    slug: 'sp-rating-upgrade',
+    date: '2026-07-03',
+    summary: 'A re-codification of direct tax law — new section numbers, same rates and core scheme.',
+    slug: 'income-tax-act-2025-in-force',
     author: 'CA Sagar H R',
     readTime: '4 min read',
+  },
+  {
+    id: '10',
+    title: 'Capital Gains on Property',
+    category: 'Real Estate Taxation',
+    date: '2026-06-16',
+    summary: 'A flat 12.5% without indexation, with a grandfathering option for resident sellers.',
+    slug: 'capital-gains-property-12-5-vs-indexation',
+    author: 'CA Sagar H R',
+    readTime: '5 min read',
   },
 ];
 
@@ -94,14 +94,14 @@ describe('Insights', () => {
     expect(screen.getByLabelText(/search insights/i)).toHaveAttribute('aria-controls', 'insights-results');
 
     const heroLinks = within(screen.getByTestId('page-hero')).getAllByRole('link');
-    expect(heroLinks[0]).toHaveAttribute('href', '/insights/new-income-tax-bill-2025');
+    expect(heroLinks[0]).toHaveAttribute('href', '/insights/income-tax-act-2025-in-force');
   });
 
   it('applies URL-provided filters and keeps schema based on the full archive', () => {
-    renderInsights('/insights?cat=GST+%26+Compliance&q=mfa');
+    renderInsights('/insights?cat=GST+%26+Compliance&q=classification');
 
-    expect(screen.getByRole('heading', { name: 'GST Compliance Updates' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'New Income Tax Bill' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'GST 2.0, One Year On' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'The Income-tax Act, 2025 Is Now in Force' })).not.toBeInTheDocument();
 
     const calls = seoMock.mock.calls as unknown as Array<[Record<string, unknown>]>;
     const lastCall = calls.at(-1);
@@ -109,7 +109,7 @@ describe('Insights', () => {
     const schema = lastCall?.[0].schema as { blogPost: Array<{ url: string }> };
     expect(schema.blogPost).toHaveLength(mockInsights.length);
     expect(schema.blogPost.map((post: { url: string }) => post.url)).toContain(
-      'https://casagar.co.in/insights/new-income-tax-bill-2025',
+      'https://casagar.co.in/insights/income-tax-act-2025-in-force',
     );
   });
 
@@ -121,8 +121,8 @@ describe('Insights', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
 
-    expect(screen.getByRole('heading', { name: 'New Income Tax Bill' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'GST Compliance Updates' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'The Income-tax Act, 2025 Is Now in Force' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'GST 2.0, One Year On' })).toBeInTheDocument();
   });
 
   it('renders no axe violations for the loaded archive', async () => {

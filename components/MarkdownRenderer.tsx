@@ -207,6 +207,13 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className 
               {...props}
             />
           ),
+          // GFM tables (e.g. the 1961→2025 section map). Wrap so wide tables
+          // scroll horizontally on narrow screens instead of overflowing.
+          table: ({ node, children, ...props }) => (
+            <div className="table-scroll">
+              <table {...props}>{children}</table>
+            </div>
+          ),
         }}
       >
         {content}
