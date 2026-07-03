@@ -22,7 +22,7 @@ import {
 } from '../../utils/formValidation';
 import { apiClient, ApiError } from '../../utils/api';
 import { CONTACT_INFO } from '../../constants';
-import { CAREERS_CONTACT_EMAIL, CAREERS_RESPONSE_SLA_DAYS, OPEN_ROLES } from '../../constants/careers';
+import { CAREERS_CONTACT_EMAIL, CAREERS_RESPONSE_SLA_DAYS, getOpenRoles } from '../../constants/careers';
 import { headerSafe, normalizeInput } from '../../utils/sanitize';
 import { buildCareerSubject } from '../../utils/careersEmail';
 import { logger } from '../../utils/logger';
@@ -32,8 +32,8 @@ interface CareerFormProps {
   initialPosition?: string;
 }
 
-// Reordering OPEN_ROLES also reorders this dropdown, which keeps the picker aligned with the role cards.
-const positionOptions = OPEN_ROLES.map((role) => role.role);
+// CT-8: only currently-open roles appear in the picker, matching the cards.
+const positionOptions = getOpenRoles().map((role) => role.role);
 const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years'];
 const STEP_TRANSITION_MS = 100;
 const STEP_LABELS = ['Personal', 'Contact', 'Professional', 'Review'] as const;

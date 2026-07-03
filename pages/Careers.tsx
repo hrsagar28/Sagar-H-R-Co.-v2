@@ -5,7 +5,7 @@ import SEO from '../components/SEO';
 import Reveal from '../components/Reveal';
 import { PageHero } from '../components/hero';
 import { CONTACT_INFO } from '../constants';
-import { CAREERS_APPLY_URL, OPEN_ROLES } from '../constants/careers';
+import { CAREERS_APPLY_URL, CAREERS_CONTACT_EMAIL, OPEN_ROLES, getOpenRoles } from '../constants/careers';
 import { useAnnounce } from '../hooks';
 import { staggerDelay } from '../utils/stagger';
 import './route-styles.css';
@@ -36,7 +36,13 @@ const buildJobPostingDescription = (role: (typeof OPEN_ROLES)[number]) => {
 const Careers = (): React.JSX.Element => {
   const [selectedPosition, setSelectedPosition] = useState<string>('');
   const { announce } = useAnnounce();
-  const careersMetaDescription = `${OPEN_ROLES.length} open roles - Audit Associate (full-time) and Articled Assistant (internship) at a Mysuru-based CA firm.`;
+  // CT-8: only roles whose application deadline hasn't passed are shown, listed
+  // in schema, and offered in the form dropdown.
+  const openRoles = getOpenRoles();
+  const careersMetaDescription =
+    openRoles.length > 0
+      ? `${openRoles.length} open roles at a Mysuru-based CA firm — Audit Associate (full-time) and Articled Assistant (internship).`
+      : 'Chartered Accountancy careers at a Mysuru-based firm. No roles are open right now — check back soon or send us your profile.';
 
   const handleApplyClick = (role: string) => {
     setSelectedPosition(role);
@@ -55,7 +61,7 @@ const Careers = (): React.JSX.Element => {
           { name: 'Home', url: '/' },
           { name: 'Careers', url: '/careers' },
         ]}
-        schema={OPEN_ROLES.map((r) => ({
+        schema={openRoles.map((r) => ({
           '@context': 'https://schema.org',
           '@type': 'JobPosting',
           title: r.role,
@@ -128,7 +134,7 @@ const Careers = (): React.JSX.Element => {
                 </Reveal>
 
                 <ul aria-labelledby="open-positions-heading" className="space-y-6">
-                  {OPEN_ROLES.map((job, i) => (
+                  {openRoles.map((job, i) => (
                     <Reveal key={job.id} width="100%" delay={staggerDelay(i)}>
                       <li
                         id={job.id}
@@ -156,6 +162,23 @@ const Careers = (): React.JSX.Element => {
                       </li>
                     </Reveal>
                   ))}
+                  {/* CT-8: when every posting is past its deadline, show an
+                      honest empty state instead of a silently blank list. */}
+                  {openRoles.length === 0 && (
+                    <li className="rounded-[2rem] border border-dashed border-brand-border bg-brand-surface p-10 text-center">
+                      <p className="font-heading text-xl font-bold text-brand-dark">No open roles right now</p>
+                      <p className="mt-2 font-medium text-brand-stone">
+                        We're not actively hiring at the moment. You're welcome to send your profile to{' '}
+                        <a
+                          href={`mailto:${CAREERS_CONTACT_EMAIL}`}
+                          className="font-bold text-brand-moss underline transition-colors hover:text-brand-dark"
+                        >
+                          {CAREERS_CONTACT_EMAIL}
+                        </a>{' '}
+                        and we'll reach out when a suitable role opens.
+                      </p>
+                    </li>
+                  )}
                 </ul>
               </div>
 

@@ -5,7 +5,13 @@ export const IMPORTANT_LINKS = [
     links: [
       { name: 'Income Tax E-Filing', url: 'https://www.incometax.gov.in/' },
       { name: 'TDS (TRACES)', url: 'https://www.tdscpc.gov.in/' },
-      { name: 'PAN Card Services', url: 'https://www.onlineservices.nsdl.com/paam/endUserRegisterContact.html' },
+      // CT-11: NSDL e-Gov is now Protean; use the current Protean PAN portal,
+      // and add UTIITSL as the alternative authorised PAN service provider.
+      {
+        name: 'PAN Card (Protean / NSDL)',
+        url: 'https://onlineservices.proteantech.in/paam/endUserRegisterContact.html',
+      },
+      { name: 'PAN Card (UTIITSL)', url: 'https://www.pan.utiitsl.com/PAN/' },
     ],
   },
   {
@@ -14,6 +20,8 @@ export const IMPORTANT_LINKS = [
       { name: 'GST Portal', url: 'https://www.gst.gov.in/' },
       { name: 'E-Way Bill Portal', url: 'https://ewaybillgst.gov.in/' },
       { name: 'E-Invoicing Portal', url: 'https://einvoice1.gst.gov.in/' },
+      // CT-11: GST Appellate Tribunal e-filing portal (operational since 2025).
+      { name: 'GST Appellate Tribunal (GSTAT)', url: 'https://gstat.gov.in/' },
     ],
   },
   {
@@ -76,7 +84,7 @@ export const CHECKLIST_DATA: Record<
   },
   salaried: {
     title: 'Checklist for Salaried Individuals',
-    subtitle: 'For FY 2024-25 (AY 2025-26). Covers salary and rental income.',
+    subtitle: 'For FY 2025-26 (AY 2026-27). Covers salary and rental income.',
     sections: [
       {
         title: 'Basic Information',
@@ -111,7 +119,7 @@ export const CHECKLIST_DATA: Record<
   },
   'capital-gains': {
     title: 'Checklist for Capital Gains',
-    subtitle: 'For FY 2024-25 (AY 2025-26). For sale of property, shares, or mutual funds.',
+    subtitle: 'For FY 2025-26 (AY 2026-27). For sale of property, shares, or mutual funds.',
     sections: [
       {
         title: 'Sale of Property',
@@ -138,7 +146,7 @@ export const CHECKLIST_DATA: Record<
   },
   'business-presumptive': {
     title: 'Checklist for Business (Presumptive)',
-    subtitle: 'For FY 2024-25 (AY 2025-26). For businesses/professions under Sec 44AD / 44ADA.',
+    subtitle: 'For FY 2025-26 (AY 2026-27). For businesses/professions under Sec 44AD / 44ADA.',
     sections: [
       {
         title: 'Financial Details',
@@ -163,7 +171,7 @@ export const CHECKLIST_DATA: Record<
   },
   'business-audit': {
     title: 'Checklist for Business (Tax Audit)',
-    subtitle: 'For FY 2024-25 (AY 2025-26). For businesses subject to tax audit under Sec 44AB.',
+    subtitle: 'For FY 2025-26 (AY 2026-27). For businesses subject to tax audit under Sec 44AB.',
     sections: [
       {
         title: 'Core Financials & Books of Accounts',

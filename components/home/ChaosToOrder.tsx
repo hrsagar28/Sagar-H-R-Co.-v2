@@ -698,7 +698,7 @@ const ITRBody: React.FC<{ seed: number }> = ({ seed }) => {
             Form ITR-{[1, 2, 3, 4, 5][seed % 5]}
           </span>
           <span className="font-mono text-[8px] uppercase tracking-[0.15em] text-[rgb(var(--chaos-ink-rgb)_/_0.45)] md:text-[7px]">
-            AY {['2023-24', '2024-25', '2025-26'][seed % 3]}
+            AY {['2024-25', '2025-26', '2026-27'][seed % 3]}
           </span>
         </div>
         <div className="mt-[2px] font-mono text-[8px] font-bold uppercase tracking-[0.15em] text-[var(--chaos-ink)] md:text-[9px]">

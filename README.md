@@ -44,4 +44,4 @@ Configured for Netlify. Push to main branch triggers auto-deploy.
 
 ## License
 
-© 2025 Sagar H R & Co. All rights reserved.
+© 2023–2026 Sagar H R & Co. All rights reserved.

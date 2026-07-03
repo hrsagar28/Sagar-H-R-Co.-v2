@@ -9,7 +9,7 @@ export const SERVICES: ServiceItem[] = [
   {
     id: 'gst',
     title: 'GST Registration & Filing',
-    description: 'Registration, monthly returns, GSTR-9/9C, e-invoicing for >= Rs. 10 cr, and notice replies.',
+    description: 'Registration, monthly returns, GSTR-9/9C, e-invoicing for >= Rs. 5 cr, and notice replies.',
     Icon: FileText,
     link: '/services/gst',
   },

@@ -42,8 +42,8 @@ export const OPEN_ROLES: JobPosting[] = [
       'Strong written communication and client follow-up discipline.',
       'CA Inter, B.Com, M.Com, or equivalent commerce background preferred.',
     ],
-    datePosted: '2026-04-22T00:00:00+05:30',
-    applicationDeadline: '2026-05-31T23:59:59+05:30',
+    datePosted: '2026-07-01T00:00:00+05:30',
+    applicationDeadline: '2026-09-30T23:59:59+05:30',
     workMode: 'On-site',
   },
   {
@@ -66,8 +66,8 @@ export const OPEN_ROLES: JobPosting[] = [
       'Basic spreadsheet skills and familiarity with business documents.',
       'Clear communication and the ability to work on-site from Mysuru.',
     ],
-    datePosted: '2026-04-22T00:00:00+05:30',
-    applicationDeadline: '2026-05-31T23:59:59+05:30',
+    datePosted: '2026-07-01T00:00:00+05:30',
+    applicationDeadline: '2026-09-30T23:59:59+05:30',
     workMode: 'On-site',
     applicantLocationType: 'City',
     applicantLocationName: 'Mysuru',
@@ -75,3 +75,14 @@ export const OPEN_ROLES: JobPosting[] = [
       'Applicants for this internship must currently reside in Mysuru and be available to work on-site from our Mysuru office.',
   },
 ];
+
+// CT-8 / feature 10.8: a posting is "open" only until its application deadline.
+// Filtering by this means expired roles auto-hide from the careers page, the
+// JobPosting schema, and the application dropdown — so listings can never be
+// perpetually open (and stale `validThrough` dates stop inviting applications
+// to a closed window). Evaluated per call, so a normal page load re-checks.
+export const isRoleOpen = (role: JobPosting, now: Date = new Date()): boolean =>
+  new Date(role.applicationDeadline).getTime() >= now.getTime();
+
+export const getOpenRoles = (now: Date = new Date()): JobPosting[] =>
+  OPEN_ROLES.filter((role) => isRoleOpen(role, now));
