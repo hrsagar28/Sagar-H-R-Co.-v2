@@ -20,13 +20,13 @@ import {
   maxLength,
   validateForm,
 } from '../../utils/formValidation';
-import { apiClient, ApiError } from '../../utils/api';
+import { ApiError } from '../../utils/api';
+import { submitToFormSubmit } from '../../utils/formSubmit';
 import { CONTACT_INFO } from '../../constants';
 import { CAREERS_CONTACT_EMAIL, CAREERS_RESPONSE_SLA_DAYS, getOpenRoles } from '../../constants/careers';
 import { headerSafe, normalizeInput } from '../../utils/sanitize';
 import { buildCareerSubject } from '../../utils/careersEmail';
 import { logger } from '../../utils/logger';
-import { getBotpoisonSolution } from '../../utils/botpoison';
 
 interface CareerFormProps {
   initialPosition?: string;
@@ -298,8 +298,7 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
     recordAttempt();
 
     try {
-      const botpoisonSolution = await getBotpoisonSolution();
-      await apiClient.post(CONTACT_INFO.formEndpoint, {
+      await submitToFormSubmit({
         fullName: normalizeInput(values.fullName),
         fatherName: normalizeInput(values.fatherName),
         mobile: headerSafe(values.mobile, 30),
@@ -311,8 +310,8 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
         whyJoin: normalizeInput(values.whyJoin, { preserveLineBreaks: true }),
         position: headerSafe(values.position),
         _subject: buildCareerSubject(values.fullName, values.position),
-        _hp_wauth_do_not_fill: honeypot,
-        _botpoison: botpoisonSolution,
+        // FormSubmit discards any submission whose _honey field is filled.
+        _honey: honeypot,
       });
 
       setSubmitStatus('success');

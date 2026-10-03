@@ -5,10 +5,10 @@ import Honeypot from '../components/forms/Honeypot';
 import { CONTACT_INFO, SERVICES } from '../constants';
 import { useFormDraft, useFormValidation, useRateLimit, useToast } from '../hooks';
 import { createFormSchema, email, indianPhone, required, validateForm, type FormSchema } from '../utils/formValidation';
-import { apiClient, ApiError } from '../utils/api';
+import { ApiError } from '../utils/api';
+import { submitToFormSubmit } from '../utils/formSubmit';
 import { headerSafe, normalizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
-import { getBotpoisonSolution } from '../utils/botpoison';
 import { ArrowRight } from '../components/redesign/icons';
 import { RD_HOURS_TABLE } from '../components/redesign/content';
 
@@ -403,8 +403,7 @@ const Contact: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const botpoisonSolution = await getBotpoisonSolution();
-      await apiClient.post(CONTACT_INFO.formEndpoint, {
+      await submitToFormSubmit({
         name: normalizeInput(values.name),
         email: headerSafe(values.email, 254),
         phone: headerSafe(values.phone, 30),
@@ -414,7 +413,6 @@ const Contact: React.FC = () => {
         message: normalizeInput(values.message, { preserveLineBreaks: true }),
         _subject: `New Inquiry: ${headerSafe(values.name)}`,
         _honey: honeypot,
-        _botpoison: botpoisonSolution,
         _template: 'table',
       });
 
