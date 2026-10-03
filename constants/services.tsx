@@ -154,7 +154,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Challans for tax already deposited.',
       'For a property purchase: the sale agreement and the seller’s PAN.',
     ],
-    faqIds: ['tds-obligation', 'communication-document-sharing'],
+    faqIds: ['tds-obligation', 'tds-late-payment'],
     Icon: Receipt,
   },
   {
@@ -200,7 +200,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       'For a property sale: the sale agreement, and the purchase deed showing the cost of acquisition.',
       'A tax residency certificate from your country of residence, where treaty relief is claimed.',
     ],
-    faqIds: ['services-outside-mysuru', 'shares-mutual-funds-taxation'],
+    faqIds: ['nri-return-filing', 'nri-property-sale-tds', 'services-outside-mysuru'],
     Icon: Globe,
   },
   {
@@ -286,7 +286,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       'The previous year’s audited financial statements and audit report.',
       'For a company: minutes of board meetings and the statutory registers.',
     ],
-    faqIds: ['switching-ca', 'trust-annual-compliance', 'turnaround-time'],
+    faqIds: ['tax-audit-applicability', 'switching-ca', 'trust-annual-compliance'],
     Icon: ShieldCheck,
   },
   {
@@ -328,7 +328,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Books of account, bank statements and documents supporting each figure.',
       'For a net worth certificate: a statement of assets and liabilities, with supporting documents such as property records and account statements.',
     ],
-    faqIds: [],
+    faqIds: ['udin-verification', 'net-worth-certificate'],
     Icon: BadgeCheck,
   },
   {
@@ -415,7 +415,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       'The existing partnership deed or LLP agreement, if any.',
       'Proof of the business premises.',
     ],
-    faqIds: ['company-or-llp-setup', 'roc-annual-filings', 'close-company-llp'],
+    faqIds: ['partner-change', 'company-or-llp-setup', 'roc-annual-filings'],
     Icon: Handshake,
   },
   {
@@ -538,7 +538,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Financial statements and income tax returns for the last three years, if the business is already running.',
       'Any formats prescribed by the bank.',
     ],
-    faqIds: ['turnaround-time', 'service-fees'],
+    faqIds: ['project-report-contents', 'cma-data'],
     Icon: Landmark,
   },
   {
@@ -576,7 +576,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       'For a grant: the sanction letter and its conditions.',
       'Bills and bank statements for expenditure from the grant.',
     ],
-    faqIds: ['company-or-llp-setup'],
+    faqIds: ['udyam-registration', 'utilisation-certificate', 'company-or-llp-setup'],
     Icon: Rocket,
   },
   {

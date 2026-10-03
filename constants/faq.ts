@@ -1,6 +1,6 @@
 import { FAQItem } from '../types';
 
-// Seven sections, re-balanced in the 2026 redesign so GST, company law, notices
+// Nine sections, re-balanced in the 2026 redesign so GST, company law, notices
 // and trusts carry as much weight as income tax. The slugs of the original four
 // sections are kept so existing #fragment links keep resolving.
 export const FAQ_CATEGORIES = [
@@ -12,13 +12,13 @@ export const FAQ_CATEGORIES = [
   {
     label: 'Income tax',
     slug: 'income-tax-planning',
-    description: 'Choosing a regime, losses, capital gains and late returns.',
+    description: 'Choosing a regime, losses, capital gains, late returns and income of non-residents.',
   },
   { label: 'GST', slug: 'gst', description: 'Registration, returns, input tax credit and cancelled registrations.' },
   {
     label: 'Company law and business compliance',
     slug: 'business-gst-compliance',
-    description: 'Setting up, annual ROC filings, closing down, TDS, bookkeeping and payroll.',
+    description: 'Setting up, annual ROC filings, partner changes, closing down, TDS, bookkeeping and payroll.',
   },
   {
     label: 'Notices and appeals',
@@ -26,9 +26,19 @@ export const FAQ_CATEGORIES = [
     description: 'Replying to income tax and GST notices, and appealing against orders.',
   },
   {
+    label: 'Audit and certificates',
+    slug: 'audit-certificates',
+    description: 'When a tax audit applies, how a certificate can be checked and what a net worth certificate needs.',
+  },
+  {
     label: 'Trusts and NPOs',
     slug: 'trusts-npos',
     description: 'Registration for tax exemption, approval for donor deductions and yearly filings.',
+  },
+  {
+    label: 'Loans and grants',
+    slug: 'loans-grants',
+    description: 'Project reports and CMA data for banks, Udyam registration and utilisation certificates.',
   },
   {
     label: 'Working with us',
@@ -42,6 +52,10 @@ export const CATEGORY_ORDER: FAQItem['category'][] = FAQ_CATEGORIES.map(({ label
 // Single source of truth for the FAQ "last reviewed" date. Exported so the
 // FAQ page can reuse it as the schema fallback instead of re-declaring it.
 export const FAQ_LAST_UPDATED = '2026-04-24';
+
+// Questions added in October 2026 so that every service page lists questions of
+// its own.
+const ADDED_OCT_2026 = '2026-10-03';
 
 // Questions listed under "Asked most often" in the FAQ page header, in order.
 export const FAQ_MOST_ASKED_IDS = ['services-outside-mysuru', 'service-fees', 'income-tax-notice'];
@@ -129,6 +143,22 @@ export const FAQS: FAQItem[] = [
     lastUpdated: FAQ_LAST_UPDATED,
   },
   {
+    id: 'nri-return-filing',
+    category: 'Income tax',
+    question: 'I live abroad. Do I still need to file an income tax return in India?',
+    answer:
+      'Yes, if your income taxable in India, such as rent, interest on NRO deposits or capital gains, is above the basic exemption limit. Interest on NRE and FCNR deposits is exempt and does not count. Even below the limit, a return is often worth filing: tax deducted from payments to non-residents is usually more than the tax actually due, and a return is the only way to claim the excess back. Our [NRI taxation](/services/nri-taxation) page explains what we do.',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
+    id: 'nri-property-sale-tds',
+    category: 'Income tax',
+    question: 'I am a non-resident selling property in India. How much tax will the buyer deduct?',
+    answer:
+      'The buyer must deduct tax before paying you, and needs a TAN to do so. Without a certificate from the Income Tax Department, tax is usually deducted on the whole sale price at the rate for long-term capital gains, 12.5% plus surcharge and cess, which can be far more than the tax actually due on your gain. You can apply for a lower deduction certificate before the sale, so that tax is deducted only on the estimated gain. Any excess deducted can be claimed back in your return.',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
     id: 'gst-registration-mandatory',
     category: 'GST',
     question: 'Is GST registration mandatory for my business?',
@@ -193,12 +223,28 @@ export const FAQS: FAQItem[] = [
     lastUpdated: FAQ_LAST_UPDATED,
   },
   {
+    id: 'tds-late-payment',
+    category: 'Company law and business compliance',
+    question: 'What happens if TDS is not deducted, or is deducted but paid late?',
+    answer:
+      'Interest is charged at 1% a month for the period tax was not deducted, and at 1.5% a month from the date it was deducted until it is paid. A TDS return filed late attracts a fee of ₹200 a day, up to the amount of tax deducted, and a penalty is possible if it is more than a year late. If tax is not deducted and paid by the due date of your return, 30% of the expense can also be disallowed in computing your business income. Defaults show on TRACES, and we can work out what is due and clear them; see [TDS and TCS](/services/tds-and-tcs).',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
     id: 'bookkeeping-payroll',
     category: 'Company law and business compliance',
     question: 'Do you also handle bookkeeping and payroll?',
     answer:
       'Yes. We maintain your books, reconcile your bank accounts and prepare monthly figures, which also makes year-end returns and audits quicker and more accurate. For payroll, we process salaries, issue payslips and handle PF, ESI and TDS on salaries.',
     lastUpdated: FAQ_LAST_UPDATED,
+  },
+  {
+    id: 'partner-change',
+    category: 'Company law and business compliance',
+    question: 'What has to be done when a partner joins or leaves a firm or LLP?',
+    answer:
+      'For a partnership firm, all partners sign a supplementary deed, capital accounts are settled as on the date of the change, and a registered firm informs the Registrar of Firms. The GST registration must be amended within 15 days, and the bank mandate updated. For an LLP, the change in partners is filed in Form 4 and any change in the LLP agreement in Form 3, each within 30 days. Our [Partnership firms and LLPs](/services/partnership-firms-and-llps) page has more.',
+    lastUpdated: ADDED_OCT_2026,
   },
   {
     id: 'income-tax-notice',
@@ -219,6 +265,30 @@ export const FAQS: FAQItem[] = [
     lastUpdated: FAQ_LAST_UPDATED,
   },
   {
+    id: 'tax-audit-applicability',
+    category: 'Audit and certificates',
+    question: 'Does my business need a tax audit?',
+    answer:
+      'A business needs a tax audit if its turnover for the year exceeds ₹1 crore, or ₹10 crore where cash receipts and cash payments are each no more than 5% of the total. A profession needs one if its gross receipts exceed ₹50 lakh. A business or profession on a presumptive scheme may also need one if it declares a profit lower than the scheme’s rate and its income exceeds the basic exemption limit. The audit report is filed online before the return.',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
+    id: 'udin-verification',
+    category: 'Audit and certificates',
+    question: 'What is a UDIN, and how can a certificate be checked?',
+    answer:
+      'A UDIN, or Unique Document Identification Number, is generated by a Chartered Accountant on the ICAI’s portal for every certificate, audit report and attestation they sign, and is printed on the document. Anyone who receives the document, such as a bank or a government department, can verify it on the ICAI’s UDIN portal. A certificate without a UDIN should not be accepted.',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
+    id: 'net-worth-certificate',
+    category: 'Audit and certificates',
+    question: 'What do you need to issue a net worth certificate?',
+    answer:
+      'A list of what you own and owe as on the date of the certificate, with evidence for each item: property documents, bank and investment statements, and loan statements. Property is shown at the value the authority asks for, usually the purchase cost or the value in a registered valuer’s report. Tell us who has asked for the certificate, because banks, embassies and tender authorities often prescribe their own format. We certify only figures we have verified.',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
     id: 'trust-registration',
     category: 'Trusts and NPOs',
     question: 'How does a trust or society get registered for tax exemption and donor deductions?',
@@ -233,6 +303,38 @@ export const FAQS: FAQItem[] = [
     answer:
       'Its accounts must be audited and the audit report (Form 112, earlier 10B or 10BB) filed before the income tax return. If income is being set aside for future use, a statement of accumulation is filed as well. Organisations approved for donor deductions must also file a statement of the donations received and issue certificates to donors. Missing these can cost the organisation its exemption for the year, so we keep a calendar of them for every trust we work with.',
     lastUpdated: FAQ_LAST_UPDATED,
+  },
+  {
+    id: 'project-report-contents',
+    category: 'Loans and grants',
+    question: 'What goes into a project report for a bank loan?',
+    answer:
+      'A description of the business and its promoters, the cost of the project (land, building, machinery and working capital), how it will be financed between your contribution and the loan, and projected profit, cash flow and balance sheets for the term of the loan. Banks look in particular at the debt service coverage ratio, which shows whether the projected cash flow can meet the instalments. See [Bank loans and project reports](/services/bank-loans-and-project-reports).',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
+    id: 'cma-data',
+    category: 'Loans and grants',
+    question: 'What is CMA data, and when does a bank ask for it?',
+    answer:
+      'Credit monitoring arrangement (CMA) data is a set of financial statements in a standard format: actual figures for the last two years, estimates for the current year and projections for the next. Banks use it to assess how much working capital a business needs, and ask for it when sanctioning or renewing a cash credit or overdraft limit, and for larger term loans.',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
+    id: 'udyam-registration',
+    category: 'Loans and grants',
+    question: 'Should my business register under Udyam?',
+    answer:
+      'Usually, yes. Udyam is the government’s free online registration for micro, small and medium enterprises, based on PAN and Aadhaar. It is not compulsory, but it is needed for many benefits: priority lending and collateral-free loans under government guarantee schemes, eligibility for government schemes and tenders, and, for micro and small enterprises, the right to be paid by buyers within 45 days, with interest if they pay late.',
+    lastUpdated: ADDED_OCT_2026,
+  },
+  {
+    id: 'utilisation-certificate',
+    category: 'Loans and grants',
+    question: 'What is a utilisation certificate?',
+    answer:
+      'A statement, certified by a Chartered Accountant, of how a grant or subsidy has been spent against the purpose for which it was sanctioned, with any unspent balance. It is usually prepared in the format the scheme prescribes, and later instalments are released only after it is accepted. We check each item of expenditure against bills and bank statements before certifying it. See [Startup and grant support](/services/startup-and-grant-support).',
+    lastUpdated: ADDED_OCT_2026,
   },
   {
     id: 'turnaround-time',
