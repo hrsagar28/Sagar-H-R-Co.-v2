@@ -159,6 +159,20 @@ describe('Contact', () => {
     expect(screen.getByLabelText(/^name/i)).toHaveValue('');
   });
 
+  it('reports a message FormSubmit refused instead of thanking the sender', async () => {
+    mocks.post.mockResolvedValue({ success: 'false', message: 'This form needs Activation.' });
+    renderContact();
+
+    fillRequiredFields();
+    fireEvent.click(sendButton());
+
+    await waitFor(() => {
+      expect(mocks.addToast).toHaveBeenCalledWith(expect.stringMatching(/We could not send your message/), 'error');
+    });
+    expect(screen.queryByRole('heading', { name: /thank you/i })).not.toBeInTheDocument();
+    expect(mocks.clearDraft).not.toHaveBeenCalled();
+  });
+
   it('blocks after three attempts and shows the wait message', async () => {
     localStorage.setItem('contact_form_limit', JSON.stringify([Date.now(), Date.now(), Date.now()]));
     const { container } = renderContact();

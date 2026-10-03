@@ -32,7 +32,7 @@ anything that looks like ceremony.
 | `context/`                                                | React context providers (`ToastContext`, `AnnounceContext`).                                                                |
 | `config/`, `utils/`, `types/`                             | Configuration, helpers, shared TypeScript types.                                                                            |
 | `scripts/`                                                | Build-time Node scripts, run via `tsx` (see Build).                                                                         |
-| `netlify/`                                                | Netlify serverless functions (contact form, CSP report).                                                                    |
+| `netlify/`                                                | Netlify serverless functions (CSP report).                                                                                  |
 | `public/`                                                 | Static assets — fonts, favicons, prebuilt data.                                                                             |
 | `dist/`                                                   | Build output. Git-ignored; never edit by hand.                                                                              |
 | `AUDIT-*.md`, `*-CODEX-PROMPTS.md`, `IMPROVEMENT-PLAN.md` | Working docs at the repo root — see Conventions.                                                                            |
@@ -229,9 +229,17 @@ meta tags in `index.html`.
 ## Deployment
 
 Netlify. Pushing to `main` triggers an auto-deploy. `netlify.toml` defines the
-SPA fallback redirect, the `/api/contact` → serverless-function rewrite, a
-`/faq` → `/faqs` 301, security headers (CSP, HSTS, `X-Frame-Options`, …), and
-cache headers. Serverless functions live in `netlify/`.
+SPA fallback redirect, a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
+`X-Frame-Options`, …), and cache headers. Serverless functions live in
+`netlify/`.
+
+- **No `public/_redirects`.** Netlify applies that file before `netlify.toml`,
+  so a catch-all there shadows every redirect in `netlify.toml`. One did, from
+  May to October 2026.
+- **Forms post from the browser.** The contact and careers forms send straight
+  to FormSubmit (`utils/formSubmit.ts`, endpoint in `config/contact.ts`).
+  FormSubmit answers requests from hosting servers with 403, so routing them
+  through a Netlify function does not work.
 
 ## Working norms
 

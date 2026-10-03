@@ -12,12 +12,11 @@ const getEnv = (key: string): string => {
   return '';
 };
 
-// CF-8: VITE_FORM_ENDPOINT is optional. When unset the forms post to the
-// internal '/api/contact' Netlify function (the safe default), NOT a public
-// gateway — so this is informational, not a security warning.
-if (import.meta.env?.PROD && !import.meta.env.VITE_FORM_ENDPOINT) {
-  console.info("VITE_FORM_ENDPOINT is not set; using the internal '/api/contact' function endpoint.");
-}
+// The contact and careers forms post straight from the browser to FormSubmit,
+// which emails each submission to the firm (see utils/formSubmit.ts). The
+// address was activated with FormSubmit once; VITE_FORM_ENDPOINT can point the
+// forms at a different FormSubmit address, such as its private random alias.
+const DEFAULT_FORM_ENDPOINT = 'https://formsubmit.co/ajax/mail@casagar.co.in';
 
 export const CONTACT_INFO = {
   name: 'Sagar H R & Co.',
@@ -55,7 +54,7 @@ export const CONTACT_INFO = {
   languages: ['English', 'Kannada', 'Hindi'],
   assessmentYear: CURRENT_AY,
   financialYear: CURRENT_FY,
-  formEndpoint: getEnv('VITE_FORM_ENDPOINT') || '/api/contact',
+  formEndpoint: getEnv('VITE_FORM_ENDPOINT') || DEFAULT_FORM_ENDPOINT,
   stats: {
     established: '2023',
     clientsServed: '500+',

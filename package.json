@@ -21,8 +21,6 @@
     "test:a11y": "vitest --run pages/Home.test.tsx"
   },
   "dependencies": {
-    "@botpoison/browser": "^0.1.30",
-    "@netlify/blobs": "^10.7.4",
     "lucide-react": "^1.14.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
