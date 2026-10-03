@@ -11,8 +11,6 @@ import {
   TopProgressBar,
   ServiceDetailSkeleton,
   InsightDetailSkeleton,
-  ContactSkeleton,
-  FAQSkeleton,
   ResourcesSkeleton,
   WhatsAppFloat,
   CookieConsent,
@@ -21,6 +19,8 @@ import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
 import { useAnnounce } from './hooks';
 import { Grain } from './components/ui/Grain';
+import { isRedesignedRoute } from './components/redesign/routes';
+import RdPageSkeleton from './components/redesign/RdPageSkeleton';
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));
@@ -39,6 +39,9 @@ const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const CustomCursor = lazy(() => import('./components/CustomCursor'));
+// 2026 redesign: header, sticky bar, menu and footer for the rebuilt pages.
+// Lazy so its stylesheet and fonts stay out of every other page's bundle.
+const RedesignLayout = lazy(() => import('./components/redesign/RedesignLayout'));
 
 const RouteHandler = () => {
   const { pathname } = useLocation();
@@ -172,7 +175,7 @@ const MainContent = () => {
               path="/faqs"
               element={
                 <RouteErrorBoundary>
-                  <Suspense fallback={<FAQSkeleton />}>
+                  <Suspense fallback={<RdPageSkeleton />}>
                     <FAQ />
                   </Suspense>
                 </RouteErrorBoundary>
@@ -208,7 +211,7 @@ const MainContent = () => {
               path="/contact"
               element={
                 <RouteErrorBoundary>
-                  <Suspense fallback={<ContactSkeleton />}>
+                  <Suspense fallback={<RdPageSkeleton />}>
                     <Contact />
                   </Suspense>
                 </RouteErrorBoundary>
@@ -253,6 +256,72 @@ const MainContent = () => {
   );
 };
 
+/**
+ * Persistent chrome around the routed view. The redesigned pages (see
+ * components/redesign/routes.ts) bring their own top bar and footer, so the
+ * floating Navbar, the WhatsApp button, the noise overlay and the old Footer
+ * are left out there; everything else is shared.
+ */
+const SiteLayout = () => {
+  const { pathname } = useLocation();
+  const redesigned = isRedesignedRoute(pathname);
+
+  return (
+    <>
+      <div className="print:hidden">
+        <NetworkStatus />
+        <Preloader />
+        {/* Audit CQ-12: CustomCursor is lazy-loaded via React.lazy at
+            the top of this file, so its chunk fetch is already
+            deferred to a separate request. The previous
+            useState+useEffect+setTimeout(0) gate was derived state
+            that delayed the React mount by a frame without changing
+            what hit the network. Suspense + lazy do the same job
+            without the rules-of-React noise. */}
+        <Suspense fallback={null}>
+          <CustomCursor />
+        </Suspense>
+        {!redesigned && <WhatsAppFloat />}
+        <CookieConsent />
+      </div>
+
+      {/* Fixed Elements */}
+      {!redesigned && (
+        <div className="pointer-events-none fixed left-0 top-0 z-fixed w-full print:hidden">
+          <Navbar className="animate-fade-in-up delay-200" />
+        </div>
+      )}
+
+      <div className="print:hidden">
+        <ToastContainer />
+      </div>
+
+      {redesigned ? (
+        <Suspense fallback={<PageLoader tone="ink" />}>
+          <RedesignLayout>
+            <MainContent />
+          </RedesignLayout>
+        </Suspense>
+      ) : (
+        <>
+          {/* Global Background Noise */}
+          <div className="bg-noise pointer-events-none fixed inset-0 z-0 opacity-[0.4] mix-blend-multiply print:hidden" />
+          <Grain opacity={0.05} />
+
+          {/* Main Layout */}
+          <div className="relative z-base flex min-h-screen w-full flex-col bg-brand-bg print:bg-white">
+            <MainContent />
+
+            <div className="print:hidden">
+              <Footer />
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <AnnounceProvider>
@@ -266,44 +335,7 @@ const App: React.FC = () => {
             Skip to content
           </a>
           <RouteHandler />
-          <div className="print:hidden">
-            <NetworkStatus />
-            <Preloader />
-            {/* Audit CQ-12: CustomCursor is lazy-loaded via React.lazy at
-                the top of this file, so its chunk fetch is already
-                deferred to a separate request. The previous
-                useState+useEffect+setTimeout(0) gate was derived state
-                that delayed the React mount by a frame without changing
-                what hit the network. Suspense + lazy do the same job
-                without the rules-of-React noise. */}
-            <Suspense fallback={null}>
-              <CustomCursor />
-            </Suspense>
-            <WhatsAppFloat />
-            <CookieConsent />
-          </div>
-
-          {/* Fixed Elements */}
-          <div className="pointer-events-none fixed left-0 top-0 z-fixed w-full print:hidden">
-            <Navbar className="animate-fade-in-up delay-200" />
-          </div>
-
-          <div className="print:hidden">
-            <ToastContainer />
-          </div>
-
-          {/* Global Background Noise */}
-          <div className="bg-noise pointer-events-none fixed inset-0 z-0 opacity-[0.4] mix-blend-multiply print:hidden" />
-          <Grain opacity={0.05} />
-
-          {/* Main Layout */}
-          <div className="relative z-base flex min-h-screen w-full flex-col bg-brand-bg print:bg-white">
-            <MainContent />
-
-            <div className="print:hidden">
-              <Footer />
-            </div>
-          </div>
+          <SiteLayout />
         </BrowserRouter>
       </ToastProvider>
     </AnnounceProvider>

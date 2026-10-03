@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Share2, ArrowUp } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
 import { toRomanNumeral } from '../utils/toRomanNumeral';
 import { useReducedMotion } from '../hooks/useReducedMotion';
@@ -30,17 +30,6 @@ const Footer: React.FC = () => {
                 <br />
                 {CONTACT_INFO.address.state}, {CONTACT_INFO.address.country}
               </address>
-              <div className="flex gap-4">
-                <a
-                  href={CONTACT_INFO.social.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 transition-colors hover:bg-white hover:text-brand-dark"
-                  aria-label="LinkedIn Profile (opens in new window)"
-                >
-                  <Share2 size={20} />
-                </a>
-              </div>
             </div>
 
             {/* Columns 2 & 3: Explore + Resources — side-by-side on mobile, back into 12-col grid on md+ */}

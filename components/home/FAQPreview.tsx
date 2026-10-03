@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, ArrowRight } from 'lucide-react';
-import { FAQS } from '../../constants/faq';
+import { FAQ_CATEGORIES, FAQS } from '../../constants/faq';
 import Reveal from '../Reveal';
 // UX-1 / PERF-1: FAQ answers only use paragraphs, inline links and simple
 // lists, so they render through the lightweight `markdownToHtml` helper (which
@@ -23,7 +23,7 @@ const HOME_FAQS_COUNT = 3;
  *      controls home-page order, so curators can re-rank by editing one
  *      file.
  *   2. If fewer than HOME_FAQS_COUNT are flagged, fall back to the
- *      legacy "first three General & Onboarding" behaviour so we never
+ *      legacy "first three of the first category" behaviour so we never
  *      render an empty section.
  *
  * Hoisted to module scope so the filter doesn't re-run every render and
@@ -36,7 +36,7 @@ const HOME_FAQS = (() => {
     return featured.slice(0, HOME_FAQS_COUNT);
   }
   const featuredIds = new Set(featured.map((faq) => faq.id));
-  const fallback = FAQS.filter((faq) => !featuredIds.has(faq.id) && faq.category === 'General & Onboarding');
+  const fallback = FAQS.filter((faq) => !featuredIds.has(faq.id) && faq.category === FAQ_CATEGORIES[0].label);
   return [...featured, ...fallback].slice(0, HOME_FAQS_COUNT);
 })();
 

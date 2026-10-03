@@ -1,25 +1,75 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Plus, ChevronDown, Check } from 'lucide-react';
 import SEO from '../components/SEO';
-import Reveal from '../components/Reveal';
-import { PageHero } from '../components/hero';
-import { FAQ_CATEGORIES, FAQS, FAQ_LAST_UPDATED } from '../constants';
+import { CONTACT_INFO, FAQ_CATEGORIES, FAQ_LAST_UPDATED, FAQ_LEGACY_IDS, FAQ_MOST_ASKED_IDS, FAQS } from '../constants';
+import type { FAQItem } from '../types';
 import { markdownToHtml } from '../utils/markdownToHtml';
 import { SITE_URL } from '../config/site';
-import './route-styles.css';
-import '../components/hero/PageHero.css';
-// UX-1 / PERF-1: `.faq-answer` styling now lives globally in index.css so the
-// home-page FAQ preview shares one source of truth (was pages/FAQ.css).
+import { useReducedMotion } from '../hooks';
+import { ArrowRight, ChevronDown, SearchIcon } from '../components/redesign/icons';
+
+// 2026 redesign of /faqs. Rendered inside RedesignLayout, which supplies the
+// top bar, footer and stylesheet (components/redesign/redesign.css).
 
 const FAQ_CANONICAL_URL = `${SITE_URL}/faqs`;
 const FAQ_OG_IMAGE = `${SITE_URL}/og-faq.png`;
 const FAQ_TITLE = 'CA FAQs | Tax, GST, Audit - Sagar H R & Co., Mysuru';
 const FAQ_DESCRIPTION =
-  'Answers to 20+ questions on Income Tax, GST, TDS, audit, data security, and business setup from Mysuru-based Chartered Accountants. Updated for FY 2025-26.';
+  'Answers on income tax, GST, company and LLP filings, tax notices, appeals and trust registration from Sagar H R & Co., Chartered Accountants in Mysuru.';
 
-const ORDERED_CATEGORIES = FAQ_CATEGORIES.filter(({ label }) => FAQS.some((faq) => faq.category === label));
-const FAQ_INDEX_BY_ID = new Map(FAQS.map((faq, index) => [faq.id, index]));
+const NARROW_QUERY = '(max-width: 900px)';
+const PLACEHOLDER_WIDE = 'Search the questions, for example ‘notice’ or ‘GST returns’';
+const PLACEHOLDER_NARROW = 'Search the questions';
+
+// Shorter names for the topic buttons where a section title runs long.
+const TOPIC_LABELS: Record<string, string> = {
+  'business-gst-compliance': 'Company law and compliance',
+};
+
+interface Entry extends FAQItem {
+  slug: string;
+  plain: string;
+  questionLower: string;
+  answerLower: string;
+}
+
+const toPlain = (markdown: string) =>
+  markdown.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*([^*]+)\*\*/g, '$1');
+
+const SECTIONS = FAQ_CATEGORIES.map((category) => ({
+  slug: category.slug,
+  label: category.label,
+  description: category.description,
+  items: FAQS.filter((faq) => faq.category === category.label),
+})).filter((section) => section.items.length > 0);
+
+const SECTION_SLUGS = new Set<string>(SECTIONS.map((section) => section.slug));
+
+const ENTRIES = new Map<string, Entry>(
+  SECTIONS.flatMap((section) =>
+    section.items.map((faq): [string, Entry] => {
+      const plain = toPlain(faq.answer);
+      return [
+        faq.id,
+        {
+          ...faq,
+          slug: section.slug,
+          plain,
+          questionLower: faq.question.toLowerCase(),
+          answerLower: plain.toLowerCase(),
+        },
+      ];
+    }),
+  ),
+);
+
+// FQ-08 / FQ-15: answers use only paragraphs and inline links, so they render
+// through the lightweight `markdownToHtml` helper (which escapes HTML and
+// sanitises URLs). The same map feeds the on-page answers and the FAQPage
+// schema — one source.
+const ANSWER_HTML = new Map(FAQS.map((faq) => [faq.id, markdownToHtml(faq.answer)]));
+
+const MOST_ASKED = FAQ_MOST_ASKED_IDS.map((id) => ENTRIES.get(id)).filter((entry): entry is Entry => Boolean(entry));
 
 // Most recent per-FAQ review date, falling back to the shared constant.
 const FAQ_PAGE_DATE_MODIFIED =
@@ -27,259 +77,246 @@ const FAQ_PAGE_DATE_MODIFIED =
     .filter((date): date is string => Boolean(date))
     .sort((left, right) => new Date(right).getTime() - new Date(left).getTime())[0] || FAQ_LAST_UPDATED;
 
-/** Resolve a URL hash (`#question-id` or `#category-slug`) to a category slug. */
-const resolveCategoryFromHash = (rawHash: string): string | null => {
-  if (!rawHash) {
+const FAQ_SCHEMA_ITEMS = FAQS.map((faq) => ({
+  question: faq.question,
+  answer: ANSWER_HTML.get(faq.id) ?? '',
+  dateModified: faq.lastUpdated || FAQ_PAGE_DATE_MODIFIED,
+}));
+
+const FAQ_PAGE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${FAQ_CANONICAL_URL}#webpage`,
+  url: FAQ_CANONICAL_URL,
+  name: FAQ_TITLE,
+  description: FAQ_DESCRIPTION,
+  inLanguage: 'en-IN',
+  dateModified: FAQ_PAGE_DATE_MODIFIED,
+  // FQ-17: link the WebPage node to the FAQPage node emitted by <SEO />.
+  mainEntity: { '@id': `${FAQ_CANONICAL_URL}#faqpage` },
+  speakable: {
+    '@type': 'SpeakableSpecification',
+    cssSelector: ['.rd-question', '.rd-answer'],
+  },
+};
+
+type HashTarget = { kind: 'question'; id: string } | { kind: 'section'; slug: string } | null;
+
+/** Resolve `#question-id`, a retired question id, or `#section-slug`. */
+const resolveHash = (hash: string): HashTarget => {
+  if (!hash) {
     return null;
   }
-  const targetId = rawHash.slice(1);
-  const matchingFaq = FAQS.find((faq) => faq.id === targetId);
-  if (matchingFaq) {
-    return FAQ_CATEGORIES.find((category) => category.label === matchingFaq.category)?.slug ?? null;
+  let id = hash.slice(1);
+  try {
+    id = decodeURIComponent(id);
+  } catch {
+    // keep the raw fragment
   }
-  return ORDERED_CATEGORIES.some((category) => category.slug === targetId) ? targetId : null;
+  if (ENTRIES.has(id)) {
+    return { kind: 'question', id };
+  }
+  const successor = Object.prototype.hasOwnProperty.call(FAQ_LEGACY_IDS, id) ? FAQ_LEGACY_IDS[id] : undefined;
+  if (successor && ENTRIES.has(successor)) {
+    return { kind: 'question', id: successor };
+  }
+  return SECTION_SLUGS.has(id) ? { kind: 'section', slug: id } : null;
 };
 
-const scrollToTarget = (targetId: string, behavior: ScrollBehavior = 'auto') => {
-  const target = document.getElementById(targetId);
+const sectionOfTarget = (target: HashTarget) => {
   if (!target) {
-    return;
+    return SECTIONS[0]?.slug ?? '';
   }
-  target.scrollIntoView({ behavior, block: 'start' });
+  return target.kind === 'section' ? target.slug : (ENTRIES.get(target.id)?.slug ?? '');
 };
 
-interface SectionPickerProps {
-  sections: readonly { slug: string; label: string }[];
-  activeSlug: string | null;
-  onSelect: (slug: string) => void;
-}
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const questionWord = (count: number) => (count === 1 ? 'question' : 'questions');
 
-/**
- * Mobile / tablet section picker — a dropdown disclosure. The closed state is a
- * compact control (label + the section you're currently in, tracked by the
- * scroll-spy); opening it reveals every section at once. Replaces a
- * horizontally scrolling chip strip that read as a content card and only ever
- * showed one or two sections.
- */
-const SectionPicker: React.FC<SectionPickerProps> = ({ sections, activeSlug, onSelect }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const panelId = 'faq-section-picker-panel';
+/** Wrap every match of `pattern` (which has one capturing group) in <mark>. */
+const highlight = (text: string, pattern: RegExp | null): React.ReactNode => {
+  if (!pattern) {
+    return text;
+  }
+  return text.split(pattern).map((part, index) => (index % 2 === 1 ? <mark key={index}>{part}</mark> : part));
+};
 
-  const activeLabel = sections.find((section) => section.slug === activeSlug)?.label ?? sections[0]?.label ?? '';
-
-  // Close the panel on an outside click or Escape.
-  useEffect(() => {
-    if (!isOpen) {
-      return;
+/** A short extract of the answer around a search term the question lacks. */
+const snippetFor = (text: string, term: string, pattern: RegExp): React.ReactNode => {
+  const at = text.toLowerCase().indexOf(term);
+  let start = Math.max(0, at - 60);
+  let end = Math.min(text.length, at + term.length + 90);
+  if (start > 0) {
+    const space = text.indexOf(' ', start);
+    if (space > -1 && space < at) {
+      start = space + 1;
     }
-    const onPointerDown = (event: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false);
-        buttonRef.current?.focus();
-      }
-    };
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [isOpen]);
-
-  const handleSelect = (slug: string) => {
-    onSelect(slug);
-    setIsOpen(false);
-    buttonRef.current?.focus();
-  };
-
+  }
+  if (end < text.length) {
+    const space = text.lastIndexOf(' ', end);
+    if (space > at + term.length) {
+      end = space;
+    }
+  }
   return (
-    <div ref={rootRef} className="relative">
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        onClick={() => setIsOpen((open) => !open)}
-        className="flex w-full items-center gap-3 rounded-2xl border border-brand-border bg-brand-surface px-5 py-3 text-left shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-brand-moss/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
-      >
-        <span className="min-w-0 flex-1">
-          <span className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-brand-moss">
-            Jump to section
-          </span>
-          <span className="mt-0.5 block truncate font-heading text-base font-bold text-brand-dark">{activeLabel}</span>
-        </span>
-        <span
-          aria-hidden="true"
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-bg text-brand-dark transition-transform duration-300 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-        >
-          <ChevronDown size={18} />
-        </span>
-      </button>
-
-      <div
-        id={panelId}
-        className={`absolute inset-x-0 top-full z-popover mt-2 origin-top overflow-hidden rounded-2xl border border-brand-border bg-brand-surface shadow-xl transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isOpen
-            ? 'visible translate-y-0 scale-100 opacity-100'
-            : 'pointer-events-none invisible -translate-y-1 scale-95 opacity-0'
-        }`}
-      >
-        {sections.map((section, index) => {
-          const isActive = section.slug === activeSlug;
-          return (
-            <button
-              key={section.slug}
-              type="button"
-              onClick={() => handleSelect(section.slug)}
-              aria-current={isActive ? 'true' : undefined}
-              className={`flex w-full items-center gap-3 px-5 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-moss ${
-                isActive ? 'bg-brand-moss/10' : 'hover:bg-brand-bg'
-              }`}
-            >
-              <span className={`font-mono text-xs font-medium ${isActive ? 'text-brand-moss' : 'text-brand-stone'}`}>
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <span className={`flex-1 text-sm font-bold ${isActive ? 'text-brand-moss' : 'text-brand-dark'}`}>
-                {section.label}
-              </span>
-              {isActive && <Check size={16} aria-hidden="true" className="shrink-0 text-brand-moss" />}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <>
+      {start > 0 ? '… ' : ''}
+      {highlight(text.slice(start, end), pattern)}
+      {end < text.length ? ' …' : ''}
+    </>
   );
 };
+
+const addTo = (id: string) => (previous: Set<string>) => (previous.has(id) ? previous : new Set(previous).add(id));
 
 const FAQ: React.FC = () => {
   const { hash } = useLocation();
   const navigate = useNavigate();
-  const [activeId, setActiveId] = useState<string | null>(null);
-  // FQ-02 / FQ-03: the active section is tracked by a scroll-spy
-  // IntersectionObserver, not derived from the URL hash — `history.replaceState`
-  // never fed the hash back into `useLocation`, so the old highlight was dead
-  // on click. The hash still seeds the initial value for deep links.
-  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(
-    () => resolveCategoryFromHash(hash) ?? ORDERED_CATEGORIES[0]?.slug ?? null,
-  );
-  // FQ-01: answer markup is mounted lazily — nothing answer-related is in the
-  // DOM until a card is first opened. Once revealed it stays mounted so the
-  // collapse animation (FQ-11) always has content to animate.
-  const [revealedIds, setRevealedIds] = useState<Set<string>>(() => new Set());
-  const headerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-  // Set while a category-jump smooth-scroll is travelling. It pins the active
-  // highlight to the clicked category so the scroll-spy doesn't light up every
-  // category the scroll passes over on the way there.
-  const jumpRef = useRef<{ slug: string; deadline: number } | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
-  const groupedFaqs = useMemo(
-    () =>
-      ORDERED_CATEGORIES.map((category) => ({
-        category: category.label,
-        categoryId: category.slug,
-        items: FAQS.filter((faq) => faq.category === category.label),
-      })),
-    [],
-  );
+  const [query, setQuery] = useState('');
+  const [topic, setTopic] = useState('all');
+  // Several answers can be open at once. FQ-01: answer markup is mounted
+  // lazily — nothing answer-related is in the DOM until a question is first
+  // opened — and then stays mounted so the collapse can animate (FQ-11).
+  const [openIds, setOpenIds] = useState<Set<string>>(() => {
+    const target = resolveHash(hash);
+    return new Set(target?.kind === 'question' ? [target.id] : []);
+  });
+  const [revealedIds, setRevealedIds] = useState<Set<string>>(() => new Set(openIds));
+  const [activeSlug, setActiveSlug] = useState(() => sectionOfTarget(resolveHash(hash)));
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [narrow, setNarrow] = useState(() => window.matchMedia(NARROW_QUERY).matches);
 
-  // FQ-08 / FQ-15: FAQ answers only use paragraphs and inline links, so they
-  // render through the lightweight `markdownToHtml` helper (which escapes HTML
-  // and sanitises URLs) instead of the full ReactMarkdown pipeline. The same
-  // map feeds both the on-page answers and the FAQPage schema — one source.
-  const answerHtmlById = useMemo(() => new Map(FAQS.map((faq) => [faq.id, markdownToHtml(faq.answer)])), []);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const pickerButtonRef = useRef<HTMLButtonElement>(null);
+  // Set while a section jump is scrolling, so the scroll-spy doesn't flash
+  // through every section on the way there.
+  const jumpRef = useRef<string | null>(null);
+  const jumpTimerRef = useRef(0);
 
-  const faqSchemaItems = useMemo(
-    () =>
-      FAQS.map((faq) => ({
-        question: faq.question,
-        answer: answerHtmlById.get(faq.id) ?? '',
-        dateModified: faq.lastUpdated || FAQ_PAGE_DATE_MODIFIED,
-      })),
-    [answerHtmlById],
-  );
+  const search = useMemo(() => {
+    const raw = query.trim();
+    const terms = raw
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((term) => term.length > 1 || /\d/.test(term));
+    const pattern = terms.length ? new RegExp(`(${terms.map(escapeRegExp).join('|')})`, 'gi') : null;
+    const matches: Record<string, number> = {};
+    const shown = new Set<string>();
+    ENTRIES.forEach((entry) => {
+      const hit = terms.every((term) => entry.questionLower.includes(term) || entry.answerLower.includes(term));
+      if (!hit) {
+        return;
+      }
+      matches[entry.slug] = (matches[entry.slug] ?? 0) + 1;
+      if (topic === 'all' || topic === entry.slug) {
+        shown.add(entry.id);
+      }
+    });
+    const allMatches = Object.values(matches).reduce((sum, count) => sum + count, 0);
+    return { raw, terms, pattern, matches, shown, allMatches };
+  }, [query, topic]);
 
-  const faqPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${FAQ_CANONICAL_URL}#webpage`,
-    url: FAQ_CANONICAL_URL,
-    name: FAQ_TITLE,
-    description: FAQ_DESCRIPTION,
-    inLanguage: 'en-IN',
-    dateModified: FAQ_PAGE_DATE_MODIFIED,
-    // FQ-17: link the WebPage node to the FAQPage node emitted by <SEO />.
-    mainEntity: { '@id': `${FAQ_CANONICAL_URL}#faqpage` },
-    speakable: {
-      '@type': 'SpeakableSpecification',
-      cssSelector: ['.faq-question', '.faq-answer'],
-    },
+  const total = search.shown.size;
+  const visibleSections = SECTIONS.filter((section) => section.items.some((faq) => search.shown.has(faq.id)));
+
+  // A hash that changes after mount (back/forward, a link into this page)
+  // opens its question here, during render, rather than in an effect.
+  const [seenHash, setSeenHash] = useState(hash);
+  if (hash !== seenHash) {
+    setSeenHash(hash);
+    const target = resolveHash(hash);
+    if (target) {
+      setActiveSlug(sectionOfTarget(target));
+    }
+    if (target?.kind === 'question') {
+      if (!search.shown.has(target.id)) {
+        setQuery('');
+        setTopic('all');
+      }
+      setRevealedIds(addTo(target.id));
+      setOpenIds(addTo(target.id));
+    }
+  }
+
+  const scrollBehavior: ScrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
+
+  // Keep the address shareable without a router navigation. FQ-02: the
+  // router's own state is passed through so back/forward keep working.
+  const replaceHash = (value: string) => {
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${window.location.search}#${value}`,
+    );
   };
 
-  const toggleAccordion = (faqId: string) => {
-    setRevealedIds((prev) => (prev.has(faqId) ? prev : new Set(prev).add(faqId)));
-    setActiveId((currentId) => (currentId === faqId ? null : faqId));
+  const toggleQuestion = (id: string) => {
+    setRevealedIds(addTo(id));
+    setOpenIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
-  // Scroll to a category and pin the highlight to it until the smooth scroll
-  // arrives, so the scroll-spy doesn't flash through every category in between.
-  const jumpToCategory = (slug: string) => {
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      'matchMedia' in window &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    window.history.replaceState(null, '', `#${slug}`); // keep the URL shareable
-    setActiveCategoryId(slug);
-    jumpRef.current = { slug, deadline: Date.now() + 1500 };
-    scrollToTarget(slug, prefersReducedMotion ? 'auto' : 'smooth');
+  const goToQuestion = (id: string) => {
+    if (!search.shown.has(id)) {
+      setQuery('');
+      setTopic('all');
+    }
+    setRevealedIds(addTo(id));
+    setOpenIds(addTo(id));
+    replaceHash(id);
+    window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+      document.getElementById(`faq-q-${id}`)?.focus({ preventScroll: true });
+    }, 30);
   };
 
-  // Desktop sidebar links are real anchors — cancel the native jump first.
-  const handleCategoryJump = (event: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    event.preventDefault();
-    jumpToCategory(targetId);
+  const jumpToSection = (slug: string) => {
+    setPickerOpen(false);
+    setActiveSlug(slug);
+    jumpRef.current = slug;
+    window.clearTimeout(jumpTimerRef.current);
+    jumpTimerRef.current = window.setTimeout(() => {
+      jumpRef.current = null;
+    }, 1500);
+    replaceHash(slug);
+    document.getElementById(slug)?.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
   };
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, faqId: string) => {
-    const currentIndex = FAQ_INDEX_BY_ID.get(faqId);
-    if (currentIndex === undefined) {
+  const onQuestionKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
       return;
     }
-
-    const lastIndex = FAQS.length - 1;
-
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      headerRefs.current[FAQS[Math.min(currentIndex + 1, lastIndex)]?.id || '']?.focus();
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      headerRefs.current[FAQS[Math.max(currentIndex - 1, 0)]?.id || '']?.focus();
-    } else if (event.key === 'Home') {
-      event.preventDefault();
-      headerRefs.current[FAQS[0]?.id || '']?.focus();
-    } else if (event.key === 'End') {
-      event.preventDefault();
-      headerRefs.current[FAQS[lastIndex]?.id || '']?.focus();
-    }
+    const buttons = Array.from(listRef.current?.querySelectorAll<HTMLButtonElement>('.qi:not([hidden]) .qb') ?? []);
+    const index = buttons.indexOf(event.currentTarget);
+    const last = buttons.length - 1;
+    const next =
+      event.key === 'ArrowDown'
+        ? Math.min(index + 1, last)
+        : event.key === 'ArrowUp'
+          ? Math.max(index - 1, 0)
+          : event.key === 'Home'
+            ? 0
+            : last;
+    event.preventDefault();
+    buttons[next]?.focus();
   };
 
-  // FQ-09: answers render from an HTML string (dangerouslySetInnerHTML), so
-  // their internal links are plain <a> tags that would otherwise trigger a
-  // full document reload. Delegate clicks here and route same-origin paths
-  // through React Router instead. Modified clicks (open-in-new-tab etc.),
-  // new-tab/download links, external URLs, mailto:/tel:, and in-page hash
-  // jumps are all left to the browser's native behaviour.
-  const handleAnswerNavigation = (event: React.MouseEvent<HTMLDivElement>) => {
+  // FQ-09: answers render from an HTML string, so their internal links are
+  // plain <a> tags that would otherwise reload the whole document. Same-origin
+  // paths go through the router; modified clicks, new-tab links, external
+  // URLs, mailto:/tel: and in-page hash jumps keep the browser's behaviour.
+  const onAnswerClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (
       event.defaultPrevented ||
       event.button !== 0 ||
@@ -290,123 +327,166 @@ const FAQ: React.FC = () => {
     ) {
       return;
     }
-
     const anchor = (event.target as HTMLElement).closest('a');
     if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) {
       return;
     }
-
     const url = new URL(anchor.href, window.location.href);
-    if (url.origin !== window.location.origin) {
+    if (url.origin !== window.location.origin || (url.pathname === window.location.pathname && url.hash)) {
       return;
     }
-    // Pure in-page hash jumps keep their native scroll behaviour.
-    if (url.pathname === window.location.pathname && url.hash) {
-      return;
-    }
-
     event.preventDefault();
     navigate(`${url.pathname}${url.search}${url.hash}`);
   };
 
-  // Deep-link handling: open and scroll to a question, or scroll to a category.
+  const onSearchFocus = () => {
+    if (!window.matchMedia(NARROW_QUERY).matches) {
+      return;
+    }
+    // On phones, bring the search box up so the keyboard doesn't hide results.
+    window.setTimeout(() => {
+      const input = searchRef.current;
+      if (!input) {
+        return;
+      }
+      const top = input.getBoundingClientRect().top + window.scrollY - 24;
+      if (window.scrollY < top) {
+        window.scrollTo({ top, behavior: scrollBehavior });
+      }
+    }, 250);
+  };
+
+  // Scroll to a deep-linked question or section once it has rendered. Runs
+  // after RouteHandler's scroll-to-top and its focus of #main-content.
   useEffect(() => {
-    if (!hash) {
+    const target = resolveHash(hash);
+    if (!target) {
       return;
     }
-
-    const targetId = hash.slice(1);
-    const matchingFaq = FAQS.find((faq) => faq.id === targetId);
-
-    if (matchingFaq) {
-      setRevealedIds((prev) => (prev.has(matchingFaq.id) ? prev : new Set(prev).add(matchingFaq.id)));
-      setActiveId(matchingFaq.id);
-      scrollToTarget(matchingFaq.id);
-      return;
-    }
-
-    scrollToTarget(targetId);
+    const timer = window.setTimeout(() => {
+      const id = target.kind === 'question' ? target.id : target.slug;
+      document.getElementById(id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+      if (target.kind === 'question') {
+        document.getElementById(`faq-q-${id}`)?.focus({ preventScroll: true });
+      }
+    }, 60);
+    return () => window.clearTimeout(timer);
   }, [hash]);
 
-  // FQ-03: scroll-spy. The active category is the last section whose top has
-  // crossed a trigger line just below the fixed chrome — with a bottom-of-page
-  // guard so the final category still wins when the page can't scroll its
-  // heading all the way up to the line (the previous "first section touching a
-  // band" heuristic mis-fired there). Driven by a passive, rAF-throttled
-  // scroll listener; the initial value is seeded from the hash above.
+  // Shorter placeholder where the box is narrow.
   useEffect(() => {
-    // A jumped-to heading lands at its `scrollMarginTop` (~224px) with the
-    // index kicker just above it, so a trigger near 220px catches the jumped
-    // section while staying clear of the next one.
-    const TRIGGER_OFFSET = 220;
+    const media = window.matchMedia(NARROW_QUERY);
+    const onChange = (event: MediaQueryListEvent) => setNarrow(event.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
 
-    const computeActive = () => {
-      const sections = ORDERED_CATEGORIES.map((category) => sectionRefs.current[category.slug]).filter(
-        (element): element is HTMLElement => Boolean(element),
-      );
-      const first = sections[0];
+  // Pressing "/" anywhere outside a field jumps to the search box.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) {
+        return;
+      }
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  // FQ-03: scroll-spy for the phone section picker. The active section is the
+  // last visible one whose top has crossed a line near the top of the screen,
+  // with a bottom-of-page guard so the final section can still win.
+  useEffect(() => {
+    let rafId = 0;
+    const compute = () => {
+      rafId = 0;
+      const sections = Array.from(listRef.current?.querySelectorAll<HTMLElement>('.sec:not([hidden])') ?? []);
       const last = sections[sections.length - 1];
-      if (!first || !last) {
+      if (!last) {
         return;
       }
-
-      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
-
-      let active = first;
-      if (atBottom) {
-        // The last section often can't be scrolled up to the trigger line;
-        // once the page bottoms out it is unambiguously the active one.
-        active = last;
-      } else {
-        sections.forEach((section) => {
-          if (section.getBoundingClientRect().top <= TRIGGER_OFFSET) {
-            active = section;
-          }
-        });
-      }
-
-      const slug = active.getAttribute('data-category');
-      if (!slug) {
-        return;
-      }
-
-      // While a category jump is animating, keep the highlight pinned to the
-      // clicked category until the scroll reaches it (or the safety deadline
-      // passes) — otherwise it flashes through every category scrolled past.
-      const jump = jumpRef.current;
-      if (jump) {
-        if (slug === jump.slug || Date.now() > jump.deadline) {
-          jumpRef.current = null;
-        } else {
-          return;
+      const line = window.matchMedia(NARROW_QUERY).matches ? 120 : 200;
+      let active = sections[0] ?? last;
+      sections.forEach((section) => {
+        if (section.getBoundingClientRect().top <= line) {
+          active = section;
         }
+      });
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      if (atBottom && last.getBoundingClientRect().top < window.innerHeight * 0.6) {
+        active = last;
       }
-
-      setActiveCategoryId(slug);
-    };
-
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) {
+      // A section picked from the picker stays current until its jump has
+      // settled, even if the page bottoms out with a later section in view.
+      if (jumpRef.current) {
         return;
       }
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        computeActive();
-        ticking = false;
-      });
+      setActiveSlug(active.id);
     };
-
+    const onScroll = () => {
+      if (!rafId) {
+        rafId = window.requestAnimationFrame(compute);
+      }
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
+      window.cancelAnimationFrame(rafId);
+      window.clearTimeout(jumpTimerRef.current);
     };
   }, []);
 
+  // Close the section picker on an outside click or Escape.
+  useEffect(() => {
+    if (!pickerOpen) {
+      return;
+    }
+    const onPointerDown = (event: MouseEvent) => {
+      if (!pickerRef.current?.contains(event.target as Node)) {
+        setPickerOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPickerOpen(false);
+        pickerButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [pickerOpen]);
+
+  const topicLabel = SECTIONS.find((section) => section.slug === topic)?.label ?? '';
+  const where = topic === 'all' ? '' : ` in ${topicLabel}`;
+  let status = '';
+  if (search.pattern && total) {
+    status = `${total} ${questionWord(total)}${where} ${total === 1 ? 'matches' : 'match'} “${search.raw}”.`;
+  } else if (!search.pattern && topic !== 'all') {
+    status = `Showing ${total} ${questionWord(total)} on ${topicLabel}.`;
+  }
+  const announcement =
+    search.pattern || topic !== 'all' ? (total ? `${total} ${questionWord(total)} shown` : 'No questions found') : '';
+
+  const pickerSections = visibleSections.length ? visibleSections : SECTIONS;
+  const pickerIndex = Math.max(
+    0,
+    pickerSections.findIndex((section) => section.slug === activeSlug),
+  );
+  const pickerCurrent = pickerSections[pickerIndex];
+
   return (
-    <div className="min-h-screen bg-brand-bg selection:bg-brand-moss selection:text-white">
+    <div className="rd-page">
       <SEO
         title={FAQ_TITLE}
         description={FAQ_DESCRIPTION}
@@ -416,204 +496,253 @@ const FAQ: React.FC = () => {
           { name: 'Home', url: '/' },
           { name: 'FAQs', url: '/faqs' },
         ]}
-        schema={faqPageSchema}
-        faqs={faqSchemaItems}
+        schema={FAQ_PAGE_SCHEMA}
+        faqs={FAQ_SCHEMA_ITEMS}
       />
 
-      <PageHero
-        tag="FAQs"
-        title={
-          <>
-            Common <em>Queries.</em>
-          </>
-        }
-        description="Clear answers to your financial queries. From tax planning to compliance, we have got you covered."
-      />
-
-      <div className="px-4 py-20 md:px-6">
-        <div className="container mx-auto max-w-6xl px-4">
-          {/* Wrapper establishes the sticky containing block for the category
-              nav — it must span the question grid for `sticky` to travel. */}
+      <div className="phead">
+        <div className="grain" aria-hidden="true" />
+        <div className="hgrid pad">
           <div>
-            {/* Mobile + tablet section picker (the desktop sidebar takes over
-                on lg+). A dropdown rather than a chip strip: it reads clearly
-                as a control, shows every section at once without horizontal
-                scrolling, and its closed state doubles as a "you are here"
-                indicator driven by the scroll-spy. Sticky so it stays
-                reachable while scrolling the answers. */}
-            <div className="sticky top-28 z-sticky mb-12 lg:hidden">
-              <SectionPicker sections={ORDERED_CATEGORIES} activeSlug={activeCategoryId} onSelect={jumpToCategory} />
-            </div>
-
-            <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 xl:gap-14">
-              <aside className="hidden lg:block">
-                <div className="sticky top-[calc(var(--sticky-offset)+1rem)]">
-                  <nav aria-label="FAQ section navigation" className="pr-4">
-                    <p className="mb-5 text-xs font-bold uppercase tracking-widest text-[#5f594f]">Browse sections</p>
-                    <ul className="space-y-2.5">
-                      {groupedFaqs.map(({ category, categoryId }) => (
-                        <li key={`side-${categoryId}`}>
-                          <a
-                            href={`#${categoryId}`}
-                            onClick={(event) => handleCategoryJump(event, categoryId)}
-                            aria-current={activeCategoryId === categoryId ? 'true' : undefined}
-                            className={`block rounded-2xl border px-4 py-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-4 focus-visible:ring-offset-brand-bg ${
-                              activeCategoryId === categoryId
-                                ? 'border-brand-moss bg-brand-moss text-white shadow-lg shadow-brand-moss/20'
-                                : 'border-brand-border/80 bg-brand-surface text-brand-dark hover:border-brand-moss/40 hover:text-brand-moss'
-                            }`}
-                          >
-                            {category}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </nav>
-                </div>
-              </aside>
-
-              <div className="space-y-16">
-                {groupedFaqs.map(({ category, categoryId, items }, catIdx) => (
-                  // FQ-21: category sections use the shared Reveal component
-                  // (scroll-triggered, reduced-motion aware) for consistency.
-                  <Reveal key={categoryId} width="100%" delay={catIdx * 0.08}>
-                    <section
-                      ref={(node) => {
-                        sectionRefs.current[categoryId] = node;
-                      }}
-                      data-category={categoryId}
-                      aria-labelledby={categoryId}
-                    >
-                      {/* Ledger-index kicker — a leading-zero mono numeral
-                          that echoes the numbered nav and the ledger identity
-                          of an accountancy practice. aria-hidden so it stays
-                          out of the h2's accessible name (which must match the
-                          category label used by the nav and FAQ schema). */}
-                      <div aria-hidden="true" className="mb-2 flex items-center gap-2.5">
-                        <span className="font-mono text-xs font-medium tracking-[0.14em] text-brand-moss">
-                          {String(catIdx + 1).padStart(2, '0')}
-                        </span>
-                        <span className="h-px w-5 bg-brand-moss/45" />
-                      </div>
-                      <h2
-                        id={categoryId}
-                        className="mb-6 font-heading text-2xl font-bold text-brand-dark"
-                        style={{ scrollMarginTop: 'calc(var(--sticky-offset) + 6rem)' }}
-                      >
-                        {category}
-                      </h2>
-                      <div className="space-y-4">
-                        {items.map((faq) => {
-                          const isExpanded = activeId === faq.id;
-                          const buttonId = `faq-button-${faq.id}`;
-                          const panelId = `faq-panel-${faq.id}`;
-
-                          return (
-                            <div
-                              key={faq.id}
-                              id={faq.id}
-                              className={`rounded-3xl border bg-brand-surface p-5 transition-[border-color,box-shadow] duration-300 md:p-8 ${
-                                isExpanded
-                                  ? 'border-brand-moss shadow-lg ring-1 ring-brand-moss/20'
-                                  : 'border-brand-border hover:border-brand-moss/30 hover:shadow-lg'
-                              }`}
-                              style={{ scrollMarginTop: 'calc(var(--sticky-offset) + 6rem)' }}
-                            >
-                              <h3 className="m-0">
-                                <button
-                                  ref={(node) => {
-                                    headerRefs.current[faq.id] = node;
-                                  }}
-                                  id={buttonId}
-                                  type="button"
-                                  aria-expanded={isExpanded}
-                                  aria-controls={panelId}
-                                  className="group w-full rounded-2xl text-left focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-4 focus-visible:ring-offset-brand-bg"
-                                  onClick={() => toggleAccordion(faq.id)}
-                                  onKeyDown={(event) => onKeyDown(event, faq.id)}
-                                >
-                                  <span className="flex w-full items-start justify-between gap-4 md:items-center">
-                                    <span
-                                      className={`faq-question text-balance break-words font-heading text-lg font-bold leading-tight transition-colors md:text-xl ${
-                                        isExpanded ? 'text-brand-moss' : 'text-brand-dark'
-                                      }`}
-                                    >
-                                      {faq.question}
-                                    </span>
-                                    <span
-                                      aria-hidden="true"
-                                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors duration-300 ${
-                                        isExpanded ? 'bg-brand-moss text-white' : 'bg-brand-bg text-brand-dark'
-                                      }`}
-                                    >
-                                      <Plus
-                                        size={20}
-                                        className={`transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`}
-                                      />
-                                    </span>
-                                  </span>
-                                </button>
-                              </h3>
-
-                              {/* FQ-11: a grid-rows 0fr->1fr transition gives a
-                                  smooth height reveal. Reduced-motion users get
-                                  an instant swap via the global override in
-                                  index.css. FQ-06: no role="region" — 20 of them
-                                  is landmark proliferation; aria-expanded on the
-                                  button already carries the state. */}
-                              <div
-                                id={panelId}
-                                className={`grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                                  isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-                                }`}
-                              >
-                                <div className="min-h-0 overflow-hidden">
-                                  {revealedIds.has(faq.id) && (
-                                    <div
-                                      className="faq-answer"
-                                      // `inert` keeps a collapsed answer (and its
-                                      // links) out of the tab order and a11y tree.
-                                      inert={!isExpanded}
-                                      // FQ-09: keep internal links as SPA
-                                      // navigations rather than full reloads.
-                                      onClick={handleAnswerNavigation}
-                                      // Safe: answers are static authored content
-                                      // and markdownToHtml escapes HTML + sanitises
-                                      // URLs before re-introducing whitelisted tags.
-                                      dangerouslySetInnerHTML={{ __html: answerHtmlById.get(faq.id) ?? '' }}
-                                    />
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </section>
-                  </Reveal>
-                ))}
-              </div>
-            </div>
+            <h1 className="rise">Frequently asked questions</h1>
+            <p className="hsub rise d1">
+              What clients ask us most, from GST and income tax to notices, company filings and trusts. If your question
+              isn’t here, call or email us.
+            </p>
           </div>
+          <div className="rise d2">
+            <h2 className="lbl" id="faq-most-heading">
+              Asked most often
+            </h2>
+            <ul className="most" aria-labelledby="faq-most-heading">
+              {MOST_ASKED.map((entry) => (
+                <li key={entry.id}>
+                  <a
+                    href={`#${entry.id}`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      goToQuestion(entry.id);
+                    }}
+                  >
+                    <span>{entry.question}</span>
+                    <ArrowRight size={18} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
 
-          <div className="mt-20 rounded-3xl border border-brand-border bg-brand-surface p-10 text-center shadow-sm">
-            <Reveal width="100%" delay={0}>
-              <h2 className="mb-4 font-heading text-3xl font-bold text-brand-dark">Still have questions?</h2>
-            </Reveal>
-            <Reveal width="100%" delay={0.08}>
-              <p className="mb-8 text-lg font-medium text-brand-stone">
-                If you can&apos;t find the answer you&apos;re looking for, please don&apos;t hesitate to reach out.
-              </p>
-            </Reveal>
-            <Reveal width="100%" delay={0.16}>
-              <Link
-                to="/contact"
-                className="inline-block rounded-full bg-brand-dark px-8 py-4 font-bold text-white shadow-lg transition-colors duration-300 hover:bg-brand-moss"
+      <div className="pad">
+        <div className="seam panel spanel">
+          <div className="srow" role="search">
+            <label htmlFor="faq-search" className="vh">
+              Search the FAQs
+            </label>
+            <SearchIcon />
+            <input
+              ref={searchRef}
+              id="faq-search"
+              type="search"
+              value={query}
+              placeholder={narrow ? PLACEHOLDER_NARROW : PLACEHOLDER_WIDE}
+              autoComplete="off"
+              spellCheck={false}
+              enterKeyHint="search"
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape' && query) {
+                  event.preventDefault();
+                  setQuery('');
+                }
+              }}
+              onFocus={onSearchFocus}
+            />
+            {query && (
+              <button
+                className="link-btn"
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  searchRef.current?.focus();
+                }}
               >
-                Schedule a Consultation
-              </Link>
-            </Reveal>
+                Clear
+              </button>
+            )}
           </div>
+          <div className="topics" role="group" aria-label="Show questions on">
+            <button type="button" className="topic" aria-pressed={topic === 'all'} onClick={() => setTopic('all')}>
+              <span>All topics</span>
+              {search.pattern && <span className="c">{search.allMatches}</span>}
+            </button>
+            {SECTIONS.map((section) => {
+              const count = search.matches[section.slug] ?? 0;
+              return (
+                <button
+                  key={section.slug}
+                  type="button"
+                  className={`topic ${search.pattern && count === 0 ? 'empty' : ''}`}
+                  aria-pressed={topic === section.slug}
+                  onClick={() => setTopic(section.slug)}
+                >
+                  <span>{TOPIC_LABELS[section.slug] ?? section.label}</span>
+                  {search.pattern && <span className="c">{count}</span>}
+                </button>
+              );
+            })}
+          </div>
+          {status && (
+            <p className="sstatus">
+              {status}
+              {topic !== 'all' && (
+                <button type="button" className="link-btn" onClick={() => setTopic('all')}>
+                  Show all topics
+                </button>
+              )}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="faqlist pad" ref={listRef}>
+        <div className="picker" ref={pickerRef} data-open={pickerOpen ? '' : undefined}>
+          <button
+            ref={pickerButtonRef}
+            type="button"
+            aria-expanded={pickerOpen}
+            aria-controls="faq-picker-list"
+            onClick={() => setPickerOpen((open) => !open)}
+          >
+            <span className="pl">
+              <span className="lbl">
+                Section {pickerIndex + 1} of {pickerSections.length}
+              </span>
+              <b>{pickerCurrent?.label}</b>
+            </span>
+            <span className="chev" aria-hidden="true">
+              <ChevronDown />
+            </span>
+          </button>
+          <ol id="faq-picker-list" hidden={!pickerOpen}>
+            {pickerSections.map((section) => (
+              <li key={section.slug}>
+                <a
+                  href={`#${section.slug}`}
+                  aria-current={section.slug === pickerCurrent?.slug ? 'true' : undefined}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    jumpToSection(section.slug);
+                  }}
+                >
+                  {section.label}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <p className="vh" aria-live="polite">
+          {announcement}
+        </p>
+
+        {SECTIONS.map((section) => (
+          <section
+            key={section.slug}
+            id={section.slug}
+            className="sec"
+            aria-labelledby={`${section.slug}-heading`}
+            hidden={!visibleSections.includes(section)}
+          >
+            <div className="sec-h">
+              <h2 id={`${section.slug}-heading`}>{section.label}</h2>
+              <p className="desc">{section.description}</p>
+            </div>
+            <div className="qlist">
+              {section.items.map((faq) => {
+                const entry = ENTRIES.get(faq.id);
+                const open = openIds.has(faq.id);
+                const missing = search.terms.find((term) => !entry?.questionLower.includes(term));
+                return (
+                  <div
+                    key={faq.id}
+                    id={faq.id}
+                    className={`qi ${open ? 'open' : ''}`}
+                    hidden={!search.shown.has(faq.id)}
+                  >
+                    <h3>
+                      <button
+                        className="qb"
+                        type="button"
+                        id={`faq-q-${faq.id}`}
+                        aria-expanded={open}
+                        aria-controls={`faq-a-${faq.id}`}
+                        onClick={() => toggleQuestion(faq.id)}
+                        onKeyDown={onQuestionKeyDown}
+                      >
+                        <span className="q rd-question">{highlight(faq.question, search.pattern)}</span>
+                        <span className="x" aria-hidden="true" />
+                      </button>
+                    </h3>
+                    {search.pattern && missing && entry && (
+                      <p className="snip">{snippetFor(entry.plain, missing, search.pattern)}</p>
+                    )}
+                    {/* FQ-11: a grid-rows 0fr -> 1fr transition reveals the
+                        answer smoothly. FQ-06: no role="region" — two dozen of
+                        them is landmark noise; aria-expanded carries the state. */}
+                    <div className="ans" id={`faq-a-${faq.id}`}>
+                      <div>
+                        {revealedIds.has(faq.id) && (
+                          <div
+                            className="rd-answer"
+                            // `inert` keeps a closed answer and its links out of
+                            // the tab order and the accessibility tree.
+                            inert={!open}
+                            onClick={onAnswerClick}
+                            // Safe: authored content; markdownToHtml escapes HTML
+                            // and sanitises URLs before adding whitelisted tags.
+                            dangerouslySetInnerHTML={{ __html: ANSWER_HTML.get(faq.id) ?? '' }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+
+        {total === 0 && (
+          <div className="tail">
+            <span />
+            <div className="nores">
+              <h2>
+                No questions{where} match “{search.raw}”.
+              </h2>
+              <p>Send it to us and we’ll answer it directly. We’ll put your question in the message for you.</p>
+              {topic !== 'all' && (
+                <p>
+                  <button type="button" className="link-btn" onClick={() => setTopic('all')}>
+                    Search all topics instead
+                  </button>
+                </p>
+              )}
+              <Link className="btn" to="/contact#write" state={{ faqQuestion: search.raw }}>
+                <span>Ask us this question</span>
+                <ArrowRight />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        <div className="tail">
+          <span />
+          <p className="still">
+            Still have a question? Call <a href={`tel:${CONTACT_INFO.phone.value}`}>{CONTACT_INFO.phone.display}</a> or
+            email <a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a>.
+          </p>
         </div>
       </div>
     </div>

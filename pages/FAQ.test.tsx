@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CATEGORY_ORDER, FAQS } from '../constants';
@@ -10,16 +10,15 @@ vi.mock('../components/SEO', () => ({
   default: () => null,
 }));
 
-vi.mock('../components/hero', () => ({
-  PageHero: () => <div data-testid="page-hero" />,
-}));
-
 const renderFaq = (initialEntry = '/faqs') =>
   render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <FAQ />
     </MemoryRouter>,
   );
+
+const questionText = (id: string) => FAQS.find((faq) => faq.id === id)?.question ?? '';
+const questionButton = (id: string) => screen.getByRole('button', { name: questionText(id) });
 
 describe('FAQ', () => {
   beforeEach(() => {
@@ -36,7 +35,7 @@ describe('FAQ', () => {
     }));
   });
 
-  it('renders all configured categories and FAQ questions', () => {
+  it('renders every section and every question', () => {
     renderFaq();
 
     CATEGORY_ORDER.forEach((category) => {
@@ -51,76 +50,61 @@ describe('FAQ', () => {
   it('renders accordion buttons with accessible relationships and toggles the answer', () => {
     renderFaq();
 
-    const questionButton = screen.getByRole('button', {
-      name: /what is the process for engaging with your firm/i,
-    });
+    const button = questionButton('engagement-process');
 
-    expect(questionButton.closest('h3')).toBeInTheDocument();
-    expect(questionButton).toHaveAttribute('aria-expanded', 'false');
+    expect(button.closest('h3')).toBeInTheDocument();
+    expect(button).toHaveAttribute('aria-expanded', 'false');
 
-    const panelId = questionButton.getAttribute('aria-controls');
+    const panelId = button.getAttribute('aria-controls');
     expect(panelId).toBeTruthy();
-    expect(document.getElementById(panelId as string)).toBeInTheDocument();
+    const panel = document.getElementById(panelId as string);
+    expect(panel).toBeInTheDocument();
 
-    // The answer is mounted lazily — absent until the card is first opened.
-    expect(document.querySelector('.faq-answer')).not.toBeInTheDocument();
+    // The answer is mounted lazily — absent until the question is first opened.
+    expect(panel?.querySelector('.rd-answer')).not.toBeInTheDocument();
 
-    fireEvent.click(questionButton);
+    fireEvent.click(button);
 
-    expect(questionButton).toHaveAttribute('aria-expanded', 'true');
-    const answer = document.querySelector('.faq-answer');
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+    const answer = panel?.querySelector('.rd-answer');
     expect(answer).toBeInTheDocument();
     expect(answer).not.toHaveAttribute('inert');
 
-    fireEvent.click(questionButton);
+    fireEvent.click(button);
 
-    expect(questionButton).toHaveAttribute('aria-expanded', 'false');
-    expect(document.querySelector('.faq-answer')).toHaveAttribute('inert');
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    expect(panel?.querySelector('.rd-answer')).toHaveAttribute('inert');
   });
 
-  it('renders authored markdown inside answers as rich content', () => {
+  it('renders authored markdown inside answers as links', () => {
     renderFaq();
 
-    const questionButton = screen.getByRole('button', {
-      name: /what is the process for engaging with your firm/i,
-    });
+    fireEvent.click(questionButton('engagement-process'));
 
-    fireEvent.click(questionButton);
-
-    const resourcesLink = screen.getByRole('link', { name: 'Resources' });
-    expect(resourcesLink).toHaveAttribute('href', '/resources');
+    expect(screen.getByRole('link', { name: 'Resources' })).toHaveAttribute('href', '/resources');
     expect(screen.queryByText(/\[Resources\]\(\/resources\)/i)).not.toBeInTheDocument();
   });
 
-  it('keeps only one FAQ item open at a time', () => {
+  it('lets several answers stay open at once', () => {
     renderFaq();
 
-    const firstButton = screen.getByRole('button', {
-      name: /what is the process for engaging with your firm/i,
-    });
-    const secondButton = screen.getByRole('button', {
-      name: /do you provide services outside of mysuru/i,
-    });
+    const first = questionButton('engagement-process');
+    const second = questionButton('services-outside-mysuru');
 
-    fireEvent.click(firstButton);
-    expect(firstButton).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(first);
+    fireEvent.click(second);
 
-    fireEvent.click(secondButton);
-    expect(secondButton).toHaveAttribute('aria-expanded', 'true');
-    expect(firstButton).toHaveAttribute('aria-expanded', 'false');
+    expect(first).toHaveAttribute('aria-expanded', 'true');
+    expect(second).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('supports arrow, home, and end keyboard navigation across FAQ headers', () => {
+  it('supports arrow, home, and end keyboard navigation across questions', () => {
     renderFaq();
 
     const buttons = FAQS.map((faq) => screen.getByRole('button', { name: faq.question }));
-    const firstButton = buttons[0];
-    const secondButton = buttons[1];
+    const [firstButton, secondButton] = buttons;
     const lastButton = buttons[buttons.length - 1];
-    expect(firstButton).toBeDefined();
-    expect(secondButton).toBeDefined();
-    expect(lastButton).toBeDefined();
-    if (!firstButton || !secondButton || !lastButton) return;
+    if (!firstButton || !secondButton || !lastButton) throw new Error('expected FAQ buttons');
 
     firstButton.focus();
     fireEvent.keyDown(firstButton, { key: 'ArrowDown' });
@@ -133,34 +117,67 @@ describe('FAQ', () => {
     expect(firstButton).toHaveFocus();
   });
 
-  it('renders category jump links and scrolls matching fragment targets into view', async () => {
-    renderFaq('/faqs#income-tax-planning');
+  it('scrolls to a section named in the fragment', async () => {
+    const { container } = renderFaq('/faqs#income-tax-planning');
 
-    const sectionNav = screen.getByRole('navigation', { name: 'FAQ section navigation' });
-    const jumpLink = within(sectionNav).getByRole('link', { name: /income tax & planning/i });
-    expect(jumpLink).toHaveAttribute('href', '#income-tax-planning');
-
-    const categoryHeading = document.getElementById('income-tax-planning');
-    expect(categoryHeading).toBeInTheDocument();
+    expect(document.getElementById('income-tax-planning')).toBeInTheDocument();
+    expect(container.querySelector('#faq-picker-list a[href="#income-tax-planning"]')).toBeInTheDocument();
 
     await waitFor(() => {
       expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
     });
   });
 
-  it('opens the matching FAQ when deep-linked by question id', async () => {
+  it('opens the matching question when deep-linked by id', () => {
     renderFaq('/faqs#gst-registration-mandatory');
 
-    const targetButton = screen.getByRole('button', { name: /is gst registration mandatory for my business/i });
-
-    await waitFor(() => {
-      expect(targetButton).toHaveAttribute('aria-expanded', 'true');
-    });
+    expect(questionButton('gst-registration-mandatory')).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('routes the consultation CTA to the contact page', () => {
+  it('sends retired question ids to the answer that replaced them', () => {
+    renderFaq('/faqs#gst-notice');
+
+    expect(questionButton('income-tax-notice')).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('opens a question from the "Asked most often" list', () => {
     renderFaq();
 
-    expect(screen.getByRole('link', { name: /schedule a consultation/i })).toHaveAttribute('href', '/contact');
+    fireEvent.click(screen.getByRole('link', { name: questionText('income-tax-notice') }));
+
+    expect(questionButton('income-tax-notice')).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('filters the questions as you search', () => {
+    renderFaq();
+
+    fireEvent.change(screen.getByRole('searchbox', { name: /search the faqs/i }), {
+      target: { value: questionText('gst-registration-mandatory') },
+    });
+
+    expect(questionButton('gst-registration-mandatory').closest('.qi')).not.toHaveAttribute('hidden');
+    expect(document.getElementById('engagement-process')).toHaveAttribute('hidden');
+    expect(screen.getByText(/match(es)? “/)).toBeInTheDocument();
+  });
+
+  it('shows one topic at a time', () => {
+    renderFaq();
+
+    fireEvent.click(screen.getByRole('button', { name: 'GST' }));
+
+    const gstCount = FAQS.filter((faq) => faq.category === 'GST').length;
+    expect(screen.getByText(`Showing ${gstCount} questions on GST.`)).toBeInTheDocument();
+    expect(document.getElementById('engagement-process')).toHaveAttribute('hidden');
+  });
+
+  it('offers to send an unanswered question to the contact form', () => {
+    renderFaq();
+
+    fireEvent.change(screen.getByRole('searchbox', { name: /search the faqs/i }), {
+      target: { value: 'zzzz qqqq' },
+    });
+
+    expect(screen.getByRole('heading', { name: 'No questions match “zzzz qqqq”.' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /ask us this question/i })).toHaveAttribute('href', '/contact#write');
   });
 });

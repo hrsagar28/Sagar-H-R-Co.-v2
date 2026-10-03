@@ -351,7 +351,6 @@ const InsightDetail: React.FC = () => {
           headline: insight.title,
           author: insight.author,
           authorUrl: `${SITE_URL}/about`,
-          authorSameAs: [CONTACT_INFO.social.linkedin],
           datePublished: toISODate(insight.date),
           dateModified: toISODate(insight.dateModified || insight.date),
           image: insight.image,
