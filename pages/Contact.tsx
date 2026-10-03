@@ -368,7 +368,14 @@ const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (honeypot) return;
+    // A filled honeypot means a bot, or a browser that autofilled the hidden
+    // field. Either way the message isn't sent, but a person must not be left
+    // with a Send button that seems to do nothing.
+    if (honeypot) {
+      logger.warn('Contact form: hidden spam-check field was filled', { form: 'contact' });
+      addToast(`We could not send your message. Please email us directly at ${CONTACT_INFO.email}`, 'error');
+      return;
+    }
 
     if (!canSubmit) {
       addToast(`Please wait ${timeUntilReset}s before retrying.`, 'error');

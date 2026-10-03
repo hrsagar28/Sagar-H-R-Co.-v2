@@ -142,7 +142,7 @@ describe('CareerForm', () => {
     expect(mocks.post).not.toHaveBeenCalled();
   });
 
-  it('silently blocks submission when the honeypot is filled', async () => {
+  it('does not send when the honeypot is filled, and says how else to reach us', async () => {
     const { container } = renderCareerForm({ initialPosition: 'Audit Associate' });
 
     await completeWizard();
@@ -152,7 +152,7 @@ describe('CareerForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /submit application/i }));
 
     expect(mocks.post).not.toHaveBeenCalled();
-    expect(mocks.addToast).not.toHaveBeenCalled();
+    expect(mocks.addToast).toHaveBeenCalledWith(expect.stringContaining('email us'), 'error');
   });
 
   it('restores a saved draft when the user resumes', async () => {

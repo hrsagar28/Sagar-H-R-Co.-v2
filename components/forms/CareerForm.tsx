@@ -279,7 +279,16 @@ const CareerForm = ({ initialPosition }: CareerFormProps): React.JSX.Element => 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (currentStep !== 4 || honeypot) return;
+    if (currentStep !== 4) return;
+
+    // A filled honeypot means a bot, or a browser that autofilled the hidden
+    // field. The application isn't sent, but a person must be told how else
+    // to reach us rather than see nothing happen.
+    if (honeypot) {
+      logger.warn('Career form: hidden spam-check field was filled', { form: 'careers' });
+      addToast(`We could not send your application. Please email us at ${CAREERS_CONTACT_EMAIL}`, 'error');
+      return;
+    }
 
     if (!canSubmit) {
       addToast(`Still submitting - please wait ${timeUntilReset} seconds.`, 'info');

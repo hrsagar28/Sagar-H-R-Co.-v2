@@ -103,7 +103,15 @@ describe('Contact', () => {
     expect(await screen.findByText('This email address looks incomplete. Please check it.')).toBeInTheDocument();
   });
 
-  it('silently blocks submission when the honeypot is filled', () => {
+  it('keeps the honeypot out of view, where browsers will not autofill it', () => {
+    const { container } = renderContact();
+    const honeypot = container.querySelector('input[name="_honey"]') as HTMLInputElement;
+
+    expect(honeypot).not.toBeVisible();
+    expect(honeypot.closest('[hidden]')).not.toBeNull();
+  });
+
+  it('does not send when the honeypot is filled, and says how else to reach us', () => {
     const { container } = renderContact();
     const honeypot = container.querySelector('input[name="_honey"]') as HTMLInputElement;
 
@@ -112,7 +120,7 @@ describe('Contact', () => {
     fireEvent.click(sendButton());
 
     expect(mocks.post).not.toHaveBeenCalled();
-    expect(mocks.addToast).not.toHaveBeenCalled();
+    expect(mocks.addToast).toHaveBeenCalledWith(expect.stringContaining('email us directly'), 'error');
   });
 
   it('preselects a valid query string subject and ignores an invalid one', () => {
