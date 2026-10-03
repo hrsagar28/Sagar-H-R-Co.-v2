@@ -108,9 +108,12 @@ const checkField = (field: keyof ContactFormData, values: ContactFormData): stri
   return validateForm(values, { [field]: validators } as FormSchema<ContactFormData>)[field];
 };
 
+// Matches the textarea's min-height in redesign.css (four lines).
+const MESSAGE_MIN_HEIGHT = 112;
+
 const growTextarea = (element: HTMLTextAreaElement) => {
   element.style.height = 'auto';
-  element.style.height = `${Math.max(132, element.scrollHeight + 2)}px`;
+  element.style.height = `${Math.max(MESSAGE_MIN_HEIGHT, element.scrollHeight + 1)}px`;
 };
 
 const copyText = async (text: string) => {

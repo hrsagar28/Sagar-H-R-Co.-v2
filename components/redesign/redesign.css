@@ -902,16 +902,16 @@
 .rd .row2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 20px;
+  gap: 0 32px;
 }
 .rd .fld {
   position: relative;
-  margin: 0 0 22px;
+  margin: 0 0 26px;
 }
 .rd .fld label,
 .rd .fld legend {
   display: block;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   padding: 0;
   font-size: 14px;
   color: var(--body);
@@ -922,14 +922,17 @@
 .rd .fld .opt {
   color: var(--muted);
 }
+/* A field is a label over a single rule, like the FAQ search box: no box or
+   fill. The rule darkens while typing and turns red on an error. */
 .rd .fld input,
 .rd .fld textarea {
   display: block;
   width: 100%;
-  background: #fff;
-  border: 1px solid var(--rule-s);
-  border-radius: 2px;
-  padding: 12px 14px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule-s);
+  border-radius: 0;
+  padding: 6px 0 10px;
   font-size: 17px;
   line-height: 1.4;
   color: var(--ink);
@@ -946,17 +949,26 @@
 }
 .rd .fld input:focus,
 .rd .fld textarea:focus {
-  border-color: var(--ink);
-  box-shadow: 0 0 0 1px var(--ink);
+  border-bottom-color: var(--ink);
+  box-shadow: 0 1px 0 0 var(--ink);
 }
+/* Keep browser autofill from painting a coloured box behind the text. */
+.rd .fld input:-webkit-autofill,
+.rd .fld input:-webkit-autofill:hover,
+.rd .fld input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink);
+  transition: background-color 600000s 0s;
+}
+/* Four lines tall to begin with (MESSAGE_MIN_HEIGHT in Contact.tsx), then
+   grows with the text. */
 .rd .fld textarea {
-  resize: vertical;
-  min-height: 132px;
+  resize: none;
+  min-height: 112px;
 }
 .rd .fld[data-err] input,
 .rd .fld[data-err] textarea {
-  border-color: var(--err);
-  box-shadow: 0 0 0 1px var(--err);
+  border-bottom-color: var(--err);
+  box-shadow: 0 1px 0 0 var(--err);
 }
 .rd .fld .err {
   margin: 8px 0 0;
@@ -998,7 +1010,7 @@
   display: block;
   padding: 9px 14px;
   border: 1px solid var(--rule-s);
-  background: #fff;
+  background: transparent;
   font-size: 14px;
   line-height: 1.2;
   color: var(--ink);
