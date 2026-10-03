@@ -1,11 +1,11 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import * as matchers from 'vitest-axe/matchers';
-import { SERVICE_DETAILS } from '../constants';
+import { FAQS, LEGACY_SERVICE_SLUGS, SERVICE_PAGES, getServicePage } from '../constants';
 import ServiceDetail from './ServiceDetail';
 
 expect.extend(matchers);
@@ -14,44 +14,8 @@ vi.mock('../components/SEO', () => ({
   default: () => null,
 }));
 
-vi.mock('../components/hero', () => ({
-  PageHero: ({ title, eyebrow }: { title: React.ReactNode; eyebrow?: string }) => (
-    <header data-testid="service-hero">
-      {eyebrow ? <p data-testid="service-eyebrow">{eyebrow}</p> : null}
-      <h1>{title}</h1>
-    </header>
-  ),
-}));
-
-vi.mock('../components/Reveal', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
-beforeAll(() => {
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => null);
-  class MockIntersectionObserver {
-    observe = vi.fn();
-    unobserve = vi.fn();
-    disconnect = vi.fn();
-  }
-  window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
-});
-
-beforeEach(() => {
-  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }));
-});
-
-// ServiceDetail always renders inside the App's <main> landmark, so the
-// test mirrors that — it keeps page content inside a landmark for axe.
+// ServiceDetail always renders inside the App's <main> landmark, so the test
+// mirrors that — it keeps page content inside a landmark for axe.
 const renderServiceDetail = (slug: string) =>
   render(
     <MemoryRouter initialEntries={[`/services/${slug}`]}>
@@ -63,52 +27,89 @@ const renderServiceDetail = (slug: string) =>
     </MemoryRouter>,
   );
 
-// Test fixture, captured with a guard so TypeScript narrows away `undefined`
-// (SERVICE_DETAILS is a Record keyed by string, so indexed access is
-// `ServiceDetailContent | undefined` under noUncheckedIndexedAccess).
-const gstDetail = SERVICE_DETAILS.gst;
-if (!gstDetail) {
-  throw new Error('Test fixture missing: SERVICE_DETAILS.gst');
-}
+const SERVICE_LINK = /\{([a-z-]+)\|[^}]+\}/g;
 
 describe('ServiceDetail', () => {
-  it('renders the hero and content for a known service', () => {
+  it('renders the scope of work and the documents needed', () => {
+    const gst = getServicePage('gst')!;
     renderServiceDetail('gst');
 
-    expect(screen.getByTestId('service-hero')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getByText(gstDetail.longDescription)).toBeInTheDocument();
-  });
-
-  it('keeps a correct heading hierarchy with no skipped levels (Audit SV-03)', () => {
-    renderServiceDetail('gst');
-
-    // Section headings are h2 (previously h3, skipping a level after the h1).
-    expect(screen.getByRole('heading', { level: 2, name: /overview/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: /services included/i })).toBeInTheDocument();
-
-    // Feature titles sit one level below their section heading (h3, previously h4).
-    gstDetail.features.forEach((feature) => {
-      expect(screen.getByRole('heading', { level: 3, name: feature.title })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: gst.name })).toBeInTheDocument();
+    expect(screen.getByText(`${gst.frequency}`)).toBeInTheDocument();
+    gst.inc.forEach(([heading]) => {
+      expect(screen.getByRole('heading', { level: 3, name: heading })).toBeInTheDocument();
     });
-
-    expect(screen.queryByRole('heading', { level: 4 })).toBeNull();
+    const documents = screen.getByRole('region', { name: 'Documents and information' });
+    expect(within(documents).getAllByRole('listitem')).toHaveLength(gst.needs.length);
   });
 
-  it('derives a readable eyebrow from the discipline (Audit SV-16)', () => {
-    renderServiceDetail('income-tax');
+  it('turns {slug|label} in the text into links to other services', () => {
+    renderServiceDetail('gst');
 
-    // Was the raw slug ("Practice · INCOME-TAX"); now a clean label.
-    expect(screen.getByTestId('service-eyebrow')).toHaveTextContent('Practice · Direct Tax');
+    const scope = screen.getByRole('region', { name: 'Scope of work' });
+    expect(within(scope).getByRole('link', { name: 'Notices and appeals' })).toHaveAttribute(
+      'href',
+      '/services/notices-and-appeals',
+    );
+    expect(screen.queryByText(/\{notices-and-appeals/)).toBeNull();
   });
 
-  it('falls back to NotFound for an unknown slug', () => {
+  it('links only to services and questions that exist', () => {
+    const slugs = new Set(SERVICE_PAGES.map((page) => page.slug));
+    const faqIds = new Set(FAQS.map((faq) => faq.id));
+    SERVICE_PAGES.forEach((page) => {
+      const text = [page.incdesc, ...page.inc.map(([, body]) => body), ...page.needs].join(' ');
+      for (const [, slug] of text.matchAll(SERVICE_LINK)) {
+        expect(slugs.has(slug!), `${page.slug} links to unknown service ${slug}`).toBe(true);
+      }
+      page.faqIds.forEach((id) => expect(faqIds.has(id), `${page.slug} lists unknown FAQ ${id}`).toBe(true));
+    });
+  });
+
+  it('lists common questions with links into the FAQ page', () => {
+    renderServiceDetail('trusts-and-npos');
+
+    const list = screen.getByRole('list', { name: 'Common questions' });
+    expect(within(list).getAllByRole('link')[0]).toHaveAttribute('href', '/faqs#trust-registration');
+  });
+
+  it('sends "Send us a message" to the contact form with the service chosen', () => {
+    renderServiceDetail('nri-taxation');
+
+    expect(screen.getByRole('link', { name: /send us a message/i })).toHaveAttribute(
+      'href',
+      '/contact?subject=nri-taxation#write',
+    );
+  });
+
+  it('links to every other service', () => {
+    renderServiceDetail('audit');
+
+    const others = screen.getByRole('navigation', { name: 'Other services' });
+    expect(within(others).getAllByRole('link')).toHaveLength(SERVICE_PAGES.length - 1);
+  });
+
+  it('redirects a retired address to the page that replaced it', () => {
+    render(
+      <MemoryRouter initialEntries={['/services/payroll']}>
+        <Routes>
+          <Route path="/services/:slug" element={<ServiceDetail />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(LEGACY_SERVICE_SLUGS.payroll).toBe('bookkeeping-and-payroll');
+    expect(screen.getByRole('heading', { level: 1, name: 'Bookkeeping and payroll' })).toBeInTheDocument();
+  });
+
+  it('shows its own page for an unknown service', () => {
     renderServiceDetail('does-not-exist');
 
-    expect(screen.getByRole('heading', { name: /page not found/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Service not found' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /all services/i })).toHaveAttribute('href', '/services');
   });
 
-  it('renders no axe violations for a service page', async () => {
+  it('renders no axe violations', async () => {
     const { container } = renderServiceDetail('gst');
 
     expect(await axe(container)).toHaveNoViolations();

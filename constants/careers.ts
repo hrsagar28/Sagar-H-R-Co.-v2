@@ -1,6 +1,8 @@
 export interface JobPosting {
   id: string;
   role: string;
+  /** The short line under the role name, as separate parts. */
+  meta: string[];
   type: 'Full Time' | 'Part Time' | 'Internship' | 'Contract';
   experience: string;
   location: string;
@@ -16,63 +18,69 @@ export interface JobPosting {
   residenceRequirement?: string;
 }
 
-export const CAREERS_RESPONSE_SLA_DAYS = 5;
+/** How soon we reply to an application whose background fits the role. */
+export const CAREERS_RESPONSE_TIME = 'five working days';
 export const CAREERS_CONTACT_EMAIL = 'careers@casagar.co.in';
 export const CAREERS_APPLY_URL = 'https://casagar.co.in/careers#apply';
 
-// Keep these arrays present for every role; an empty list means the detailed JD is still being finalized.
 export const OPEN_ROLES: JobPosting[] = [
   {
-    id: 'audit-associate-1',
+    id: 'audit-associate',
     role: 'Audit Associate',
+    meta: ['Full time', '1 to 2 years’ experience', 'At our Mysuru office'],
     type: 'Full Time',
     experience: '1-2 years',
     location: 'Mysuru, Karnataka',
     description:
-      'Join our Mysuru office as an Audit Associate and work closely with promoters, finance teams, and senior chartered accountants on statutory audits, tax reviews, and compliance engagements. This role is suited to someone who is comfortable taking ownership of fieldwork, preparing documentation with care, and communicating clearly with clients throughout the engagement cycle. You will help convert audit observations into actionable next steps while building depth across accounting, reporting, and advisory assignments.',
+      'You’ll run audits and the tax work that goes with them, for clients across Mysuru and the neighbouring districts: statutory audits of companies, tax audits, and audits of trusts, schools and colleges. Alongside audits, you’ll handle income tax and GST matters, including replies to notices, and be the main contact for the clients whose files you lead.',
     responsibilities: [
-      'Execute statutory and internal audit fieldwork for client engagements across the Mysuru region.',
-      'Prepare working papers, reconciliations, schedules, and audit observations with clear documentation.',
-      'Coordinate with client teams on books of account, supporting evidence, and follow-up queries.',
-      'Assist seniors in drafting reports, management comments, and compliance summaries.',
+      'Plan and carry out statutory, tax and internal audits, and audits of trusts and educational institutions, from fieldwork to the draft report.',
+      'Prepare and review working papers, reconciliations and financial statements.',
+      'Prepare income tax returns, tax audit reports and GST annual returns for the clients you audit.',
+      'Draft replies to income tax and GST notices, and research the law behind them.',
+      'Guide and review the work of articled assistants on your engagements.',
+      'Be the day-to-day contact for your clients’ owners and accounts teams.',
     ],
     skills: [
-      'Working knowledge of accounting standards, audit procedures, and financial statement review.',
-      'Comfort with Excel, Tally, and cloud accounting workflows.',
-      'Strong written communication and client follow-up discipline.',
-      'CA Inter, B.Com, M.Com, or equivalent commerce background preferred.',
+      'One to two years of audit experience.',
+      'Working knowledge of accounting standards and audit procedure.',
+      'Comfortable with Excel and Tally.',
+      'Clear written English, and steady follow-up with clients.',
+      'CA Intermediate, B.Com or M.Com.',
     ],
     datePosted: '2026-07-01T00:00:00+05:30',
     applicationDeadline: '2026-09-30T23:59:59+05:30',
     workMode: 'On-site',
   },
   {
-    id: 'articled-assistant-1',
-    role: 'Articled Assistant',
+    id: 'articled-assistant',
+    role: 'Articled assistant',
+    meta: ['Articleship', 'For CA students', 'At our Mysuru office'],
     type: 'Internship',
     experience: 'Fresher',
-    location: 'Mysuru, Karnataka (Mysuru residence required)',
+    location: 'Mysuru, Karnataka',
     description:
-      'Train as an Articled Assistant in a practice environment that gives you direct exposure to audit, taxation, compliance, and day-to-day client coordination. This internship is designed for commerce students and CA aspirants who want disciplined hands-on learning rather than observation from the sidelines. You will work from our Mysuru office, shadow live assignments, and build the habits needed for dependable professional practice from the start of your articleship.',
+      'Your two years of practical training, on the full range of a practice’s work: audits, income tax, GST, TDS, company and LLP filings, and notices and appeals. The work is at our Mysuru office, so you need to live in Mysuru.',
     responsibilities: [
-      'Support audit and tax assignments through data collection, vouching, and documentation.',
-      'Assist with GST, income tax, and ROC compliance preparation under supervision.',
-      'Maintain engagement files, checklists, and follow-up trackers accurately and on time.',
-      'Attend client meetings and learn practical office workflows across recurring assignments.',
+      'Work on statutory audits, tax audits and audits of trusts and institutions, including vouching, verification and working papers.',
+      'Prepare GST and TDS returns, GSTR-2B reconciliations and income tax returns.',
+      'Prepare ROC and LLP filings, and help with registrations and incorporations.',
+      'Draft replies to notices, and research questions of tax law for the team.',
+      'Prepare financial statements, project reports and CMA data from clients’ books.',
+      'Join client meetings and departmental hearings with the team.',
     ],
     skills: [
-      'Commerce background with interest in CA training and professional services.',
-      'Attention to detail, willingness to learn, and comfort with process-oriented work.',
-      'Basic spreadsheet skills and familiarity with business documents.',
-      'Clear communication and the ability to work on-site from Mysuru.',
+      'A CA student ready to begin practical training.',
+      'Care with detail, and willingness to learn.',
+      'Basic spreadsheet skills.',
+      'You live in Mysuru and can work from our office.',
     ],
     datePosted: '2026-07-01T00:00:00+05:30',
     applicationDeadline: '2026-09-30T23:59:59+05:30',
     workMode: 'On-site',
     applicantLocationType: 'City',
     applicantLocationName: 'Mysuru',
-    residenceRequirement:
-      'Applicants for this internship must currently reside in Mysuru and be available to work on-site from our Mysuru office.',
+    residenceRequirement: 'Applicants must live in Mysuru and be able to work from our office.',
   },
 ];
 

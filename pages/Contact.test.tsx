@@ -4,7 +4,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, type InitialEntry } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Contact from './Contact';
-import { SERVICES } from '../constants';
 
 const mocks = vi.hoisted(() => ({
   addToast: vi.fn(),
@@ -124,10 +123,9 @@ describe('Contact', () => {
   });
 
   it('preselects a valid query string subject and ignores an invalid one', () => {
-    const validSubject = SERVICES[0]?.title || '';
-    const { container, unmount } = renderContact(`/contact?subject=${encodeURIComponent(validSubject)}`);
+    const { container, unmount } = renderContact('/contact?subject=GST');
 
-    const chosen = container.querySelector<HTMLInputElement>(`input[name="subject"][value="${validSubject}"]`);
+    const chosen = container.querySelector<HTMLInputElement>('input[name="subject"][value="GST"]');
     expect(chosen).toBeChecked();
     unmount();
 
@@ -135,6 +133,11 @@ describe('Contact', () => {
     expect(second.container.querySelector('input[name="subject"]:checked')).toBeNull();
   });
 
+  it('preselects the subject that covers the service a visitor came from', () => {
+    const { container } = renderContact('/contact?subject=nri-taxation');
+
+    expect(container.querySelector('input[name="subject"][value="Income tax"]')).toBeChecked();
+  });
   it('asks what the enquiry is about when "Something else" is chosen', async () => {
     renderContact();
 

@@ -165,7 +165,7 @@ export const FAQS: FAQItem[] = [
     category: 'Company law and business compliance',
     question: 'Can you help me set up a company or an LLP?',
     answer:
-      'Yes. As part of our [Business Advisory](/services/advisory) work, we advise on the right structure for your business and handle the incorporation with the Registrar of Companies.',
+      'Yes. We advise on the right structure for your business and handle the incorporation. See [Company law and ROC](/services/company-law) and [Partnership firms and LLPs](/services/partnership-firms-and-llps).',
     lastUpdated: FAQ_LAST_UPDATED,
   },
   {
@@ -205,7 +205,7 @@ export const FAQS: FAQItem[] = [
     category: 'Notices and appeals',
     question: 'I have received a notice from the Income Tax or GST department. What should I do?',
     answer:
-      'Do not ignore it, even if you think the department is wrong. Check what the notice is about, the period it covers and the date by which you must reply. Income tax notices range from requests for information to scrutiny of your return. In GST, a scrutiny notice (ASMT-10) usually asks you to explain differences in your returns within 30 days, while a show cause notice (DRC-01) proposes a demand and gives you a chance to reply and be heard. Send us a copy as soon as you receive it. Through our [Litigation Support](/services/litigation) service we prepare the reply with the supporting documents and represent you before the officer.',
+      'Do not ignore it, even if you think the department is wrong. Check what the notice is about, the period it covers and the date by which you must reply. Income tax notices range from requests for information to scrutiny of your return. In GST, a scrutiny notice (ASMT-10) usually asks you to explain differences in your returns within 30 days, while a show cause notice (DRC-01) proposes a demand and gives you a chance to reply and be heard. Send us a copy as soon as you receive it. Through our [Notices and appeals](/services/notices-and-appeals) service we prepare the reply with the supporting documents and represent you before the officer.',
     lastUpdated: FAQ_LAST_UPDATED,
     // Audit Q-03: curated for the home-page FAQ preview.
     featuredOnHome: true,

@@ -1,98 +1,109 @@
-import React, { useMemo } from 'react';
-import ServiceBento from '../components/ServiceBento';
-import ServiceLedger from '../components/ServiceLedger';
-import ServiceFolios from '../components/ServiceFolios';
-import { IndustryGridDark } from '../components/IndustrySpotlight';
-import { CONTACT_INFO } from '../constants';
-import { buildServicesSchema } from '../constants/servicesSchema';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { PageHero } from '../components/hero';
-import ConsultationBanner from '../components/ConsultationBanner';
-import Reveal from '../components/Reveal';
-import './route-styles.css';
-import '../components/hero/PageHero.css';
-import '../components/ServiceBento.css';
+import { ArrowRight } from '../components/redesign/icons';
+import { CLIENT_SECTORS, CONTACT_INFO, SERVICE_GROUPS, getServicePage } from '../constants';
+import { buildServicesSchema } from '../constants/servicesSchema';
+import type { ServicePage } from '../types';
 
-/**
- * Services section layout.
- *  - 'folios' — the dark folio grid (ServiceFolios). Current design.
- *  - 'ledger' — the editorial register (ServiceLedger).
- *  - 'bento'  — the original bento grid (ServiceBento).
- * All three components are kept in the repo; change this single value to
- * switch — the swap is instant and lossless.
- */
-type ServicesLayout = 'folios' | 'ledger' | 'bento';
-// `as ServicesLayout` keeps the type the full union. A plain annotated const
-// (`const X: Union = 'folios'`) is control-flow-narrowed by TypeScript to the
-// literal 'folios', which then flags the 'ledger'/'bento' branches below as
-// "no overlap" (TS2367). The widening cast preserves the switchable intent.
-const SERVICES_LAYOUT = 'folios' as ServicesLayout;
+// 2026 redesign of /services. Rendered inside RedesignLayout, which supplies the
+// top bar, footer and stylesheet. The services are listed in four groups, in
+// the FAQ page's frame: the group heading on the left, one row per service on
+// the right.
 
-const Services: React.FC = () => {
-  const schema = useMemo(() => buildServicesSchema(), []);
+const GROUPS = SERVICE_GROUPS.map((group) => ({
+  ...group,
+  pages: group.slugs.map(getServicePage).filter((page): page is ServicePage => Boolean(page)),
+}));
 
-  return (
-    <div className="min-h-screen bg-brand-bg selection:bg-brand-moss selection:text-white">
-      <SEO
-        title={`Services - Audit · Tax · GST · Advisory | ${CONTACT_INFO.name}`}
-        description="Eight disciplines of chartered-accountancy practice from Mysuru: GST, Income Tax, Company Law, Litigation, Advisory, Audit, Bookkeeping, and Payroll. Engagement options: retainer or assignment."
-        schema={schema}
-        breadcrumbs={[
-          { name: 'Home', url: '/' },
-          { name: 'Services', url: '/services' },
-        ]}
-      />
+const SCHEMA = buildServicesSchema();
 
-      {/* 1. HERO SECTION */}
-      <PageHero
-        tag="Services"
-        title={
-          <>
-            Our <em>Services.</em>
-          </>
-        }
-      />
+const Services: React.FC = () => (
+  <div className="rd-page">
+    <SEO
+      title={`Services | ${CONTACT_INFO.name}`}
+      description="GST, income tax, TDS, NRI taxation, notices and appeals, audits, certificates, company and LLP filings, trusts, bank loans and bookkeeping, from Sagar H R & Co., Chartered Accountants, Mysuru."
+      canonicalUrl="https://casagar.co.in/services"
+      schema={SCHEMA}
+      breadcrumbs={[
+        { name: 'Home', url: '/' },
+        { name: 'Services', url: '/services' },
+      ]}
+    />
 
-      {/* 2. SERVICES — chosen via the SERVICES_LAYOUT toggle defined above. */}
-      {SERVICES_LAYOUT === 'folios' && <ServiceFolios />}
-      {SERVICES_LAYOUT === 'ledger' && <ServiceLedger />}
-      {SERVICES_LAYOUT === 'bento' && (
-        <section aria-labelledby="what-we-do-heading" className="bg-brand-bg pb-32 pt-20">
-          <div className="container mx-auto mb-16 max-w-7xl px-4 md:px-6">
-            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div>
-                <Reveal delay={0}>
-                  <span className="mb-4 block text-xs font-bold uppercase tracking-widest text-brand-moss">
-                    Core Capabilities
-                  </span>
-                </Reveal>
-                <Reveal delay={0.08}>
-                  <h2 id="what-we-do-heading" className="font-heading text-4xl font-bold text-brand-dark md:text-6xl">
-                    What We Do
-                  </h2>
-                </Reveal>
-              </div>
-              <Reveal delay={0.16}>
-                <p className="max-w-md text-lg font-medium text-brand-stone">
-                  A holistic suite of financial services designed to navigate the complexities of the modern economic
-                  landscape.
-                </p>
-              </Reveal>
-            </div>
-          </div>
-          <div className="container mx-auto max-w-7xl px-4 md:px-6">
-            <ServiceBento />
-          </div>
-        </section>
-      )}
-
-      {/* 3. INDUSTRIES - Consolidated Component */}
-      <IndustryGridDark />
-
-      {/* 4. CTA */}
-      <ConsultationBanner />
+    <div className="phead">
+      <div className="grain" aria-hidden="true" />
+      <div className="hgrid open solo pad">
+        <div>
+          <h1 className="rise">Services</h1>
+          <p className="hsub rise d1">
+            Tax, audit, company law and accounting services for individuals, businesses, institutions and trusts, on a
+            yearly retainer or as a single assignment.
+          </p>
+        </div>
+      </div>
     </div>
-  );
-};
+
+    <div className="svclist pad">
+      {GROUPS.map((group, index) => (
+        <section key={group.name} className="sec" aria-labelledby={`service-group-${index}`}>
+          <div className="sec-h">
+            <h2 id={`service-group-${index}`}>{group.name}</h2>
+            <p className="desc">{group.description}</p>
+          </div>
+          <ul className="srows">
+            {group.pages.map((page) => (
+              <li key={page.slug}>
+                <Link to={`/services/${page.slug}`}>
+                  <span>
+                    <span className="t">{page.name}</span>
+                    <span className="d">{page.who}</span>
+                    <span className="i">
+                      {page.tags.map((tag, tagIndex) => (
+                        <React.Fragment key={tag}>
+                          {tagIndex > 0 && (
+                            <>
+                              <span aria-hidden="true"> · </span>
+                              <span className="vh">, </span>
+                            </>
+                          )}
+                          {tag}
+                        </React.Fragment>
+                      ))}
+                    </span>
+                  </span>
+                  <span className="go">
+                    <ArrowRight size={18} />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+
+      <div className="tail">
+        <span />
+        <p className="still">
+          If you are unsure which service applies, <Link to="/contact#write">send us a message</Link> or call{' '}
+          <a href={`tel:${CONTACT_INFO.phone.value}`}>{CONTACT_INFO.phone.display}</a>.
+        </p>
+      </div>
+
+      <section className="sec who" aria-labelledby="client-sectors-heading">
+        <div className="sec-h">
+          <h2 id="client-sectors-heading">Who we work with</h2>
+          <p className="desc">Our clients include:</p>
+        </div>
+        <ul className="sectors">
+          {CLIENT_SECTORS.map((sector) => (
+            <li key={sector}>{sector}</li>
+          ))}
+          <li className="more">and many more</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+);
 
 export default Services;

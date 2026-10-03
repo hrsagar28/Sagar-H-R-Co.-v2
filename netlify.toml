@@ -41,6 +41,23 @@
   to = "/insights"
   status = 301
 
+# Service pages renamed or merged in the 2026 redesign (LEGACY_SERVICE_SLUGS
+# in constants/services.tsx).
+[[redirects]]
+  from = "/services/litigation"
+  to = "/services/notices-and-appeals"
+  status = 301
+
+[[redirects]]
+  from = "/services/bookkeeping"
+  to = "/services/bookkeeping-and-payroll"
+  status = 301
+
+[[redirects]]
+  from = "/services/payroll"
+  to = "/services/bookkeeping-and-payroll"
+  status = 301
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

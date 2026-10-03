@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Briefcase, ArrowRight } from 'lucide-react';
-import CareerForm from '../components/forms/CareerForm';
 import SEO from '../components/SEO';
-import Reveal from '../components/Reveal';
-import { PageHero } from '../components/hero';
+import ApplicationForm, { ANY_ROLE } from '../components/redesign/ApplicationForm';
+import { ArrowRight } from '../components/redesign/icons';
+import { useReducedMotion } from '../hooks';
 import { CONTACT_INFO } from '../constants';
-import { CAREERS_APPLY_URL, CAREERS_CONTACT_EMAIL, OPEN_ROLES, getOpenRoles } from '../constants/careers';
-import { useAnnounce } from '../hooks';
-import { staggerDelay } from '../utils/stagger';
-import './route-styles.css';
-import '../components/hero/PageHero.css';
+import {
+  CAREERS_APPLY_URL,
+  CAREERS_CONTACT_EMAIL,
+  CAREERS_RESPONSE_TIME,
+  getOpenRoles,
+  type JobPosting,
+} from '../constants/careers';
+
+// 2026 redesign of /careers. Rendered inside RedesignLayout, which supplies the
+// top bar, footer and stylesheet.
 
 const EMPLOYMENT_TYPE_MAP = {
   'Full Time': 'FULL_TIME',
@@ -18,7 +22,7 @@ const EMPLOYMENT_TYPE_MAP = {
   Contract: 'CONTRACTOR',
 } as const;
 
-const buildJobPostingDescription = (role: (typeof OPEN_ROLES)[number]) => {
+const buildJobPostingDescription = (role: JobPosting) => {
   const responsibilities = role.responsibilities.map((item) => `<li>${item}</li>`).join('');
   const skills = role.skills.map((item) => `<li>${item}</li>`).join('');
   const residenceRequirement = role.residenceRequirement ? `<p>${role.residenceRequirement}</p>` : '';
@@ -26,189 +30,268 @@ const buildJobPostingDescription = (role: (typeof OPEN_ROLES)[number]) => {
   return [
     `<p>${role.description}</p>`,
     residenceRequirement,
-    '<h4>Responsibilities</h4>',
+    '<h4>What you’ll do</h4>',
     `<ul>${responsibilities}</ul>`,
-    '<h4>Skills</h4>',
+    '<h4>What we look for</h4>',
     `<ul>${skills}</ul>`,
   ].join('');
 };
 
-const Careers = (): React.JSX.Element => {
-  const [selectedPosition, setSelectedPosition] = useState<string>('');
-  const { announce } = useAnnounce();
-  // CT-8: only roles whose application deadline hasn't passed are shown, listed
-  // in schema, and offered in the form dropdown.
-  const openRoles = getOpenRoles();
-  const careersMetaDescription =
-    openRoles.length > 0
-      ? `${openRoles.length} open roles at a Mysuru-based CA firm — Audit Associate (full-time) and Articled Assistant (internship).`
-      : 'Chartered Accountancy careers at a Mysuru-based firm. No roles are open right now — check back soon or send us your profile.';
+const buildJobPostingSchema = (roles: JobPosting[]) =>
+  roles.map((role) => ({
+    '@context': 'https://schema.org',
+    '@type': 'JobPosting',
+    title: role.role,
+    description: buildJobPostingDescription(role),
+    datePosted: role.datePosted,
+    validThrough: role.applicationDeadline,
+    employmentType: EMPLOYMENT_TYPE_MAP[role.type],
+    url: `https://casagar.co.in/careers#${role.id}`,
+    directApply: true,
+    applyUrl: CAREERS_APPLY_URL,
+    hiringOrganization: {
+      '@type': 'Organization',
+      name: CONTACT_INFO.name,
+      url: 'https://casagar.co.in',
+      sameAs: 'https://casagar.co.in',
+      logo: 'https://casagar.co.in/logo.png',
+    },
+    jobLocation: {
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: CONTACT_INFO.address.street,
+        addressLocality: CONTACT_INFO.address.city,
+        addressRegion: CONTACT_INFO.address.state,
+        postalCode: CONTACT_INFO.address.zip,
+        addressCountry: 'IN',
+      },
+    },
+    ...(role.workMode !== 'On-site' ? { jobLocationType: 'TELECOMMUTE' } : {}),
+    applicantLocationRequirements:
+      role.applicantLocationType === 'City'
+        ? { '@type': 'City', name: role.applicantLocationName }
+        : { '@type': 'Country', name: 'IN' },
+  }));
 
-  const handleApplyClick = (role: string) => {
-    setSelectedPosition(role);
-    announce(`Application form opened for ${role}`);
-    document.getElementById('form-heading')?.focus();
+const WORKING_HERE = [
+  {
+    heading: 'A small team',
+    text: 'Everyone works from one office. You’ll see how a whole file comes together, from the first documents to the filing.',
+  },
+  {
+    heading: 'Varied work',
+    text: 'GST, income tax, company law, and audits of companies, trusts, schools and colleges. Most weeks you’ll work on more than one of these.',
+  },
+  {
+    heading: 'Training',
+    text: 'CA Sagar H R also teaches CA Foundation students. When he changes your work, he tells you why.',
+  },
+];
+
+const AFTER_YOU_APPLY = [
+  {
+    heading: 'We read your application',
+    text: `If your background fits the role, we call you within ${CAREERS_RESPONSE_TIME}.`,
+  },
+  { heading: 'A conversation at the office', text: 'With CA Sagar H R, about your experience and the work.' },
+  {
+    heading: 'An offer in writing',
+    text: 'With the role, start date and pay. For articleship, we then register the training with the ICAI.',
+  },
+];
+
+const rolesSentence = (count: number) =>
+  count === 1
+    ? 'The role is at our office in Mysuru.'
+    : `${count === 2 ? 'Both' : 'All'} roles are at our office in Mysuru.`;
+
+const Careers: React.FC = () => {
+  // Roles hide themselves once their closing date has passed (CT-8).
+  const [openRoles] = useState(getOpenRoles);
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(openRoles.map((role) => role.id)));
+  const [chosenRole, setChosenRole] = useState(() => (openRoles.length ? '' : ANY_ROLE));
+  const prefersReducedMotion = useReducedMotion();
+
+  const toggleRole = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  // "Apply for this role": choose it on the form and go there. On phones the
+  // form sits below "After you apply", so go to the form itself.
+  const applyFor = (role: string) => {
+    setChosenRole(role);
+    const narrow = window.matchMedia('(max-width: 900px)').matches;
+    const target = document.getElementById(narrow ? 'apply-form' : 'apply');
+    target?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+    window.setTimeout(
+      () => document.getElementById('apply-fullName')?.focus({ preventScroll: true }),
+      prefersReducedMotion ? 0 : 600,
+    );
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg selection:bg-brand-moss selection:text-white">
+    <div className="rd-page">
       <SEO
-        title="Careers | Join Sagar H R & Co."
-        description={careersMetaDescription}
+        title={`Careers | ${CONTACT_INFO.name}`}
+        description={
+          openRoles.length
+            ? `Open roles at ${CONTACT_INFO.name}, Chartered Accountants, Mysuru: ${openRoles.map((role) => role.role).join(' and ')}.`
+            : `Careers at ${CONTACT_INFO.name}, Chartered Accountants, Mysuru. No roles are open right now; you can still send us your details.`
+        }
         canonicalUrl="https://casagar.co.in/careers"
         ogImage="https://casagar.co.in/og-careers.png"
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Careers', url: '/careers' },
         ]}
-        schema={openRoles.map((r) => ({
-          '@context': 'https://schema.org',
-          '@type': 'JobPosting',
-          title: r.role,
-          description: buildJobPostingDescription(r),
-          datePosted: r.datePosted,
-          validThrough: r.applicationDeadline,
-          employmentType: EMPLOYMENT_TYPE_MAP[r.type],
-          url: `https://casagar.co.in/careers#${r.id}`,
-          directApply: true,
-          applyUrl: CAREERS_APPLY_URL,
-          hiringOrganization: {
-            '@type': 'Organization',
-            name: 'Sagar H R & Co.',
-            url: 'https://casagar.co.in',
-            sameAs: 'https://casagar.co.in',
-            logo: 'https://casagar.co.in/logo.png',
-          },
-          jobLocation: {
-            '@type': 'Place',
-            address: {
-              '@type': 'PostalAddress',
-              streetAddress: CONTACT_INFO.address.street,
-              addressLocality: CONTACT_INFO.address.city,
-              addressRegion: CONTACT_INFO.address.state,
-              postalCode: CONTACT_INFO.address.zip,
-              addressCountry: 'IN',
-            },
-          },
-          ...(r.workMode !== 'On-site' ? { jobLocationType: 'TELECOMMUTE' } : {}),
-          applicantLocationRequirements:
-            r.applicantLocationType === 'City'
-              ? {
-                  '@type': 'City',
-                  name: r.applicantLocationName,
-                }
-              : {
-                  '@type': 'Country',
-                  name: 'IN',
-                },
-        }))}
+        schema={buildJobPostingSchema(openRoles)}
       />
 
-      {/* UNIFIED HERO SECTION */}
-      <PageHero
-        tag="Careers"
-        title={
-          <>
-            Work With <em>Us.</em>
-          </>
-        }
-        description="We are looking for dedicated professionals passionate about finance and accounting."
-        className="z-base"
-      />
-
-      <div className="px-4 py-20 md:px-6">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-32 grid grid-cols-1 gap-12 lg:grid-cols-3">
-            {/* Left Column: Jobs & Application Form */}
-            <div className="space-y-12 lg:col-span-2">
-              <div className="space-y-6">
-                <Reveal width="100%">
-                  <div className="mb-10 flex items-center gap-3">
-                    <div className="rounded-lg bg-brand-moss/10 p-2">
-                      <Briefcase className="text-brand-moss" size={24} />
-                    </div>
-                    <h2 id="open-positions-heading" className="font-heading text-3xl font-bold text-brand-dark">
-                      Open Positions
-                    </h2>
-                  </div>
-                </Reveal>
-
-                <ul aria-labelledby="open-positions-heading" className="space-y-6">
-                  {openRoles.map((job, i) => (
-                    <Reveal key={job.id} width="100%" delay={staggerDelay(i)}>
-                      <li
-                        id={job.id}
-                        className="group relative overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-10 transition-[border-color,box-shadow] duration-300 focus-within:border-brand-moss focus-within:shadow-xl hover:border-brand-moss hover:shadow-xl"
-                      >
-                        <div className="relative z-10 mb-4 flex items-start justify-between">
-                          <h3 className="font-heading text-2xl font-bold text-brand-dark transition-colors group-focus-within:text-brand-moss group-hover:text-brand-moss">
-                            {job.role}
-                          </h3>
-                          <span className="rounded-full border border-brand-border bg-brand-bg px-4 py-1 text-[0.8rem] font-bold uppercase tracking-widest text-brand-stone transition-colors group-focus-within:bg-brand-moss group-focus-within:text-white group-hover:bg-brand-moss group-hover:text-white">
-                            {job.type}
-                          </span>
-                        </div>
-                        <p className="relative z-10 mb-8 text-base font-medium text-brand-stone">
-                          {job.location} •{' '}
-                          {job.experience.toLowerCase() === 'fresher' ? 'Fresher' : `${job.experience} of experience`}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => handleApplyClick(job.role)}
-                          className="relative z-10 flex items-center gap-2 rounded-md text-sm font-bold text-brand-dark transition-[color,gap] hover:text-brand-moss focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-moss focus-visible:ring-offset-4 focus-visible:ring-offset-brand-bg group-hover:gap-4 group-focus-visible:gap-4"
-                        >
-                          Apply Now <ArrowRight size={16} />
-                        </button>
-                      </li>
-                    </Reveal>
-                  ))}
-                  {/* CT-8: when every posting is past its deadline, show an
-                      honest empty state instead of a silently blank list. */}
-                  {openRoles.length === 0 && (
-                    <li className="rounded-[2rem] border border-dashed border-brand-border bg-brand-surface p-10 text-center">
-                      <p className="font-heading text-xl font-bold text-brand-dark">No open roles right now</p>
-                      <p className="mt-2 font-medium text-brand-stone">
-                        We're not actively hiring at the moment. You're welcome to send your profile to{' '}
-                        <a
-                          href={`mailto:${CAREERS_CONTACT_EMAIL}`}
-                          className="font-bold text-brand-moss underline transition-colors hover:text-brand-dark"
-                        >
-                          {CAREERS_CONTACT_EMAIL}
-                        </a>{' '}
-                        and we'll reach out when a suitable role opens.
-                      </p>
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              {/* APPLICATION FORM SECTION */}
-              <div id="apply" className="scroll-mt-[var(--sticky-offset)] pt-10 outline-none">
-                <CareerForm initialPosition={selectedPosition} />
-              </div>
-            </div>
-
-            <div className="z-base lg:col-span-1">
-              <div className="relative sticky top-[var(--sticky-offset)] overflow-hidden rounded-[2rem] bg-brand-dark p-10 text-brand-surface shadow-xl">
-                <div className="pointer-events-none absolute right-0 top-0 h-full w-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-moss/20 via-transparent to-transparent"></div>
-                <div className="relative z-10">
-                  <h2 className="mb-8 font-heading text-2xl font-bold">Why Join Us?</h2>
-                  <ul className="space-y-6 text-lg font-medium text-brand-surface/90">
-                    <li className="flex items-center gap-4">
-                      <span className="shadow-glow h-2 w-2 rounded-full bg-brand-moss"></span>Mentorship
-                    </li>
-                    <li className="flex items-center gap-4">
-                      <span className="shadow-glow h-2 w-2 rounded-full bg-brand-moss"></span>Corporate Exposure
-                    </li>
-                    <li className="flex items-center gap-4">
-                      <span className="shadow-glow h-2 w-2 rounded-full bg-brand-moss"></span>Continuous Learning
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+      <div className="phead">
+        <div className="grain" aria-hidden="true" />
+        <div className="hgrid open solo pad">
+          <div>
+            <h1 className="rise">Careers</h1>
+            <p className="hsub rise d1">
+              We’re a small firm of Chartered Accountants on Thyagaraja Road, Mysuru. You’ll work on client files with
+              CA Sagar H R, who reviews your work and explains the changes he makes.
+            </p>
           </div>
         </div>
+      </div>
+
+      <div className="cdoc pad">
+        <section className="sec" aria-labelledby="roles-heading">
+          <div className="sec-h">
+            <h2 id="roles-heading">Open roles</h2>
+            <p className="desc">
+              {openRoles.length ? rolesSentence(openRoles.length) : 'New roles are listed here when they open.'}
+            </p>
+          </div>
+          <div className="qlist">
+            {openRoles.map((role) => {
+              const open = expanded.has(role.id);
+              return (
+                <div key={role.id} id={role.id} className={`qi role ${open ? 'open' : ''}`}>
+                  <h3>
+                    <button
+                      className="qb"
+                      type="button"
+                      aria-expanded={open}
+                      aria-controls={`${role.id}-details`}
+                      onClick={() => toggleRole(role.id)}
+                    >
+                      <span className="q">
+                        {role.role}
+                        <span className="rmeta">
+                          {role.meta.map((part, index) => (
+                            <span key={part}>
+                              {part}
+                              {index < role.meta.length - 1 ? ' ·' : ''}
+                            </span>
+                          ))}
+                        </span>
+                      </span>
+                      <span className="x" aria-hidden="true" />
+                    </button>
+                  </h3>
+                  <div className="ans" id={`${role.id}-details`}>
+                    <div>
+                      <div className="rbody" inert={!open}>
+                        <p>{role.description}</p>
+                        <div className="rcols">
+                          <div>
+                            <h4>What you’ll do</h4>
+                            <ul>
+                              {role.responsibilities.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h4>What we look for</h4>
+                            <ul>
+                              {role.skills.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                        <button className="btn" type="button" onClick={() => applyFor(role.role)}>
+                          <span>Apply for this role</span>
+                          <ArrowRight />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {openRoles.length === 0 && (
+              <div className="closed">
+                <h3>No roles are open right now</h3>
+                <p>
+                  We still read every application.{' '}
+                  <a
+                    href="#apply"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      applyFor(ANY_ROLE);
+                    }}
+                  >
+                    Send us your details
+                  </a>{' '}
+                  and we’ll get in touch if a suitable role opens in the next year.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+
+      <section className="next pad" aria-labelledby="working-here-heading">
+        <h2 className="next-h" id="working-here-heading">
+          Working here
+        </h2>
+        <ul className="steps">
+          {WORKING_HERE.map((item) => (
+            <li key={item.heading}>
+              <h3>{item.heading}</h3>
+              <p>{item.text}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <div className="apply pad" id="apply">
+        <div className="ainfo">
+          <h2>After you apply</h2>
+          <ol className="vsteps">
+            {AFTER_YOU_APPLY.map((step, index) => (
+              <li key={step.heading}>
+                <span className="sn" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <div>
+                  <h3>{step.heading}</h3>
+                  <p>{step.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="mailto">
+            Questions about a role? Email <a href={`mailto:${CAREERS_CONTACT_EMAIL}`}>{CAREERS_CONTACT_EMAIL}</a>
+          </p>
+        </div>
+
+        <section className="panel fpanel" id="apply-form" aria-labelledby="apply-heading">
+          <ApplicationForm roles={openRoles.map((role) => role.role)} role={chosenRole} onRoleChange={setChosenRole} />
+        </section>
       </div>
     </div>
   );
