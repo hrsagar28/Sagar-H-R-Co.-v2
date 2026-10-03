@@ -1,127 +1,192 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { SERVICE_DETAILS } from '../constants';
-import { CheckCircle2 } from 'lucide-react';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { CONTACT_INFO } from '../constants';
-import { PageHero } from '../components/hero';
-import { SERVICE_HERO_META } from '../constants/serviceHeroMeta';
-import NotFound from './NotFound';
-import Reveal from '../components/Reveal';
-import { staggerDelay } from '../utils/stagger';
-import './route-styles.css';
-import '../components/hero/PageHero.css';
+import { RD_HOURS_SUMMARY } from '../components/redesign/content';
+import { ArrowLeft, ArrowRight } from '../components/redesign/icons';
+import { CONTACT_INFO, FAQS, LEGACY_SERVICE_SLUGS, SERVICE_PAGES, getServicePage } from '../constants';
+
+// 2026 redesign of /services/:slug. Rendered inside RedesignLayout, which
+// supplies the top bar, footer and stylesheet.
+
+const FAQ_QUESTIONS = new Map(FAQS.map((faq) => [faq.id, faq.question]));
+const SERVICE_LINK = /\{([a-z-]+)\|([^}]+)\}/g;
+
+/** Turns `{slug|label}` in the service text into a link to that service. */
+const withServiceLinks = (text: string): React.ReactNode[] => {
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  for (const match of text.matchAll(SERVICE_LINK)) {
+    const [whole, slug, label] = match;
+    const at = match.index ?? 0;
+    if (at > last) {
+      parts.push(text.slice(last, at));
+    }
+    parts.push(
+      <Link key={`${slug}-${at}`} to={`/services/${slug}`}>
+        {label}
+      </Link>,
+    );
+    last = at + whole.length;
+  }
+  if (last < text.length) {
+    parts.push(text.slice(last));
+  }
+  return parts;
+};
+
+/** An unknown slug: a short page in the same frame, not the old 404 page. */
+const ServiceNotFound: React.FC = () => (
+  <div className="rd-page">
+    <SEO title={`Service not found | ${CONTACT_INFO.name}`} description="This service page does not exist." noindex />
+    <div className="phead">
+      <div className="grain" aria-hidden="true" />
+      <div className="hgrid open solo pad">
+        <div>
+          <h1 className="rise">Service not found</h1>
+          <p className="hsub rise d1">This page is not one of our services. The full list is on the Services page.</p>
+        </div>
+      </div>
+    </div>
+    <div className="sdoc pad">
+      <Link className="btn" to="/services">
+        <span>All services</span>
+        <ArrowRight />
+      </Link>
+    </div>
+  </div>
+);
 
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
 
-  const service = slug ? SERVICE_DETAILS[slug] : null;
+  const renamed = slug ? LEGACY_SERVICE_SLUGS[slug] : undefined;
+  if (renamed) {
+    return <Navigate to={`/services/${renamed}`} replace />;
+  }
 
-  if (!service) return <NotFound />;
+  const page = getServicePage(slug);
+  if (!page) {
+    return <ServiceNotFound />;
+  }
 
-  // Audit SV-16: derive a readable eyebrow from the service's discipline
-  // (e.g. "Practice · Direct Tax") instead of printing the raw slug
-  // ("Practice · INCOME-TAX").
-  const heroMeta = SERVICE_HERO_META[slug ?? ''] ?? [];
-  const discipline = heroMeta.find((item) => item.label === 'Discipline')?.value;
-  const eyebrow = typeof discipline === 'string' ? `Practice · ${discipline}` : 'Practice';
+  const questions = page.faqIds.flatMap((id) => {
+    const question = FAQ_QUESTIONS.get(id);
+    return question ? [{ id, question }] : [];
+  });
+  const others = SERVICE_PAGES.filter((other) => other.slug !== page.slug);
 
   return (
-    <div className="bg-grid min-h-screen bg-brand-bg px-4 pb-20 pt-32 md:px-6 md:pt-40 print:h-auto print:bg-white print:pb-0 print:pt-0">
+    <div className="rd-page">
       <SEO
-        title={`${service.title} | ${CONTACT_INFO.name}`}
-        description={service.shortDescription}
+        title={`${page.name} | ${CONTACT_INFO.name}`}
+        description={page.intro}
+        canonicalUrl={`https://casagar.co.in/services/${page.slug}`}
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Services', url: '/services' },
-          { name: service.title, url: window.location.pathname },
+          { name: page.name, url: `/services/${page.slug}` },
         ]}
-        service={{
-          name: service.title,
-          description: service.shortDescription,
-          areaServed: 'Mysuru, Karnataka',
-        }}
+        service={{ name: page.name, description: page.intro, areaServed: 'Mysuru, Karnataka' }}
       />
 
-      <div className="container mx-auto max-w-7xl print:max-w-full print:p-0">
-        {/* Header */}
-        <div className="mb-12">
-          <PageHero
-            variant="split"
-            eyebrow={eyebrow}
-            title={
-              service.title.includes(' ') ? (
-                <>
-                  {service.title.split(' ')[0]} <em>{service.title.substring(service.title.indexOf(' ') + 1)}</em>
-                </>
-              ) : (
-                <>
-                  <em>{service.title}</em>
-                </>
-              )
-            }
-            blurb={service.shortDescription}
-            meta={heroMeta}
-          />
-        </div>
-
-        {/* Main Content Layout */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-20 print:block">
-          {/* Left Column: Editorial Description */}
-          <div className="order-2 lg:order-1 lg:col-span-5 print:mb-8">
-            <div className="sticky top-32 space-y-10 print:static print:space-y-6">
-              <div className="rounded-[2rem] border border-brand-border bg-brand-surface p-10 shadow-lg print:rounded-none print:border-0 print:p-0 print:shadow-none">
-                <Reveal delay={0}>
-                  <h2 className="mb-6 font-heading text-2xl font-bold text-brand-dark print:mb-3 print:text-xl">
-                    Overview
-                  </h2>
-                </Reveal>
-                <Reveal delay={0.08}>
-                  <p className="text-lg font-medium leading-relaxed text-brand-stone print:text-base print:text-black">
-                    {service.longDescription}
-                  </p>
-                </Reveal>
-              </div>
-            </div>
+      <div className="phead">
+        <div className="grain" aria-hidden="true" />
+        <div className={`hgrid open pad ${questions.length ? '' : 'solo'}`}>
+          <div>
+            <Link className="crumb rise" to="/services">
+              <ArrowLeft />
+              All services
+            </Link>
+            <h1 className="rise">{page.name}</h1>
+            <p className="hsub rise d1">{page.intro}</p>
+            <p className="often rise d2">
+              Frequency: <b>{page.frequency}</b>
+            </p>
           </div>
-
-          {/* Right Column: Features Grid */}
-          <div className="order-1 lg:order-2 lg:col-span-7">
-            <Reveal delay={0}>
-              <h2 className="mb-10 font-heading text-3xl font-bold text-brand-dark print:mb-6 print:text-2xl">
-                Services Included
-              </h2>
-            </Reveal>
-            <div className="grid gap-6 print:grid-cols-1 print:gap-4">
-              {service.features.map((feature, idx) => (
-                <Reveal key={feature.title} width="100%" delay={staggerDelay(idx)}>
-                  <div className="group relative break-inside-avoid overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 shadow-sm transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-xl md:p-10 print:rounded-lg print:border-black print:p-4 print:shadow-none">
-                    <div className="absolute right-0 top-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-brand-moss/5 transition-transform duration-700 group-hover:scale-150 print:hidden"></div>
-
-                    <div className="relative z-10 flex items-start gap-6 print:gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-brand-border bg-brand-bg text-brand-moss transition-colors group-hover:bg-brand-moss group-hover:text-white print:h-8 print:w-8 print:border-black print:bg-white print:text-black">
-                        <CheckCircle2 size={24} strokeWidth={1.5} className="print:h-5 print:w-5" />
-                      </div>
-                      <div>
-                        <h3 className="mb-3 font-heading text-xl font-bold text-brand-dark transition-colors group-hover:text-brand-moss md:text-2xl print:mb-1 print:text-lg print:text-black">
-                          {feature.title}
-                        </h3>
-                        <p className="text-base font-medium leading-relaxed text-brand-stone md:text-lg print:text-sm print:text-black">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
+          {questions.length > 0 && (
+            <div className="rise d2">
+              <p className="lbl" id="service-faq-heading">
+                Common questions
+              </p>
+              <ul className="most" aria-labelledby="service-faq-heading">
+                {questions.map(({ id, question }) => (
+                  <li key={id}>
+                    <Link to={`/faqs#${id}`}>
+                      <span>{question}</span>
+                      <ArrowRight size={18} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-        </div>
-
-        <div className="mt-12 hidden border-t border-black pt-8 text-center text-sm font-bold uppercase tracking-widest print:block">
-          {CONTACT_INFO.name} • Chartered Accountants • {CONTACT_INFO.address.city}
+          )}
         </div>
       </div>
+
+      <div className="sdoc pad">
+        <section className="sec" aria-labelledby="scope-heading">
+          <div className="sec-h">
+            <h2 id="scope-heading">Scope of work</h2>
+            <p className="desc">{withServiceLinks(page.incdesc)}</p>
+          </div>
+          <ul className="inc">
+            {page.inc.map(([heading, text]) => (
+              <li key={heading}>
+                <h3>{heading}</h3>
+                <p>{withServiceLinks(text)}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="sec" aria-labelledby="documents-heading">
+          <div className="sec-h">
+            <h2 id="documents-heading">Documents and information</h2>
+            <p className="desc">
+              Usually required at the start. We will request anything further as the work proceeds.
+            </p>
+          </div>
+          <ul className="needs">
+            {page.needs.map((need) => (
+              <li key={need}>{withServiceLinks(need)}</li>
+            ))}
+          </ul>
+        </section>
+
+        <nav className="others" aria-labelledby="other-services-heading">
+          <p className="lbl" id="other-services-heading">
+            Other services
+          </p>
+          <ul>
+            {others.map((other) => (
+              <li key={other.slug}>
+                <Link to={`/services/${other.slug}`}>
+                  <span>{other.name}</span>
+                  <ArrowRight />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <section className="ask pad" aria-labelledby="ask-heading">
+        <div className="ask-in">
+          <div>
+            <h2 id="ask-heading">Ask us about {page.ask}</h2>
+            <p>Send us a message describing your requirement, or call during office hours, {RD_HOURS_SUMMARY}.</p>
+          </div>
+          <div className="ask-acts">
+            <Link className="btn btn-c" to={`/contact?subject=${page.slug}#write`}>
+              <span>Send us a message</span>
+              <ArrowRight />
+            </Link>
+            <a className="tel" href={`tel:${CONTACT_INFO.phone.value}`}>
+              {CONTACT_INFO.phone.display}
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

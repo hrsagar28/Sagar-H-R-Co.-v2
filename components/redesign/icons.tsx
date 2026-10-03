@@ -24,6 +24,12 @@ export const ArrowRight: React.FC<IconProps> = ({ size = 16 }) => (
   </svg>
 );
 
+export const ArrowLeft: React.FC<IconProps> = ({ size = 14 }) => (
+  <svg {...base(size, 1.5)}>
+    <path d="M20 12H5M11 6l-6 6 6 6" />
+  </svg>
+);
+
 export const ArrowUp: React.FC<IconProps> = ({ size = 14 }) => (
   <svg {...base(size, 1.5)}>
     <path d="M12 19V5M6 11l6-6 6 6" />

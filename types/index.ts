@@ -76,15 +76,35 @@ export interface FAQItem {
   featuredOnHome?: boolean;
 }
 
-export interface SubService {
-  title: string;
-  description: string;
+/**
+ * One service page (/services/:slug). Text in `inc`, `needs` and `incdesc` may
+ * link to another service with `{slug|label}`, which the page renders as a
+ * router link.
+ */
+export interface ServicePage {
+  slug: string;
+  name: string;
+  /** Completes "Ask us about …" in the band at the foot of the page. */
+  ask: string;
+  /** Who the service is for, one sentence. */
+  who: string;
+  /** Four short items listed under the service on /services. */
+  tags: string[];
+  /** How often the work recurs ("Monthly", "As required"). */
+  frequency: string;
+  intro: string;
+  incdesc: string;
+  /** Scope of work: [heading, text] pairs. */
+  inc: [string, string][];
+  /** Documents and information usually needed at the start. */
+  needs: string[];
+  /** Ids from constants/faq.ts, shown as "Common questions". */
+  faqIds: string[];
+  Icon: IconComponent;
 }
 
-export interface ServiceDetailContent {
-  id: string;
-  title: string;
-  shortDescription: string; // For the hero section
-  longDescription: string; // The "editorial" content
-  features: SubService[]; // The list of specific services (e.g., ITR Filing)
+export interface ServiceGroup {
+  name: string;
+  description: string;
+  slugs: string[];
 }

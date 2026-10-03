@@ -4,7 +4,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, type InitialEntry } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Contact from './Contact';
-import { SERVICES } from '../constants';
 
 const mocks = vi.hoisted(() => ({
   addToast: vi.fn(),
@@ -103,7 +102,15 @@ describe('Contact', () => {
     expect(await screen.findByText('This email address looks incomplete. Please check it.')).toBeInTheDocument();
   });
 
-  it('silently blocks submission when the honeypot is filled', () => {
+  it('keeps the honeypot out of view, where browsers will not autofill it', () => {
+    const { container } = renderContact();
+    const honeypot = container.querySelector('input[name="_honey"]') as HTMLInputElement;
+
+    expect(honeypot).not.toBeVisible();
+    expect(honeypot.closest('[hidden]')).not.toBeNull();
+  });
+
+  it('does not send when the honeypot is filled, and says how else to reach us', () => {
     const { container } = renderContact();
     const honeypot = container.querySelector('input[name="_honey"]') as HTMLInputElement;
 
@@ -112,14 +119,13 @@ describe('Contact', () => {
     fireEvent.click(sendButton());
 
     expect(mocks.post).not.toHaveBeenCalled();
-    expect(mocks.addToast).not.toHaveBeenCalled();
+    expect(mocks.addToast).toHaveBeenCalledWith(expect.stringContaining('email us directly'), 'error');
   });
 
   it('preselects a valid query string subject and ignores an invalid one', () => {
-    const validSubject = SERVICES[0]?.title || '';
-    const { container, unmount } = renderContact(`/contact?subject=${encodeURIComponent(validSubject)}`);
+    const { container, unmount } = renderContact('/contact?subject=GST');
 
-    const chosen = container.querySelector<HTMLInputElement>(`input[name="subject"][value="${validSubject}"]`);
+    const chosen = container.querySelector<HTMLInputElement>('input[name="subject"][value="GST"]');
     expect(chosen).toBeChecked();
     unmount();
 
@@ -127,6 +133,11 @@ describe('Contact', () => {
     expect(second.container.querySelector('input[name="subject"]:checked')).toBeNull();
   });
 
+  it('preselects the subject that covers the service a visitor came from', () => {
+    const { container } = renderContact('/contact?subject=nri-taxation');
+
+    expect(container.querySelector('input[name="subject"][value="Income tax"]')).toBeChecked();
+  });
   it('asks what the enquiry is about when "Something else" is chosen', async () => {
     renderContact();
 

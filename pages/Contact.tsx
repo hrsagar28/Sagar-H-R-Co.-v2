@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Honeypot from '../components/forms/Honeypot';
-import { CONTACT_INFO, SERVICES } from '../constants';
+import { CONTACT_INFO } from '../constants';
 import { useFormDraft, useFormValidation, useRateLimit, useToast } from '../hooks';
 import { createFormSchema, email, indianPhone, required, validateForm, type FormSchema } from '../utils/formValidation';
 import { ApiError } from '../utils/api';
@@ -10,6 +10,7 @@ import { submitToFormSubmit } from '../utils/formSubmit';
 import { headerSafe, normalizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
 import { ArrowRight } from '../components/redesign/icons';
+import FormField, { fieldErrorProps } from '../components/redesign/FormField';
 import { RD_HOURS_TABLE } from '../components/redesign/content';
 
 // 2026 redesign of /contact. Rendered inside RedesignLayout, which supplies the
@@ -38,36 +39,37 @@ const INITIAL_CONTACT: ContactFormData = {
 const MESSAGE_MAX = 2000;
 const OTHER_REQUIRED = 'Please tell us what it is about.';
 
-// Plain-language names for the subject choices. The submitted value stays the
-// service title, as before, so the enquiry email reads the same.
-const SUBJECT_SHORT_LABELS: [string, string][] = [
-  ['GST Registration & Filing', 'GST'],
-  ['Income Tax Services', 'Income tax'],
-  ['Litigation Support', 'A notice or appeal'],
-  ['Audit & Assurance', 'Audit'],
-  ['Company Law & ROC', 'Company or LLP filings'],
-  ['Business Advisory', 'Starting a business'],
-  ['Bookkeeping & Accounting', 'Bookkeeping'],
-  ['Payroll Management', 'Payroll'],
-];
-const SERVICE_TITLES = Array.from(new Set(SERVICES.map((service) => service.title)));
-const SUBJECT_CHIPS = [
-  ...SUBJECT_SHORT_LABELS.filter(([title]) => SERVICE_TITLES.includes(title)).map(([value, label]) => ({
-    value,
-    label,
-  })),
-  // A service added later still gets a choice, under its full title.
-  ...SERVICE_TITLES.filter((title) => !SUBJECT_SHORT_LABELS.some(([known]) => known === title)).map((title) => ({
-    value: title,
-    label: title,
-  })),
-  { value: 'Other', label: 'Something else' },
+// The subject choices. Each covers one or more service pages, so a service
+// page's "Send us a message" (/contact?subject=<slug>) arrives with its choice
+// already made. The submitted value is the label shown here.
+const SUBJECT_CHIPS: { value: string; label: string; services: string[] }[] = [
+  { value: 'GST', label: 'GST', services: ['gst'] },
+  { value: 'Income tax', label: 'Income tax', services: ['income-tax', 'tds-and-tcs', 'nri-taxation'] },
+  { value: 'A notice or appeal', label: 'A notice or appeal', services: ['notices-and-appeals'] },
+  { value: 'Audit or a certificate', label: 'Audit or a certificate', services: ['audit', 'certificates'] },
+  {
+    value: 'Company, LLP or firm',
+    label: 'Company, LLP or firm',
+    services: ['company-law', 'partnership-firms-and-llps'],
+  },
+  { value: 'Trust or NPO', label: 'Trust or NPO', services: ['trusts-and-npos'] },
+  {
+    value: 'Business, loan or grant',
+    label: 'Business, loan or grant',
+    services: ['advisory', 'bank-loans-and-project-reports', 'startup-and-grant-support'],
+  },
+  { value: 'Bookkeeping or payroll', label: 'Bookkeeping or payroll', services: ['bookkeeping-and-payroll'] },
+  { value: 'Other', label: 'Something else', services: [] },
 ];
 const allowedSubjectOptions = new Set(SUBJECT_CHIPS.map((chip) => chip.value));
 
+/** A subject choice from its value, or from the slug of a service it covers. */
 const getAllowedSubject = (subject?: string | null) => {
   const value = subject || '';
-  return allowedSubjectOptions.has(value) ? value : '';
+  if (allowedSubjectOptions.has(value)) {
+    return value;
+  }
+  return SUBJECT_CHIPS.find((chip) => chip.services.includes(value))?.value ?? '';
 };
 
 const normalizeContactValues = (data: Partial<ContactFormData>, fallback?: ContactFormData): ContactFormData => {
@@ -94,7 +96,6 @@ const contactSchema = createFormSchema<ContactFormData>({
 
 const CONTACT_FIELD_ORDER: (keyof ContactFormData)[] = ['name', 'phone', 'email', 'subjectOther', 'message'];
 const fieldId = (field: keyof ContactFormData) => `contact-${field}`;
-const errorId = (field: keyof ContactFormData) => `contact-${field}-error`;
 
 /** Error message for one field, given the whole form (the "Other" box depends on the subject). */
 const checkField = (field: keyof ContactFormData, values: ContactFormData): string | undefined => {
@@ -147,49 +148,7 @@ const weekdayInIndia = () => WEEKDAYS.indexOf(IST_WEEKDAY.format(new Date()));
 const [ADDRESS_LINE_1, ADDRESS_LINE_2] = CONTACT_INFO.address.lines;
 const ADDRESS_TO_COPY = `${CONTACT_INFO.name}, ${CONTACT_INFO.address.lines.join(', ')}`;
 
-interface FieldProps {
-  field: keyof ContactFormData;
-  label: string;
-  required?: boolean;
-  optional?: boolean;
-  error?: string;
-  aside?: React.ReactNode;
-  children: React.ReactNode;
-}
-
-const Field: React.FC<FieldProps> = ({ field, label, required: isRequired, optional, error, aside, children }) => (
-  <div className="fld" data-err={error ? '' : undefined}>
-    <label htmlFor={fieldId(field)}>
-      {label}
-      {isRequired && (
-        <>
-          {' '}
-          <span className="req" aria-hidden="true">
-            *
-          </span>
-        </>
-      )}
-      {optional && (
-        <>
-          {' '}
-          <span className="opt">(optional)</span>
-        </>
-      )}
-    </label>
-    {aside}
-    {children}
-    {error && (
-      <p className="err" id={errorId(field)}>
-        {error}
-      </p>
-    )}
-  </div>
-);
-
-const errorProps = (field: keyof ContactFormData, error?: string) => ({
-  'aria-invalid': error ? true : undefined,
-  'aria-describedby': error ? errorId(field) : undefined,
-});
+const errorProps = (field: keyof ContactFormData, error?: string) => fieldErrorProps(fieldId(field), error);
 
 const Contact: React.FC = () => {
   const { addToast } = useToast();
@@ -368,7 +327,14 @@ const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (honeypot) return;
+    // A filled honeypot means a bot, or a browser that autofilled the hidden
+    // field. Either way the message isn't sent, but a person must not be left
+    // with a Send button that seems to do nothing.
+    if (honeypot) {
+      logger.warn('Contact form: hidden spam-check field was filled', { form: 'contact' });
+      addToast(`We could not send your message. Please email us directly at ${CONTACT_INFO.email}`, 'error');
+      return;
+    }
 
     if (!canSubmit) {
       addToast(`Please wait ${timeUntilReset}s before retrying.`, 'error');
@@ -573,15 +539,11 @@ const Contact: React.FC = () => {
               Tell us briefly what you need. Fields marked <span className="req-key">*</span> are required.
             </p>
             <form className="rd-form" onSubmit={handleSubmit} noValidate>
-              {/* Kept off-screen by .vh as well: Honeypot's own Tailwind classes
-                  live in the route bundle, which this page doesn't load. */}
-              <div className="vh">
-                <Honeypot name="_honey" value={honeypot} onChange={setHoneypot} />
-              </div>
+              <Honeypot name="_honey" value={honeypot} onChange={setHoneypot} />
               <input type="hidden" name="_template" value="table" />
 
               <div className="row2">
-                <Field field="name" label="Name" required error={errors.name}>
+                <FormField id={fieldId('name')} label="Name" required error={errors.name}>
                   <input
                     id={fieldId('name')}
                     name="name"
@@ -593,8 +555,8 @@ const Contact: React.FC = () => {
                     onBlur={onFieldBlur('name')}
                     {...errorProps('name', errors.name)}
                   />
-                </Field>
-                <Field field="phone" label="Mobile number" required error={errors.phone}>
+                </FormField>
+                <FormField id={fieldId('phone')} label="Mobile number" required error={errors.phone}>
                   <input
                     id={fieldId('phone')}
                     name="phone"
@@ -609,11 +571,11 @@ const Contact: React.FC = () => {
                     onBlur={onFieldBlur('phone')}
                     {...errorProps('phone', errors.phone)}
                   />
-                </Field>
+                </FormField>
               </div>
 
               <div className="row2">
-                <Field field="email" label="Email" required error={errors.email}>
+                <FormField id={fieldId('email')} label="Email" required error={errors.email}>
                   <input
                     id={fieldId('email')}
                     name="email"
@@ -626,8 +588,8 @@ const Contact: React.FC = () => {
                     onBlur={onFieldBlur('email')}
                     {...errorProps('email', errors.email)}
                   />
-                </Field>
-                <Field field="company" label="Business or firm name" optional>
+                </FormField>
+                <FormField id={fieldId('company')} label="Business or firm name" optional>
                   <input
                     id={fieldId('company')}
                     name="company"
@@ -636,7 +598,7 @@ const Contact: React.FC = () => {
                     value={values.company}
                     onChange={onFieldChange('company')}
                   />
-                </Field>
+                </FormField>
               </div>
 
               <fieldset className="fld">
@@ -658,7 +620,7 @@ const Contact: React.FC = () => {
               </fieldset>
 
               {values.subject === 'Other' && (
-                <Field field="subjectOther" label="What is it about?" required error={errors.subjectOther}>
+                <FormField id={fieldId('subjectOther')} label="What is it about?" required error={errors.subjectOther}>
                   <input
                     id={fieldId('subjectOther')}
                     name="subjectOther"
@@ -669,11 +631,11 @@ const Contact: React.FC = () => {
                     onBlur={onFieldBlur('subjectOther')}
                     {...errorProps('subjectOther', errors.subjectOther)}
                   />
-                </Field>
+                </FormField>
               )}
 
-              <Field
-                field="message"
+              <FormField
+                id={fieldId('message')}
                 label="Message"
                 required
                 error={errors.message}
@@ -696,7 +658,7 @@ const Contact: React.FC = () => {
                   onBlur={onFieldBlur('message')}
                   {...errorProps('message', errors.message)}
                 />
-              </Field>
+              </FormField>
 
               <div className="submit-row">
                 <button className="btn" type="submit" disabled={isSubmitting || !canSubmit}>

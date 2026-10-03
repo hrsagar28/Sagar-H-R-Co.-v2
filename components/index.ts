@@ -3,7 +3,6 @@ export { default as CustomCursor } from './CustomCursor';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as Footer } from './Footer';
 export { default as HorizontalScroll } from './HorizontalScroll';
-export { IndustryChips, IndustryGridDark } from './IndustrySpotlight';
 export { default as LiveRegion } from './LiveRegion';
 export { default as Marquee } from './Marquee';
 export { default as Navbar } from './Navbar';
@@ -14,13 +13,11 @@ export { default as Preloader } from './Preloader';
 export { default as Reveal } from './Reveal';
 export { default as RouteErrorBoundary } from './RouteErrorBoundary';
 export { default as SEO } from './SEO';
-export { default as ServiceBento } from './ServiceBento';
 export { default as Skeleton } from './Skeleton';
 export { default as Toast } from './Toast';
 export { default as ToastContainer } from './ToastContainer';
 export { default as TopProgressBar } from './TopProgressBar';
 export { default as VisuallyHidden } from './VisuallyHidden';
-export { default as ConsultationBanner } from './ConsultationBanner';
 export { default as WhatsAppFloat } from './WhatsAppFloat';
 
 // Home Specific Components
@@ -32,5 +29,4 @@ export { default as ChaosToOrder } from './home/ChaosToOrder';
 
 // Skeletons
 export { default as InsightDetailSkeleton } from './skeletons/InsightDetailSkeleton';
-export { default as ServiceDetailSkeleton } from './skeletons/ServiceDetailSkeleton';
 export { default as ResourcesSkeleton } from './skeletons/ResourcesSkeleton';

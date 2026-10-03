@@ -1,11 +1,11 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import * as matchers from 'vitest-axe/matchers';
-import { INDUSTRIES, SERVICES } from '../constants';
+import { CLIENT_SECTORS, SERVICE_GROUPS, SERVICE_PAGES } from '../constants';
 import Services from './Services';
 
 expect.extend(matchers);
@@ -14,85 +14,54 @@ vi.mock('../components/SEO', () => ({
   default: () => null,
 }));
 
-vi.mock('../components/hero', () => ({
-  PageHero: ({ title }: { title: React.ReactNode }) => (
-    <header data-testid="services-hero">
-      <h1>{title}</h1>
-    </header>
-  ),
-}));
-
-vi.mock('../components/Reveal', () => ({
-  default: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div className={className}>{children}</div>
-  ),
-}));
-
-beforeAll(() => {
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => null);
-  class MockIntersectionObserver {
-    observe = vi.fn();
-    unobserve = vi.fn();
-    disconnect = vi.fn();
-  }
-  window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
-});
-
 const renderServices = () =>
   render(
     <MemoryRouter initialEntries={['/services']}>
-      <Services />
+      <main>
+        <Services />
+      </main>
     </MemoryRouter>,
   );
 
 describe('Services', () => {
-  beforeEach(() => {
-    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }));
+  it('puts every service in exactly one group', () => {
+    const grouped = SERVICE_GROUPS.flatMap((group) => group.slugs);
+    expect([...grouped].sort()).toEqual(SERVICE_PAGES.map((page) => page.slug).sort());
   });
 
-  it('renders the services hero', () => {
+  it('lists each group with its services, linking to their pages', () => {
     renderServices();
 
-    expect(screen.getByTestId('services-hero')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/our services/i);
-  });
-
-  it('renders all service cards with expected links', () => {
-    renderServices();
-
-    SERVICES.forEach((service) => {
-      expect(screen.getByRole('link', { name: service.title })).toHaveAttribute('href', service.link);
+    expect(screen.getByRole('heading', { level: 1, name: 'Services' })).toBeInTheDocument();
+    SERVICE_GROUPS.forEach((group) => {
+      const section = screen.getByRole('region', { name: group.name });
+      const links = within(section).getAllByRole('link');
+      expect(links).toHaveLength(group.slugs.length);
+      group.slugs.forEach((slug, index) => {
+        expect(links[index]).toHaveAttribute('href', `/services/${slug}`);
+      });
     });
   });
 
-  it('renders the industries section as non-interactive cards', () => {
+  it('shows who each service is for and what it includes', () => {
     renderServices();
 
-    expect(screen.getByRole('heading', { name: /industries we serve/i })).toBeInTheDocument();
-    INDUSTRIES.forEach((industry) => {
-      expect(screen.getByRole('heading', { name: industry.title })).toBeInTheDocument();
-    });
-    // Audit SV-15: the industry cards are no longer links.
-    expect(screen.queryByRole('link', { name: /discuss .* services/i })).toBeNull();
+    const gst = SERVICE_PAGES[0]!;
+    const link = screen.getByRole('link', { name: new RegExp(`^${gst.name}`) });
+    expect(link).toHaveTextContent(gst.who);
+    gst.tags.forEach((tag) => expect(link).toHaveTextContent(tag));
   });
 
-  it('renders the consultation banner', () => {
+  it('lists the kinds of client and ends with "and many more"', () => {
     renderServices();
 
-    expect(screen.getByRole('heading', { name: /professional assistance/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /engage on a matter/i })).toHaveAttribute('href', '/contact');
+    const section = screen.getByRole('region', { name: 'Who we work with' });
+    const items = within(section).getAllByRole('listitem');
+    expect(items).toHaveLength(CLIENT_SECTORS.length + 1);
+    expect(items[items.length - 1]).toHaveTextContent('and many more');
   });
 
-  it('renders no axe violations for static markup', async () => {
+  it('renders no axe violations', async () => {
     const { container } = renderServices();
 
     expect(await axe(container)).toHaveNoViolations();

@@ -24,8 +24,6 @@ export default {
     './components/RouteErrorBoundary.tsx',
     './components/Reveal.tsx',
     './components/HorizontalScroll.tsx',
-    // MNT-9: IndustrySpotlight is never rendered on the home route — removed from
-    // the home content list (it's still scanned by the routes config for Services).
     './components/Marquee.tsx',
     './components/SEO.tsx',
     './components/VisuallyHidden.tsx',

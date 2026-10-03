@@ -9,7 +9,6 @@ import {
   NetworkStatus,
   RouteErrorBoundary,
   TopProgressBar,
-  ServiceDetailSkeleton,
   InsightDetailSkeleton,
   ResourcesSkeleton,
   WhatsAppFloat,
@@ -138,7 +137,9 @@ const MainContent = () => {
               path="/services"
               element={
                 <RouteErrorBoundary>
-                  <Services />
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <Services />
+                  </Suspense>
                 </RouteErrorBoundary>
               }
             />
@@ -146,7 +147,7 @@ const MainContent = () => {
               path="/services/:slug"
               element={
                 <RouteErrorBoundary>
-                  <Suspense fallback={<ServiceDetailSkeleton />}>
+                  <Suspense fallback={<RdPageSkeleton />}>
                     <ServiceDetail />
                   </Suspense>
                 </RouteErrorBoundary>
@@ -202,7 +203,9 @@ const MainContent = () => {
               path="/careers"
               element={
                 <RouteErrorBoundary>
-                  <Careers />
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <Careers />
+                  </Suspense>
                 </RouteErrorBoundary>
               }
             />

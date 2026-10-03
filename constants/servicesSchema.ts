@@ -9,9 +9,10 @@ export const buildServicesSchema = () => [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Professional CA Services',
+    name: 'Services',
     url: `${SITE_URL}/services`,
-    description: 'Audit, GST, Income Tax, Company Law, Advisory, Bookkeeping, Payroll services from Mysuru.',
+    description:
+      'Tax, audit, company law and accounting services for individuals, businesses, institutions and trusts, from Mysuru.',
     isPartOf: { '@id': `${SITE_URL}/#website` },
     about: SERVICES.map((service) => service.title),
     mainEntity: {
