@@ -173,15 +173,31 @@ const recordSuccessfulSend = async (key: string, window: RateWindow) => {
   }
 };
 
+// FormSubmit refuses requests that carry no Referer ("Make sure you open this
+// page through a web server…"), and a server-side fetch sends none. Present
+// the site's own address. Netlify sets URL to the site's main address.
+const SITE_ORIGIN = (process.env.URL || 'https://casagar.co.in').replace(/\/+$/, '');
+
 const forwardToFormSubmit = (endpoint: string, formPayload: Record<string, string>) =>
   fetch(endpoint, {
     method: 'POST',
     headers: {
       accept: 'application/json',
       'content-type': 'application/json',
+      origin: SITE_ORIGIN,
+      referer: `${SITE_ORIGIN}/contact`,
     },
     body: JSON.stringify(formPayload),
   });
+
+// FormSubmit can answer 200 and still refuse the message (for example before
+// the address has been activated), saying so in the body as success: "false".
+const formSubmitAccepted = async (response: Response): Promise<{ ok: boolean; message: string }> => {
+  if (!response.ok) return { ok: false, message: `HTTP ${response.status}` };
+  const result = (await response.json().catch(() => null)) as { success?: unknown; message?: unknown } | null;
+  const ok = String(result?.success) === 'true';
+  return { ok, message: typeof result?.message === 'string' ? result.message : '' };
+};
 
 export const handler: Handler = async (event) => {
   // CF-3: nothing below can throw an unhandled 500 with a raw stack.
@@ -245,7 +261,9 @@ export const handler: Handler = async (event) => {
     }
 
     const response = await forwardToFormSubmit(endpoint, buildForwardPayload(payload));
-    if (!response.ok) {
+    const accepted = await formSubmitAccepted(response);
+    if (!accepted.ok) {
+      console.error('[contact] FormSubmit did not accept the message:', accepted.message);
       return json(502, { error: 'The contact gateway did not accept the message. Please email us directly.' });
     }
 
