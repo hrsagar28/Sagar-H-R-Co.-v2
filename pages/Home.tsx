@@ -47,7 +47,6 @@ const HOME_SCHEMA = {
       description: 'Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.',
       priceRange: '₹₹',
       availableLanguage: CONTACT_INFO.languages,
-      sameAs: [CONTACT_INFO.social.linkedin],
       areaServed: [
         { '@type': 'City', name: 'Mysuru' },
         { '@type': 'State', name: 'Karnataka' },

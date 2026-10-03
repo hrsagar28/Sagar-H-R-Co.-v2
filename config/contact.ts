@@ -33,13 +33,14 @@ export const CONTACT_INFO = {
     zip: '570004',
     country: 'India',
     full: '1479, 2nd Floor, Thyagaraja Road, KR Mohalla, Mysuru - 570004',
+    // Postal form used by the redesigned FAQ and Contact pages, one entry per line.
+    lines: ['No. 1479, 2nd Floor, Thyagaraja Road', 'K.R. Mohalla, Mysuru – 570 004'],
   },
   hours: {
     display: 'Mon - Sat: 10:00 AM - 8:00 PM (IST)',
     value: 'Mo-Sa 10:00-20:00',
   },
   social: {
-    linkedin: 'https://www.linkedin.com/in/sagar-h-r-507495261/',
     whatsapp: 'https://wa.me/919482359455?text=Hi,%20I%20would%20like%20to%20book%20a%20consultation.',
   },
   geo: {
@@ -50,6 +51,7 @@ export const CONTACT_INFO = {
     mapShareUrl: 'https://www.google.com/maps?q=12.300430,76.651748',
   },
   tagline: 'Chartered Accountants',
+  firmRegistrationNo: '026642S',
   languages: ['English', 'Kannada', 'Hindi'],
   assessmentYear: CURRENT_AY,
   financialYear: CURRENT_FY,
