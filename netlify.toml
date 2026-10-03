@@ -77,9 +77,11 @@
     Reporting-Endpoints = 'csp-endpoint="/.netlify/functions/csp-report"'
     # The contact and careers forms post straight to FormSubmit from the browser
     # (connect-src https://formsubmit.co). Botpoison, and the 'wasm-unsafe-eval'
-    # and blob: worker allowances it needed (CF-5), were removed with it.
+    # and blob: worker allowances it needed (CF-5), were removed with it. Google
+    # Analytics hosts were removed with the cookie banner: the site runs no
+    # analytics.
     # SEC-7: frame-ancestors 'none' now matches X-Frame-Options: DENY (no
     # contradiction); report-to mirrors report-uri for modern browsers.
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; style-src-elem 'self' 'sha256-Rx8sbJNM1PHpI2EpyvoJsMjRmGaPTL1bc7kw0VlR/K4='; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://formsubmit.co; frame-src 'self' https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /.netlify/functions/csp-report; report-to csp-endpoint; upgrade-insecure-requests;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'self' 'sha256-Rx8sbJNM1PHpI2EpyvoJsMjRmGaPTL1bc7kw0VlR/K4='; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://formsubmit.co; frame-src 'self' https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /.netlify/functions/csp-report; report-to csp-endpoint; upgrade-insecure-requests;"
     X-Frame-Options = "DENY"
 

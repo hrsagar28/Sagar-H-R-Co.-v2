@@ -13,7 +13,6 @@ import {
   InsightDetailSkeleton,
   ResourcesSkeleton,
   WhatsAppFloat,
-  CookieConsent,
 } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
@@ -221,7 +220,9 @@ const MainContent = () => {
               path="/disclaimer"
               element={
                 <RouteErrorBoundary>
-                  <Disclaimer />
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <Disclaimer />
+                  </Suspense>
                 </RouteErrorBoundary>
               }
             />
@@ -229,7 +230,9 @@ const MainContent = () => {
               path="/privacy"
               element={
                 <RouteErrorBoundary>
-                  <Privacy />
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <Privacy />
+                  </Suspense>
                 </RouteErrorBoundary>
               }
             />
@@ -237,7 +240,9 @@ const MainContent = () => {
               path="/terms"
               element={
                 <RouteErrorBoundary>
-                  <Terms />
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <Terms />
+                  </Suspense>
                 </RouteErrorBoundary>
               }
             />
@@ -282,7 +287,6 @@ const SiteLayout = () => {
           <CustomCursor />
         </Suspense>
         {!redesigned && <WhatsAppFloat />}
-        <CookieConsent />
       </div>
 
       {/* Fixed Elements */}

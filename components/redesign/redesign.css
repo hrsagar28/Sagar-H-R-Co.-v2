@@ -1624,11 +1624,278 @@
 
 @media print {
   .rd .topbar,
-  .rd .phead,
+  .rd .grain,
   .rd.sbar,
   .rd .foot,
   .rd .map,
   .rd .spanel {
     display: none;
+  }
+  /* Keep the page title when printing (legal pages especially), without the
+     dark band behind it. */
+  .rd .phead {
+    background: none;
+    padding-top: 0;
+  }
+}
+
+/* ---------- legal pages: privacy policy, terms of service, disclaimer ----------
+   Same frame as FAQ and Contact, kept plain: dark header band with the title,
+   then the document beside a sticky list of its sections. */
+
+/* header: title, one line on what the page covers, and the date it changed.
+   No panel on the seam, so the band ends with its own padding. */
+.rd .lhero {
+  grid-template-columns: minmax(0, 1fr);
+  padding-bottom: clamp(56px, 6vw, 88px);
+}
+.rd .upd {
+  margin: 22px 0 0;
+  font-size: 14px;
+  color: var(--cream-m);
+}
+
+/* the document and its contents list */
+.rd .ldoc {
+  display: grid;
+  grid-template-columns: 4fr 8fr;
+  gap: clamp(32px, 4.4vw, 64px);
+  padding-top: clamp(64px, 7vw, 104px);
+  padding-bottom: clamp(96px, 10vw, 144px);
+}
+.rd .toc {
+  position: sticky;
+  top: 28px;
+  align-self: start;
+  transition: top 0.4s var(--ease);
+}
+.rd.bar-on .toc {
+  top: calc(var(--bar) + 28px);
+}
+.rd .toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ink);
+}
+.rd .toc a {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 6px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.rd .toc a:hover {
+  color: var(--ink);
+}
+.rd .toc a[aria-current='true'] {
+  color: var(--ink);
+}
+.rd .toc .tn {
+  font-variant-numeric: tabular-nums;
+}
+.rd .toc a[aria-current='true'] .tn {
+  color: var(--copper-d);
+}
+.rd .doc {
+  min-width: 0;
+  max-width: calc(66ch + 40px);
+}
+.rd .lsec {
+  scroll-margin-top: 24px;
+}
+.rd.bar-on .lsec {
+  scroll-margin-top: calc(var(--bar) + 24px);
+}
+.rd .lsec + .lsec {
+  margin-top: clamp(48px, 4.4vw, 64px);
+}
+.rd .lsec h2 {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  margin: 0 0 18px;
+  padding-top: 22px;
+  border-top: 1px solid var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(28px, 2.4vw, 34px);
+  line-height: 1.1;
+}
+.rd .lsec h2 .n {
+  color: var(--copper-d);
+}
+.rd .lsec p,
+.rd .lsec li {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--body);
+}
+.rd .lsec p {
+  margin: 0 0 14px;
+}
+.rd .lsec ul {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+}
+.rd .lsec li {
+  position: relative;
+  padding-left: 22px;
+}
+.rd .lsec li + li {
+  margin-top: 8px;
+}
+.rd .lsec li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.82em;
+  width: 9px;
+  height: 1px;
+  background: var(--copper-d);
+}
+.rd .lsec a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--copper);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.rd .lsec strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* two-column tables: what we collect, who sees it, how long we keep it */
+.rd .ltable {
+  width: 100%;
+  margin: 4px 0 18px;
+  border-collapse: collapse;
+}
+.rd .ltable th,
+.rd .ltable td {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.rd .ltable tr:first-child th,
+.rd .ltable tr:first-child td {
+  border-top: 1px solid var(--rule);
+}
+.rd .ltable th {
+  width: 34%;
+  padding-right: 24px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.rd .ltable td {
+  color: var(--body);
+}
+
+/* grievance officer and contact details */
+.rd .officer {
+  margin: 6px 0 14px;
+  padding: 22px 24px;
+  background: var(--paper);
+  border: 1px solid #e3ded2;
+}
+.rd .officer .who {
+  margin: 0 0 2px;
+  font-family: var(--serif);
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.rd .officer .role {
+  margin: 0 0 16px;
+  font-size: 15px;
+  color: var(--muted);
+}
+.rd .officer dl {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+}
+.rd .officer dt {
+  color: var(--muted);
+}
+.rd .officer dd {
+  margin: 0;
+  color: var(--ink);
+}
+
+@media (max-width: 900px) {
+  .rd .ldoc {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding-top: 0;
+  }
+  .rd .toc {
+    display: none;
+  }
+  .rd .ldoc .picker {
+    margin-bottom: 36px;
+  }
+  .rd .lsec {
+    scroll-margin-top: 76px;
+  }
+  .rd.bar-on .lsec {
+    scroll-margin-top: calc(var(--bar) + 76px);
+  }
+  .rd .lsec h2 {
+    grid-template-columns: 32px minmax(0, 1fr);
+    font-size: 27px;
+  }
+  .rd .lsec p,
+  .rd .lsec li {
+    font-size: 16px;
+  }
+  .rd .ltable,
+  .rd .ltable tbody,
+  .rd .ltable tr,
+  .rd .ltable th,
+  .rd .ltable td {
+    display: block;
+    width: auto;
+  }
+  .rd .ltable th {
+    padding: 14px 0 2px;
+    border-bottom: 0;
+  }
+  .rd .ltable td {
+    padding: 0 0 14px;
+  }
+  .rd .ltable tr:first-child td {
+    border-top: 0;
+  }
+  .rd .officer {
+    padding: 18px;
+  }
+  .rd .officer dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .rd .officer dd + dt {
+    margin-top: 10px;
+  }
+}
+
+@media print {
+  .rd .toc,
+  .rd .picker {
+    display: none;
+  }
+  .rd .ldoc {
+    display: block;
   }
 }

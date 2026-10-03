@@ -42,3 +42,6 @@ export const RD_HOURS_TABLE = [
   { label: 'Monday to Saturday', time: '10:00 am – 8:00 pm', days: [1, 2, 3, 4, 5, 6] },
   { label: 'Sunday', time: 'Closed', days: [0] },
 ];
+
+/** The date the privacy policy, terms of service and disclaimer last changed. */
+export const RD_LEGAL_UPDATED = '2026-10-03';

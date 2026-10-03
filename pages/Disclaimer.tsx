@@ -1,126 +1,111 @@
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
-import './route-styles.css';
+import LegalPage, { type LegalSection } from '../components/redesign/LegalPage';
+import { CONTACT_INFO } from '../constants';
 
-const Disclaimer: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-brand-bg px-4 pb-20 pt-32 md:px-6 md:pt-40">
-      {/* SEO-3: legal pages previously rendered no metadata despite being in
-          the sitemap. */}
-      <SEO
-        title="Disclaimer | Sagar H R & Co."
-        description="Important disclaimers regarding the professional information published on the Sagar H R & Co. website. Content is general in nature and not a substitute for professional advice."
-        canonicalUrl="https://casagar.co.in/disclaimer"
-        breadcrumbs={[
-          { name: 'Home', url: '/' },
-          { name: 'Disclaimer', url: '/disclaimer' },
-        ]}
-      />
-      <div className="container mx-auto max-w-4xl">
-        {/* Back Link */}
-        <div className="mb-12">
-          <Link
-            to="/"
-            className="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-brand-stone transition-colors hover:text-brand-dark"
-          >
-            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-            Back to Home
-          </Link>
-        </div>
+// 2026 redesign of /disclaimer. Rendered inside RedesignLayout, which supplies
+// the top bar, footer and stylesheet.
 
-        {/* Header */}
-        <div className="mb-16">
-          <h1 className="mb-6 font-heading text-5xl font-bold tracking-tighter text-brand-dark md:text-7xl">
-            Disclaimer
-          </h1>
-          <p className="text-lg font-medium text-brand-stone">
-            Important information about the use of our website and services.
-          </p>
-        </div>
+const SECTIONS: LegalSection[] = [
+  {
+    id: 'general-information',
+    title: 'General information, not advice',
+    content: (
+      <p>
+        The articles, FAQs, checklists, compliance calendar and calculators on this website explain the law in general
+        terms. Your facts can change the answer, sometimes completely. Before acting on anything here, speak to us or
+        another Chartered Accountant about your situation.
+      </p>
+    ),
+  },
+  {
+    id: 'changes-in-the-law',
+    title: 'Changes in the law',
+    content: (
+      <>
+        <p>
+          Tax and compliance rules change often, sometimes overnight through a notification or circular. Each article
+          shows the date it was published and reflects the law as we understood it then.
+        </p>
+        <p>
+          The government can extend the due dates shown in our compliance calendar. Check the official portal before
+          relying on a date.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'calculators',
+    title: 'Calculators',
+    content: (
+      <p>
+        Calculator results are estimates, based on what you enter and the assumptions stated on each calculator. They
+        aren’t a computation of your tax and shouldn’t be used to file a return.
+      </p>
+    ),
+  },
+  {
+    id: 'no-client-relationship',
+    title: 'No client relationship',
+    content: (
+      <p>
+        Reading this website or getting in touch with us doesn’t make you our client. That begins only when we agree the
+        scope and fee of the work in an engagement letter.
+      </p>
+    ),
+  },
+  {
+    id: 'icai-rules',
+    title: 'The ICAI’s rules',
+    content: (
+      <p>
+        This website gives factual information about the firm and its services, as the Institute of Chartered
+        Accountants of India permits. It isn’t an advertisement or an attempt to solicit work, and the information is
+        here for people who look for it.
+      </p>
+    ),
+  },
+  {
+    id: 'other-websites',
+    title: 'Other websites',
+    content: (
+      <p>
+        Links to government portals and other websites are given for convenience. We don’t control those websites and
+        aren’t responsible for what they say.
+      </p>
+    ),
+  },
+  {
+    id: 'liability',
+    title: 'Liability',
+    content: (
+      <p>
+        As far as the law allows, {CONTACT_INFO.name} isn’t responsible for any loss arising from a decision made on the
+        strength of the general information on this website.
+      </p>
+    ),
+  },
+];
 
-        {/* Content Card */}
-        <div className="rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
-          <p className="mb-8 text-sm font-bold uppercase tracking-wider text-brand-stone">
-            Effective Date: 26 August 2025
-          </p>
-
-          <div className="space-y-10 text-lg font-medium leading-relaxed text-brand-stone">
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">No Professional Advice</h2>
-              <p>
-                The content provided on this website is for general informational purposes only. It does not constitute
-                professional accounting, tax, audit, or legal advice and should not be substituted for consultation with
-                a qualified professional who can address your specific circumstances.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                No Professional-Client Relationship
-              </h2>
-              <p>
-                Your use of this site, including submitting inquiries, does not create a professional-client
-                relationship between you and Sagar H R & Co. Such a relationship can only be established through a
-                formal, signed engagement letter.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">Information "As Is"</h2>
-              <p>
-                To the fullest extent permitted by law, this website and its content are provided "as is" and "as
-                available" without any warranties, express or implied.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">Limitation of Liability</h2>
-              <p>
-                Sagar H R & Co. shall not be liable for any losses or damages arising from the use of, or reliance on,
-                the information contained on this site, except where liability cannot be excluded under applicable law
-                or professional standards.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">Professional Standards</h2>
-              <p>
-                The Firm adheres to the regulations and ethical guidelines set forth by The Institute of Chartered
-                Accountants of India (ICAI), including the Chartered Accountants Act, 1949, the Chartered Accountants
-                Regulations, 1988, and the ICAI Code of Ethics, which governs advertising and solicitation.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">Third-Party Links</h2>
-              <p>
-                Any links to external websites are provided for convenience only. We do not monitor, control, or endorse
-                the content of third-party sites and are not responsible for their content or accuracy.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">Website Availability</h2>
-              <p>
-                We do not guarantee that access to the site will be uninterrupted or error-free. The site may be
-                temporarily unavailable due to maintenance or other factors.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">Jurisdiction</h2>
-              <p>
-                Any disputes related to this Disclaimer shall be subject to the exclusive jurisdiction of the courts at
-                Mysuru, Karnataka, unless mandatory regulatory or consumer tribunals apply.
-              </p>
-            </section>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+const Disclaimer: React.FC = () => (
+  <>
+    {/* SEO-3: legal pages previously rendered no metadata despite being in
+        the sitemap. */}
+    <SEO
+      title="Disclaimer | Sagar H R & Co."
+      description="What the information on the Sagar H R & Co. website is and isn't: general information on tax and compliance, not advice on your situation."
+      canonicalUrl="https://casagar.co.in/disclaimer"
+      breadcrumbs={[
+        { name: 'Home', url: '/' },
+        { name: 'Disclaimer', url: '/disclaimer' },
+      ]}
+    />
+    <LegalPage
+      title="Disclaimer"
+      intro="What the information on this website is, and what it isn’t."
+      sections={SECTIONS}
+    />
+  </>
+);
 
 export default Disclaimer;
