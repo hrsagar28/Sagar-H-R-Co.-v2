@@ -15,7 +15,6 @@ export default {
     './components/TopProgressBar.tsx',
     './components/NetworkStatus.tsx',
     './components/WhatsAppFloat.tsx',
-    './components/CookieConsent.tsx',
     './components/Toast.tsx',
     './components/ToastContainer.tsx',
     // MNT-9: LiveRegion renders globally (via AnnounceProvider) but was unscanned;

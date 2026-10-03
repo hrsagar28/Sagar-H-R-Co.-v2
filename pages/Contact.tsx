@@ -229,9 +229,7 @@ const Contact: React.FC = () => {
     { validationSchema: contactSchema },
   );
 
-  const { loadDraft, clearDraft, lastSaved } = useFormDraft('contact_form_draft', values, 1000, {
-    ttlDays: 7,
-  });
+  const { loadDraft, clearDraft, lastSaved } = useFormDraft('contact_form_draft', values);
 
   const restoredDraft = useRef(false);
   useEffect(() => {

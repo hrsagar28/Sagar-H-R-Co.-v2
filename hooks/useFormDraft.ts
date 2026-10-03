@@ -1,13 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { logger } from '../utils/logger';
 
-interface UseFormDraftOptions {
-  ttlDays?: number;
-  requireConsent?: boolean;
-  clearOnPagehideWithoutConsent?: boolean;
-}
-
-type DraftConsent = 'accepted' | 'essential' | null;
 type StoredDraft = {
   timestamp: number;
   values?: unknown;
@@ -65,90 +58,68 @@ const decryptValues = async <T>(encrypted: StoredDraft['encrypted']): Promise<T 
   return JSON.parse(new TextDecoder().decode(plaintext)) as T;
 };
 
-const getDraftConsent = (): DraftConsent => {
-  const dashedConsent = localStorage.getItem('cookie-consent');
-  const underscoredConsent = localStorage.getItem('cookie_consent');
-
-  if (dashedConsent === 'accepted' || underscoredConsent === 'granted') return 'accepted';
-  if (
-    dashedConsent === 'essential' ||
-    dashedConsent === 'essential-only' ||
-    dashedConsent === 'declined' ||
-    underscoredConsent === 'declined'
-  ) {
-    return 'essential';
-  }
-
-  return null;
-};
-
-const parseDraft = async <T>(key: string, ttlDays: number): Promise<{ values: T; savedAt: Date } | null> => {
-  const item = localStorage.getItem(key);
+const parseDraft = async <T>(key: string): Promise<{ values: T; savedAt: Date } | null> => {
+  const item = sessionStorage.getItem(key);
   if (!item) return null;
 
   try {
     const parsed = JSON.parse(item) as StoredDraft;
     const timestamp = Number(parsed.timestamp);
     if ((!parsed.values && !parsed.encrypted) || !Number.isFinite(timestamp)) {
-      localStorage.removeItem(key);
-      return null;
-    }
-
-    const savedAt = new Date(timestamp);
-    const ageInDays = (Date.now() - savedAt.getTime()) / (1000 * 60 * 60 * 24);
-    if (ageInDays > ttlDays) {
-      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
       return null;
     }
 
     const values = parsed.encrypted ? await decryptValues<T>(parsed.encrypted) : (parsed.values as T);
     if (!values) {
-      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
       return null;
     }
 
-    return { values, savedAt };
+    return { values, savedAt: new Date(timestamp) };
   } catch {
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
     return null;
   }
 };
 
 /**
- * Hook to auto-save form progress to localStorage.
+ * Keeps an unfinished form so that a reload or a stray click doesn't lose it.
+ *
+ * The draft lives in sessionStorage, which the browser clears when the tab is
+ * closed, so nothing is left behind on a shared computer and no consent banner
+ * is needed. It is encrypted with a key derived from a per-session salt; that
+ * keeps it from casual view in the browser's storage, not from code already
+ * running on the page.
  *
  * @template T
  * @param {string} key - Unique storage key for the form.
  * @param {T} currentValues - Current form values to observe.
  * @param {number} [debounceMs=1000] - Debounce time in ms before saving.
- * @param {UseFormDraftOptions} [options] - Retention and consent controls.
  * @returns {object} Draft management methods and state.
  */
-export function useFormDraft<T>(
-  key: string,
-  currentValues: T,
-  debounceMs: number = 1000,
-  options: UseFormDraftOptions = {},
-) {
+export function useFormDraft<T>(key: string, currentValues: T, debounceMs: number = 1000) {
   const [hasDraft, setHasDraft] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const isFirstRender = useRef(true);
-  const { ttlDays = 14, requireConsent = true, clearOnPagehideWithoutConsent = true } = options;
 
-  // Check for draft on mount
+  // Check for a draft on mount.
   useEffect(() => {
-    if (requireConsent && getDraftConsent() === 'essential') {
+    // Drafts used to be kept in localStorage for up to 14 days (with consent
+    // from the old cookie banner). Clear any left behind.
+    try {
       localStorage.removeItem(key);
-      return;
+    } catch {
+      // storage unavailable
     }
 
-    void parseDraft<T>(key, ttlDays).then((draft) => {
+    void parseDraft<T>(key).then((draft) => {
       if (draft) {
         setHasDraft(true);
         setLastSaved(draft.savedAt);
       }
     });
-  }, [key, requireConsent, ttlDays]);
+  }, [key]);
 
   // Auto-save
   useEffect(() => {
@@ -158,10 +129,6 @@ export function useFormDraft<T>(
     }
 
     const handler = setTimeout(() => {
-      if (requireConsent && getDraftConsent() !== 'accepted') {
-        return;
-      }
-
       const saveDraft = async () => {
         const payload = {
           encrypted: await encryptValues(currentValues),
@@ -169,7 +136,7 @@ export function useFormDraft<T>(
         };
 
         try {
-          localStorage.setItem(key, JSON.stringify(payload));
+          sessionStorage.setItem(key, JSON.stringify(payload));
           setLastSaved(new Date());
           setHasDraft(true);
         } catch (e) {
@@ -177,7 +144,7 @@ export function useFormDraft<T>(
             e instanceof DOMException &&
             (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
           ) {
-            logger.warn('Failed to save draft: localStorage quota exceeded');
+            logger.warn('Failed to save draft: sessionStorage quota exceeded');
             window.dispatchEvent(
               new CustomEvent('app-toast', {
                 detail: {
@@ -194,32 +161,12 @@ export function useFormDraft<T>(
     }, debounceMs);
 
     return () => clearTimeout(handler);
-  }, [currentValues, key, debounceMs, requireConsent]);
+  }, [currentValues, key, debounceMs]);
 
-  useEffect(() => {
-    if (!clearOnPagehideWithoutConsent || !requireConsent) return;
-
-    const handlePagehide = () => {
-      if (getDraftConsent() !== 'accepted') {
-        localStorage.removeItem(key);
-      }
-    };
-
-    window.addEventListener('pagehide', handlePagehide);
-    return () => window.removeEventListener('pagehide', handlePagehide);
-  }, [clearOnPagehideWithoutConsent, key, requireConsent]);
-
-  const loadDraft = useCallback(async (): Promise<T | null> => {
-    if (requireConsent && getDraftConsent() === 'essential') {
-      localStorage.removeItem(key);
-      return null;
-    }
-
-    return (await parseDraft<T>(key, ttlDays))?.values || null;
-  }, [key, requireConsent, ttlDays]);
+  const loadDraft = useCallback(async (): Promise<T | null> => (await parseDraft<T>(key))?.values || null, [key]);
 
   const clearDraft = useCallback(() => {
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
     setHasDraft(false);
     setLastSaved(null);
   }, [key]);

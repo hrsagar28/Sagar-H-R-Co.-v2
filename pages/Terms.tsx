@@ -1,206 +1,181 @@
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { CONTACT_INFO } from '../constants';
 import SEO from '../components/SEO';
-import './route-styles.css';
+import LegalPage, { ContactCard, type LegalSection } from '../components/redesign/LegalPage';
+import { CONTACT_INFO } from '../constants';
 
-const Terms: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-brand-bg px-4 pb-20 pt-32 md:px-6 md:pt-40">
-      {/* SEO-3: legal pages previously rendered no metadata despite being in
-          the sitemap. */}
-      <SEO
-        title="Terms of Service | Sagar H R & Co."
-        description="The terms governing your use of the Sagar H R & Co. website and the professional information provided on it."
-        canonicalUrl="https://casagar.co.in/terms"
-        breadcrumbs={[
-          { name: 'Home', url: '/' },
-          { name: 'Terms of Service', url: '/terms' },
+// 2026 redesign of /terms. Rendered inside RedesignLayout, which supplies the
+// top bar, footer and stylesheet.
+
+const email = <a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a>;
+const phone = <span className="tnum">{CONTACT_INFO.phone.display}</span>;
+
+const SECTIONS: LegalSection[] = [
+  {
+    id: 'these-terms',
+    title: 'These terms',
+    content: (
+      <>
+        <p>
+          These terms apply when you use casagar.co.in, the website of {CONTACT_INFO.name}, Chartered Accountants. By
+          using the website you accept them.
+        </p>
+        <p>
+          If you’re a client, your engagement letter governs our work for you. Where it differs from these terms, the
+          engagement letter applies.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'the-information-here',
+    title: 'The information here',
+    content: (
+      <p>
+        Our articles, FAQs, checklists, compliance calendar and calculators explain tax and compliance in general terms.
+        They aren’t advice on your situation, and the law may have changed since they were written. Our{' '}
+        <Link to="/disclaimer">disclaimer</Link> says more.
+      </p>
+    ),
+  },
+  {
+    id: 'becoming-a-client',
+    title: 'Becoming a client',
+    content: (
+      <p>
+        Sending us a message, calling or writing to us doesn’t make you our client. We take on responsibility for your
+        work only once we’ve agreed the scope and fee in an engagement letter.
+      </p>
+    ),
+  },
+  {
+    id: 'using-the-website',
+    title: 'Using the website',
+    content: (
+      <>
+        <p>You may:</p>
+        <ul>
+          <li>read and use the website for yourself or your business;</li>
+          <li>share links to any page;</li>
+          <li>quote short extracts, with credit to {CONTACT_INFO.name} and a link to the page.</li>
+        </ul>
+        <p>You may not:</p>
+        <ul>
+          <li>copy or republish our articles, checklists or tools in full;</li>
+          <li>collect content in bulk using automated tools;</li>
+          <li>try to break into, overload or interfere with the website;</li>
+          <li>send spam, harmful code or false information through our forms, or pretend to be someone else.</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: 'calculators',
+    title: 'Calculators',
+    content: (
+      <p>
+        Our calculators give estimates from the figures you enter and the rules stated on each one. They’re for
+        illustration and don’t replace a full computation. What you enter stays in your browser; we don’t receive it.
+      </p>
+    ),
+  },
+  {
+    id: 'copyright',
+    title: 'Copyright',
+    content: (
+      <p>
+        The text, articles, checklists and design of this website belong to {CONTACT_INFO.name} unless we say otherwise.
+        Acts, notifications and government forms we quote belong to their publishers.
+      </p>
+    ),
+  },
+  {
+    id: 'links-to-other-websites',
+    title: 'Links to other websites',
+    content: (
+      <p>
+        We link to government portals and other sources for convenience. We don’t control those websites and aren’t
+        responsible for what they contain.
+      </p>
+    ),
+  },
+  {
+    id: 'availability',
+    title: 'Availability',
+    content: (
+      <p>
+        We try to keep the website available and up to date, but we may change, suspend or remove any part of it without
+        notice.
+      </p>
+    ),
+  },
+  {
+    id: 'liability',
+    title: 'Liability',
+    content: (
+      <>
+        <p>
+          As far as the law allows, we aren’t liable for any loss caused by relying on the general information or
+          calculators on this website, or by the website being unavailable.
+        </p>
+        <p>
+          This doesn’t limit our responsibility for work done under an engagement letter, or any liability the law
+          doesn’t allow us to exclude.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'law-and-courts',
+    title: 'Law and courts',
+    content: (
+      <p>
+        These terms are governed by the laws of India. The courts at Mysuru, Karnataka have exclusive jurisdiction over
+        any dispute about them.
+      </p>
+    ),
+  },
+  {
+    id: 'changes',
+    title: 'Changes to these terms',
+    content: <p>We may update these terms by posting a new version here with a new date at the top of the page.</p>,
+  },
+  {
+    id: 'contact',
+    title: 'Contact',
+    content: (
+      <ContactCard
+        name={CONTACT_INFO.name}
+        position={`${CONTACT_INFO.tagline} · ICAI firm registration no. ${CONTACT_INFO.firmRegistrationNo}`}
+        lines={[
+          ['Email', email],
+          ['Phone', phone],
+          ['Address', CONTACT_INFO.address.lines.join(', ')],
         ]}
       />
-      <div className="container mx-auto max-w-4xl">
-        {/* Back Link */}
-        <div className="mb-12">
-          <Link
-            to="/"
-            className="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-brand-stone transition-colors hover:text-brand-dark"
-          >
-            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-            Back to Home
-          </Link>
-        </div>
+    ),
+  },
+];
 
-        {/* Header */}
-        <div className="mb-16">
-          <h1 className="mb-6 font-heading text-5xl font-bold tracking-tighter text-brand-dark md:text-7xl">
-            Terms of Service
-          </h1>
-          <p className="text-lg font-medium text-brand-stone">
-            Please read these terms carefully before using our website.
-          </p>
-        </div>
-
-        {/* Content Card */}
-        <div className="rounded-[2.5rem] border border-brand-border bg-brand-surface p-8 shadow-sm md:p-12">
-          <p className="mb-8 text-sm font-bold uppercase tracking-wider text-brand-stone">
-            Effective Date: 26 August 2025
-          </p>
-
-          <div className="space-y-10 text-lg font-medium leading-relaxed text-brand-stone">
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">1. Acceptance and scope</h2>
-              <p>
-                These Terms of Service (“Terms”) govern your access to and use of the Firm’s website www.casagar.co.in
-                (the “Site”). They apply only to the Site. Any professional engagement for accounting, audit, tax or
-                advisory services is governed exclusively by a separate written engagement letter and these Terms do not
-                amend or supersede such engagement letters.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                2. Permitted use and acceptable conduct
-              </h2>
-              <p>
-                You may use the Site for lawful purposes only. Prohibited conduct includes: uploading unlawful,
-                defamatory, obscene or infringing material; sending unsolicited commercial communications; transmitting
-                malware; attempting unauthorised access; impersonation; or otherwise interfering with Site operations.
-                We may report unlawful acts to appropriate authorities and will cooperate with lawful investigations.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                3. Automated harvesting and scraping prohibited
-              </h2>
-              <p>
-                You shall not use automated means (bots, scrapers, crawlers or similar tools) to harvest content or data
-                from the Site without our prior written consent. We reserve the right to block, pursue remedies and
-                report such activity.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                4. No professional advice; no professional-client relationship
-              </h2>
-              <p>
-                Content on the Site is for general information only and does not constitute professional advice.
-                Submission of enquiries or materials via the Site does not create a professional-client relationship.
-                Such relationship arises only upon execution of a formal written engagement letter signed by authorised
-                representatives.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">5. Intellectual property</h2>
-              <p>
-                All Site content (text, graphics, logos, images) is owned by the Firm or licensed to the Firm and
-                protected by IP laws. You are granted a limited licence to view Site content for personal or internal
-                business purposes only. Reproduction or commercial use is prohibited without prior written consent.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                6. User content; licence and warranty
-              </h2>
-              <p>
-                By submitting User Content, you warrant you have the necessary rights and consents and that the content
-                does not infringe third-party rights. You grant the Firm a perpetual, non-exclusive, royalty-free,
-                worldwide licence to use, reproduce, adapt and publish such User Content for Site operation and lawful
-                Firm purposes.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">7. Indemnity</h2>
-              <p>
-                Subject to applicable law, you agree to indemnify, defend and hold the Firm, its partners, employees and
-                agents harmless from liabilities, losses, damages, claims and expenses (including reasonable legal fees)
-                arising from your breach of these Terms or User Content.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                8. Limitation of liability; professional exceptions
-              </h2>
-              <p>
-                To the maximum extent permitted by law, the Firm’s aggregate liability arising out of or in connection
-                with these Terms or your use of the Site shall be limited to the aggregate amount, if any, you have paid
-                the Firm for use of the Site in the twelve (12) months immediately preceding the event giving rise to
-                liability. The Firm shall not be liable for indirect, incidental, consequential or punitive damages.
-                Nothing in this clause limits liability which cannot be excluded by law.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">9. Suspension and termination</h2>
-              <p>
-                We may suspend, restrict or terminate access to the Site (wholly or partly) at our discretion for
-                breach, suspected illegal activity, security reasons or maintenance. Termination will not affect accrued
-                rights.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                10. Notices and electronic communications
-              </h2>
-              <p>
-                By using the Site you consent to receiving electronic communications from the Firm. Notices may be
-                provided by e-mail or by posting on the Site.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                11. Entire agreement; severability
-              </h2>
-              <p>
-                These Terms, together with the Privacy Policy and other incorporated documents, constitute the entire
-                agreement regarding the Site. If a provision is held unenforceable, the remainder continues in force.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">
-                12. Governing law and jurisdiction
-              </h2>
-              <p>
-                These Terms are governed by the laws of India. Subject to mandatory consumer-protection or
-                professional-regulatory forums, courts at Mysuru, Karnataka shall have exclusive jurisdiction.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">13. Changes to Terms</h2>
-              <p>
-                We may amend these Terms by posting revised Terms on the Site with an updated Effective Date. Changes
-                will not retroactively affect services already performed under separate, executed engagement letters.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="mb-4 font-heading text-2xl font-bold text-brand-dark">14. Contact</h2>
-              <div className="rounded-xl border border-brand-border bg-brand-bg p-6">
-                <p className="font-bold text-brand-dark">{CONTACT_INFO.name}, Chartered Accountants</p>
-                <p>{CONTACT_INFO.address.full}</p>
-                <p className="mt-2">
-                  <strong>Email:</strong> {CONTACT_INFO.email}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {CONTACT_INFO.phone.display}
-                </p>
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+const Terms: React.FC = () => (
+  <>
+    {/* SEO-3: legal pages previously rendered no metadata despite being in
+        the sitemap. */}
+    <SEO
+      title="Terms of Service | Sagar H R & Co."
+      description="The terms for using the Sagar H R & Co. website: what the information on it is, how you may use it, and the law that applies."
+      canonicalUrl="https://casagar.co.in/terms"
+      breadcrumbs={[
+        { name: 'Home', url: '/' },
+        { name: 'Terms of Service', url: '/terms' },
+      ]}
+    />
+    <LegalPage
+      title="Terms of service"
+      intro="The rules for using casagar.co.in. They don’t change any agreement we have with you as a client."
+      sections={SECTIONS}
+    />
+  </>
+);
 
 export default Terms;
