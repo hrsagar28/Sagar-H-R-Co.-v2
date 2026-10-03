@@ -44,7 +44,7 @@ export const CATEGORY_ORDER: FAQItem['category'][] = FAQ_CATEGORIES.map(({ label
 export const FAQ_LAST_UPDATED = '2026-04-24';
 
 // Questions listed under "Asked most often" in the FAQ page header, in order.
-export const FAQ_MOST_ASKED_IDS = ['services-outside-mysuru', 'service-fees', 'switching-ca', 'income-tax-notice'];
+export const FAQ_MOST_ASKED_IDS = ['services-outside-mysuru', 'service-fees', 'income-tax-notice'];
 
 // Question ids retired when the FAQ was consolidated, mapped to the answer that
 // now covers them, so old /faqs#id links still land on the right question.

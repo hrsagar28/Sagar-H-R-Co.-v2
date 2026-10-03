@@ -34,7 +34,7 @@ export const CONTACT_INFO = {
     country: 'India',
     full: '1479, 2nd Floor, Thyagaraja Road, KR Mohalla, Mysuru - 570004',
     // Postal form used by the redesigned FAQ and Contact pages, one entry per line.
-    lines: ['No. 1479, 2nd Floor, Thyagaraja Road', 'K.R. Mohalla, Mysuru – 570 004'],
+    lines: ['No. 1479, 2nd Floor, Thyagaraja Road', 'K.R. Mohalla, Mysuru – 570004'],
   },
   hours: {
     display: 'Mon - Sat: 10:00 AM - 8:00 PM (IST)',

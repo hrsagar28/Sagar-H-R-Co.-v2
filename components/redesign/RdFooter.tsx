@@ -48,7 +48,8 @@ const RdFooter: React.FC = () => {
             </Link>
             <p className="ftag">{CONTACT_INFO.tagline}</p>
             <address>
-              {line1},<br />
+              {line1}
+              <br />
               {line2}
               <br />
               {CONTACT_INFO.address.state}, {CONTACT_INFO.address.country}

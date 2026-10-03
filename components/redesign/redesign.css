@@ -1082,24 +1082,10 @@
   padding-bottom: clamp(80px, 8.3vw, 120px);
 }
 .rd .next-h {
-  display: grid;
-  grid-template-columns: 5fr 7fr;
-  gap: clamp(40px, 5.6vw, 96px);
-  align-items: end;
-  margin-bottom: clamp(44px, 4.4vw, 64px);
-}
-.rd .next-h h2 {
-  margin: 0;
+  margin: 0 0 clamp(44px, 4.4vw, 64px);
   font-family: var(--serif);
   font-size: clamp(40px, 4.2vw, 60px);
   line-height: 1.02;
-}
-.rd .next-h p {
-  margin: 0;
-  color: var(--cream-m);
-  font-size: 17px;
-  line-height: 1.6;
-  max-width: 30em;
 }
 .rd .steps {
   list-style: none;
@@ -1586,10 +1572,6 @@
   }
   .rd .submit-row .btn {
     width: 100%;
-  }
-  .rd .next-h {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
   }
   .rd .steps {
     grid-template-columns: minmax(0, 1fr);

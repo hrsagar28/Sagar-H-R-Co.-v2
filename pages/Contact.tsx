@@ -527,8 +527,7 @@ const Contact: React.FC = () => {
           <div>
             <h1 className="rise">Contact us</h1>
             <p className="hsub rise d1">
-              Call or message us on WhatsApp during office hours, email us any time, or fill in the form below. We
-              usually reply within a working day.
+              Call, WhatsApp or email us, or use the form below. We usually reply within a working day.
             </p>
           </div>
           <div className="rise d2">
@@ -743,7 +742,8 @@ const Contact: React.FC = () => {
           <div className="blk">
             <h2 className="lbl">Office</h2>
             <address>
-              {ADDRESS_LINE_1},<br />
+              {ADDRESS_LINE_1}
+              <br />
               {ADDRESS_LINE_2}
             </address>
             {/* Muted to sit with the palette until hovered or focused.
@@ -792,10 +792,9 @@ const Contact: React.FC = () => {
       </div>
 
       <section className="next pad" aria-labelledby="contact-next-heading">
-        <div className="next-h">
-          <h2 id="contact-next-heading">After you get in touch</h2>
-          <p>You will know the fee and the scope of work before we start anything.</p>
-        </div>
+        <h2 className="next-h" id="contact-next-heading">
+          After you get in touch
+        </h2>
         <ol className="steps">
           <li>
             <span className="sn" aria-hidden="true">
