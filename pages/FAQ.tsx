@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { CONTACT_INFO, FAQ_CATEGORIES, FAQ_LAST_UPDATED, FAQ_LEGACY_IDS, FAQ_MOST_ASKED_IDS, FAQS } from '../constants';
+import { CONTACT_INFO, FAQ_CATEGORIES, FAQ_LAST_UPDATED, FAQ_LEGACY_IDS, FAQS } from '../constants';
 import type { FAQItem } from '../types';
 import { markdownToHtml } from '../utils/markdownToHtml';
 import { SITE_URL } from '../config/site';
@@ -68,8 +68,6 @@ const ENTRIES = new Map<string, Entry>(
 // sanitises URLs). The same map feeds the on-page answers and the FAQPage
 // schema — one source.
 const ANSWER_HTML = new Map(FAQS.map((faq) => [faq.id, markdownToHtml(faq.answer)]));
-
-const MOST_ASKED = FAQ_MOST_ASKED_IDS.map((id) => ENTRIES.get(id)).filter((entry): entry is Entry => Boolean(entry));
 
 // Most recent per-FAQ review date, falling back to the shared constant.
 const FAQ_PAGE_DATE_MODIFIED =
@@ -265,20 +263,6 @@ const FAQ: React.FC = () => {
       }
       return next;
     });
-  };
-
-  const goToQuestion = (id: string) => {
-    if (!search.shown.has(id)) {
-      setQuery('');
-      setTopic('all');
-    }
-    setRevealedIds(addTo(id));
-    setOpenIds(addTo(id));
-    replaceHash(id);
-    window.setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
-      document.getElementById(`faq-q-${id}`)?.focus({ preventScroll: true });
-    }, 30);
   };
 
   const jumpToSection = (slug: string) => {
@@ -502,34 +486,13 @@ const FAQ: React.FC = () => {
 
       <div className="phead">
         <div className="grain" aria-hidden="true" />
-        <div className="hgrid pad">
+        <div className="hgrid solo pad">
           <div>
             <h1 className="rise">Frequently asked questions</h1>
             <p className="hsub rise d1">
               What clients ask us most, from GST and income tax to notices, company filings and trusts. If your question
               isn’t here, call or email us.
             </p>
-          </div>
-          <div className="rise d2">
-            <h2 className="lbl" id="faq-most-heading">
-              Asked most often
-            </h2>
-            <ul className="most" aria-labelledby="faq-most-heading">
-              {MOST_ASKED.map((entry) => (
-                <li key={entry.id}>
-                  <a
-                    href={`#${entry.id}`}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      goToQuestion(entry.id);
-                    }}
-                  >
-                    <span>{entry.question}</span>
-                    <ArrowRight size={18} />
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
       </div>

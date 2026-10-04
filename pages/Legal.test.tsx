@@ -7,6 +7,7 @@ import Privacy from './Privacy';
 import Terms from './Terms';
 import Disclaimer from './Disclaimer';
 import { CONTACT_INFO } from '../constants';
+import { hasLightHeader } from '../components/redesign/routes';
 
 vi.mock('../components/SEO', () => ({
   default: () => null,
@@ -76,5 +77,10 @@ describe('legal pages', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Disclaimer' })).toBeInTheDocument();
     expect(screen.getByText(/last updated/i)).toHaveTextContent(/\d{1,2} \w+ \d{4}/);
+  });
+
+  it('gives the legal pages, and only them, the light header', () => {
+    ['/privacy', '/terms', '/disclaimer', '/terms/'].forEach((path) => expect(hasLightHeader(path)).toBe(true));
+    ['/services', '/faqs', '/contact', '/careers'].forEach((path) => expect(hasLightHeader(path)).toBe(false));
   });
 });

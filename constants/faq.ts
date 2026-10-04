@@ -57,9 +57,6 @@ export const FAQ_LAST_UPDATED = '2026-04-24';
 // its own.
 const ADDED_OCT_2026 = '2026-10-03';
 
-// Questions listed under "Asked most often" in the FAQ page header, in order.
-export const FAQ_MOST_ASKED_IDS = ['services-outside-mysuru', 'service-fees', 'income-tax-notice'];
-
 // Question ids retired when the FAQ was consolidated, mapped to the answer that
 // now covers them, so old /faqs#id links still land on the right question.
 export const FAQ_LEGACY_IDS: Record<string, string> = {

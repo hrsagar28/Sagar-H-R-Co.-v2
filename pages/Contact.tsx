@@ -752,7 +752,7 @@ const Contact: React.FC = () => {
         </section>
       </div>
 
-      <section className="next pad" aria-labelledby="contact-next-heading">
+      <section className="next sand pad" aria-labelledby="contact-next-heading">
         <h2 className="next-h" id="contact-next-heading">
           After you get in touch
         </h2>

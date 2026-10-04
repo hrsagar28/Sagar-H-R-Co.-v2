@@ -198,7 +198,6 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
   return (
     <div className="rd-page">
       <div className="phead">
-        <div className="grain" aria-hidden="true" />
         <div className="hgrid lhero pad">
           <div>
             <h1 className="rise">{title}</h1>

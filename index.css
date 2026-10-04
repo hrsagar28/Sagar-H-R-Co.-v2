@@ -437,14 +437,16 @@ html {
     color: var(--zone-text);
   }
 
+  /* Selected text: a light wash of the firm's green, the tint the Insights
+     articles already used (MarkdownRenderer.css). The text keeps its own
+     colour. Replaced a solid gold block in October 2026. */
   ::selection {
-    background: #b8924c;
-    color: #f4f1ea;
+    background-color: rgb(26 77 46 / 0.2);
   }
 
+  /* On the dark zone, a wash of the zone's own light text colour instead. */
   [data-zone='editorial'] ::selection {
-    background-color: rgb(var(--zone-accent-rgb) / 0.35);
-    color: var(--zone-text);
+    background-color: rgb(var(--zone-text-rgb) / 0.24);
   }
 }
 
