@@ -324,7 +324,9 @@
   height: 40px;
 }
 
-/* hero copy */
+/* hero copy. The padding was trimmed in October 2026: on a laptop the band
+   took more than half the screen and the page opened like a slide. Phones
+   keep their own values (see the max-width: 900px block). */
 .rd .hgrid {
   position: relative;
   z-index: 3;
@@ -332,8 +334,8 @@
   grid-template-columns: 7fr 5fr;
   gap: clamp(40px, 5.6vw, 96px);
   align-items: end;
-  padding-top: clamp(72px, 8.3vw, 120px);
-  padding-bottom: calc(var(--seam) + clamp(48px, 5vw, 72px));
+  padding-top: clamp(48px, 5vw, 76px);
+  padding-bottom: calc(var(--seam) + clamp(36px, 3.6vw, 52px));
 }
 .rd .hgrid h1 {
   margin: 0;
@@ -370,7 +372,7 @@
   }
 }
 
-/* asked most often (FAQ header) */
+/* question links in a header (service pages: common questions) */
 .rd .most {
   list-style: none;
   margin: 0;
@@ -1143,6 +1145,40 @@
   text-decoration-color: rgba(236, 232, 222, 0.35);
 }
 
+/* the band in sand instead of dark green (Contact: after you get in touch) */
+.rd .next.sand {
+  background: var(--sand);
+  color: var(--ink);
+}
+.rd .next.sand .steps li {
+  border-top-color: var(--rule-s);
+}
+.rd .next.sand .steps .sn {
+  color: var(--copper-d);
+}
+.rd .next.sand .steps p,
+.rd .next.sand .more {
+  color: var(--body);
+}
+.rd .next.sand .more a {
+  color: var(--ink);
+  text-decoration-color: var(--rule-s);
+}
+
+/* Selected text on the dark areas: a cream wash, since the site-wide green
+   wash (index.css) barely shows on near-black. */
+.rd .phead ::selection,
+.rd .next:not(.sand) ::selection,
+.rd .topbar ::selection,
+.rd .foot ::selection,
+.rd.sbar ::selection,
+.rd.menu ::selection {
+  background-color: rgba(236, 232, 222, 0.24);
+}
+.rd.head-light .phead ::selection {
+  background-color: rgb(26 77 46 / 0.2);
+}
+
 /* ---------- footer ---------- */
 .rd .foot {
   position: relative;
@@ -1641,19 +1677,84 @@
 }
 
 /* ---------- legal pages: privacy policy, terms of service, disclaimer ----------
-   Same frame as FAQ and Contact, kept plain: dark header band with the title,
-   then the document beside a sticky list of its sections. */
+   Kept plain: a light header (see "light header" below) with the title, then
+   the document beside a sticky list of its sections. */
 
-/* header: title, one line on what the page covers, and the date it changed.
-   No panel on the seam, so the band ends with its own padding. */
+/* header: title, one line on what the page covers, and the date it changed. */
 .rd .lhero {
   grid-template-columns: minmax(0, 1fr);
-  padding-bottom: clamp(56px, 6vw, 88px);
+  padding-bottom: clamp(56px, 4.6vw, 68px);
 }
 .rd .upd {
   margin: 22px 0 0;
   font-size: 14px;
   color: var(--cream-m);
+}
+
+/* ---------- light header ----------
+   For the routes in LIGHT_HEADER_ROUTES (routes.ts), which RedesignLayout marks
+   with .head-light: only the top bar stays dark, centred in a strip as tall as
+   the space the header reserves for it, and the title sits on the limestone
+   page. The padding is the dark header's, so a title starts at the same height
+   whichever header a page has. */
+.rd.head-light .topbar {
+  height: var(--tb);
+  padding-top: 0;
+}
+.rd.head-light .phead {
+  color: var(--ink);
+  background: linear-gradient(var(--night) 0 var(--tb), var(--stone) var(--tb));
+}
+.rd.head-light .hgrid h1 {
+  font-size: clamp(42px, 4.4vw, 64px);
+  line-height: 1;
+  color: var(--ink);
+}
+.rd.head-light .hsub {
+  color: var(--body);
+}
+.rd.head-light .upd {
+  color: var(--muted);
+}
+.rd.head-light .skel-line {
+  background: rgba(22, 25, 26, 0.07);
+}
+.rd.head-light .skel-h1 {
+  height: clamp(42px, 4.4vw, 64px);
+}
+.rd.head-light .ldoc {
+  padding-top: clamp(24px, 2.8vw, 40px);
+}
+/* larger screens: the title on the left, what the page covers on the right */
+@media (min-width: 901px) {
+  .rd.head-light .hgrid > div:first-child {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(32px, 4.4vw, 64px);
+    align-items: end;
+  }
+  .rd.head-light .hgrid > div:first-child > h1 {
+    grid-row: 1 / span 2;
+  }
+  .rd.head-light .hgrid > div:first-child > :not(h1) {
+    grid-column: 2;
+    max-width: 36em;
+  }
+  .rd.head-light .hgrid .hsub {
+    margin: 0;
+  }
+  .rd.head-light .hgrid .upd {
+    margin-top: 10px;
+  }
+}
+@media (max-width: 900px) {
+  .rd.head-light .hgrid h1 {
+    font-size: 40px;
+  }
+  .rd.head-light .hsub {
+    font-size: 15px;
+    margin-top: 12px;
+  }
 }
 
 /* the document and its contents list */
@@ -1907,7 +2008,7 @@
 
 /* header with no panel on the seam: the band ends with its own padding */
 .rd .hgrid.open {
-  padding-bottom: clamp(56px, 6vw, 88px);
+  padding-bottom: clamp(56px, 4.6vw, 68px);
 }
 .rd .hgrid.solo {
   grid-template-columns: minmax(0, 1fr);

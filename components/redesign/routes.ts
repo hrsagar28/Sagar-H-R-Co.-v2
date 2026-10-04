@@ -12,3 +12,11 @@ export const isRedesignedRoute = (pathname: string): boolean => {
   const path = pathname.replace(/\/+$/, '') || '/';
   return REDESIGNED_ROUTES.includes(path) || REDESIGNED_PREFIXES.some((prefix) => path.startsWith(prefix));
 };
+
+// Redesigned pages whose header is light: only the top bar stays dark and the
+// title sits on the limestone page. Plain documents read better this way than
+// under a dark band. RedesignLayout marks these routes with `.head-light`.
+export const LIGHT_HEADER_ROUTES = ['/privacy', '/terms', '/disclaimer'];
+
+export const hasLightHeader = (pathname: string): boolean =>
+  LIGHT_HEADER_ROUTES.includes(pathname.replace(/\/+$/, '') || '/');

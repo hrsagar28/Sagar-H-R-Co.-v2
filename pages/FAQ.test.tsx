@@ -140,14 +140,6 @@ describe('FAQ', () => {
     expect(questionButton('income-tax-notice')).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('opens a question from the "Asked most often" list', () => {
-    renderFaq();
-
-    fireEvent.click(screen.getByRole('link', { name: questionText('income-tax-notice') }));
-
-    expect(questionButton('income-tax-notice')).toHaveAttribute('aria-expanded', 'true');
-  });
-
   it('filters the questions as you search', () => {
     renderFaq();
 
