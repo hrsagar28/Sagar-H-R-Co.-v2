@@ -100,11 +100,7 @@ const Disclaimer: React.FC = () => (
         { name: 'Disclaimer', url: '/disclaimer' },
       ]}
     />
-    <LegalPage
-      title="Disclaimer"
-      intro="What the information on this website is, and what it isn’t."
-      sections={SECTIONS}
-    />
+    <LegalPage title="Disclaimer" sections={SECTIONS} />
   </>
 );
 

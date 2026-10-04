@@ -258,11 +258,7 @@ const Privacy: React.FC = () => (
         { name: 'Privacy Policy', url: '/privacy' },
       ]}
     />
-    <LegalPage
-      title="Privacy policy"
-      intro="What we collect through this website and in our work, why we need it, who else sees it, and how to reach us about it."
-      sections={SECTIONS}
-    />
+    <LegalPage title="Privacy policy" sections={SECTIONS} />
   </>
 );
 

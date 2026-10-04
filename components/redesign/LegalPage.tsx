@@ -12,7 +12,6 @@ export interface LegalSection {
 
 interface LegalPageProps {
   title: string;
-  intro: string;
   sections: LegalSection[];
 }
 
@@ -63,7 +62,7 @@ export const ContactCard: React.FC<{ name: string; position: string; lines: [str
  * numbered sections beside a list of them. On phones the list becomes a
  * sticky "Section n of N" picker, the same control as on the FAQ page.
  */
-const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
+const LegalPage: React.FC<LegalPageProps> = ({ title, sections }) => {
   const { hash } = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const [activeId, setActiveId] = useState(() => {
@@ -71,6 +70,11 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
     return sections.some((section) => section.id === target) ? target : (sections[0]?.id ?? '');
   });
   const [pickerOpen, setPickerOpen] = useState(false);
+  // Once the title has scrolled out of view, the label above the contents
+  // (and the phone picker's) carries the page name instead, so the reader
+  // still knows which document this is without the name showing twice.
+  const [titleGone, setTitleGone] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const docRef = useRef<HTMLDivElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
   const pickerButtonRef = useRef<HTMLButtonElement>(null);
@@ -171,6 +175,20 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const titleEl = titleRef.current;
+    if (!titleEl) {
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry) {
+        setTitleGone(!entry.isIntersecting);
+      }
+    });
+    observer.observe(titleEl);
+    return () => observer.disconnect();
+  }, []);
+
   // Close the phone picker on an outside click or Escape.
   useEffect(() => {
     if (!pickerOpen) {
@@ -196,13 +214,14 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
   }, [pickerOpen]);
 
   return (
-    <div className="rd-page">
+    <div className={`rd-page ${titleGone ? 'title-gone' : ''}`}>
       <div className="phead">
         <div className="hgrid lhero pad">
           <div>
-            <h1 className="rise">{title}</h1>
-            <p className="hsub rise d1">{intro}</p>
-            <p className="upd rise d2">
+            <h1 ref={titleRef} className="rise">
+              {title}
+            </h1>
+            <p className="upd rise d1">
               Last updated <time dateTime={RD_LEGAL_UPDATED}>{UPDATED_LABEL}</time>
             </p>
           </div>
@@ -211,7 +230,12 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
 
       <div className="ldoc pad">
         <nav className="toc" aria-label={`Sections of the ${title.toLowerCase()}`}>
-          <p className="lbl">On this page</p>
+          <p className="lbl tlab">
+            <span className="t-on">On this page</span>
+            <span className="t-name" aria-hidden="true">
+              {title}
+            </span>
+          </p>
           <ol>
             {sections.map((section, index) => (
               <li key={section.id}>{sectionLink(section, index, false)}</li>
@@ -228,8 +252,13 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
             onClick={() => setPickerOpen((open) => !open)}
           >
             <span className="pl">
-              <span className="lbl">
-                Section {activeIndex + 1} of {sections.length}
+              <span className="lbl plab">
+                <span className="p-on">
+                  Section {activeIndex + 1} of {sections.length}
+                </span>
+                <span className="p-name" aria-hidden="true">
+                  {title} · Section {activeIndex + 1} of {sections.length}
+                </span>
               </span>
               <b>{sections[activeIndex]?.title}</b>
             </span>

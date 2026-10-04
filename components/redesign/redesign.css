@@ -1714,6 +1714,7 @@
   color: var(--body);
 }
 .rd.head-light .upd {
+  margin-top: 14px;
   color: var(--muted);
 }
 .rd.head-light .skel-line {
@@ -1725,26 +1726,21 @@
 .rd.head-light .ldoc {
   padding-top: clamp(24px, 2.8vw, 40px);
 }
-/* larger screens: the title on the left, what the page covers on the right */
+/* larger screens: when the title has an introduction, the title on the left
+   and the introduction on the right */
 @media (min-width: 901px) {
-  .rd.head-light .hgrid > div:first-child {
+  .rd.head-light .hgrid > div:first-child:has(> .hsub) {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     column-gap: clamp(32px, 4.4vw, 64px);
     align-items: end;
   }
-  .rd.head-light .hgrid > div:first-child > h1 {
-    grid-row: 1 / span 2;
-  }
-  .rd.head-light .hgrid > div:first-child > :not(h1) {
+  .rd.head-light .hgrid > div:first-child:has(> .hsub) > :not(h1) {
     grid-column: 2;
     max-width: 36em;
   }
   .rd.head-light .hgrid .hsub {
     margin: 0;
-  }
-  .rd.head-light .hgrid .upd {
-    margin-top: 10px;
   }
 }
 @media (max-width: 900px) {
@@ -1803,6 +1799,43 @@
 }
 .rd .toc a[aria-current='true'] .tn {
   color: var(--copper-d);
+}
+/* The label above the contents, and the phone picker's, read "On this page"
+   and "Section n of N" while the title is in view, then fade to the page
+   name once it has scrolled away (.title-gone, set by LegalPage). Both
+   versions share one grid cell, so nothing shifts when they swap. */
+.rd .tlab,
+.rd .plab {
+  display: grid;
+}
+.rd .tlab > span,
+.rd .plab > span {
+  grid-area: 1 / 1;
+  align-self: end;
+  transition:
+    opacity 0.3s,
+    transform 0.45s var(--ease);
+}
+.rd .tlab .t-name,
+.rd .plab .p-name {
+  opacity: 0;
+  transform: translateY(6px);
+  color: var(--ink);
+}
+.rd .tlab .t-name {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.1;
+}
+.rd .title-gone .tlab .t-on,
+.rd .title-gone .plab .p-on {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.rd .title-gone .tlab .t-name,
+.rd .title-gone .plab .p-name {
+  opacity: 1;
+  transform: none;
 }
 .rd .doc {
   min-width: 0;
