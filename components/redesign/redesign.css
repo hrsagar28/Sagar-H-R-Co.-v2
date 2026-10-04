@@ -1800,6 +1800,43 @@
 .rd .toc a[aria-current='true'] .tn {
   color: var(--copper-d);
 }
+/* The label above the contents, and the phone picker's, read "On this page"
+   and "Section n of N" while the title is in view, then fade to the page
+   name once it has scrolled away (.title-gone, set by LegalPage). Both
+   versions share one grid cell, so nothing shifts when they swap. */
+.rd .tlab,
+.rd .plab {
+  display: grid;
+}
+.rd .tlab > span,
+.rd .plab > span {
+  grid-area: 1 / 1;
+  align-self: end;
+  transition:
+    opacity 0.3s,
+    transform 0.45s var(--ease);
+}
+.rd .tlab .t-name,
+.rd .plab .p-name {
+  opacity: 0;
+  transform: translateY(6px);
+  color: var(--ink);
+}
+.rd .tlab .t-name {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.1;
+}
+.rd .title-gone .tlab .t-on,
+.rd .title-gone .plab .p-on {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.rd .title-gone .tlab .t-name,
+.rd .title-gone .plab .p-name {
+  opacity: 1;
+  transform: none;
+}
 .rd .doc {
   min-width: 0;
   max-width: calc(66ch + 40px);

@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Privacy from './Privacy';
@@ -82,5 +82,34 @@ describe('legal pages', () => {
   it('gives the legal pages, and only them, the light header', () => {
     ['/privacy', '/terms', '/disclaimer', '/terms/'].forEach((path) => expect(hasLightHeader(path)).toBe(true));
     ['/services', '/faqs', '/contact', '/careers'].forEach((path) => expect(hasLightHeader(path)).toBe(false));
+  });
+
+  it('names the page beside its contents once the title scrolls away', () => {
+    let report: IntersectionObserverCallback = () => {};
+    const original = window.IntersectionObserver;
+    window.IntersectionObserver = class {
+      constructor(callback: IntersectionObserverCallback) {
+        report = callback;
+      }
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = vi.fn();
+      takeRecords = vi.fn(() => []);
+    } as unknown as typeof IntersectionObserver;
+
+    try {
+      const { container } = renderAt(<Privacy />, '/privacy');
+      const page = container.querySelector('.rd-page');
+      expect(page).not.toHaveClass('title-gone');
+      expect(container.querySelector('.toc .t-name')).toHaveTextContent('Privacy policy');
+
+      act(() => report([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver));
+      expect(page).toHaveClass('title-gone');
+
+      act(() => report([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver));
+      expect(page).not.toHaveClass('title-gone');
+    } finally {
+      window.IntersectionObserver = original;
+    }
   });
 });
