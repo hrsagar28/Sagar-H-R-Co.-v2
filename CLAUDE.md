@@ -93,9 +93,13 @@ which swaps a block of `--zone-*` CSS custom properties. The blocks are
 defined in `@layer base` in `index.css`:
 
 - `:root` — default **moss** zone (light bg, moss-green accent).
-- `[data-zone='editorial']` — dark zone (near-black bg, brass accent). Applied
-  to `<main>` on the `/about` route (see `App.tsx`).
 - `[data-zone='editorial-paper']` — warm paper zone (cream bg, rust accent).
+  Used by the Insights article pages.
+
+(The dark `editorial` zone was removed in October 2026 when `/about` moved to
+the 2026 redesign; the redesigned pages use `redesign.css`, not zones. Their
+header is dark by default, or light, with only the top bar dark, for the
+routes in `LIGHT_HEADER_ROUTES` in `components/redesign/routes.ts`.)
 
 Tokens each zone defines: `--zone-bg`, `--zone-surface`, `--zone-text`
 (+ `--zone-text-rgb`), `--zone-text-muted` (+ `-rgb`), `--zone-accent`

@@ -95,18 +95,12 @@ const RouteHandler = () => {
 
 const MainContent = () => {
   const { pathname } = useLocation();
-  const mainZone = pathname === '/about' ? 'editorial' : undefined;
-  // UX-2: /about renders in the dark editorial zone, so its loader must be the
-  // dark ('ink') tone too — a 'paper' loader flashed light before the dark page.
-  const loaderTone = pathname === '/' || pathname === '/about' ? 'ink' : 'paper';
+  // UX-2: the home page opens on a dark hero, so its loader is the dark
+  // ('ink') tone; a 'paper' loader flashed light before it.
+  const loaderTone = pathname === '/' ? 'ink' : 'paper';
 
   return (
-    <main
-      id="main-content"
-      data-zone={mainZone}
-      className={`relative z-base w-full flex-grow ${mainZone ? 'zone-bg zone-text' : ''}`}
-      tabIndex={-1}
-    >
+    <main id="main-content" className="relative z-base w-full flex-grow" tabIndex={-1}>
       <Suspense fallback={<PageLoader tone={loaderTone} />}>
         {/* Audit MA-16: a short (~220ms) fade/lift on the routed view when
             the path changes, so navigation feels composed rather than an
@@ -129,7 +123,9 @@ const MainContent = () => {
               path="/about"
               element={
                 <RouteErrorBoundary>
-                  <About />
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <About />
+                  </Suspense>
                 </RouteErrorBoundary>
               }
             />

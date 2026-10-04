@@ -32,7 +32,6 @@ export const buildAboutSchema = (contact: ContactInfo): object[] => [
     telephone: contact.phone.value,
     email: contact.email,
     image: OG_IMAGE,
-    priceRange: '₹₹',
     address: {
       '@type': 'PostalAddress',
       streetAddress: contact.address.street,

@@ -58,15 +58,10 @@
   background: linear-gradient(to right, rgba(26, 77, 46, 0.05), transparent);
 }
 
-[data-zone='editorial'] .archive-item:hover {
-  background: linear-gradient(to right, rgba(184, 146, 76, 0.1), transparent);
-}
-
 [data-zone='editorial-paper'] .archive-item:hover {
   background: linear-gradient(to right, rgba(139, 58, 47, 0.05), transparent);
 }
 
-[data-zone='editorial'] #frontispiece-section,
 [data-zone='editorial-paper'] #frontispiece-section {
   background-color: #8b3a2f; /* brand-rust */
   color: #f4f1ea; /* brand-paper */

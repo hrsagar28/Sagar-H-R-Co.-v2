@@ -2533,3 +2533,237 @@
     position: static;
   }
 }
+
+/* ---------- about ----------
+   A light page: /about is in LIGHT_HEADER_ROUTES, so only the top bar is dark.
+   A rule under the header, the principal's panel resting on it (no seam
+   overlap, no shadow), then how an engagement runs on the sand band. */
+.rd .about .hgrid {
+  margin-inline: var(--gut);
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: clamp(56px, 4.6vw, 68px);
+  border-bottom: 1px solid var(--ink);
+}
+.rd .about .seam {
+  margin-top: 0;
+}
+
+/* the principal: portrait, name and facts, then the bio filling the width */
+.rd .principal {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 5fr) minmax(0, 7fr);
+  grid-template-areas:
+    'pic name bio'
+    'pic facts bio';
+  grid-template-rows: auto 1fr;
+  column-gap: clamp(32px, 3.9vw, 56px);
+  margin-bottom: clamp(64px, 6.4vw, 96px);
+  padding: clamp(28px, 3.3vw, 48px);
+  box-shadow: none;
+}
+.rd .portrait {
+  grid-area: pic;
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--sand);
+}
+.rd .portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 16%;
+}
+.rd .pname {
+  grid-area: name;
+}
+.rd .pname h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(36px, 3.6vw, 52px);
+  line-height: 1.02;
+}
+.rd .pfacts {
+  grid-area: facts;
+  align-self: end;
+  margin: 28px 0 0;
+  border-top: 1px solid var(--rule);
+}
+.rd .pfacts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0 12px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 14px;
+}
+.rd .pfacts dt {
+  color: var(--muted);
+}
+.rd .pfacts dd {
+  margin: 0;
+  color: var(--ink);
+}
+.rd .bio {
+  grid-area: bio;
+  align-self: start;
+}
+.rd .bio p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--body);
+}
+.rd .bio p + p {
+  margin-top: 14px;
+}
+
+/* how an engagement runs: numbered rows on the sand band */
+.rd .flow-head {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(32px, 4.4vw, 64px);
+  align-items: end;
+  margin-bottom: clamp(44px, 4.4vw, 64px);
+}
+.rd .flow-head .next-h {
+  margin: 0;
+}
+.rd .flow-head p {
+  margin: 0;
+  max-width: 34em;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--body);
+}
+.rd .flow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--rule-s);
+}
+.rd .flow li {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 4fr) minmax(0, 7fr);
+  gap: clamp(24px, 3.3vw, 48px);
+  align-items: baseline;
+  padding: 26px 0 28px;
+  border-top: 1px solid var(--rule-s);
+}
+.rd .flow .sn {
+  font-family: var(--serif);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--copper-d);
+}
+.rd .flow h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(24px, 2vw, 28px);
+  line-height: 1.15;
+}
+.rd .flow p {
+  margin: 0;
+  max-width: 40em;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--body);
+}
+
+/* closing line and the small print under it */
+.rd .aclose {
+  padding-top: clamp(64px, 6.4vw, 92px);
+  padding-bottom: clamp(80px, 8.3vw, 120px);
+}
+.rd .aclose .cta {
+  margin: 0;
+  max-width: 30em;
+  font-family: var(--serif);
+  font-size: clamp(26px, 2.4vw, 34px);
+  line-height: 1.25;
+}
+.rd .aclose .cta a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--copper);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+.rd .anote {
+  margin: 40px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  max-width: 60em;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* narrower desktops: the bio drops under the name */
+@media (max-width: 1180px) and (min-width: 901px) {
+  .rd .principal {
+    grid-template-columns: 200px minmax(0, 1fr);
+    grid-template-areas:
+      'pic name'
+      'pic facts'
+      'pic bio';
+    grid-template-rows: auto auto 1fr;
+  }
+  .rd .pfacts {
+    margin: 20px 0 22px;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 900px) {
+  .rd .principal {
+    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-areas:
+      'pic name'
+      'facts facts'
+      'bio bio';
+    grid-template-rows: auto auto auto;
+    column-gap: 16px;
+    padding: 20px 18px 24px;
+    align-items: end;
+  }
+  .rd .pname h2 {
+    font-size: 32px;
+  }
+  .rd .pfacts {
+    margin: 20px 0;
+  }
+  .rd .pfacts > div {
+    font-size: 13px;
+  }
+  .rd .bio p {
+    font-size: 16px;
+  }
+  .rd .flow-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .rd .flow-head p {
+    font-size: 16px;
+  }
+  .rd .flow li {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 8px 12px;
+    padding: 20px 0 22px;
+  }
+  .rd .flow p {
+    grid-column: 2;
+    font-size: 15px;
+  }
+  .rd .flow .sn {
+    font-size: 24px;
+  }
+  .rd .flow h3 {
+    font-size: 22px;
+  }
+  .rd .aclose .cta {
+    font-size: 25px;
+  }
+}

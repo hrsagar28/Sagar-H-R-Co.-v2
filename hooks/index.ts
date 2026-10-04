@@ -23,7 +23,6 @@ export * from './useTaxConfig';
 export * from './useInsights';
 export * from './useArticleBody';
 export * from './useScrollPosition';
-export * from './useCountUp';
 export * from './useSpotlight';
 // MNT-7: previously omitted from the barrel despite being consumed by the
 // Resources calculators/tables.

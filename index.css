@@ -406,21 +406,6 @@ html {
     --zone-hairline: rgba(17, 17, 17, 0.12);
   }
 
-  [data-zone='editorial'] {
-    --zone-bg: #0a0908;
-    --zone-surface: #322d28;
-    --zone-text: #f4f1ea;
-    --zone-text-rgb: 244 241 234;
-    --zone-text-muted: #dad3c3;
-    --zone-text-muted-rgb: 218 211 195;
-    --zone-accent: #b8924c; /* brass */
-    --zone-accent-rgb: 184 146 76;
-    --zone-accent-alt: #8b3a2f; /* rust */
-    --zone-hairline: rgba(244, 241, 234, 0.14);
-    background-color: var(--zone-bg);
-    color: var(--zone-text);
-  }
-
   [data-zone='editorial-paper'] {
     --zone-bg: #f4f1ea;
     --zone-surface: #eae5d9;
@@ -442,11 +427,6 @@ html {
      colour. Replaced a solid gold block in October 2026. */
   ::selection {
     background-color: rgb(26 77 46 / 0.2);
-  }
-
-  /* On the dark zone, a wash of the zone's own light text colour instead. */
-  [data-zone='editorial'] ::selection {
-    background-color: rgb(var(--zone-text-rgb) / 0.24);
   }
 }
 

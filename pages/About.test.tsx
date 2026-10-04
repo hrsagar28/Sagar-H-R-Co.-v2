@@ -1,11 +1,12 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import * as matchers from 'vitest-axe/matchers';
 import About from './About';
+import { CONTACT_INFO } from '../constants';
 
 const mocks = vi.hoisted(() => ({
   warmContactRoute: vi.fn(),
@@ -13,40 +14,13 @@ const mocks = vi.hoisted(() => ({
 
 expect.extend(matchers);
 
-beforeAll(() => {
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => null);
-  class MockIntersectionObserver {
-    observe = vi.fn();
-    unobserve = vi.fn();
-    disconnect = vi.fn();
-  }
-  window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
-});
-
 vi.mock('../components/SEO', () => ({
   default: () => null,
-}));
-
-vi.mock('../hooks/useCountUp', () => ({
-  useCountUp: (end: number) => ({ count: end, ref: { current: null } }),
 }));
 
 vi.mock('./about/warmContact', () => ({
   warmContactRoute: mocks.warmContactRoute,
 }));
-
-const mockMotionPreference = (matches: boolean) => {
-  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-    matches,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }));
-};
 
 const renderAbout = () =>
   render(
@@ -59,56 +33,50 @@ const renderAbout = () =>
 
 describe('About', () => {
   beforeEach(() => {
-    localStorage.clear();
     mocks.warmContactRoute.mockClear();
-    mockMotionPreference(false);
   });
 
-  it('renders the About page hero, landmark, breadcrumbs, and CTA', () => {
-    renderAbout();
-
-    expect(screen.getByRole('main')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /reach out/i })).toHaveAttribute('href', '/contact');
-    expect(screen.getByText('2023')).toBeInTheDocument();
-    expect(screen.getAllByText('Mysuru').length).toBeGreaterThan(0);
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
-  it('warms the Contact route chunk when the CTA is hovered or focused', () => {
+  it('introduces the firm and its principal', () => {
     renderAbout();
-    const cta = screen.getByRole('link', { name: /reach out/i });
 
-    fireEvent.mouseEnter(cta);
+    expect(screen.getByRole('heading', { level: 1, name: 'About the firm' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: CONTACT_INFO.founder.name })).toBeInTheDocument();
+    expect(screen.getByText(CONTACT_INFO.founder.icaiMembershipNo)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: `Portrait of ${CONTACT_INFO.founder.name}` })).toBeInTheDocument();
+  });
+
+  it('lists how an engagement runs, in order', () => {
+    renderAbout();
+
+    const section = screen.getByRole('region', { name: 'How an engagement runs' });
+    const steps = within(section).getAllByRole('listitem');
+    expect(steps).toHaveLength(5);
+    expect(steps[0]).toHaveTextContent('We agree the terms in writing');
+    expect(steps[4]).toHaveTextContent('We track what is due next');
+  });
+
+  it('closes with ways to get in touch', () => {
+    renderAbout();
+
+    expect(screen.getByRole('link', { name: 'send us a message' })).toHaveAttribute('href', '/contact');
+    expect(screen.getByRole('link', { name: CONTACT_INFO.phone.display })).toHaveAttribute(
+      'href',
+      `tel:${CONTACT_INFO.phone.value}`,
+    );
+    expect(screen.getByRole('link', { name: 'our services' })).toHaveAttribute('href', '/services');
+  });
+
+  it('fetches the Contact page code once the page is idle', () => {
+    vi.useFakeTimers();
+    renderAbout();
+
+    expect(mocks.warmContactRoute).not.toHaveBeenCalled();
+    vi.runAllTimers();
     expect(mocks.warmContactRoute).toHaveBeenCalledTimes(1);
-
-    fireEvent.focus(cta);
-    expect(mocks.warmContactRoute).toHaveBeenCalledTimes(2);
-  });
-
-  it('renders the hero without WordReveal motion when reduced motion is requested', () => {
-    mockMotionPreference(true);
-    renderAbout();
-
-    const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent(/on the principal, briefly/i);
-    expect(heading.querySelectorAll('span')).toHaveLength(1);
-  });
-
-  it('renders the work approach, values, and principal content', () => {
-    renderAbout();
-
-    expect(screen.getByRole('heading', { name: /reviewed before filing/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /accuracy/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /integrity/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /portrait of ca sagar h r/i })).toBeInTheDocument();
-  });
-
-  it('exposes How We Work and Values as semantic lists', () => {
-    renderAbout();
-
-    const itemCounts = screen.getAllByRole('list').map((list) => within(list).queryAllByRole('listitem').length);
-
-    expect(itemCounts).toEqual(expect.arrayContaining([3, 4]));
   });
 
   it('renders no axe violations for static markup', async () => {
