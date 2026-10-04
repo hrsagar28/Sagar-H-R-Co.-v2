@@ -170,11 +170,7 @@ const Terms: React.FC = () => (
         { name: 'Terms of Service', url: '/terms' },
       ]}
     />
-    <LegalPage
-      title="Terms of service"
-      intro="The rules for using casagar.co.in. They don’t change any agreement we have with you as a client."
-      sections={SECTIONS}
-    />
+    <LegalPage title="Terms of service" sections={SECTIONS} />
   </>
 );
 

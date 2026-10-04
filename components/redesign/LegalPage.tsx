@@ -12,7 +12,6 @@ export interface LegalSection {
 
 interface LegalPageProps {
   title: string;
-  intro: string;
   sections: LegalSection[];
 }
 
@@ -63,7 +62,7 @@ export const ContactCard: React.FC<{ name: string; position: string; lines: [str
  * numbered sections beside a list of them. On phones the list becomes a
  * sticky "Section n of N" picker, the same control as on the FAQ page.
  */
-const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
+const LegalPage: React.FC<LegalPageProps> = ({ title, sections }) => {
   const { hash } = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const [activeId, setActiveId] = useState(() => {
@@ -201,8 +200,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, intro, sections }) => {
         <div className="hgrid lhero pad">
           <div>
             <h1 className="rise">{title}</h1>
-            <p className="hsub rise d1">{intro}</p>
-            <p className="upd rise d2">
+            <p className="upd rise d1">
               Last updated <time dateTime={RD_LEGAL_UPDATED}>{UPDATED_LABEL}</time>
             </p>
           </div>
