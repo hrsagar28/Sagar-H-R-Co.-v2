@@ -84,8 +84,8 @@ const WORKING_HERE = [
     text: 'Audits take you to clients across Mysuru and the neighbouring districts, not just the office desk.',
   },
   {
-    heading: 'Your exams, and after',
-    text: 'For articled assistants: study leave as the ICAI allows, and lighter work in the weeks before your exams. Those who do well are offered a place after they qualify.',
+    heading: 'Time for your exams',
+    text: 'For articled assistants: study leave as the ICAI allows, with your exam dates kept in mind when work is planned.',
   },
 ];
 
