@@ -102,11 +102,12 @@ describe('ServiceDetail', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Bookkeeping and payroll' })).toBeInTheDocument();
   });
 
-  it('shows its own page for an unknown service', () => {
-    renderServiceDetail('does-not-exist');
+  it('shows the not-found page, with its own title, for an unknown service', () => {
+    const { container } = renderServiceDetail('does-not-exist');
 
     expect(screen.getByRole('heading', { level: 1, name: 'Service not found' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /all services/i })).toHaveAttribute('href', '/services');
+    expect(screen.getByRole('link', { name: 'Services' })).toHaveAttribute('href', '/services');
+    expect(container.querySelector('.rd-page.head-light')).not.toBeNull();
   });
 
   it('renders no axe violations', async () => {

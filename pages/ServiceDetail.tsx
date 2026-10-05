@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import SEO from '../components/SEO';
+import NotFound from './NotFound';
 import { RD_HOURS_SUMMARY } from '../components/redesign/content';
 import { ArrowLeft, ArrowRight } from '../components/redesign/icons';
 import { CONTACT_INFO, FAQS, LEGACY_SERVICE_SLUGS, SERVICE_PAGES, getServicePage } from '../constants';
@@ -34,28 +35,6 @@ const withServiceLinks = (text: string): React.ReactNode[] => {
   return parts;
 };
 
-/** An unknown slug: a short page in the same frame, not the old 404 page. */
-const ServiceNotFound: React.FC = () => (
-  <div className="rd-page">
-    <SEO title={`Service not found | ${CONTACT_INFO.name}`} description="This service page does not exist." noindex />
-    <div className="phead">
-      <div className="grain" aria-hidden="true" />
-      <div className="hgrid open solo pad">
-        <div>
-          <h1 className="rise">Service not found</h1>
-          <p className="hsub rise d1">This page is not one of our services. The full list is on the Services page.</p>
-        </div>
-      </div>
-    </div>
-    <div className="sdoc pad">
-      <Link className="btn" to="/services">
-        <span>All services</span>
-        <ArrowRight />
-      </Link>
-    </div>
-  </div>
-);
-
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
 
@@ -66,7 +45,13 @@ const ServiceDetail: React.FC = () => {
 
   const page = getServicePage(slug);
   if (!page) {
-    return <ServiceNotFound />;
+    return (
+      <NotFound
+        title="Service not found"
+        intro="This page is not one of our services. The full list is on the Services page."
+        description="This service page does not exist."
+      />
+    );
   }
 
   const questions = page.faqIds.flatMap((id) => {
