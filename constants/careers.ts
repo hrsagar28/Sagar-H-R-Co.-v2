@@ -20,7 +20,6 @@ export interface JobPosting {
 
 /** How soon we reply to an application whose background fits the role. */
 export const CAREERS_RESPONSE_TIME = 'five working days';
-export const CAREERS_CONTACT_EMAIL = 'careers@casagar.co.in';
 export const CAREERS_APPLY_URL = 'https://casagar.co.in/careers#apply';
 
 export const OPEN_ROLES: JobPosting[] = [

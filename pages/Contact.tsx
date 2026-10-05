@@ -4,7 +4,14 @@ import SEO from '../components/SEO';
 import Honeypot from '../components/forms/Honeypot';
 import { CONTACT_INFO } from '../constants';
 import { useFormDraft, useFormValidation, useRateLimit, useToast } from '../hooks';
-import { createFormSchema, email, indianPhone, required, validateForm, type FormSchema } from '../utils/formValidation';
+import {
+  anyCountryPhone,
+  createFormSchema,
+  email,
+  required,
+  validateForm,
+  type FormSchema,
+} from '../utils/formValidation';
 import { ApiError } from '../utils/api';
 import { submitToFormSubmit } from '../utils/formSubmit';
 import { headerSafe, normalizeInput } from '../utils/sanitize';
@@ -88,7 +95,7 @@ const contactSchema = createFormSchema<ContactFormData>({
   name: [required('Please enter your name.')],
   phone: [
     required('Please enter a mobile number we can call.'),
-    indianPhone('Please enter a 10-digit Indian mobile number.'),
+    anyCountryPhone('Please enter a 10-digit mobile number. From abroad, start with + and the country code.'),
   ],
   email: [required('Please enter your email address.'), email('This email address looks incomplete. Please check it.')],
   message: [required('Please write a short message.')],
@@ -563,7 +570,7 @@ const Contact: React.FC = () => {
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
-                    maxLength={16}
+                    maxLength={20}
                     required
                     value={values.phone}
                     onChange={onFieldChange('phone')}
