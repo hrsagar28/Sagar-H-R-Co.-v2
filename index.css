@@ -56,6 +56,32 @@
   src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
 }
 
+/* The 2026 redesign's faces. Declared here, not in redesign.css, so the shared
+   pieces below can use them on every page. Fonts load only when used. */
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Host Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/host-grotesk-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Host Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/host-grotesk-latin-500-normal.woff2') format('woff2');
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -675,4 +701,303 @@ html {
   margin-right: 0.5rem;
   opacity: 0.5;
   vertical-align: top;
+}
+
+/* ---------- shared pieces, 2026 redesign ----------
+   Toasts, the offline bar, the page-loading bar, the skip link, the loading
+   screen and the two error screens. They appear on every page, old design
+   or new, and sometimes before redesign.css has loaded, so they are plain
+   top-level CSS here (never purged) with their own colours. */
+:root {
+  --sx-night: #0c100e;
+  --sx-stone: #f2efe8;
+  --sx-ink: #16191a;
+  --sx-body: #3f433f;
+  --sx-muted: #5f625c;
+  --sx-cream: #ece8de;
+  --sx-cream-m: #a7ada4;
+  --sx-copper: #c98a57;
+  --sx-deep: #17241c;
+  --sx-ok: #8fc4a2;
+  --sx-gut: clamp(16px, 4.45vw, 64px);
+  --sx-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --sx-sans: 'Host Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* pop-up messages: dark, square, a coloured rule on the left */
+.sx-toasts {
+  position: fixed;
+  right: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+.sx-toast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: start;
+  padding: 14px 4px 14px 18px;
+  border-left: 3px solid var(--sx-cream-m);
+  background: var(--sx-night);
+  color: var(--sx-cream);
+  font-family: var(--sx-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  box-shadow: 0 14px 34px rgba(12, 16, 14, 0.22);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.3s,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sx-toast.on {
+  opacity: 1;
+  transform: none;
+}
+.sx-toast.success {
+  border-left-color: var(--sx-ok);
+}
+.sx-toast.error,
+.sx-toast.warning {
+  border-left-color: var(--sx-copper);
+}
+.sx-toast p {
+  margin: 0;
+  padding-top: 1px;
+}
+.sx-toast button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -12px 0 -12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sx-cream-m);
+  cursor: pointer;
+}
+.sx-toast button:hover {
+  color: var(--sx-cream);
+}
+.sx-toast button:focus-visible {
+  outline: 2px solid var(--sx-copper);
+  outline-offset: -6px;
+}
+
+/* the offline bar, along the bottom of the screen */
+.sx-offline {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 8900;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px var(--sx-gut) calc(13px + env(safe-area-inset-bottom, 0px));
+  background: var(--sx-night);
+  color: var(--sx-cream);
+  font-family: var(--sx-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  border-top: 1px solid rgba(236, 232, 222, 0.14);
+}
+.sx-offline::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sx-copper);
+}
+.sx-offline.back::before {
+  background: var(--sx-ok);
+}
+
+/* the thin line along the top while a new page loads */
+.sx-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9500;
+  height: 2px;
+  pointer-events: none;
+}
+.sx-progress i {
+  display: block;
+  height: 100%;
+  background: var(--sx-copper);
+  transform-origin: left;
+  transition: transform 0.3s ease-out;
+}
+
+/* "Skip to content", for keyboard users: hidden until it has focus */
+.sx-skip {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 9600;
+  padding: 12px 18px;
+  background: var(--sx-cream);
+  color: var(--sx-ink);
+  font-family: var(--sx-sans);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 24px));
+}
+.sx-skip:focus {
+  transform: none;
+  outline: 2px solid var(--sx-copper);
+  outline-offset: 2px;
+}
+
+/* the loading screen while a page's code arrives: the dark top strip, then
+   the page colour with two faint lines where the title will be */
+.sx-loader {
+  min-height: 100vh;
+  background: var(--sx-stone);
+}
+.sx-loader::before {
+  content: '';
+  display: block;
+  height: 72px;
+  background: var(--sx-night);
+}
+.sx-loader.ink {
+  background: var(--sx-night);
+}
+.sx-loader span {
+  display: block;
+  margin-left: var(--sx-gut);
+  background: rgba(22, 25, 26, 0.07);
+}
+.sx-loader.ink span {
+  background: rgba(236, 232, 222, 0.08);
+}
+.sx-loader .h {
+  width: min(520px, 70%);
+  height: clamp(44px, 5vw, 72px);
+  margin-top: clamp(48px, 5vw, 76px);
+}
+.sx-loader .p {
+  width: min(420px, 85%);
+  height: 17px;
+  margin-top: 24px;
+}
+
+/* the two error screens: one inside a page, one for the whole site */
+.sx-err {
+  padding: clamp(56px, 7vw, 104px) var(--sx-gut) clamp(72px, 8vw, 120px);
+  background: var(--sx-stone);
+  color: var(--sx-ink);
+  font-family: var(--sx-sans);
+}
+.sx-err > div {
+  max-width: 620px;
+}
+.sx-err h1,
+.sx-err h2 {
+  margin: 0;
+  font-family: var(--sx-serif);
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--sx-ink);
+}
+.sx-err p {
+  margin: 16px 0 0;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--sx-body);
+}
+.sx-err .sx-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  padding: 16px 24px;
+  border: 0;
+  background: var(--sx-deep);
+  color: var(--sx-cream);
+  font-family: var(--sx-sans);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.sx-err .sx-btn:hover {
+  background: var(--sx-night);
+}
+.sx-err .sx-btn:focus-visible,
+.sx-err a:focus-visible {
+  outline: 2px solid var(--sx-copper);
+  outline-offset: 3px;
+}
+.sx-err .sx-alt {
+  margin-left: 22px;
+  font-size: 15px;
+  color: var(--sx-ink);
+}
+.sx-err .sx-small {
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid #d9d4c8;
+  font-size: 15px;
+  color: var(--sx-muted);
+}
+.sx-err a {
+  color: var(--sx-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--sx-copper);
+  text-underline-offset: 4px;
+}
+.sx-crash {
+  min-height: 100vh;
+  background: var(--sx-stone);
+}
+.sx-crash-top {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  padding: 0 var(--sx-gut);
+  background: var(--sx-night);
+}
+.sx-crash-top a {
+  font-family: var(--sx-serif);
+  font-size: 26px;
+  color: var(--sx-cream);
+  text-decoration: none;
+}
+@media (max-width: 600px) {
+  .sx-toasts {
+    left: 16px;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+  }
+  .sx-err .sx-alt {
+    display: block;
+    width: fit-content;
+    margin: 18px 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-toast {
+    transform: none;
+  }
+}
+@media print {
+  .sx-toasts,
+  .sx-offline,
+  .sx-progress,
+  .sx-skip {
+    display: none;
+  }
 }

@@ -12,29 +12,8 @@
  * firm name set large behind the bottom row.
  */
 
-@font-face {
-  font-family: 'Instrument Serif';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/instrument-serif-latin-400-normal.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Host Grotesk';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/host-grotesk-latin-400-normal.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Host Grotesk';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/host-grotesk-latin-500-normal.woff2') format('woff2');
-}
+/* The Instrument Serif and Host Grotesk @font-face rules live in index.css,
+   so the shared pieces (toasts, error screens) can use them on any page. */
 
 .rd {
   --night: #0c100e;

@@ -26,7 +26,7 @@ const ToastContainer: React.FC = () => {
   }, [toasts, announce]);
 
   return (
-    <div className="pointer-events-none fixed bottom-0 right-0 z-toast flex w-full max-w-sm flex-col gap-3 p-6">
+    <div className="sx-toasts">
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
