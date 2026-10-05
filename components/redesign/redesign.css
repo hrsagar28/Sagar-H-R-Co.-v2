@@ -1749,6 +1749,31 @@
   }
 }
 
+/* page not found: the main pages as one ruled list, under the introduction on
+   larger screens (the same 5:7 columns as the light header) */
+.rd .nfbody {
+  padding-bottom: clamp(96px, 10vw, 144px);
+}
+.rd .nfbody .srows {
+  border-top: 1px solid var(--ink);
+}
+.rd .nfbody .srows li:first-child a {
+  padding-top: 22px;
+}
+.rd .nfbody .still {
+  margin-top: 32px;
+}
+@media (min-width: 901px) {
+  .rd .nfbody {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(32px, 4.4vw, 64px);
+  }
+  .rd .nfbody > nav {
+    grid-column: 2;
+  }
+}
+
 /* the document and its contents list */
 .rd .ldoc {
   display: grid;
