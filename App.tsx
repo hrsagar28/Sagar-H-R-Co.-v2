@@ -9,7 +9,6 @@ import {
   NetworkStatus,
   RouteErrorBoundary,
   TopProgressBar,
-  InsightDetailSkeleton,
   ResourcesSkeleton,
   WhatsAppFloat,
 } from './components';
@@ -157,7 +156,9 @@ const MainContent = () => {
               path="/insights"
               element={
                 <RouteErrorBoundary>
-                  <Insights />
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <Insights />
+                  </Suspense>
                 </RouteErrorBoundary>
               }
             />
@@ -165,7 +166,7 @@ const MainContent = () => {
               path="/insights/:slug"
               element={
                 <RouteErrorBoundary>
-                  <Suspense fallback={<InsightDetailSkeleton />}>
+                  <Suspense fallback={<RdPageSkeleton />}>
                     <InsightDetail />
                   </Suspense>
                 </RouteErrorBoundary>

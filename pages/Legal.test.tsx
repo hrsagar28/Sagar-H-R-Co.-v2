@@ -79,9 +79,13 @@ describe('legal pages', () => {
     expect(screen.getByText(/last updated/i)).toHaveTextContent(/\d{1,2} \w+ \d{4}/);
   });
 
-  it('gives the legal pages, and only them, the light header', () => {
+  it('gives the legal pages and articles, and only them, the light header', () => {
     ['/privacy', '/terms', '/disclaimer', '/terms/'].forEach((path) => expect(hasLightHeader(path)).toBe(true));
-    ['/services', '/faqs', '/contact', '/careers'].forEach((path) => expect(hasLightHeader(path)).toBe(false));
+    ['/services', '/faqs', '/contact', '/careers', '/insights'].forEach((path) =>
+      expect(hasLightHeader(path)).toBe(false),
+    );
+    // The Insights articles are documents too.
+    expect(hasLightHeader('/insights/some-article')).toBe(true);
   });
 
   it('names the page beside its contents once the title scrolls away', () => {

@@ -13,6 +13,20 @@ export interface LegalSection {
 interface LegalPageProps {
   title: string;
   sections: LegalSection[];
+  /** The line under the title. Defaults to the date the legal text last changed. */
+  meta?: React.ReactNode;
+  /** A link above the title, back to the list the page belongs to. */
+  crumb?: React.ReactNode;
+  /** Number the sections (legal documents) or not (articles). */
+  numbered?: boolean;
+  /** How screen readers name the contents list. */
+  contentsLabel?: string;
+  /** Text before the first section, in the document column. */
+  lead?: React.ReactNode;
+  /** Small print after the last section, in the document column. */
+  note?: React.ReactNode;
+  /** Anything below the document, full width. */
+  children?: React.ReactNode;
 }
 
 const NARROW_QUERY = '(max-width: 900px)';
@@ -57,12 +71,23 @@ export const ContactCard: React.FC<{ name: string; position: string; lines: [str
 );
 
 /**
- * Layout for the privacy policy, terms of service and disclaimer: a plain
- * header band with the title and the date the text last changed, then the
- * numbered sections beside a list of them. On phones the list becomes a
- * sticky "Section n of N" picker, the same control as on the FAQ page.
+ * Layout for documents: the privacy policy, terms of service and disclaimer,
+ * and the Insights articles. A plain header with the title and one line under
+ * it, then the sections beside a list of them. On phones the list becomes a
+ * sticky "Section n of N" picker, the same control as on the FAQ page. With no
+ * sections (an article still loading) only the lead shows.
  */
-const LegalPage: React.FC<LegalPageProps> = ({ title, sections }) => {
+const LegalPage: React.FC<LegalPageProps> = ({
+  title,
+  sections,
+  meta,
+  crumb,
+  numbered = true,
+  contentsLabel = `Sections of the ${title.toLowerCase()}`,
+  lead,
+  note,
+  children,
+}) => {
   const { hash } = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const [activeId, setActiveId] = useState(() => {
@@ -110,10 +135,14 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, sections }) => {
       }}
     >
       {compact ? (
-        `${index + 1}. ${section.title}`
+        numbered ? (
+          `${index + 1}. ${section.title}`
+        ) : (
+          section.title
+        )
       ) : (
         <>
-          <span className="tn">{index + 1}</span>
+          {numbered && <span className="tn">{index + 1}</span>}
           <span>{section.title}</span>
         </>
       )}
@@ -218,73 +247,88 @@ const LegalPage: React.FC<LegalPageProps> = ({ title, sections }) => {
       <div className="phead">
         <div className="hgrid lhero pad">
           <div>
+            {crumb}
             <h1 ref={titleRef} className="rise">
               {title}
             </h1>
             <p className="upd rise d1">
-              Last updated <time dateTime={RD_LEGAL_UPDATED}>{UPDATED_LABEL}</time>
+              {meta ?? (
+                <>
+                  Last updated <time dateTime={RD_LEGAL_UPDATED}>{UPDATED_LABEL}</time>
+                </>
+              )}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="ldoc pad">
-        <nav className="toc" aria-label={`Sections of the ${title.toLowerCase()}`}>
-          <p className="lbl tlab">
-            <span className="t-on">On this page</span>
-            <span className="t-name" aria-hidden="true">
-              {title}
-            </span>
-          </p>
-          <ol>
-            {sections.map((section, index) => (
-              <li key={section.id}>{sectionLink(section, index, false)}</li>
-            ))}
-          </ol>
-        </nav>
-
-        <div className="picker" ref={pickerRef} data-open={pickerOpen ? '' : undefined}>
-          <button
-            ref={pickerButtonRef}
-            type="button"
-            aria-expanded={pickerOpen}
-            aria-controls="legal-picker-list"
-            onClick={() => setPickerOpen((open) => !open)}
-          >
-            <span className="pl">
-              <span className="lbl plab">
-                <span className="p-on">
-                  Section {activeIndex + 1} of {sections.length}
-                </span>
-                <span className="p-name" aria-hidden="true">
-                  {title} · Section {activeIndex + 1} of {sections.length}
-                </span>
+      <div className={`ldoc pad ${numbered ? '' : 'plain'}`}>
+        {sections.length > 0 && (
+          <nav className="toc" aria-label={contentsLabel}>
+            <p className="lbl tlab">
+              <span className="t-on">On this page</span>
+              <span className="t-name" aria-hidden="true">
+                {title}
               </span>
-              <b>{sections[activeIndex]?.title}</b>
-            </span>
-            <span className="chev" aria-hidden="true">
-              <ChevronDown />
-            </span>
-          </button>
-          <ol id="legal-picker-list" hidden={!pickerOpen}>
-            {sections.map((section, index) => (
-              <li key={section.id}>{sectionLink(section, index, true)}</li>
-            ))}
-          </ol>
-        </div>
+            </p>
+            <ol>
+              {sections.map((section, index) => (
+                <li key={section.id}>{sectionLink(section, index, false)}</li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        {sections.length > 0 && (
+          <div className="picker" ref={pickerRef} data-open={pickerOpen ? '' : undefined}>
+            <button
+              ref={pickerButtonRef}
+              type="button"
+              aria-expanded={pickerOpen}
+              aria-controls="legal-picker-list"
+              onClick={() => setPickerOpen((open) => !open)}
+            >
+              <span className="pl">
+                <span className="lbl plab">
+                  <span className="p-on">
+                    Section {activeIndex + 1} of {sections.length}
+                  </span>
+                  <span className="p-name" aria-hidden="true">
+                    <span className="pt">{title}</span>
+                    <span>
+                      &nbsp;· Section {activeIndex + 1} of {sections.length}
+                    </span>
+                  </span>
+                </span>
+                <b>{sections[activeIndex]?.title}</b>
+              </span>
+              <span className="chev" aria-hidden="true">
+                <ChevronDown />
+              </span>
+            </button>
+            <ol id="legal-picker-list" hidden={!pickerOpen}>
+              {sections.map((section, index) => (
+                <li key={section.id}>{sectionLink(section, index, true)}</li>
+              ))}
+            </ol>
+          </div>
+        )}
 
         <div className="doc" ref={docRef}>
+          {lead}
           {sections.map((section, index) => (
             <section key={section.id} id={section.id} className="lsec" aria-labelledby={`${section.id}-heading`}>
               <h2 id={`${section.id}-heading`}>
-                <span className="n">{index + 1}</span>
+                {numbered && <span className="n">{index + 1}</span>}
                 <span>{section.title}</span>
               </h2>
               {section.content}
             </section>
           ))}
+          {note}
         </div>
       </div>
+      {children}
     </div>
   );
 };

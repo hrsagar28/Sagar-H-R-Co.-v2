@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
@@ -51,81 +51,67 @@ vi.mock('../components/SEO', () => ({
   default: seoMock,
 }));
 
-vi.mock('../components/hero', () => ({
-  PageHero: ({ items }: { items: Array<{ title: React.ReactNode; href: string }> }) => (
-    <div data-testid="page-hero">
-      {items.map((item) => (
-        <a key={item.href} href={item.href}>
-          {item.title}
-        </a>
-      ))}
-    </div>
-  ),
-}));
+const hookState = vi.hoisted(() => ({ loading: false, error: null as string | null }));
 
 vi.mock('../hooks', () => ({
-  useAnnounce: () => ({
-    announce: vi.fn(),
-  }),
   useInsights: () => ({
     insights: mockInsights,
-    loading: false,
-    error: null,
+    loading: hookState.loading,
+    error: hookState.error,
   }),
 }));
 
-const renderInsights = (initialEntry = '/insights') =>
+// Insights always renders inside the App's <main> landmark.
+const renderInsights = () =>
   render(
-    <MemoryRouter initialEntries={[initialEntry]}>
-      <Insights />
+    <MemoryRouter initialEntries={['/insights']}>
+      <main>
+        <Insights />
+      </main>
     </MemoryRouter>,
   );
 
 describe('Insights', () => {
   beforeEach(() => {
     seoMock.mockClear();
+    hookState.loading = false;
+    hookState.error = null;
   });
 
-  it('renders category filters, search controls, and sorted hero links', () => {
+  it('lists every article, newest first, with its date and summary', () => {
     renderInsights();
 
-    const filterTabs = screen.getByRole('tablist', { name: /filter insights by category/i });
-    expect(within(filterTabs).getByRole('tab', { name: 'All' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByLabelText(/search insights/i)).toHaveAttribute('aria-controls', 'insights-results');
-
-    const heroLinks = within(screen.getByTestId('page-hero')).getAllByRole('link');
-    expect(heroLinks[0]).toHaveAttribute('href', '/insights/income-tax-act-2025-in-force');
+    const list = screen.getByRole('list', { name: /articles, newest first/i });
+    const links = within(list).getAllByRole('link');
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/insights/income-tax-act-2025-in-force',
+      '/insights/gst-2-0-one-year-on-msmes',
+      '/insights/capital-gains-property-12-5-vs-indexation',
+    ]);
+    expect(within(links[0]!).getByText('3 July 2026')).toBeInTheDocument();
+    expect(within(links[0]!).getByText(mockInsights[1]!.summary)).toBeInTheDocument();
   });
 
-  it('applies URL-provided filters and keeps schema based on the full archive', () => {
-    renderInsights('/insights?cat=GST+%26+Compliance&q=classification');
-
-    expect(screen.getByRole('heading', { name: 'GST 2.0, One Year On' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'The Income-tax Act, 2025 Is Now in Force' })).not.toBeInTheDocument();
+  it('describes every article in the page schema', () => {
+    renderInsights();
 
     const calls = seoMock.mock.calls as unknown as Array<[Record<string, unknown>]>;
-    const lastCall = calls.at(-1);
-    expect(lastCall).toBeDefined();
-    const schema = lastCall?.[0].schema as { blogPost: Array<{ url: string }> };
+    const schema = calls.at(-1)?.[0].schema as { blogPost: Array<{ url: string }> };
     expect(schema.blogPost).toHaveLength(mockInsights.length);
-    expect(schema.blogPost.map((post: { url: string }) => post.url)).toContain(
+    expect(schema.blogPost.map((post) => post.url)).toContain(
       'https://casagar.co.in/insights/income-tax-act-2025-in-force',
     );
   });
 
-  it('clears search filters and shows recent alternatives in the empty state', () => {
-    renderInsights('/insights?q=not-a-match');
+  it('says so when the articles cannot load', () => {
+    hookState.error = 'Network error';
+    renderInsights();
 
-    expect(screen.getByText(/no articles found/i)).toBeInTheDocument();
-    expect(screen.getByText('Recent insights')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
-
-    expect(screen.getByRole('heading', { name: 'The Income-tax Act, 2025 Is Now in Force' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'GST 2.0, One Year On' })).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(/could not load/i);
+    expect(screen.queryByRole('list', { name: /articles/i })).not.toBeInTheDocument();
   });
 
-  it('renders no axe violations for the loaded archive', async () => {
+  it('renders no axe violations', async () => {
     const { container } = renderInsights();
 
     expect(await axe(container)).toHaveNoViolations();
