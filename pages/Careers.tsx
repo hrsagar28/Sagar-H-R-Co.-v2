@@ -153,8 +153,7 @@ const Careers: React.FC = () => {
           <div>
             <h1 className="rise">Careers</h1>
             <p className="hsub rise d1">
-              We’re a firm of Chartered Accountants in Mysuru. You’ll work directly with CA Sagar H R, who reviews your
-              work and talks you through his changes.
+              We’re a firm of Chartered Accountants in Mysuru. You’ll work alongside CA Sagar H R on client files.
             </p>
           </div>
         </div>
