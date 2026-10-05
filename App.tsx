@@ -279,8 +279,8 @@ const MainContent = () => {
  * Persistent chrome around the routed view. The redesigned pages (see
  * components/redesign/routes.ts) bring their own top bar and footer, so the
  * floating Navbar, the noise overlay and the old Footer are left out there;
- * everything else is shared. There is no floating WhatsApp button: WhatsApp
- * is linked from the footer and the Contact page instead.
+ * everything else is shared. There is no floating WhatsApp button; WhatsApp
+ * is offered on the Contact page.
  */
 const SiteLayout = () => {
   const { pathname } = useLocation();

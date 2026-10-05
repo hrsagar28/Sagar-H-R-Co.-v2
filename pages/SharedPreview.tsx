@@ -163,9 +163,7 @@ const SharedPreview: React.FC = () => {
             <li>
               <b>Skip link.</b> Reload any page and press Tab once.
             </li>
-            <li>
-              <b>WhatsApp.</b> See the Contact column in the footer.
-            </li>
+
             <li>
               <b>Browser-tab icon.</b> Look at this tab.
             </li>

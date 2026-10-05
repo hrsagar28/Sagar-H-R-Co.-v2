@@ -63,9 +63,6 @@ const RdFooter: React.FC = () => {
             <a href={`tel:${CONTACT_INFO.phone.value}`} className="tnum">
               {CONTACT_INFO.phone.display}
             </a>
-            <a href={CONTACT_INFO.social.whatsapp} target="_blank" rel="noopener noreferrer">
-              WhatsApp<span className="vh"> (opens in a new tab)</span>
-            </a>
             <a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a>
             <p>{RD_HOURS_SUMMARY}</p>
           </div>
