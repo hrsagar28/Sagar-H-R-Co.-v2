@@ -26,6 +26,7 @@ export default {
     './components/SEO.tsx',
     './components/VisuallyHidden.tsx',
     './components/CustomCursor.tsx',
+    './components/cursors/*.tsx',
     './components/home/**/*.{ts,tsx}',
     './components/ui/AccentTitle.tsx',
     './components/ui/BigCTA.tsx',

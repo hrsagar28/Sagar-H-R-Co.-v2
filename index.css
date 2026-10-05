@@ -1001,3 +1001,202 @@ html {
     display: none;
   }
 }
+
+/* ---------- cursor options ----------
+   PREVIEW ONLY until one is chosen (see components/CustomCursor.tsx); the
+   others are then deleted. Text always keeps the system I-beam. */
+:root body.cur-dot-on,
+:root body.cur-dot-on :is(a, button, [role='button'], summary, label, select, .cursor-pointer) {
+  cursor: none;
+}
+:root
+  body.cur-dot-on
+  :is(
+    input,
+    textarea,
+    [contenteditable='true'],
+    p,
+    li,
+    td,
+    th,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    blockquote,
+    dd,
+    dt,
+    address,
+    figcaption,
+    pre,
+    code
+  ):not(a, button) {
+  cursor: text;
+}
+:root body.cur-dot-on [data-hide-cursor='true'],
+:root body.cur-dot-on [data-hide-cursor='true'] * {
+  cursor: auto;
+}
+.cur-dot,
+.cur-ring,
+.cur-glow {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 9700;
+  pointer-events: none;
+}
+.cur-dot::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border: 1.5px solid #c98a57;
+  border-radius: 50%;
+  background: #c98a57;
+  transition:
+    width 0.2s,
+    height 0.2s,
+    margin 0.2s,
+    background-color 0.2s,
+    opacity 0.2s;
+}
+.cur-dot.link::before {
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  background-color: rgba(201, 138, 87, 0.12);
+}
+.cur-dot.text::before,
+.cur-dot.hide::before,
+.cur-dot.off::before {
+  opacity: 0;
+}
+.cur-ring i {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 1.5px solid #c98a57;
+  border-radius: 50%;
+  transition:
+    width 0.25s,
+    height 0.25s,
+    margin 0.25s,
+    background-color 0.25s,
+    opacity 0.25s,
+    transform 0.15s;
+}
+.cur-ring.link i {
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  background-color: rgba(201, 138, 87, 0.14);
+}
+.cur-ring.text i,
+.cur-ring.hide i,
+.cur-ring.off i {
+  opacity: 0;
+}
+.cur-ring.down i {
+  transform: scale(0.85);
+}
+.cur-glow::before {
+  content: '';
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 138, 87, 0.3), rgba(201, 138, 87, 0) 70%);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.2s,
+    transform 0.25s;
+}
+.cur-glow.on::before {
+  opacity: 1;
+  transform: none;
+}
+:root.cur-arrow-on,
+:root.cur-arrow-on body {
+  cursor:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M4 2.5v16.2l4.3-4.1 2.8 6.4 2.7-1.2-2.7-6.3h5.9z' fill='%230c100e' stroke='%23ece8de' stroke-width='1.3' stroke-linejoin='round'/></svg>")
+      4 2,
+    default;
+}
+:root.cur-arrow-on :is(a, button, [role='button'], summary, label, select, .cursor-pointer) {
+  cursor:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M4 2.5v16.2l4.3-4.1 2.8 6.4 2.7-1.2-2.7-6.3h5.9z' fill='%23c98a57' stroke='%23ece8de' stroke-width='1.3' stroke-linejoin='round'/></svg>")
+      4 2,
+    pointer;
+}
+:root.cur-arrow-on
+  :is(
+    input,
+    textarea,
+    [contenteditable='true'],
+    p,
+    li,
+    td,
+    th,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    blockquote,
+    dd,
+    dt,
+    address,
+    figcaption,
+    pre,
+    code
+  ):not(a, button) {
+  cursor: text;
+}
+.cur-switch {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9800;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100vw - 32px);
+  padding: 8px;
+  background: #0c100e;
+  color: #ece8de;
+  font:
+    400 13px/1 'Host Grotesk',
+    system-ui,
+    sans-serif;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+.cur-switch span {
+  padding: 0 8px 0 4px;
+  color: #a7ada4;
+}
+.cur-switch button {
+  padding: 8px 10px;
+  border: 1px solid rgba(236, 232, 222, 0.2);
+  background: none;
+  color: #ece8de;
+  font: inherit;
+}
+.cur-switch button[aria-pressed='true'] {
+  border-color: #c98a57;
+  background: #c98a57;
+  color: #0c100e;
+}
+@media (pointer: coarse) {
+  .cur-switch {
+    display: none;
+  }
+}

@@ -1,160 +1,75 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import CurrentCursor from './cursors/CurrentCursor';
+import { ArrowCursor, DotCursor, GlowCursor, RingCursor } from './cursors/CursorOptions';
+
+// PREVIEW ONLY (cursor choice): the deploy preview can switch between the
+// current cursor and four alternatives (CursorSwitcher). Once one is chosen,
+// the others and this switching are deleted.
+export type CursorVariant = 'current' | 'dot' | 'ring' | 'glow' | 'arrow';
+
+export const CURSOR_VARIANTS: { id: CursorVariant; label: string }[] = [
+  { id: 'current', label: 'Current' },
+  { id: 'dot', label: 'Copper dot' },
+  { id: 'ring', label: 'Copper ring' },
+  { id: 'glow', label: 'Link glow' },
+  { id: 'arrow', label: 'Brand arrow' },
+];
+
+const DEFAULT_VARIANT: CursorVariant = 'current';
+const KEY = 'cursor-variant';
+const EVENT = 'cursor-variant';
+
+const readVariant = (): CursorVariant => {
+  try {
+    const value = sessionStorage.getItem(KEY) as CursorVariant | null;
+    return value && CURSOR_VARIANTS.some((v) => v.id === value) ? value : DEFAULT_VARIANT;
+  } catch {
+    return DEFAULT_VARIANT;
+  }
+};
+
+export const setCursorVariant = (variant: CursorVariant) => {
+  try {
+    sessionStorage.setItem(KEY, variant);
+  } catch {
+    // Private mode: the choice lasts until reload.
+  }
+  window.dispatchEvent(new Event(EVENT));
+};
+
+const subscribe = (callback: () => void) => {
+  window.addEventListener(EVENT, callback);
+  return () => window.removeEventListener(EVENT, callback);
+};
+
+export const useCursorVariant = () => useSyncExternalStore(subscribe, readVariant, () => DEFAULT_VARIANT);
+
+/** Only for a mouse or trackpad; phones and tablets keep their own behaviour. */
+const useFinePointer = () => {
+  const [fine, setFine] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches);
+  useEffect(() => {
+    const query = window.matchMedia('(pointer: fine)');
+    const change = (event: MediaQueryListEvent) => setFine(event.matches);
+    query.addEventListener('change', change);
+    return () => query.removeEventListener('change', change);
+  }, []);
+  return fine;
+};
 
 const CustomCursor: React.FC = () => {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const followerRef = useRef<HTMLDivElement>(null);
-  const rafIdRef = useRef<number>(0);
-  const mouse = useRef({ x: -100, y: -100 });
-  const follower = useRef({ x: -100, y: -100 });
-
-  const [canHover, setCanHover] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches,
-  );
-  const [isHovering, setIsHovering] = useState(false);
-  const [isClicking, setIsClicking] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [forceHide, setForceHide] = useState(false);
-
+  const variant = useCursorVariant();
+  const fine = useFinePointer();
   const reducedMotion = useReducedMotion();
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const mediaQuery = window.matchMedia('(pointer: fine)');
-    const handleMediaQueryChange = (e: MediaQueryListEvent) => {
-      setCanHover(e.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleMediaQueryChange);
-    return () => mediaQuery.removeEventListener('change', handleMediaQueryChange);
-  }, []);
-
-  useEffect(() => {
-    if (!canHover || reducedMotion) return;
-
-    // Add the class that hides the default cursor
-    document.body.classList.add('custom-cursor-active');
-
-    const moveMouse = (e: MouseEvent) => {
-      mouse.current = { x: e.clientX, y: e.clientY };
-
-      // Move the center dot instantly
-      if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-      }
-
-      // Show cursor when moving inside the window
-      setIsVisible(true);
-
-      // Check for elements that should hide the cursor (like maps/iframes)
-      const target = e.target as HTMLElement;
-      const hideEl = target.closest('[data-hide-cursor="true"]');
-      const showEl = target.closest('[data-show-cursor="true"]');
-
-      if (hideEl && showEl && hideEl.contains(showEl)) {
-        setForceHide(false);
-      } else if (hideEl) {
-        setForceHide(true);
-      } else {
-        setForceHide(false);
-      }
-    };
-
-    const handleMouseLeave = () => {
-      setIsVisible(false);
-    };
-
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-
-      // Check for clickable elements
-      if (
-        target.tagName === 'A' ||
-        target.tagName === 'BUTTON' ||
-        target.tagName === 'INPUT' ||
-        target.tagName === 'SELECT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.closest('a') ||
-        target.closest('button') ||
-        target.getAttribute('role') === 'button' ||
-        target.classList.contains('cursor-pointer')
-      ) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
-      }
-    };
-
-    const handleMouseDown = () => setIsClicking(true);
-    const handleMouseUp = () => setIsClicking(false);
-
-    document.addEventListener('mousemove', moveMouse);
-    document.addEventListener('mouseleave', handleMouseLeave);
-    window.addEventListener('mouseover', handleMouseOver);
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    // Animation Loop for the follower (Ring)
-    const animate = () => {
-      // Linear Interpolation (LERP) for smooth, organic movement
-      // Increased to 0.6 for faster response
-      const lerpFactor = 0.6;
-
-      follower.current.x += (mouse.current.x - follower.current.x) * lerpFactor;
-      follower.current.y += (mouse.current.y - follower.current.y) * lerpFactor;
-
-      if (followerRef.current) {
-        followerRef.current.style.transform = `translate3d(${follower.current.x}px, ${follower.current.y}px, 0)`;
-      }
-
-      rafIdRef.current = requestAnimationFrame(animate);
-    };
-
-    rafIdRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      // Cleanup
-      document.body.classList.remove('custom-cursor-active');
-      document.removeEventListener('mousemove', moveMouse);
-      document.removeEventListener('mouseleave', handleMouseLeave);
-      window.removeEventListener('mouseover', handleMouseOver);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
-      cancelAnimationFrame(rafIdRef.current);
-    };
-  }, [canHover, reducedMotion]);
-
-  const blendModeClass = 'mix-blend-difference';
-
-  // Actually hide visual elements if forceHide is true
-  const visualStateClass = isHovering || !isVisible || forceHide ? 'opacity-0' : 'opacity-100';
-  const followerStateClass =
-    !isVisible || forceHide
-      ? 'opacity-0 scale-50'
-      : isHovering
-        ? 'scale-[2.5] bg-white border-0 opacity-100' // Hover: Becomes a large, solid "Lens"
-        : isClicking
-          ? 'scale-75 border border-white bg-transparent opacity-50' // Click: Sharp shrink
-          : 'scale-100 border border-white bg-transparent opacity-100'; // Normal: Thin ring
-
-  if (!canHover || reducedMotion) return null;
-
-  return (
-    <>
-      {/* Center Dot - Disappears on hover to let the lens take over */}
-      <div
-        ref={cursorRef}
-        className={`-mt-1.25 -ml-1.25 pointer-events-none fixed left-0 top-0 z-cursor h-2.5 w-2.5 rounded-full bg-white ${blendModeClass} transition-opacity duration-300 ease-out will-change-transform ${visualStateClass} `}
-      />
-
-      {/* Follower Ring - Morphs into a lens on hover */}
-      <div
-        ref={followerRef}
-        className={`pointer-events-none fixed left-0 top-0 z-cursor -ml-5 -mt-5 h-10 w-10 rounded-full will-change-transform ${blendModeClass} transition-all duration-500 ease-out ${followerStateClass} `}
-      />
-    </>
-  );
+  if (!fine) return null;
+  if (variant === 'arrow') return <ArrowCursor />;
+  // The moving cursors respect "reduce motion"; the system cursor stays.
+  if (reducedMotion) return null;
+  if (variant === 'dot') return <DotCursor />;
+  if (variant === 'ring') return <RingCursor />;
+  if (variant === 'glow') return <GlowCursor />;
+  return <CurrentCursor />;
 };
 
 export default CustomCursor;
