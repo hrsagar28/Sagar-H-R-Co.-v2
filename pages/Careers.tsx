@@ -77,15 +77,15 @@ const buildJobPostingSchema = (roles: JobPosting[]) =>
 const WORKING_HERE = [
   {
     heading: 'Every kind of file',
-    text: 'Audits of companies, trusts, schools and colleges, GST and income tax, company and LLP filings, and farmer producer companies. Most weeks bring more than one.',
+    text: 'Audits of companies, trusts, schools and colleges, GST and income tax, company and LLP filings. Most weeks bring more than one.',
   },
   {
-    heading: 'Notices, appeals and hearings',
-    text: 'Replies to tax notices and appeals, up to the GST Appellate Tribunal, are regular work here. You’ll help draft them and sit in on hearings.',
+    heading: 'Audit fieldwork',
+    text: 'Audits take you to clients across Mysuru and the neighbouring districts, not just the office desk.',
   },
   {
-    heading: 'A paperless office',
-    text: 'Client files, checklists and due dates are kept in our own practice software, not in paper folders, so your time goes into the work rather than into finding papers.',
+    heading: 'Your exams, and after',
+    text: 'For articled assistants: study leave as the ICAI allows, and lighter work in the weeks before your exams. Those who do well are offered a place after they qualify.',
   },
 ];
 
