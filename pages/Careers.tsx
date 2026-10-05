@@ -76,7 +76,7 @@ const buildJobPostingSchema = (roles: JobPosting[]) =>
 
 const WORKING_HERE = [
   {
-    heading: 'Every kind of file',
+    heading: 'Varied work',
     text: 'Audits of companies, trusts, schools and colleges, GST and income tax, company and LLP filings. Most weeks bring more than one.',
   },
   {
