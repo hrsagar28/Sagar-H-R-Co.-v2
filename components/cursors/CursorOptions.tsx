@@ -7,12 +7,8 @@ import { cursorModeFor, type CursorMode } from './cursorMode';
  * Copper dot: replaces the arrow with a small copper dot that moves with the
  * pointer, no lag. Over links it opens into a copper ring; over text the
  * normal I-beam returns so text can be selected.
- *
- * Plain dot (tone="plain"): the same, in the current cursor's colour (white,
- * inverted against whatever is underneath), with no trailing ring. Over links
- * the dot itself opens into a see-through circle, as the copper dot does.
  */
-export const DotCursor: React.FC<{ tone?: 'copper' | 'plain' }> = ({ tone = 'copper' }) => {
+export const DotCursor: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<CursorMode>('default');
   const [shown, setShown] = useState(false);
@@ -34,13 +30,108 @@ export const DotCursor: React.FC<{ tone?: 'copper' | 'plain' }> = ({ tone = 'cop
     };
   }, []);
 
-  return (
-    <div
-      ref={ref}
-      className={`cur-dot ${tone === 'plain' ? 'plain' : ''} ${shown ? '' : 'off'} ${mode}`}
-      aria-hidden="true"
-    />
-  );
+  return <div ref={ref} className={`cur-dot ${shown ? '' : 'off'} ${mode}`} aria-hidden="true" />;
+};
+
+/**
+ * Plain dot: the current cursor's colour (white, inverted against the page),
+ * with no trailing ring. It moves with the pointer, no lag. Over links it
+ * opens into a see-through circle, which tightens while the button is held.
+ * Over text the I-beam returns; over maps the dot hides.
+ *
+ * It changes its own classes directly rather than through React state, so a
+ * mouse movement costs one style write and no re-render.
+ */
+export const PlainDotCursor: React.FC = () => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    document.body.classList.add('cur-dot-on');
+    const at = { x: -1, y: -1 };
+    let mode: CursorMode = 'default';
+    let shown = false;
+    let down = false;
+    let frame = 0;
+    let timer = 0;
+
+    const paint = () => {
+      const next = `cur-dot plain${shown ? '' : ' off'} ${mode}${down ? ' down' : ''}`;
+      if (el.className !== next) el.className = next;
+    };
+    // What is under the pointer can change while the mouse stays still: the
+    // page scrolls, or a click opens another page. Look again at that point.
+    const recheck = () => {
+      frame = 0;
+      if (!shown) return;
+      mode = cursorModeFor(document.elementFromPoint(at.x, at.y));
+      paint();
+    };
+    const move = (event: MouseEvent) => {
+      // Browsers can report a "move" to the same spot after scrolling or a
+      // focus change; ignore it so a dot hidden for keyboard use stays hidden.
+      if (!shown && event.clientX === at.x && event.clientY === at.y) return;
+      at.x = event.clientX;
+      at.y = event.clientY;
+      el.style.transform = `translate3d(${at.x}px, ${at.y}px, 0)`;
+      shown = true;
+      mode = cursorModeFor(event.target);
+      paint();
+    };
+    const scroll = () => {
+      if (!frame) frame = requestAnimationFrame(recheck);
+    };
+    const press = (event: MouseEvent) => {
+      if (event.button !== 0) return;
+      down = true;
+      paint();
+    };
+    const release = () => {
+      if (!down) return;
+      down = false;
+      paint();
+      window.clearTimeout(timer);
+      timer = window.setTimeout(recheck, 400);
+    };
+    const leave = () => {
+      shown = false;
+      paint();
+    };
+    // Someone moving through the page with Tab: hide the dot until the mouse
+    // moves again, rather than leave it frozen where the mouse last was.
+    const key = (event: KeyboardEvent) => {
+      if (event.key === 'Tab' && shown) leave();
+    };
+
+    document.addEventListener('mousemove', move, { passive: true });
+    document.addEventListener('scroll', scroll, { passive: true, capture: true });
+    document.documentElement.addEventListener('mouseleave', leave);
+    window.addEventListener('mousedown', press);
+    window.addEventListener('mouseup', release);
+    window.addEventListener('blur', release);
+    // Pressing on a link and dragging starts the browser's own link drag,
+    // which ends without a mouseup.
+    window.addEventListener('dragstart', release);
+    window.addEventListener('dragend', release);
+    window.addEventListener('keydown', key);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      document.body.classList.remove('cur-dot-on');
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('scroll', scroll, { capture: true });
+      document.documentElement.removeEventListener('mouseleave', leave);
+      window.removeEventListener('mousedown', press);
+      window.removeEventListener('mouseup', release);
+      window.removeEventListener('blur', release);
+      window.removeEventListener('dragstart', release);
+      window.removeEventListener('dragend', release);
+      window.removeEventListener('keydown', key);
+    };
+  }, []);
+
+  return <div ref={ref} className="cur-dot plain off default" aria-hidden="true" />;
 };
 
 /**

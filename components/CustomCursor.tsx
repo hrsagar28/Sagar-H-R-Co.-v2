@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import CurrentCursor from './cursors/CurrentCursor';
-import { ArrowCursor, DotCursor, GlowCursor, RingCursor } from './cursors/CursorOptions';
+import { ArrowCursor, DotCursor, GlowCursor, PlainDotCursor, RingCursor } from './cursors/CursorOptions';
 
 // PREVIEW ONLY (cursor choice): the deploy preview can switch between the
 // current cursor and five alternatives (CursorSwitcher). Once one is chosen,
@@ -68,7 +68,7 @@ const CustomCursor: React.FC = () => {
   // The moving cursors respect "reduce motion"; the system cursor stays.
   if (reducedMotion) return null;
   if (variant === 'dot') return <DotCursor />;
-  if (variant === 'plain') return <DotCursor tone="plain" />;
+  if (variant === 'plain') return <PlainDotCursor />;
   if (variant === 'ring') return <RingCursor />;
   if (variant === 'glow') return <GlowCursor />;
   return <CurrentCursor />;

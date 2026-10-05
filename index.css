@@ -1089,12 +1089,27 @@ html {
   margin: -5px 0 0 -5px;
   border-color: #fff;
   background: #fff;
+  /* The house curve (Audit MA-09): opens quickly, settles softly. */
+  transition:
+    width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    margin 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s,
+    opacity 0.2s;
 }
 .cur-dot.plain.link::before {
   width: 36px;
   height: 36px;
   margin: -18px 0 0 -18px;
   background-color: rgba(255, 255, 255, 0.06);
+}
+/* While the button is held on a link the circle tightens, quickly, and
+   springs back on release. */
+.cur-dot.plain.link.down::before {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  transition-duration: 0.12s;
 }
 .cur-ring i {
   position: absolute;
