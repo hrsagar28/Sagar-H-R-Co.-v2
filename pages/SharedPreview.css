@@ -1,0 +1,52 @@
+/* PREVIEW ONLY: layout for pages/SharedPreview.tsx. Removed with that page. */
+.rd .sp .sec + .sec {
+  margin-top: 56px;
+}
+.sp-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.sp-slot {
+  margin-top: 24px;
+}
+.sp-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #3f433f;
+}
+.sp-list li + li {
+  margin-top: 8px;
+}
+.sp-list a {
+  color: #16191a;
+  text-underline-offset: 4px;
+}
+.sp-list b {
+  font-weight: 500;
+  color: #16191a;
+}
+.sp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  overflow: auto;
+  background: #f2efe8;
+}
+.sp-close {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10001;
+  padding: 12px 18px;
+  border: 0;
+  background: #c98a57;
+  color: #0c100e;
+  font:
+    500 14px/1 system-ui,
+    sans-serif;
+  cursor: pointer;
+}

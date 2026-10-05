@@ -33,6 +33,8 @@ const Disclaimer = lazy(() => import('./pages/Disclaimer'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+// PREVIEW ONLY: the shared-pieces test page, routed on deploy previews only.
+const SharedPreview = lazy(() => import('./pages/SharedPreview'));
 const CustomCursor = lazy(() => import('./components/CustomCursor'));
 // 2026 redesign: header, sticky bar, menu and footer for the rebuilt pages.
 // Lazy so its stylesheet and fonts stay out of every other page's bundle.
@@ -248,6 +250,16 @@ const MainContent = () => {
                 </RouteErrorBoundary>
               }
             />
+            {import.meta.env.VITE_SHOWCASE === '1' && (
+              <Route
+                path="/preview/shared"
+                element={
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <SharedPreview />
+                  </Suspense>
+                }
+              />
+            )}
             <Route
               path="*"
               element={
