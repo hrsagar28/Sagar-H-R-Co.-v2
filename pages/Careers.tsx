@@ -77,15 +77,15 @@ const buildJobPostingSchema = (roles: JobPosting[]) =>
 const WORKING_HERE = [
   {
     heading: 'Varied work',
-    text: 'Audits of companies, trusts, schools and colleges, GST and income tax, company and LLP filings. Most weeks bring more than one.',
+    text: 'Our work includes audits, GST, income tax and company filings, so you’ll rarely do the same thing all week.',
   },
   {
     heading: 'Audit fieldwork',
-    text: 'Audits take you to clients across Mysuru and the neighbouring districts, not just the office desk.',
+    text: 'Audits may be done at the client’s office, so you’ll at times be out at clients in Mysuru and the nearby districts.',
   },
   {
     heading: 'Time for your exams',
-    text: 'For articled assistants: study leave as the ICAI allows, with your exam dates kept in mind when work is planned.',
+    text: 'Articled assistants get study leave as the ICAI allows, and we keep your exam dates in mind when planning work.',
   },
 ];
 
@@ -94,17 +94,12 @@ const AFTER_YOU_APPLY = [
     heading: 'We read your application',
     text: `If your background fits the role, we call you within ${CAREERS_RESPONSE_TIME}.`,
   },
-  { heading: 'A conversation at the office', text: 'With CA Sagar H R, about your experience and the work.' },
+  { heading: 'We meet at the office', text: 'You meet CA Sagar H R to talk about your experience and the work.' },
   {
-    heading: 'An offer in writing',
-    text: 'With the role, start date and pay. For articleship, we then register the training with the ICAI.',
+    heading: 'You receive a written offer',
+    text: 'It sets out the role, start date and pay. For articleship, we then register your training with the ICAI.',
   },
 ];
-
-const rolesSentence = (count: number) =>
-  count === 1
-    ? 'The role is at our office in Mysuru.'
-    : `${count === 2 ? 'Both' : 'All'} roles are at our office in Mysuru.`;
 
 const Careers: React.FC = () => {
   // Roles hide themselves once their closing date has passed (CT-8).
@@ -158,8 +153,7 @@ const Careers: React.FC = () => {
           <div>
             <h1 className="rise">Careers</h1>
             <p className="hsub rise d1">
-              We’re a small firm of Chartered Accountants on Thyagaraja Road, Mysuru. You’ll work on client files with
-              CA Sagar H R, who reviews your work and explains the changes he makes.
+              We’re a firm of Chartered Accountants in Mysuru. You’ll work alongside CA Sagar H R on client files.
             </p>
           </div>
         </div>
@@ -169,9 +163,7 @@ const Careers: React.FC = () => {
         <section className="sec" aria-labelledby="roles-heading">
           <div className="sec-h">
             <h2 id="roles-heading">Open roles</h2>
-            <p className="desc">
-              {openRoles.length ? rolesSentence(openRoles.length) : 'New roles are listed here when they open.'}
-            </p>
+            {openRoles.length === 0 && <p className="desc">New roles are listed here when they open.</p>}
           </div>
           <div className="qlist">
             {openRoles.map((role) => {

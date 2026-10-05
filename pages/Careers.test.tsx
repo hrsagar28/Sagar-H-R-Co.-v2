@@ -101,7 +101,6 @@ describe('Careers', () => {
       expect(toggle).toHaveAttribute('aria-expanded', 'true');
       expect(screen.getByText(role.responsibilities[0]!)).toBeInTheDocument();
     });
-    expect(screen.getByText('Both roles are at our office in Mysuru.')).toBeInTheDocument();
   });
 
   it('chooses the role on the form from "Apply for this role"', () => {
