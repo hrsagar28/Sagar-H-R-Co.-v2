@@ -2727,13 +2727,25 @@
 .rd .ldoc.plain .lsec h2 {
   grid-template-columns: minmax(0, 1fr);
 }
-/* An article has no contents list: one column under the title, with larger
-   text so a wider line still holds about 80 characters. */
+/* An article has no contents list. Everything from the back link to "More
+   insights" sits in one centred 800px column (text still left-aligned in it),
+   with larger text so the line holds about 75 characters. */
 .rd .ldoc.solo {
   grid-template-columns: minmax(0, 1fr);
 }
-.rd .ldoc.solo .doc {
+.rd .doc-solo .lhero > div,
+.rd .ldoc.solo .doc,
+.rd .doc-solo .amore .sec {
+  width: 100%;
   max-width: 800px;
+  margin-inline: auto;
+}
+.rd .doc-solo .amore .sec {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+.rd .doc-solo .amore .sec-h {
+  position: static;
 }
 .rd .ldoc.solo .lsec p,
 .rd .ldoc.solo .lsec li {

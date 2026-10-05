@@ -21,7 +21,7 @@ interface LegalPageProps {
   numbered?: boolean;
   /**
    * Show the contents list beside the text (the phone picker on small
-   * screens). Off for articles, which then read as one wider column.
+   * screens). Off for articles, which then read as one centred column.
    */
   contents?: boolean;
   /** How screen readers name the contents list. */
@@ -251,7 +251,7 @@ const LegalPage: React.FC<LegalPageProps> = ({
   }, [pickerOpen]);
 
   return (
-    <div className={`rd-page ${titleGone ? 'title-gone' : ''}`}>
+    <div className={`rd-page ${titleGone ? 'title-gone' : ''} ${showContents ? '' : 'doc-solo'}`}>
       <div className="phead">
         <div className="hgrid lhero pad">
           <div>

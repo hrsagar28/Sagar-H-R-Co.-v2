@@ -14,7 +14,7 @@ import { formatLongDate, toISODate } from '../utils/insightDates';
 import NotFound from './NotFound';
 
 // 2026 redesign of an Insights article: the document layout of the legal
-// pages under the light header, but as one wider column with no contents
+// pages under the light header, but as one centred column with no contents
 // list, then a share link, the small print and a few more articles.
 // Rendered inside RedesignLayout.
 
