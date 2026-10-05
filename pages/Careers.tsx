@@ -4,13 +4,7 @@ import ApplicationForm, { ANY_ROLE } from '../components/redesign/ApplicationFor
 import { ArrowRight } from '../components/redesign/icons';
 import { useReducedMotion } from '../hooks';
 import { CONTACT_INFO } from '../constants';
-import {
-  CAREERS_APPLY_URL,
-  CAREERS_CONTACT_EMAIL,
-  CAREERS_RESPONSE_TIME,
-  getOpenRoles,
-  type JobPosting,
-} from '../constants/careers';
+import { CAREERS_APPLY_URL, CAREERS_RESPONSE_TIME, getOpenRoles, type JobPosting } from '../constants/careers';
 
 // 2026 redesign of /careers. Rendered inside RedesignLayout, which supplies the
 // top bar, footer and stylesheet.
@@ -277,7 +271,7 @@ const Careers: React.FC = () => {
             ))}
           </ol>
           <p className="mailto">
-            Questions about a role? Email <a href={`mailto:${CAREERS_CONTACT_EMAIL}`}>{CAREERS_CONTACT_EMAIL}</a>
+            Questions about a role? Email <a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a>
           </p>
         </div>
 

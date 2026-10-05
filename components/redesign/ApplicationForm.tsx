@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import Honeypot from '../forms/Honeypot';
 import FormField, { fieldErrorProps } from './FormField';
 import { ArrowRight } from './icons';
-import { CAREERS_CONTACT_EMAIL, CAREERS_RESPONSE_TIME } from '../../constants/careers';
+import { CONTACT_INFO } from '../../constants';
+import { CAREERS_RESPONSE_TIME } from '../../constants/careers';
 import { useFormDraft, useFormValidation, useRateLimit, useToast } from '../../hooks';
 import {
   createFormSchema,
@@ -176,7 +177,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
     // reach us rather than seeing nothing happen.
     if (honeypot) {
       logger.warn('Career form: hidden spam-check field was filled', { form: 'careers' });
-      addToast(`We could not send your application. Please email us at ${CAREERS_CONTACT_EMAIL}`, 'error');
+      addToast(`We could not send your application. Please email us at ${CONTACT_INFO.email}`, 'error');
       return;
     }
 
@@ -229,7 +230,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
       triedRef.current = false;
     } catch (error) {
       logger.error('Career form error', { error, form: 'careers' });
-      let message = `We could not send your application. Please email us at ${CAREERS_CONTACT_EMAIL}`;
+      let message = `We could not send your application. Please email us at ${CONTACT_INFO.email}`;
       if (error instanceof ApiError) {
         if (error.code === 'NETWORK_ERROR') {
           message = 'Network unavailable. Please check your connection and try again.';
@@ -478,7 +479,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
             : `We have your application for ${sent?.role ?? 'the role'}. If your background fits, we’ll call you within ${CAREERS_RESPONSE_TIME}.`}
         </p>
         <p>
-          Questions in the meantime? Email <a href={`mailto:${CAREERS_CONTACT_EMAIL}`}>{CAREERS_CONTACT_EMAIL}</a>.
+          Questions in the meantime? Email <a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a>.
         </p>
         <div className="acts">
           <button type="button" onClick={sendAnother}>

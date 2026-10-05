@@ -102,6 +102,21 @@ describe('Contact', () => {
     expect(await screen.findByText('This email address looks incomplete. Please check it.')).toBeInTheDocument();
   });
 
+  it('takes a number from abroad when it has the country code', async () => {
+    renderContact();
+
+    const phoneInput = screen.getByLabelText(/^mobile number/i);
+    fireEvent.change(phoneInput, { target: { value: '4155550123' } });
+    fireEvent.blur(phoneInput);
+    const message = 'Please enter a 10-digit mobile number. From abroad, start with + and the country code.';
+    expect(await screen.findByText(message)).toBeInTheDocument();
+
+    fireEvent.change(phoneInput, { target: { value: '+1 415 555 0123' } });
+    fireEvent.blur(phoneInput);
+    await waitFor(() => expect(screen.queryByText(message)).not.toBeInTheDocument());
+    expect(phoneInput).not.toHaveAttribute('aria-invalid', 'true');
+  });
+
   it('leaves every box empty, with no placeholder text', () => {
     const { container } = renderContact();
 

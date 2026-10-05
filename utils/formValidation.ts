@@ -1,4 +1,8 @@
-import { validateEmail as isValidEmail, validatePhone as isValidPhone } from './validation';
+import {
+  validateEmail as isValidEmail,
+  validatePhone as isValidPhone,
+  validatePhoneAnyCountry as isValidPhoneAnyCountry,
+} from './validation';
 
 export type Validator<T> = (value: T) => string | undefined;
 
@@ -26,6 +30,12 @@ export const indianPhone =
   (message = 'Invalid Indian mobile number'): Validator<string> =>
   (value) =>
     value && !isValidPhone(value) ? message : undefined;
+
+/** Indian mobiles, or a foreign number written with its country code. */
+export const anyCountryPhone =
+  (message = 'Invalid phone number'): Validator<string> =>
+  (value) =>
+    value && !isValidPhoneAnyCountry(value) ? message : undefined;
 
 export type FormSchema<T> = {
   [K in keyof T]?: Validator<T[K]> | Validator<T[K]>[];
