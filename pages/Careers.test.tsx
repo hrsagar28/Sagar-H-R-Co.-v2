@@ -41,8 +41,8 @@ vi.mock('../hooks', async () => {
 });
 
 // Before the roles' closing date, and after it.
-const WHILE_OPEN = new Date('2026-08-01T10:00:00+05:30');
-const AFTER_CLOSING = new Date('2026-12-01T10:00:00+05:30');
+const WHILE_OPEN = new Date('2026-10-10T10:00:00+05:30');
+const AFTER_CLOSING = new Date('2027-01-15T10:00:00+05:30');
 
 const renderCareers = (now: Date) => {
   vi.setSystemTime(now);
