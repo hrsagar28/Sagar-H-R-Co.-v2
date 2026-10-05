@@ -37,7 +37,12 @@ export const DotCursor: React.FC = () => {
  * Plain dot: the current cursor's colour (white, inverted against the page),
  * with no trailing ring. It moves with the pointer, no lag. Over links it
  * opens into a see-through circle, which tightens while the button is held.
- * Over text the I-beam returns; over maps the dot hides.
+ * Over text it narrows into a text cursor; over maps the dot hides and the
+ * normal cursor returns.
+ *
+ * It draws the text cursor itself rather than handing over to the browser's,
+ * because the browser only redraws its own cursor when the mouse moves: text
+ * scrolling under a still mouse would otherwise leave no cursor at all.
  *
  * It changes its own classes directly rather than through React state, so a
  * mouse movement costs one style write and no re-render.
@@ -48,7 +53,7 @@ export const PlainDotCursor: React.FC = () => {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    document.body.classList.add('cur-dot-on');
+    document.body.classList.add('cur-plain-on');
     const at = { x: -1, y: -1 };
     let mode: CursorMode = 'default';
     let shown = false;
@@ -118,7 +123,7 @@ export const PlainDotCursor: React.FC = () => {
     return () => {
       cancelAnimationFrame(frame);
       window.clearTimeout(timer);
-      document.body.classList.remove('cur-dot-on');
+      document.body.classList.remove('cur-plain-on');
       document.removeEventListener('mousemove', move);
       document.removeEventListener('scroll', scroll, { capture: true });
       document.documentElement.removeEventListener('mouseleave', leave);

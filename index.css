@@ -1075,6 +1075,17 @@ html {
 .cur-dot.off::before {
   opacity: 0;
 }
+/* Plain dot: it draws every cursor itself (dot, link circle, text bar), so
+   the browser's own is hidden everywhere except over maps. !important because
+   component styles set cursor: pointer on their own controls. */
+:root body.cur-plain-on,
+:root body.cur-plain-on * {
+  cursor: none !important;
+}
+:root body.cur-plain-on [data-hide-cursor='true'],
+:root body.cur-plain-on [data-hide-cursor='true'] * {
+  cursor: auto !important;
+}
 /* Plain dot: the current cursor's colour, a white dot inverted against the
    page (dark on light sections, light on dark ones). Over links it opens into
    a see-through circle (thin outline, faint fill) like the copper dot, so the
@@ -1094,6 +1105,7 @@ html {
     width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     margin 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.2s,
     opacity 0.2s;
 }
@@ -1102,6 +1114,16 @@ html {
   height: 36px;
   margin: -18px 0 0 -18px;
   background-color: rgba(255, 255, 255, 0.06);
+}
+/* Over text the dot narrows into a text cursor, centred on the pointer like
+   the system I-beam so selecting text lands where it looks. */
+.cur-dot.plain.text::before {
+  width: 2px;
+  height: 18px;
+  margin: -9px 0 0 -1px;
+  border-width: 0;
+  border-radius: 1px;
+  opacity: 1;
 }
 /* While the button is held on a link the circle tightens, quickly, and
    springs back on release. */
