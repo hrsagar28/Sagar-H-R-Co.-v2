@@ -12,7 +12,7 @@ import { formatLongDate, toISODate } from '../utils/insightDates';
 // category filter: with a handful of articles they only get in the way.
 // Rendered inside RedesignLayout.
 
-const DESCRIPTION = 'Notes on changes in income tax and GST law, by CA Sagar H R of Sagar H R & Co., Mysuru.';
+const DESCRIPTION = 'Notes on changes in tax law, by CA Sagar H R of Sagar H R & Co., Mysuru.';
 
 const Insights: React.FC = () => {
   const { insights, loading, error } = useInsights();
@@ -69,7 +69,7 @@ const Insights: React.FC = () => {
         <div className="hgrid open solo pad">
           <div>
             <h1 className="rise">Insights</h1>
-            <p className="hsub rise d1">Notes on changes in income tax and GST law, and what they mean in practice.</p>
+            <p className="hsub rise d1">Notes on changes in tax law, and what they mean in practice.</p>
           </div>
         </div>
       </div>
