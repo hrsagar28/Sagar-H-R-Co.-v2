@@ -62,6 +62,15 @@ const CustomCursor: React.FC = () => {
   const variant = useCursorVariant();
   const fine = useFinePointer();
   const reducedMotion = useReducedMotion();
+  const plain = fine && !reducedMotion && variant === 'plain';
+
+  // index.css hides the browser's cursor from the first paint, for the plain
+  // dot. Every other option relies on the browser's cursor, so give it back.
+  useEffect(() => {
+    if (plain) return;
+    document.documentElement.classList.add('cur-native');
+    return () => document.documentElement.classList.remove('cur-native');
+  }, [plain]);
 
   if (!fine) return null;
   if (variant === 'arrow') return <ArrowCursor />;

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cursorModeFor, type CursorMode } from './cursorMode';
+import { pointer } from './early';
 
 // The alternative cursors offered for review. Styles in index.css (.cur-*).
 
@@ -37,12 +38,12 @@ export const DotCursor: React.FC = () => {
  * Plain dot: the current cursor's colour (white, inverted against the page),
  * with no trailing ring. It moves with the pointer, no lag. Over links it
  * opens into a see-through circle, which tightens while the button is held.
- * Over text it narrows into a text cursor; over maps the dot hides and the
- * normal cursor returns.
+ * Over text it narrows into a text cursor; over maps and the page scrollbar
+ * the dot hides and the browser's cursor shows.
  *
- * It draws the text cursor itself rather than handing over to the browser's,
- * because the browser only redraws its own cursor when the mouse moves: text
- * scrolling under a still mouse would otherwise leave no cursor at all.
+ * It draws every cursor itself, and index.css hides the browser's own from
+ * the first paint, because the browser only redraws its cursor when the mouse
+ * moves: text scrolling under a still mouse would otherwise leave none.
  *
  * It changes its own classes directly rather than through React state, so a
  * mouse movement costs one style write and no re-render.
@@ -53,10 +54,13 @@ export const PlainDotCursor: React.FC = () => {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const root = document.documentElement;
     document.body.classList.add('cur-plain-on');
+    root.classList.remove('cur-native');
     const at = { x: -1, y: -1 };
     let mode: CursorMode = 'default';
     let shown = false;
+    let keyboard = false;
     let down = false;
     let frame = 0;
     let timer = 0;
@@ -65,24 +69,35 @@ export const PlainDotCursor: React.FC = () => {
       const next = `cur-dot plain${shown ? '' : ' off'} ${mode}${down ? ' down' : ''}`;
       if (el.className !== next) el.className = next;
     };
+    const modeAt = (target: EventTarget | null): CursorMode =>
+      // Over the page's scrollbar the browser always shows its own arrow.
+      at.x >= root.clientWidth || at.y >= root.clientHeight ? 'hide' : cursorModeFor(target);
+    const place = (x: number, y: number, target: EventTarget | null) => {
+      at.x = x;
+      at.y = y;
+      el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      shown = true;
+      mode = modeAt(target);
+      paint();
+    };
     // What is under the pointer can change while the mouse stays still: the
     // page scrolls, or a click opens another page. Look again at that point.
     const recheck = () => {
       frame = 0;
       if (!shown) return;
-      mode = cursorModeFor(document.elementFromPoint(at.x, at.y));
+      mode = modeAt(document.elementFromPoint(at.x, at.y));
       paint();
     };
     const move = (event: MouseEvent) => {
       // Browsers can report a "move" to the same spot after scrolling or a
       // focus change; ignore it so a dot hidden for keyboard use stays hidden.
-      if (!shown && event.clientX === at.x && event.clientY === at.y) return;
-      at.x = event.clientX;
-      at.y = event.clientY;
-      el.style.transform = `translate3d(${at.x}px, ${at.y}px, 0)`;
-      shown = true;
-      mode = cursorModeFor(event.target);
-      paint();
+      if (keyboard && event.clientX === at.x && event.clientY === at.y) return;
+      keyboard = false;
+      place(event.clientX, event.clientY, event.target);
+    };
+    // Sent when the page loads or scrolls under a still mouse.
+    const over = (event: MouseEvent) => {
+      if (!keyboard) place(event.clientX, event.clientY, event.target);
     };
     const scroll = () => {
       if (!frame) frame = requestAnimationFrame(recheck);
@@ -99,6 +114,15 @@ export const PlainDotCursor: React.FC = () => {
       window.clearTimeout(timer);
       timer = window.setTimeout(recheck, 400);
     };
+    // Dragging selected text, an image or a link hands the pointer to the
+    // system's drag cursor, which a page cannot restyle. Nothing on the site
+    // is meant to be dragged, so those drags are off while this cursor runs
+    // (an element marked draggable="true" still can be).
+    const drag = (event: DragEvent) => {
+      const source = event.target;
+      if (!(source instanceof HTMLElement && source.getAttribute('draggable') === 'true')) event.preventDefault();
+      release();
+    };
     const leave = () => {
       shown = false;
       paint();
@@ -106,31 +130,39 @@ export const PlainDotCursor: React.FC = () => {
     // Someone moving through the page with Tab: hide the dot until the mouse
     // moves again, rather than leave it frozen where the mouse last was.
     const key = (event: KeyboardEvent) => {
-      if (event.key === 'Tab' && shown) leave();
+      if (event.key !== 'Tab' || !shown) return;
+      keyboard = true;
+      leave();
     };
 
+    // The mouse may already be over the page, reported before this loaded.
+    if (pointer.known) place(pointer.x, pointer.y, document.elementFromPoint(pointer.x, pointer.y));
+
     document.addEventListener('mousemove', move, { passive: true });
+    document.addEventListener('mouseover', over, { passive: true });
     document.addEventListener('scroll', scroll, { passive: true, capture: true });
-    document.documentElement.addEventListener('mouseleave', leave);
+    root.addEventListener('mouseleave', leave);
     window.addEventListener('mousedown', press);
     window.addEventListener('mouseup', release);
     window.addEventListener('blur', release);
-    // Pressing on a link and dragging starts the browser's own link drag,
-    // which ends without a mouseup.
-    window.addEventListener('dragstart', release);
+    window.addEventListener('dragstart', drag);
     window.addEventListener('dragend', release);
     window.addEventListener('keydown', key);
     return () => {
       cancelAnimationFrame(frame);
       window.clearTimeout(timer);
       document.body.classList.remove('cur-plain-on');
+      // Unmounted (another option chosen, or the site crashed): give the
+      // browser's cursor back.
+      root.classList.add('cur-native');
       document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseover', over);
       document.removeEventListener('scroll', scroll, { capture: true });
-      document.documentElement.removeEventListener('mouseleave', leave);
+      root.removeEventListener('mouseleave', leave);
       window.removeEventListener('mousedown', press);
       window.removeEventListener('mouseup', release);
       window.removeEventListener('blur', release);
-      window.removeEventListener('dragstart', release);
+      window.removeEventListener('dragstart', drag);
       window.removeEventListener('dragend', release);
       window.removeEventListener('keydown', key);
     };

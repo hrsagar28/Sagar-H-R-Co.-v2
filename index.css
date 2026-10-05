@@ -1076,15 +1076,21 @@ html {
   opacity: 0;
 }
 /* Plain dot: it draws every cursor itself (dot, link circle, text bar), so
-   the browser's own is hidden everywhere except over maps. !important because
-   component styles set cursor: pointer on their own controls. */
-:root body.cur-plain-on,
-:root body.cur-plain-on * {
-  cursor: none !important;
-}
-:root body.cur-plain-on [data-hide-cursor='true'],
-:root body.cur-plain-on [data-hide-cursor='true'] * {
-  cursor: auto !important;
+   the browser's own is hidden everywhere except over maps, from the first
+   paint rather than once the cursor's code has loaded. The media query
+   matches when CustomCursor runs it: a mouse or trackpad, motion allowed.
+   html.cur-native gives the browser's cursor back (another option chosen, a
+   crash, or the cursor's code failing to load: components/cursors/early.ts).
+   !important because component styles set cursor: pointer on controls. */
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :root:not(.cur-native),
+  :root:not(.cur-native) * {
+    cursor: none !important;
+  }
+  :root:not(.cur-native) [data-hide-cursor='true'],
+  :root:not(.cur-native) [data-hide-cursor='true'] * {
+    cursor: auto !important;
+  }
 }
 /* Plain dot: the current cursor's colour, a white dot inverted against the
    page (dark on light sections, light on dark ones). Over links it opens into
