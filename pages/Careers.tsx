@@ -76,16 +76,16 @@ const buildJobPostingSchema = (roles: JobPosting[]) =>
 
 const WORKING_HERE = [
   {
-    heading: 'A small team',
-    text: 'Everyone works from one office. You’ll see how a whole file comes together, from the first documents to the filing.',
+    heading: 'Every kind of file',
+    text: 'Audits of companies, trusts, schools and colleges, GST and income tax, company and LLP filings, and farmer producer companies. Most weeks bring more than one.',
   },
   {
-    heading: 'Varied work',
-    text: 'GST, income tax, company law, and audits of companies, trusts, schools and colleges. Most weeks you’ll work on more than one of these.',
+    heading: 'Notices, appeals and hearings',
+    text: 'Replies to tax notices and appeals, up to the GST Appellate Tribunal, are regular work here. You’ll help draft them and sit in on hearings.',
   },
   {
-    heading: 'Training',
-    text: 'CA Sagar H R also teaches CA Foundation students. When he changes your work, he tells you why.',
+    heading: 'A paperless office',
+    text: 'Client files, checklists and due dates are kept in our own practice software, not in paper folders, so your time goes into the work rather than into finding papers.',
   },
 ];
 
@@ -254,7 +254,7 @@ const Careers: React.FC = () => {
         </section>
       </div>
 
-      <section className="next pad" aria-labelledby="working-here-heading">
+      <section className="next sand pad" aria-labelledby="working-here-heading">
         <h2 className="next-h" id="working-here-heading">
           Working here
         </h2>
