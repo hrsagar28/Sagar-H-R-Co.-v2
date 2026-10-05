@@ -7,8 +7,12 @@ import { cursorModeFor, type CursorMode } from './cursorMode';
  * Copper dot: replaces the arrow with a small copper dot that moves with the
  * pointer, no lag. Over links it opens into a copper ring; over text the
  * normal I-beam returns so text can be selected.
+ *
+ * Plain dot (tone="plain"): the same, in the current cursor's colour (white,
+ * inverted against whatever is underneath), with no trailing ring. Over links
+ * the dot itself grows into a solid inverting disc.
  */
-export const DotCursor: React.FC = () => {
+export const DotCursor: React.FC<{ tone?: 'copper' | 'plain' }> = ({ tone = 'copper' }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<CursorMode>('default');
   const [shown, setShown] = useState(false);
@@ -30,7 +34,13 @@ export const DotCursor: React.FC = () => {
     };
   }, []);
 
-  return <div ref={ref} className={`cur-dot ${shown ? '' : 'off'} ${mode}`} aria-hidden="true" />;
+  return (
+    <div
+      ref={ref}
+      className={`cur-dot ${tone === 'plain' ? 'plain' : ''} ${shown ? '' : 'off'} ${mode}`}
+      aria-hidden="true"
+    />
+  );
 };
 
 /**

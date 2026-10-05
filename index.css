@@ -1075,6 +1075,26 @@ html {
 .cur-dot.off::before {
   opacity: 0;
 }
+/* Plain dot: the current cursor's colour, a white dot inverted against the
+   page (dark on light sections, light on dark ones); over links it grows
+   into a solid inverting disc. The blend sits on the fixed element itself so
+   it mixes with the page, not with an empty stacking context. */
+.cur-dot.plain {
+  mix-blend-mode: difference;
+}
+.cur-dot.plain::before {
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border: 0;
+  background: #fff;
+}
+.cur-dot.plain.link::before {
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  background: #fff;
+}
 .cur-ring i {
   position: absolute;
   width: 30px;

@@ -4,9 +4,9 @@ import CurrentCursor from './cursors/CurrentCursor';
 import { ArrowCursor, DotCursor, GlowCursor, RingCursor } from './cursors/CursorOptions';
 
 // PREVIEW ONLY (cursor choice): the deploy preview can switch between the
-// current cursor and four alternatives (CursorSwitcher). Once one is chosen,
+// current cursor and five alternatives (CursorSwitcher). Once one is chosen,
 // the others and this switching are deleted.
-export type CursorVariant = 'current' | 'dot' | 'ring' | 'glow' | 'arrow';
+export type CursorVariant = 'current' | 'dot' | 'ring' | 'glow' | 'arrow' | 'plain';
 
 export const CURSOR_VARIANTS: { id: CursorVariant; label: string }[] = [
   { id: 'current', label: 'Current' },
@@ -14,6 +14,7 @@ export const CURSOR_VARIANTS: { id: CursorVariant; label: string }[] = [
   { id: 'ring', label: 'Copper ring' },
   { id: 'glow', label: 'Link glow' },
   { id: 'arrow', label: 'Brand arrow' },
+  { id: 'plain', label: 'Plain dot' },
 ];
 
 const DEFAULT_VARIANT: CursorVariant = 'current';
@@ -67,6 +68,7 @@ const CustomCursor: React.FC = () => {
   // The moving cursors respect "reduce motion"; the system cursor stays.
   if (reducedMotion) return null;
   if (variant === 'dot') return <DotCursor />;
+  if (variant === 'plain') return <DotCursor tone="plain" />;
   if (variant === 'ring') return <RingCursor />;
   if (variant === 'glow') return <GlowCursor />;
   return <CurrentCursor />;
