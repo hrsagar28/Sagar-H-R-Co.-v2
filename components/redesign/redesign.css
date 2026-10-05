@@ -1171,7 +1171,7 @@
 .rd.menu ::selection {
   background-color: rgba(236, 232, 222, 0.24);
 }
-.rd.head-light .phead ::selection {
+:is(.rd.head-light, .rd .head-light) .phead ::selection {
   background-color: rgb(26 77 46 / 0.2);
 }
 
@@ -1689,63 +1689,94 @@
 
 /* ---------- light header ----------
    For the routes in LIGHT_HEADER_ROUTES (routes.ts), which RedesignLayout marks
-   with .head-light: only the top bar stays dark, centred in a strip as tall as
-   the space the header reserves for it, and the title sits on the limestone
-   page. The padding is the dark header's, so a title starts at the same height
-   whichever header a page has. */
+   with .head-light on the shell, and for a page that carries .head-light itself
+   (NotFound, on any address): only the top bar stays dark, centred in a strip
+   as tall as the space the header reserves for it, and the title sits on the
+   limestone page. The padding is the dark header's, so a title starts at the
+   same height whichever header a page has. */
 .rd.head-light .topbar {
   height: var(--tb);
   padding-top: 0;
 }
-.rd.head-light .phead {
+/* a separate rule, so a browser without :has() still keeps the one above */
+.rd:has(.rd-page.head-light) .topbar {
+  height: var(--tb);
+  padding-top: 0;
+}
+:is(.rd.head-light, .rd .head-light) .phead {
   color: var(--ink);
   background: linear-gradient(var(--night) 0 var(--tb), var(--stone) var(--tb));
 }
-.rd.head-light .hgrid h1 {
+:is(.rd.head-light, .rd .head-light) .hgrid h1 {
   font-size: clamp(42px, 4.4vw, 64px);
   line-height: 1;
   color: var(--ink);
 }
-.rd.head-light .hsub {
+:is(.rd.head-light, .rd .head-light) .hsub {
   color: var(--body);
 }
-.rd.head-light .upd {
+:is(.rd.head-light, .rd .head-light) .upd {
   margin-top: 14px;
   color: var(--muted);
 }
-.rd.head-light .skel-line {
+:is(.rd.head-light, .rd .head-light) .skel-line {
   background: rgba(22, 25, 26, 0.07);
 }
-.rd.head-light .skel-h1 {
+:is(.rd.head-light, .rd .head-light) .skel-h1 {
   height: clamp(42px, 4.4vw, 64px);
 }
-.rd.head-light .ldoc {
+:is(.rd.head-light, .rd .head-light) .ldoc {
   padding-top: clamp(24px, 2.8vw, 40px);
 }
 /* larger screens: when the title has an introduction, the title on the left
    and the introduction on the right */
 @media (min-width: 901px) {
-  .rd.head-light .hgrid > div:first-child:has(> .hsub) {
+  :is(.rd.head-light, .rd .head-light) .hgrid > div:first-child:has(> .hsub) {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     column-gap: clamp(32px, 4.4vw, 64px);
     align-items: end;
   }
-  .rd.head-light .hgrid > div:first-child:has(> .hsub) > :not(h1) {
+  :is(.rd.head-light, .rd .head-light) .hgrid > div:first-child:has(> .hsub) > :not(h1) {
     grid-column: 2;
     max-width: 36em;
   }
-  .rd.head-light .hgrid .hsub {
+  :is(.rd.head-light, .rd .head-light) .hgrid .hsub {
     margin: 0;
   }
 }
 @media (max-width: 900px) {
-  .rd.head-light .hgrid h1 {
+  :is(.rd.head-light, .rd .head-light) .hgrid h1 {
     font-size: 40px;
   }
-  .rd.head-light .hsub {
+  :is(.rd.head-light, .rd .head-light) .hsub {
     font-size: 15px;
     margin-top: 12px;
+  }
+}
+
+/* page not found: the main pages as one ruled list, under the introduction on
+   larger screens (the same 5:7 columns as the light header) */
+.rd .nfbody {
+  padding-bottom: clamp(96px, 10vw, 144px);
+}
+.rd .nfbody .srows {
+  border-top: 1px solid var(--ink);
+}
+.rd .nfbody .srows li:first-child a {
+  padding-top: 22px;
+}
+.rd .nfbody .still {
+  margin-top: 32px;
+}
+@media (min-width: 901px) {
+  .rd .nfbody {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(32px, 4.4vw, 64px);
+  }
+  .rd .nfbody > nav {
+    grid-column: 2;
   }
 }
 

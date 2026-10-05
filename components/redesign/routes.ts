@@ -3,20 +3,32 @@
 // and Footer. Add a path here as each page moves over.
 export const REDESIGNED_ROUTES = ['/services', '/careers', '/faqs', '/contact', '/privacy', '/terms', '/disclaimer'];
 
-// Every page under these paths is redesigned too. ServiceDetail renders its own
-// "not found" page for an unknown slug, so the old NotFound never lands inside
-// the new layout.
+// Every page under these paths is redesigned too. ServiceDetail shows the
+// redesigned NotFound for an unknown slug.
 const REDESIGNED_PREFIXES = ['/services/'];
 
+// Pages still in the old design. Remove a path here when it moves to
+// REDESIGNED_ROUTES. An address that is in neither list has no page, and its
+// "not found" screen (pages/NotFound.tsx) is redesigned.
+const OLD_ROUTES = ['/', '/about', '/insights', '/resources'];
+const OLD_PREFIXES = ['/insights/', '/resources/checklist/'];
+
+const clean = (pathname: string) => pathname.replace(/\/+$/, '') || '/';
+
+const matches = (path: string, routes: string[], prefixes: string[]) =>
+  routes.includes(path) || prefixes.some((prefix) => path.startsWith(prefix));
+
 export const isRedesignedRoute = (pathname: string): boolean => {
-  const path = pathname.replace(/\/+$/, '') || '/';
-  return REDESIGNED_ROUTES.includes(path) || REDESIGNED_PREFIXES.some((prefix) => path.startsWith(prefix));
+  const path = clean(pathname);
+  return matches(path, REDESIGNED_ROUTES, REDESIGNED_PREFIXES) || !matches(path, OLD_ROUTES, OLD_PREFIXES);
 };
 
 // Redesigned pages whose header is light: only the top bar stays dark and the
 // title sits on the limestone page. Plain documents read better this way than
-// under a dark band. RedesignLayout marks these routes with `.head-light`.
+// under a dark band. RedesignLayout marks these routes with `.head-light`, so
+// their loading skeleton is light too. A page can also turn its own header
+// light by carrying `.head-light` itself, as NotFound does (it shows on any
+// address, including /services/<unknown>).
 export const LIGHT_HEADER_ROUTES = ['/privacy', '/terms', '/disclaimer'];
 
-export const hasLightHeader = (pathname: string): boolean =>
-  LIGHT_HEADER_ROUTES.includes(pathname.replace(/\/+$/, '') || '/');
+export const hasLightHeader = (pathname: string): boolean => LIGHT_HEADER_ROUTES.includes(clean(pathname));
