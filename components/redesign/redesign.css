@@ -58,7 +58,10 @@
   --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
   --sans: 'Host Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --gut: clamp(16px, 4.45vw, 64px);
+  /* The side gutter. On screens wider than 1440px it grows so the content
+     stays in a centred 1440px frame; bands and backgrounds still run edge
+     to edge. Resolved where it is used, so 100% is the full-width row. */
+  --gut: max(clamp(16px, 4.45vw, 64px), calc((100% - 1312px) / 2));
   --seam: 76px;
   --bar: 64px;
   --tb: 72px;
@@ -2054,11 +2057,22 @@
 
 @media print {
   .rd .toc,
-  .rd .picker {
+  .rd .picker,
+  .rd .crumb,
+  .rd .ashare,
+  .rd .amore {
     display: none;
   }
   .rd .ldoc {
     display: block;
+    padding-bottom: 0;
+  }
+  .rd .doc,
+  .rd .ldoc.solo .doc {
+    max-width: none;
+  }
+  :is(.rd.head-light, .rd .head-light) .phead {
+    background: none;
   }
 }
 
@@ -2591,5 +2605,399 @@
   }
   .rd .ainfo {
     position: static;
+  }
+}
+
+/* ---------- insights ----------
+   The list: the dark header, then one ruled list of articles, newest first,
+   with the date and category beside each title on larger screens. An article
+   uses the document layout of the legal pages (LegalPage), unnumbered, under
+   the light header. */
+.rd .alist {
+  padding-top: clamp(64px, 7vw, 104px);
+  padding-bottom: clamp(96px, 10vw, 144px);
+}
+.rd .arows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ink);
+}
+.rd .arows a {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  column-gap: clamp(32px, 4.4vw, 64px);
+  padding: 26px 0 30px;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: var(--ink);
+}
+.rd .arows .am {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.rd .arows .am time {
+  color: var(--body);
+}
+.rd .arows .ab {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px;
+  column-gap: 20px;
+  align-items: start;
+}
+.rd .arows .ab > :not(.go) {
+  grid-column: 1;
+}
+.rd .arows .t {
+  font-family: var(--serif);
+  font-size: clamp(26px, 2.2vw, 32px);
+  line-height: 1.12;
+  text-wrap: balance;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: text-decoration-color 0.25s;
+}
+.rd .arows .d {
+  margin-top: 10px;
+  max-width: 62ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--body);
+}
+.rd .arows .i {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.rd .arows .go {
+  grid-column: 2;
+  grid-row: 1;
+  margin-top: 8px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.25s,
+    transform 0.35s var(--ease);
+}
+.rd .arows a:hover .t,
+.rd .arows a:focus-visible .t {
+  text-decoration-color: var(--copper);
+}
+.rd .arows a:hover .go,
+.rd .arows a:focus-visible .go {
+  opacity: 1;
+  transform: none;
+}
+.rd .askel .skel-line {
+  height: 17px;
+  margin: 0 0 12px;
+  background: rgba(22, 25, 26, 0.07);
+}
+.rd .askel .skel-line:nth-child(2) {
+  width: 92%;
+}
+.rd .askel .skel-line:nth-child(3) {
+  width: 60%;
+}
+.rd .aerr {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--body);
+}
+.rd .aerr p {
+  margin: 0 0 20px;
+}
+
+/* an article: the back link on the light header, unnumbered sections */
+:is(.rd.head-light, .rd .head-light) .crumb {
+  color: var(--muted);
+}
+:is(.rd.head-light, .rd .head-light) .crumb:hover {
+  color: var(--ink);
+}
+.rd .ldoc.plain .toc a,
+.rd .ldoc.plain .lsec h2 {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* An article has no contents list. Everything from the back link to "More
+   insights" sits in one centred 800px column (text still left-aligned in it),
+   with larger text so the line holds about 75 characters. */
+.rd .ldoc.solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+.rd .doc-solo .lhero > div,
+.rd .ldoc.solo .doc,
+.rd .doc-solo .amore .sec {
+  width: 100%;
+  max-width: 800px;
+  margin-inline: auto;
+}
+.rd .doc-solo .amore .sec {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+.rd .doc-solo .amore .sec-h {
+  position: static;
+}
+.rd .ldoc.solo .lsec p,
+.rd .ldoc.solo .lsec li {
+  font-size: 19px;
+  line-height: 1.7;
+}
+.rd .ldoc.solo .alead > p {
+  font-size: 21px;
+  line-height: 1.6;
+}
+.rd .ldoc.solo .asum li {
+  font-size: 17px;
+}
+.rd .ldoc.solo .tscroll th,
+.rd .ldoc.solo .tscroll td {
+  font-size: 16px;
+}
+.rd .ldoc.solo .lsec h3 {
+  font-size: 19px;
+}
+/* the byline keeps "4 min read" and the date on one line each */
+.rd .upd .nw {
+  white-space: nowrap;
+}
+/* "Share this article" at the end of an article */
+.rd .ashare {
+  margin: clamp(40px, 4vw, 56px) 0 0;
+}
+.rd .ashare button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 16px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--copper);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  cursor: pointer;
+}
+.rd .ashare svg {
+  transition: transform 0.35s var(--ease);
+}
+.rd .ashare button:hover svg {
+  transform: translateX(3px);
+}
+.rd .ashare .done {
+  margin-left: 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.rd .ashare + .lnote {
+  margin-top: 28px;
+}
+/* a long title shown as the page name beside the contents, or in the picker */
+.rd .tlab .t-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.rd .plab {
+  grid-template-columns: minmax(0, 1fr);
+}
+.rd .plab .p-name {
+  display: flex;
+  min-width: 0;
+  white-space: nowrap;
+}
+.rd .plab .p-name .pt {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rd .plab .p-name > :last-child {
+  flex: none;
+}
+/* the opening and the "Key takeaways" box */
+.rd .alead {
+  margin-bottom: clamp(48px, 4.4vw, 64px);
+}
+.rd .alead > p {
+  margin: 0 0 16px;
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+.rd .asum {
+  margin: 28px 0 0;
+  padding: 24px 28px 26px;
+  background: var(--sand);
+}
+.rd .asum h3 {
+  margin: 0 0 14px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.rd .asum ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rd .asum li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.rd .asum li + li {
+  margin-top: 8px;
+}
+.rd .asum li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.8em;
+  width: 9px;
+  height: 1px;
+  background: var(--copper-d);
+}
+/* what else an article's text can hold */
+.rd .lsec h3 {
+  margin: 30px 0 10px;
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.rd .lsec ol {
+  margin: 0 0 14px;
+  padding-left: 22px;
+}
+.rd .lsec ol li {
+  padding-left: 6px;
+}
+.rd .lsec ol li::before {
+  display: none;
+}
+.rd .lsec blockquote {
+  margin: 0 0 18px;
+  padding: 16px 20px;
+  border-left: 2px solid var(--copper-d);
+  background: var(--paper);
+}
+.rd .lsec blockquote p:last-child {
+  margin-bottom: 0;
+}
+.rd .lsec code {
+  font-size: 0.92em;
+}
+.rd .tscroll {
+  margin: 4px 0 20px;
+  overflow-x: auto;
+}
+.rd .tscroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rd .tscroll th,
+.rd .tscroll td {
+  padding: 12px 18px 12px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--body);
+}
+.rd .tscroll th {
+  font-weight: 500;
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.rd .tscroll td:last-child,
+.rd .tscroll th:last-child {
+  padding-right: 0;
+}
+/* the closing small print */
+.rd .lnote {
+  margin-top: clamp(48px, 4.4vw, 64px);
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+.rd .lnote p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+/* more articles under one */
+.rd .amore {
+  padding-bottom: clamp(96px, 10vw, 144px);
+}
+
+@media (max-width: 900px) {
+  .rd .arows a {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 20px 0 24px;
+  }
+  .rd .arows .am {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 10px;
+    padding: 0 0 8px;
+    font-size: 13px;
+  }
+  .rd .arows .am > span::before {
+    content: '·';
+    margin-right: 10px;
+  }
+  .rd .arows .ab {
+    grid-template-columns: minmax(0, 1fr) 20px;
+    column-gap: 14px;
+  }
+  .rd .arows .t {
+    font-size: 26px;
+  }
+  .rd .arows .d {
+    font-size: 15px;
+  }
+  .rd .arows .go {
+    opacity: 1;
+    transform: none;
+    color: var(--muted);
+  }
+  .rd .alead > p,
+  .rd .ldoc.solo .alead > p {
+    font-size: 18px;
+  }
+  .rd .ldoc.solo .lsec p,
+  .rd .ldoc.solo .lsec li {
+    font-size: 17px;
+  }
+  .rd .ldoc.solo .asum li {
+    font-size: 15px;
+  }
+  .rd .asum {
+    padding: 20px 18px 22px;
+  }
+  .rd .asum li {
+    font-size: 15px;
+  }
+  .rd .tscroll th,
+  .rd .tscroll td {
+    font-size: 14px;
   }
 }

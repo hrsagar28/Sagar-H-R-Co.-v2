@@ -54,10 +54,10 @@ describe('NotFound', () => {
   });
 
   it('shows in the new layout on any address that has no page', () => {
-    ['/no-such-page', '/resources/old-name', '/services/no-such-service'].forEach((path) =>
+    ['/no-such-page', '/resources/old-name', '/services/no-such-service', '/insights/no-such-article'].forEach((path) =>
       expect(isRedesignedRoute(path)).toBe(true),
     );
-    ['/', '/about', '/insights', '/insights/some-article', '/resources', '/resources/checklist/gst'].forEach((path) =>
+    ['/', '/about', '/resources', '/resources/checklist/gst'].forEach((path) =>
       expect(isRedesignedRoute(path)).toBe(false),
     );
     expect(hasLightHeader('/no-such-page')).toBe(false);

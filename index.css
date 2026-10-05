@@ -437,8 +437,7 @@ html {
     color: var(--zone-text);
   }
 
-  /* Selected text: a light wash of the firm's green, the tint the Insights
-     articles already used (MarkdownRenderer.css). The text keeps its own
+  /* Selected text: a light wash of the firm's green. The text keeps its own
      colour. Replaced a solid gold block in October 2026. */
   ::selection {
     background-color: rgb(26 77 46 / 0.2);

@@ -1,124 +1,26 @@
-import React, { useCallback, useDeferredValue, useEffect, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { AlertCircle, ArrowUpRight, Calendar, Check, Clock, Search, X } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { PageHero } from '../components/hero';
+import { ArrowRight } from '../components/redesign/icons';
 import { CONTACT_INFO } from '../constants';
-import { useAnnounce, useInsights } from '../hooks';
-import Skeleton from '../components/Skeleton';
-import { formatArchiveDate } from '../utils/formatArchiveDate';
-import { formatLongDate, toISODate } from '../utils/insightDates';
-import { staggerDelay } from '../utils/stagger';
-import { normalizeSearch } from '../utils/normalizeSearch';
 import { SITE_URL } from '../config/site';
-import './route-styles.css';
-import '../components/hero/PageHero.css';
-import Reveal from '../components/Reveal';
+import { useInsights } from '../hooks';
+import { formatLongDate, toISODate } from '../utils/insightDates';
 
-const HERO_PLACEHOLDERS = Array.from({ length: 4 }, (_, index) => ({
-  num: String(index + 1).padStart(2, '0'),
-  title: <span className="inline-block h-5 w-40 rounded-full bg-current opacity-10" aria-hidden="true" />,
-  date: '',
-  href: '#insights-results',
-}));
+// 2026 redesign of /insights: the dark header, then every article in one
+// ruled list, newest first, with the date beside each title. No search or
+// category filter: with a handful of articles they only get in the way.
+// Rendered inside RedesignLayout.
 
-const SERVICE_LINKS: Record<string, { label: string; href: string }> = {
-  'GST & Compliance': { label: 'GST Services', href: '/services/gst' },
-  'Income Tax': { label: 'Income Tax Services', href: '/services/income-tax' },
-  'Income Tax Updates': { label: 'Income Tax Services', href: '/services/income-tax' },
-  'Real Estate Taxation': { label: 'Advisory Services', href: '/services/advisory' },
-  'Economic Analysis': { label: 'Business Advisory', href: '/services/advisory' },
-};
-
-const sortByNewest = <T extends { date: string }>(items: T[]) =>
-  [...items].sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
-
-const getCanonicalCategory = (category: string) => (category === 'Income Tax Updates' ? 'Income Tax' : category);
+const DESCRIPTION = 'Notes on changes in tax law, by CA Sagar H R of Sagar H R & Co., Mysuru.';
 
 const Insights: React.FC = () => {
   const { insights, loading, error } = useInsights();
-  const { announce } = useAnnounce();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const searchTerm = searchParams.get('q') || '';
-  const selectedCategory = searchParams.get('cat') || 'All';
-  const deferredSearchTerm = useDeferredValue(searchTerm);
-
-  const sortedInsights = useMemo(() => sortByNewest(insights), [insights]);
-
-  const categories = useMemo(() => {
-    const cats = new Set(insights.map((insight) => getCanonicalCategory(insight.category)));
-    return ['All', ...Array.from(cats).sort((left, right) => left.localeCompare(right))];
-  }, [insights]);
-
-  const updateFilters = useCallback(
-    (next: { q?: string; cat?: string }) => {
-      const params = new URLSearchParams(searchParams);
-      const nextQuery = next.q ?? searchTerm;
-      const nextCategory = next.cat ?? selectedCategory;
-
-      if (nextQuery.trim()) params.set('q', nextQuery);
-      else params.delete('q');
-
-      if (nextCategory && nextCategory !== 'All') params.set('cat', nextCategory);
-      else params.delete('cat');
-
-      setSearchParams(params, { replace: true });
-    },
-    [searchParams, searchTerm, selectedCategory, setSearchParams],
+  const sorted = useMemo(
+    () => [...insights].sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime()),
+    [insights],
   );
-
-  const clearFilters = useCallback(() => {
-    setSearchParams({}, { replace: true });
-  }, [setSearchParams]);
-
-  const onCategoryKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
-    const nextIndex = (() => {
-      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') return (index + 1) % categories.length;
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
-        return (index - 1 + categories.length) % categories.length;
-      if (event.key === 'Home') return 0;
-      if (event.key === 'End') return categories.length - 1;
-      return null;
-    })();
-
-    if (nextIndex === null) return;
-    event.preventDefault();
-    const nextCategory = categories[nextIndex];
-    if (!nextCategory) return;
-    updateFilters({ cat: nextCategory });
-    window.requestAnimationFrame(() => {
-      document.getElementById(`insights-category-${nextCategory.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`)?.focus();
-    });
-  };
-
-  const filteredInsights = useMemo(() => {
-    const query = normalizeSearch(deferredSearchTerm);
-    return sortedInsights.filter((item) => {
-      const searchableText = normalizeSearch(`${item.title} ${item.summary} ${item.category} ${item.author}`);
-      const matchesSearch = !query || searchableText.includes(query);
-      const matchesCategory = selectedCategory === 'All' || getCanonicalCategory(item.category) === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [sortedInsights, deferredSearchTerm, selectedCategory]);
-
-  const heroItems = useMemo(() => {
-    if (loading && sortedInsights.length === 0) return HERO_PLACEHOLDERS;
-    return sortedInsights.slice(0, 4).map((insight, idx) => ({
-      num: String(idx + 1).padStart(2, '0'),
-      title: insight.title.includes(' ') ? (
-        <>
-          {insight.title.split(' ')[0]} <em>{insight.title.substring(insight.title.indexOf(' ') + 1)}</em>
-        </>
-      ) : (
-        <>
-          <em>{insight.title}</em>
-        </>
-      ),
-      date: formatArchiveDate(insight.date),
-      href: `/insights/${insight.slug}`,
-    }));
-  }, [loading, sortedInsights]);
 
   const schema = useMemo(
     () => ({
@@ -126,277 +28,88 @@ const Insights: React.FC = () => {
       '@type': 'Blog',
       '@id': `${SITE_URL}/insights`,
       name: `${CONTACT_INFO.name} - Insights`,
-      description: 'Analysis on Income Tax, GST, audit, and Companies Act updates from a Mysuru CA practice.',
+      description: DESCRIPTION,
       publisher: { '@id': `${SITE_URL}/#organization` },
-      blogPost: sortedInsights.map((insight) => ({
+      blogPost: sorted.map((insight) => ({
         '@type': 'BlogPosting',
         '@id': `${SITE_URL}/insights/${insight.slug}`,
         url: `${SITE_URL}/insights/${insight.slug}`,
         headline: insight.title,
-        abstract: insight.summary,
         description: insight.summary,
         datePublished: toISODate(insight.date),
         dateModified: toISODate(insight.dateModified || insight.date),
-        author: {
-          '@type': 'Person',
-          name: insight.author,
-        },
-        articleSection: getCanonicalCategory(insight.category),
+        author: { '@type': 'Person', name: insight.author },
+        articleSection: insight.category,
         ...(insight.wordCount ? { wordCount: insight.wordCount } : {}),
         image: insight.image || `${SITE_URL}/og/og-default.png`,
       })),
     }),
-    [sortedInsights],
+    [sorted],
   );
 
-  const resultsLabel = loading
-    ? 'Loading insights'
-    : error
-      ? `Error: ${error}`
-      : `${filteredInsights.length} ${filteredInsights.length === 1 ? 'article' : 'articles'} found`;
-
-  useEffect(() => {
-    announce(resultsLabel, error ? 'assertive' : 'polite');
-  }, [announce, resultsLabel, error]);
-
   return (
-    <div className="min-h-screen bg-brand-bg selection:bg-brand-moss selection:text-white">
+    <div className="rd-page">
       <SEO
-        title={`Insights & Tax Updates from Mysuru | ${CONTACT_INFO.name}`}
-        description="Analysis on Income Tax, GST, audit, and Companies Act updates from a Mysuru CA practice, written when something genuinely useful crosses the desk."
+        title={`Insights | ${CONTACT_INFO.name}`}
+        description={DESCRIPTION}
         canonicalUrl={`${SITE_URL}/insights`}
         schema={schema}
+        alternates={[
+          { type: 'application/rss+xml', title: `${CONTACT_INFO.name} RSS Feed`, href: '/rss.xml' },
+          { type: 'application/atom+xml', title: `${CONTACT_INFO.name} Atom Feed`, href: '/atom.xml' },
+        ]}
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Insights', url: '/insights' },
         ]}
       />
 
-      <div id="main">
-        <PageHero
-          variant="archive"
-          eyebrow="Insights"
-          title={
-            <>
-              Notes from <em>practice</em>.
-            </>
-          }
-          blurb="A working library of the firm's writing on tax, audit, and corporate law."
-          items={heroItems}
-          totalLabel={`${insights.length} in Archive`}
-        />
-
-        <section className="px-4 py-20 md:px-6" aria-labelledby="insights-results-heading">
-          <div className="container mx-auto max-w-7xl">
-            {!loading && !error && (
-              <div className="mb-12 flex animate-fade-in-up flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-                <div
-                  role="tablist"
-                  aria-label="Filter insights by category"
-                  className="-mx-4 flex w-full snap-x snap-mandatory flex-nowrap gap-2 overflow-x-auto px-4 pb-2 md:mx-0 md:w-auto md:flex-wrap md:px-0 md:pb-0"
-                >
-                  {categories.map((cat, index) => {
-                    const selected = selectedCategory === cat;
-                    const id = `insights-category-${cat.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
-                    return (
-                      <button
-                        key={cat}
-                        id={id}
-                        type="button"
-                        role="tab"
-                        aria-selected={selected}
-                        aria-controls="insights-results"
-                        tabIndex={selected ? 0 : -1}
-                        data-analytics="insights_category_filter"
-                        data-category={cat}
-                        onClick={() => updateFilters({ cat })}
-                        onKeyDown={(event) => onCategoryKeyDown(event, index)}
-                        className={`inline-flex shrink-0 snap-start items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-[color,background-color,border-color,box-shadow] focus:outline-none focus:ring-2 focus:ring-brand-moss focus:ring-offset-2 ${
-                          selected
-                            ? 'bg-brand-moss text-white shadow-md'
-                            : 'border border-brand-border bg-white text-brand-stone hover:border-brand-moss'
-                        }`}
-                      >
-                        {selected && <Check size={12} aria-hidden="true" />}
-                        {cat}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="relative w-full md:w-80">
-                  <label htmlFor="insights-search" className="sr-only">
-                    Search insights
-                  </label>
-                  <Search
-                    size={18}
-                    aria-hidden="true"
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-stone"
-                  />
-                  <input
-                    id="insights-search"
-                    type="search"
-                    enterKeyHint="search"
-                    inputMode="search"
-                    autoComplete="off"
-                    placeholder="Search articles..."
-                    value={searchTerm}
-                    onChange={(event) => updateFilters({ q: event.target.value })}
-                    aria-controls="insights-results"
-                    aria-describedby="insights-results-count"
-                    data-analytics="insights_search"
-                    className="w-full rounded-full border border-brand-border bg-white py-3 pl-11 pr-10 text-sm font-medium transition-[border-color,box-shadow] focus:border-brand-moss focus:outline-none focus:ring-1 focus:ring-brand-moss"
-                  />
-                  {searchTerm && (
-                    <button
-                      type="button"
-                      onClick={() => updateFilters({ q: '' })}
-                      aria-label="Clear insights search"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-brand-stone hover:text-brand-dark"
-                    >
-                      <X size={14} aria-hidden="true" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <h2 id="insights-results-heading" className="sr-only">
-              Insights archive results
-            </h2>
-            <p id="insights-results-count" role="status" aria-live="polite" className="sr-only">
-              {resultsLabel}
-            </p>
-
-            {loading && (
-              <div className="grid gap-6" aria-label="Loading insights">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div
-                    key={i}
-                    className="flex flex-col items-start gap-8 rounded-[2rem] border border-brand-border bg-brand-surface p-8 md:flex-row md:gap-12 md:p-12"
-                  >
-                    <div className="w-full md:w-1/4">
-                      <Skeleton variant="text" width={120} height={24} className="mb-4" />
-                      <Skeleton variant="text" width={160} height={18} />
-                    </div>
-                    <div className="w-full md:w-2/4">
-                      <Skeleton variant="text" width="80%" height={36} className="mb-5" />
-                      <Skeleton variant="text" width="100%" height={18} className="mb-3" />
-                      <Skeleton variant="text" width="72%" height={18} />
-                    </div>
-                    <div className="flex w-full md:w-1/4 md:justify-end">
-                      <Skeleton variant="circular" width={56} height={56} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {error && (
-              <div className="py-20 text-center" role="alert">
-                <AlertCircle size={48} aria-hidden="true" className="mx-auto mb-4 text-brand-stone opacity-50" />
-                <h3 className="mb-2 text-2xl font-bold text-brand-dark">Unable to load insights</h3>
-                <p className="text-brand-stone">{error}</p>
-              </div>
-            )}
-
-            {!loading && !error && (
-              <>
-                {filteredInsights.length > 0 ? (
-                  <div id="insights-results" className="grid gap-6">
-                    {filteredInsights.map((insight, i) => {
-                      const serviceLink =
-                        SERVICE_LINKS[insight.category] || SERVICE_LINKS[getCanonicalCategory(insight.category)];
-                      return (
-                        <Reveal key={insight.slug} width="100%" delay={staggerDelay(i)}>
-                          <article className="group relative flex flex-col items-start gap-8 overflow-hidden rounded-[2rem] border border-brand-border bg-brand-surface p-8 transition-[border-color,box-shadow] duration-300 hover:border-brand-moss hover:shadow-xl motion-reduce:hover:shadow-none md:flex-row md:gap-12 md:p-12">
-                            <div className="absolute inset-0 bg-brand-moss/0 transition-colors group-hover:bg-brand-moss/[0.02]" />
-
-                            <div className="relative z-10 order-3 md:order-1 md:w-1/4">
-                              <span className="mb-4 inline-block rounded-full border border-brand-border bg-brand-bg px-4 py-1 text-xs font-bold uppercase tracking-wider text-brand-dark">
-                                {getCanonicalCategory(insight.category)}
-                              </span>
-                              <div className="flex items-center gap-2 text-sm font-bold text-brand-stone">
-                                <Calendar size={14} aria-hidden="true" />
-                                <time dateTime={toISODate(insight.date)}>{formatLongDate(insight.date)}</time>
-                              </div>
-                              <div className="mt-3 grid gap-2 text-xs font-bold text-brand-stone">
-                                <span className="inline-flex items-center gap-2">
-                                  <Clock size={12} aria-hidden="true" />
-                                  {insight.readTime}
-                                </span>
-                              </div>
-                              {serviceLink && (
-                                <Link
-                                  to={serviceLink.href}
-                                  data-analytics="insights_service_crosslink"
-                                  className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-moss hover:text-brand-dark"
-                                >
-                                  {serviceLink.label}
-                                  <ArrowUpRight size={14} aria-hidden="true" />
-                                </Link>
-                              )}
-                            </div>
-                            <div className="relative z-10 order-1 md:order-2 md:w-2/4">
-                              <h3 className="mb-4 font-heading text-2xl font-bold leading-tight text-brand-dark transition-colors group-hover:text-brand-moss md:text-3xl">
-                                <Link to={`/insights/${insight.slug}`} data-analytics="insights_card_click">
-                                  <span className="absolute inset-0 z-0" aria-hidden="true" />
-                                  <span className="relative z-10">{insight.title}</span>
-                                </Link>
-                              </h3>
-                              <p className="relative z-10 font-medium leading-relaxed text-brand-stone">
-                                {insight.summary}
-                              </p>
-                            </div>
-                            <div className="relative z-10 order-2 flex w-full justify-start md:order-3 md:w-1/4 md:justify-end">
-                              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-brand-border bg-brand-bg text-brand-dark transition-[transform,background-color,color] duration-300 group-hover:scale-110 group-hover:bg-brand-moss group-hover:text-brand-inverse motion-reduce:group-hover:scale-100">
-                                <ArrowUpRight size={20} aria-hidden="true" />
-                              </div>
-                            </div>
-                          </article>
-                        </Reveal>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div
-                    id="insights-results"
-                    className="rounded-[2rem] border border-brand-border bg-white px-6 py-20 text-center"
-                  >
-                    <p className="text-xl font-medium text-brand-stone">No articles found matching your criteria.</p>
-                    <button
-                      type="button"
-                      onClick={clearFilters}
-                      className="mt-4 font-bold text-brand-moss hover:underline"
-                    >
-                      Clear Filters
-                    </button>
-                    {sortedInsights.length > 0 && (
-                      <div className="mx-auto mt-10 max-w-2xl text-left">
-                        <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-brand-stone">
-                          Recent insights
-                        </p>
-                        <div className="grid gap-3">
-                          {sortedInsights.slice(0, 3).map((insight) => (
-                            <Link
-                              key={insight.slug}
-                              to={`/insights/${insight.slug}`}
-                              onClick={clearFilters}
-                              className="flex items-center justify-between gap-4 rounded-2xl border border-brand-border bg-brand-bg px-5 py-4 font-bold text-brand-dark transition-colors hover:border-brand-moss hover:text-brand-moss"
-                            >
-                              <span>{insight.title}</span>
-                              <ArrowUpRight size={16} aria-hidden="true" />
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
+      <div className="phead">
+        <div className="grain" aria-hidden="true" />
+        <div className="hgrid open solo pad">
+          <div>
+            <h1 className="rise">Insights</h1>
+            <p className="hsub rise d1">Notes on changes in tax law, and what they mean in practice.</p>
           </div>
-        </section>
+        </div>
+      </div>
+
+      <div className="alist pad">
+        {loading ? (
+          <div className="askel" aria-busy="true">
+            <span className="skel-line" />
+            <span className="skel-line" />
+            <span className="skel-line" />
+            <p className="vh" role="status">
+              Loading the articles
+            </p>
+          </div>
+        ) : error ? (
+          <p className="aerr" role="alert">
+            The articles could not load. Please check your connection and refresh the page.
+          </p>
+        ) : (
+          <ol className="arows" aria-label="Articles, newest first">
+            {sorted.map((insight) => (
+              <li key={insight.id}>
+                <Link to={`/insights/${insight.slug}`}>
+                  <span className="am">
+                    <time dateTime={toISODate(insight.date)}>{formatLongDate(insight.date)}</time>
+                    <span>{insight.category}</span>
+                  </span>
+                  <span className="ab">
+                    <span className="t">{insight.title}</span>
+                    <span className="go">
+                      <ArrowRight size={18} />
+                    </span>
+                    <span className="d">{insight.summary}</span>
+                    <span className="i">{insight.readTime}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
     </div>
   );
