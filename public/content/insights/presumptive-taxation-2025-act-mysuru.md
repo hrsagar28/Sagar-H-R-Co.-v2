@@ -1,62 +1,71 @@
-For a large share of Mysuru's economy — retailers and traders around Devaraja Market and Sayyaji Rao Road, doctors and consultants, architects and chartered accountants, and the city's goods-transport operators — presumptive taxation is the simplest, most predictable way to meet income-tax obligations without the burden of detailed books and audit. The Income-tax Act, 2025 keeps the scheme intact but re-packages it. Here is what changes and what to watch for.
+Small businesses, professionals and goods transporters can declare income at a fixed percentage of their receipts, without keeping full books or getting an audit. Under the 1961 Act this was done through sections 44AD, 44ADA and 44AE. From tax year 2026-27, all three are in one section of the Income-tax Act, 2025: section 58. This note sets out who can use it, the limits and rates, and one change in wording that matters.
 
 :::summary
 
-### Key Takeaways
+### In short
 
-- Sections 44AD, 44ADA and 44AE are consolidated into a single provision — Section 58 — with thresholds and rates carried forward.
-- Higher ceilings (₹3 crore business / ₹75 lakh professional) apply only if cash receipts stay within 5% — so keep collections digital.
-- Declaring below the presumptive rate triggers books, audit and, for the business category, a five-year re-entry bar.
-- Presumptive taxpayers must pay 100% of their advance tax by 15 March.
+- Section 58 brings the three schemes into one table: business, goods carriages and professions. The limits and rates are unchanged.
+- The return for FY 2025-26 is still filed under sections 44AD, 44ADA and 44AE. Section 58 applies from tax year 2026-27.
+- The higher limits of ₹3 crore for business and ₹75 lakh for professions apply only if cash receipts are no more than 5% of the total.
+- Section 58(4) bars "any loss, allowance or deduction" against the presumptive income. This is wider than the old wording, and its effect on deductions such as those under the old section 80C is not yet settled.
   :::
 
-## One section instead of three
+## Which law applies
 
-Under the 1961 Act, you had to remember three separate provisions: **Section 44AD** for small businesses, **Section 44ADA** for professionals, and **Section 44AE** for goods-carriage operators. The 2025 Act consolidates all three into a single, table-based provision — **Section 58.** The framework is streamlined, but the thresholds, rates, and traps are essentially carried forward.
+Section 58 applies from tax year 2026-27, that is, to income earned from 1 April 2026. The return for FY 2025-26 (assessment year 2026-27) is still filed under sections 44AD, 44ADA and 44AE of the 1961 Act.
 
-## Businesses (the old Section 44AD)
+## Business (the old section 44AD)
 
-**Who:** resident individuals, HUFs, and partnership firms — but **not LLPs**, and not those already covered by the goods-carriage or agency provisions.
+**Who can use it.** A resident individual, HUF or partnership firm. A limited liability partnership cannot. The scheme is also not available for income from the professions covered below, for commission or brokerage income, for an agency business, or to anyone claiming certain profit-linked deductions.
 
-- **Turnover limit:** ₹2 crore, extended to **₹3 crore** where cash receipts do not exceed **5%** of total turnover.
-- **Presumed income:** **6%** on receipts through banking/digital modes, **8%** on cash receipts. You can — and should — declare higher if your actual profit is higher.
-- **The 5-year lock-in:** if you opt in and then declare below the presumptive rate before completing five consecutive years, you are **barred from re-entering the scheme for the next five years** and must maintain books and get audited. (This bar does not apply if you simply exceed the turnover limit.)
+**Turnover limit.** ₹2 crore. The limit is ₹3 crore if cash receipts are no more than 5% of total turnover. A payment by a cheque or draft that is not account payee counts as cash.
 
-## Professionals (the old Section 44ADA)
+**Income to be declared.** At least 6% of turnover received through banking channels or online modes, and 8% of the rest. Receipts by banking or online modes count for the 6% rate if they come in during the year or by the due date of the return. For a business that does not need an audit, that date is now 31 August. If actual profit is higher, the higher figure is declared.
 
-**Who:** resident individuals and partnership firms (not LLPs) in specified professions — including legal, medical, engineering, architectural, accountancy, technical consultancy, and interior decoration.
+**The five-year rule.** A business that opts for the scheme and, in any of the next five years, declares income below these rates cannot use the scheme for the following five years. In that case, and in any year income below the scheme rate is declared, books must be kept and audited if total income is above the amount not chargeable to tax.
 
-- **Gross-receipts limit:** ₹50 lakh, extended to **₹75 lakh** where cash receipts do not exceed **5%** of gross receipts.
-- **Presumed income:** **50%** of gross receipts (declare more if actual profit is higher).
-- **No five-year lock-in** applies to professionals — unlike the business category.
+The limit is tested on the turnover of the whole year. If turnover goes above it, that year falls outside the scheme.
 
-## Goods-carriage operators (the old Section 44AE)
+## Professions (the old section 44ADA)
 
-**Who:** anyone owning up to **10 goods vehicles** at any time during the year.
+**Who can use it.** A resident individual or partnership firm, but not an LLP or an HUF, carrying on one of these professions:
 
-- **Presumed income:** for heavy goods vehicles, **₹1,000 per tonne** of gross vehicle weight per month (or part month); for other vehicles, **₹7,500 per month** (or part month) per vehicle.
+- legal, medical, engineering, architecture or accountancy
+- technical consultancy or interior decoration
+- film artist, authorised representative or company secretary
+- information technology, or any other profession the CBDT notifies
 
-## Points that matter for Mysuru taxpayers
+**Receipts limit.** ₹50 lakh, or ₹75 lakh if cash receipts are no more than 5% of gross receipts.
 
-- **Go digital to unlock the higher limits.** The enhanced ₹3 crore / ₹75 lakh ceilings hinge on keeping cash receipts within 5%. For a local trader or professional, routing collections through UPI, cards, and bank transfers is the difference between qualifying and not.
-- **A non-account-payee cheque counts as cash.** Do not assume that any cheque keeps you within the digital-receipt test — bearer/non-account-payee cheques are treated as cash for the 5% calculation.
-- **Deductions under Chapter VI-A continue.** Opting for presumptive income does not cost you your 80C, 80D and similar deductions under the old regime — those remain available.
-- **Advance tax is due in one shot.** Presumptive taxpayers pay 100% of advance tax by **15 March**. Missing it attracts interest, so budget for it.
-- **Genuine turnover, sensibly reported, is your best protection.** Where presumptive income is properly declared on real turnover, the scheme applies at the turnover level — every individual cash deposit is not automatically treated as unexplained income. The focus should be on honest, consistent turnover reporting, not on gaming the section.
+**Income to be declared.** At least 50% of gross receipts, or more if actual profit is higher.
 
-## The traps to avoid
+The five-year rule does not apply to professionals.
 
-- **Declaring below the presumptive rate** pulls you straight into mandatory books and audit — and, for the business category, the five-year re-entry bar. If your real margins are genuinely thin, model both routes before opting in.
-- **Crossing the turnover ceiling mid-year** ends eligibility for that year; plan for the transition to regular books and a possible tax audit if you are growing fast.
+## Goods carriages (the old section 44AE)
 
-## One more development
+**Who can use it.** Anyone who owns no more than 10 goods carriages at any time during the year.
 
-The Finance Act, 2025 also introduced a **presumptive scheme for non-residents** engaged in setting up or operating electronics-manufacturing facilities in India (profits taken at 25% of specified receipts). It is niche, but relevant if you advise clients in that supply chain.
+**Income to be declared:**
 
-## The bottom line
+- For each heavy goods vehicle (gross vehicle weight above 12,000 kg): ₹1,000 per tonne of gross vehicle weight or unladen weight, for each month or part of a month it is owned.
+- For each other goods vehicle: ₹7,500 for each month or part of a month.
 
-For most small businesses and professionals in Mysuru, presumptive taxation under Section 58 will feel familiar — same limits, same rates, cleaner drafting. The winning move is unchanged: **keep receipts digital, report turnover honestly, pay advance tax on time, and think twice before opting out.**
+## A change in wording: section 58(4)
+
+Under section 44AD(2) of the old Act, the business deductions in sections 30 to 38 were treated as already allowed against the presumptive income. Section 58(4) of the new Act is wider. It says that "any loss, allowance or deduction allowable under the provisions of this Act" is not allowed against the income computed under the section.
+
+Read literally, this could stop deductions such as those under section 123 (the old 80C) and section 126 (the old 80D), and the set-off of losses, against presumptive income. Commentators are divided, and the CBDT has not clarified the point. Until it does, anyone who relies on such deductions should work out their tax both ways before choosing the scheme for tax year 2026-27.
+
+## Advance tax
+
+Businesses and professionals under the scheme pay their whole advance tax in one instalment by 15 March. Goods transporters do not get this concession and pay in the usual instalments of 15 June, 15 September, 15 December and 15 March.
+
+## Before choosing the scheme
+
+- Keep receipts in banking and online modes, so that the higher limits remain available.
+- If actual margins are below the scheme rates, a business should work out the effect of the five-year rule before opting in.
+- If turnover is close to the limit, plan for the year it may be crossed.
 
 ---
 
-_This article is for general information and is not tax advice. Eligibility depends on your specific facts. For a suitability assessment and filing support, contact Sagar H R & Co., Chartered Accountants, Mysuru._
+_General information on the law as at 5 October 2026, not advice on any particular case._

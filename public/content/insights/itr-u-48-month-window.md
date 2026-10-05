@@ -1,72 +1,77 @@
-The updated return (**ITR-U**) has become one of the most useful — and most misunderstood — compliance tools in Indian tax. It lets a taxpayer voluntarily come clean on income missed or misreported in an earlier return, without waiting to be caught. The **Finance Act, 2025** doubled the window from 24 to 48 months, giving far more room to self-correct, but adding two steep new cost tiers. Used early, ITR-U is a clean route to a settled record; used late or carelessly, it can cost more than the original error.
+An updated return lets a taxpayer report income that was left out of an earlier return, or file a return that was never filed, after the normal deadlines have passed. It can be filed up to four years after the end of the assessment year, but the extra tax rises each year. The Finance Act, 2026 also allows it in two situations where it was not allowed before. This note explains when it can be used and what it costs.
 
 :::summary
 
-### Key Takeaways
+### In short
 
-- The Finance Act, 2025 doubled the ITR-U window to 48 months from the end of the assessment (tax) year.
-- ITR-U can only increase tax — it cannot create a refund, reduce tax or (generally) enlarge a loss, and you get one per year.
-- Additional tax steps up with delay: 25% / 50% / 60% / 70% — file early, as crossing a tier can double the cost.
-- The additional tax is computed on net tax (after TDS/advance tax) plus interest, not on gross tax.
+- An updated return can be filed within 48 months from the end of the assessment year. Under the 2025 Act, the period runs from the end of the financial year after the tax year, which works out the same.
+- On top of the tax and interest, an additional tax of 25%, 50%, 60% or 70% of that tax and interest is payable, depending on how late the return is.
+- An updated return cannot reduce tax, create or increase a refund, or create or increase a loss.
+- Since 1 March 2026, it can also be filed in response to a reassessment notice, with a further 10% added to the additional tax.
   :::
 
-## What ITR-U is (and isn't)
+## Which law applies
 
-ITR-U, filed under **Section 139(8A)** of the 1961 Act (with the additional tax computed under **Section 140B**), lets you correct omissions or file a return you missed entirely. It was introduced by the Finance Act, 2022. But it runs in **one direction only:**
+For assessment year 2026-27 and earlier years, updated returns are filed under section 139(8A) of the 1961 Act, and the additional tax is worked out under section 140B. From tax year 2026-27, the same scheme is in section 263(6) of the Income-tax Act, 2025, with the additional tax under section 267.
 
-- It can **only increase** your tax liability.
-- It **cannot** be used to claim or increase a refund, reduce your tax, or (as a general rule) create or enlarge a loss.
-- You get **one ITR-U per year** — so every omission must be captured in a single filing.
-- A **nil return cannot** be filed through ITR-U; there must be additional tax to pay.
+## The time limit and the cost
 
-## The window — now 48 months
+An updated return is meant for use after the time for a belated or revised return has passed. It can be filed until 48 months from the end of the relevant assessment year. The additional tax depends on when it is filed:
 
-The Finance Act, 2025 extended the filing window from **24 months to 48 months** from the end of the relevant assessment year, effective 1 April 2025. In practical terms, for **AY 2025-26 the ITR-U window runs from 1 April 2026 to 31 March 2030.** (Under the Income-tax Act, 2025, the same logic continues, measured from the end of the Tax Year.)
+| Filed within, from the end of the assessment year | Additional tax |
+| ------------------------------------------------- | -------------- |
+| 12 months                                         | 25%            |
+| 24 months                                         | 50%            |
+| 36 months                                         | 60%            |
+| 48 months                                         | 70%            |
 
-## The cost — and why timing is everything
+The percentage is applied to the tax and interest payable on the updated return. That figure is worked out after credit for TDS, TCS, advance tax and any relief already allowed. If a refund was issued on an earlier return, it is added back.
 
-The additional tax under Section 140B is charged on the **aggregate of the additional tax and the interest** payable, and it steps up the longer you wait:
+**Example.** Say the tax and interest on the income left out come to ₹1,00,000. The additional tax is then ₹25,000 if the updated return is filed within the first 12 months, ₹50,000 within 24 months, ₹60,000 within 36 months and ₹70,000 within 48 months. This is on top of the ₹1,00,000 itself.
 
-| When you file (from end of the assessment year) | Additional tax     |
-| ----------------------------------------------- | ------------------ |
-| Within 12 months                                | 25%                |
-| Within 24 months                                | 50%                |
-| Within 36 months                                | **60%** (new tier) |
-| Within 48 months                                | **70%** (new tier) |
+For FY 2024-25 (assessment year 2025-26), the periods end on these dates:
 
-The 60% and 70% slabs are the FA 2025 additions covering the newly extended third and fourth years. The message is blunt: **the extra time is a safety net, not a licence to delay.** Crossing a tier boundary can sharply increase the cost — for example, moving from the 25% band into the 50% band effectively doubles the additional-tax component. Where an original return was never filed, a **Section 234F late fee** also applies (₹5,000, or ₹1,000 for income up to ₹5 lakh).
+- 25% for an updated return filed by 31 March 2027
+- 50% by 31 March 2028
+- 60% by 31 March 2029
+- 70% by 31 March 2030
 
-## Two important recent liberalisations
+If no return was filed earlier, a late fee under section 234F is also payable: ₹5,000, or ₹1,000 if total income is not more than ₹5 lakh.
 
-The Finance Act, 2026 (Budget 2026) expanded the scheme's usefulness:
+All of these (tax, interest, fee and additional tax) must be paid before the updated return is filed, and proof of payment is given with it.
 
-- **Filing after a reassessment notice.** Previously, a notice under Section 148 blocked ITR-U entirely. Now (effective 1 March 2026) an updated return can be filed even after such a notice, on payment of an **additional 10% levy** on top of the applicable slab — and the income disclosed receives protection from penalty under Section 270A. Once filed, the Assessing Officer works from the updated return.
-- **Loss reduction permitted.** From 1 March 2026, ITR-U can be used to _reduce_ an over-reported carried-forward loss, even where the final liability stays nil — a narrow but welcome exception to the "only-increases-tax" rule.
+## When it cannot be used
 
-Note the counterbalancing restriction: in the extended window, ITR-U generally **cannot** be filed where a Section 148A show-cause notice has been issued **after 36 months** from the end of the assessment year (subject to how the subsequent order turns out).
+An updated return cannot be filed:
 
-## Getting the computation right
+- to reduce the tax on an earlier return, or to claim or increase a refund
+- to file a return of loss, except to reduce a loss shown in a return filed on time (see below)
+- more than once for the same year
+- where a search has been started or a survey carried out
+- where an assessment, reassessment or revision for that year is pending or completed, except under the reassessment notice route below
+- where information under the PMLA, the black money or benami laws, SAFEMA or a tax treaty has been communicated to the taxpayer for that year
+- where prosecution has been started for that year
+- where a show-cause notice under section 148A was issued after 36 months from the end of the assessment year, unless the order on it holds that it is not a fit case for reassessment
 
-A frequent, costly mistake is applying the 25%–70% additional tax to the **gross** tax. It is applied to the **net** figure:
+If an updated return reduces a carried-forward loss, unabsorbed depreciation or tax credit, updated returns are also needed for the later years that are affected.
 
-1. Compute tax on the missed income at the applicable rate.
-2. **Subtract TDS/advance tax already paid** on that income to get the net tax.
-3. Add interest under Sections 234A/234B/234C to the net tax.
-4. Apply the 25%–70% additional tax to that **combined net tax plus interest**.
+## Changes from 1 March 2026
 
-A corollary worth knowing: if TDS already fully covers the tax on the missed income, your net additional payable can be nil — and because ITR-U needs a positive additional outflow, the portal will not accept it for that year.
+The Finance Act, 2026 made two changes. They apply under the 1961 Act from 1 March 2026 and under the 2025 Act from 1 April 2026.
 
-## A practical strategy
+- **After a reassessment notice.** A taxpayer who receives a notice under section 148 (section 280 of the new Act) can file an updated return within the time given in the notice. The additional tax goes up by 10 percentage points, to 35%, 60%, 70% or 80%. The Assessing Officer then proceeds on the basis of the updated return, and the income offered in it is protected from penalty for under-reporting.
+- **Reducing a loss.** Where a return of loss was filed in time, an updated return can now be used to reduce that loss, even though no tax becomes payable.
 
-- **File early.** The cheapest ITR-U is the one filed in year one. Run a cost projection before choosing to wait — the additional tax plus accumulating interest can erode the benefit.
-- **Watch the cliff dates.** Because the additional tax is tied to the end of the assessment (tax) year, a filing that slips past a year-end can jump a tier. Diarise these boundaries per client.
-- **Reconcile against AIS and Form 26AS/168 first.** ITR-U is one shot per year — make sure it is complete.
-- **Keep your workings.** Maintain the computation, challan details (CRN/BSR), and supporting proof; updated returns leave a clear audit trail.
+## A cheaper route for the current year
 
-## The bottom line
+For errors found sooner, a revised return is cheaper. The Finance Act, 2026 extended the time for a revised return to twelve months from the end of the year, that is, to 31 March of the assessment year. A fee applies if it is filed more than nine months after the end of the year. For FY 2025-26, a revised return can be filed until 31 March 2027 without any additional tax.
 
-The 48-month window is genuinely generous — few tax systems offer four years to self-correct. But the 60% and 70% tiers make procrastination expensive, and the "increase-only" rule means ITR-U is a tool for _disclosure_, not for reclaiming money. Treat a discovered omission the way you would any material liability: quantify it, decide quickly, and file while the cost is lowest.
+## In practice
+
+- Correct an error as early as possible. Each year of delay adds 10 to 25 percentage points to the cost.
+- Check the annual information statement and Form 26AS before filing, since only one updated return is allowed for each year.
+- Keep the workings, challans and supporting papers with the return.
 
 ---
 
-_This article is for general information and reflects the position at the time of writing; ITR-U rules and the treatment of reassessment notices continue to evolve, so verify the current position before filing. It is not tax advice. For updated-return computations and filing, contact Sagar H R & Co., Chartered Accountants, Mysuru._
+_General information on the law as at 5 October 2026, not advice on any particular case._

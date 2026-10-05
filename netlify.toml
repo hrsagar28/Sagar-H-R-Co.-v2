@@ -18,7 +18,7 @@
 
 [[redirects]]
   from = "/insights/gst-reforms-2.0"
-  to = "/insights/gst-2-0-one-year-on-msmes"
+  to = "/insights"
   status = 301
 
 [[redirects]]
@@ -38,6 +38,33 @@
 
 [[redirects]]
   from = "/insights/sp-rating-upgrade"
+  to = "/insights"
+  status = 301
+
+# Articles retired in October 2026: out of date or not worth keeping. The
+# single-tax-year note was merged into the article on the new Act.
+[[redirects]]
+  from = "/insights/single-tax-year-explained"
+  to = "/insights/income-tax-act-2025-in-force"
+  status = 301
+
+[[redirects]]
+  from = "/insights/section-mapping-1961-to-2025"
+  to = "/insights/income-tax-act-2025-in-force"
+  status = 301
+
+[[redirects]]
+  from = "/insights/filing-fy-2025-26-last-return"
+  to = "/insights"
+  status = 301
+
+[[redirects]]
+  from = "/insights/gst-2-0-one-year-on-msmes"
+  to = "/insights"
+  status = 301
+
+[[redirects]]
+  from = "/insights/gstat-operational-appeals"
   to = "/insights"
   status = 301
 
