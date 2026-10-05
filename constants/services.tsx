@@ -86,7 +86,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       ],
       [
         'Choice of tax regime',
-        'A computation of your tax under both the old and the new regime, so that the choice is made on the figures.',
+        'A computation of your tax under both the old and the new regime, so you can see which costs less.',
       ],
       [
         'Capital gains',
@@ -122,7 +122,7 @@ export const SERVICE_PAGES: ServicePage[] = [
     tags: ['Quarterly returns', 'Correction statements', 'Lower deduction certificates', 'TRACES defaults'],
     frequency: 'Monthly and quarterly',
     intro:
-      'Determining the tax to be deducted or collected, filing the quarterly returns and certificates, and resolving defaults before they become demands.',
+      'Determining the tax to be deducted or collected, filing the quarterly returns and certificates, and clearing defaults shown on TRACES.',
     incdesc:
       'Under the Income-tax Act, 2025. TDS on salaries is also handled under {bookkeeping-and-payroll|Bookkeeping and payroll}.',
     inc: [
@@ -485,7 +485,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       ],
       [
         'Advice on major decisions',
-        'The tax and cash flow effect of a major purchase, an expansion or a change in the owners’ remuneration, assessed before you commit.',
+        'The tax and cash flow effect of a major purchase, an expansion or a change in the owners’ remuneration, worked out before you decide.',
       ],
       [
         'Related services',
@@ -592,7 +592,7 @@ export const SERVICE_PAGES: ServicePage[] = [
       ['Bookkeeping', 'Monthly accounting entries from your bank statements, sales invoices and purchase bills.'],
       [
         'Reconciliations',
-        'Monthly reconciliation of bank, GST, TDS and party balances, so that differences are identified and resolved promptly.',
+        'Monthly reconciliation of bank, GST, TDS and party balances, so that differences are found and cleared each month.',
       ],
       [
         'Monthly reports',

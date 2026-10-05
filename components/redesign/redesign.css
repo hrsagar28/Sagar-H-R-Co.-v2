@@ -946,10 +946,6 @@
   -webkit-appearance: none;
   appearance: none;
 }
-.rd .fld input::placeholder,
-.rd .fld textarea::placeholder {
-  color: #94968f;
-}
 .rd .fld input:focus,
 .rd .fld textarea:focus {
   border-bottom-color: var(--ink);

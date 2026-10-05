@@ -102,6 +102,12 @@ describe('Contact', () => {
     expect(await screen.findByText('This email address looks incomplete. Please check it.')).toBeInTheDocument();
   });
 
+  it('leaves every box empty, with no placeholder text', () => {
+    const { container } = renderContact();
+
+    expect(container.querySelectorAll('.fld [placeholder]')).toHaveLength(0);
+  });
+
   it('keeps the honeypot out of view, where browsers will not autofill it', () => {
     const { container } = renderContact();
     const honeypot = container.querySelector('input[name="_honey"]') as HTMLInputElement;

@@ -14,7 +14,8 @@ interface FormFieldProps {
 
 /**
  * A labelled field in the redesigned forms (Contact, Careers): the label over a
- * single underline, with the error below it. Styled by `.fld` in redesign.css.
+ * single underline, with the error below it. No hint or placeholder text; the
+ * labels say what to enter. Styled by `.fld` in redesign.css.
  */
 const FormField: React.FC<FormFieldProps> = ({ id, label, required, optional, error, aside, children }) => (
   <div className="fld" data-err={error ? '' : undefined}>

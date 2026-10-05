@@ -349,7 +349,6 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
                 autoComplete="tel"
                 maxLength={16}
                 required
-                placeholder="10-digit mobile number"
                 value={values.mobile}
                 onChange={onFieldChange('mobile')}
                 onBlur={onFieldBlur('mobile')}
@@ -379,7 +378,6 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
               name="qualification"
               maxLength={200}
               required
-              placeholder="For example: B.Com, M.Com"
               value={values.qualification}
               onChange={onFieldChange('qualification')}
               onBlur={onFieldBlur('qualification')}
@@ -427,7 +425,6 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
               name="previousCompanies"
               rows={3}
               maxLength={PREVIOUS_MAX}
-              placeholder="Firms or companies, with the years"
               value={values.previousCompanies}
               onChange={onFieldChange('previousCompanies')}
               onBlur={onFieldBlur('previousCompanies')}
