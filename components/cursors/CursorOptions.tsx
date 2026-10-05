@@ -10,7 +10,7 @@ import { cursorModeFor, type CursorMode } from './cursorMode';
  *
  * Plain dot (tone="plain"): the same, in the current cursor's colour (white,
  * inverted against whatever is underneath), with no trailing ring. Over links
- * the dot itself grows into a solid inverting disc.
+ * the dot itself opens into a see-through circle, as the copper dot does.
  */
 export const DotCursor: React.FC<{ tone?: 'copper' | 'plain' }> = ({ tone = 'copper' }) => {
   const ref = useRef<HTMLDivElement>(null);
