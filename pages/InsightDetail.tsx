@@ -4,6 +4,7 @@ import SEO from '../components/SEO';
 import LegalPage from '../components/redesign/LegalPage';
 import ArticleMarkdown from '../components/redesign/ArticleMarkdown';
 import RdPageSkeleton from '../components/redesign/RdPageSkeleton';
+import ShareLink from '../components/redesign/ShareLink';
 import { ArrowLeft, ArrowRight } from '../components/redesign/icons';
 import { CONTACT_INFO } from '../constants';
 import { SITE_URL } from '../config/site';
@@ -13,8 +14,9 @@ import { formatLongDate, toISODate } from '../utils/insightDates';
 import NotFound from './NotFound';
 
 // 2026 redesign of an Insights article: the document layout of the legal
-// pages (light header, contents beside the text), unnumbered, with a few more
-// articles underneath. Rendered inside RedesignLayout.
+// pages under the light header, but as one wider column with no contents
+// list, then a share link, the small print and a few more articles.
+// Rendered inside RedesignLayout.
 
 const RELATED_COUNT = 3;
 
@@ -125,7 +127,7 @@ const InsightDetail: React.FC = () => {
       <LegalPage
         title={insight.title}
         numbered={false}
-        contentsLabel="Sections of this article"
+        contents={false}
         crumb={
           <Link className="crumb rise" to="/insights">
             <ArrowLeft />
@@ -134,23 +136,30 @@ const InsightDetail: React.FC = () => {
         }
         meta={
           <>
-            By {insight.author} ·{' '}
-            {updated ? (
-              <>
-                Updated <time dateTime={toISODate(updated)}>{formatLongDate(updated)}</time>
-              </>
-            ) : (
-              <time dateTime={toISODate(insight.date)}>{formatLongDate(insight.date)}</time>
-            )}{' '}
-            · {insight.readTime}
+            <span className="nw">By {insight.author}</span> ·{' '}
+            <span className="nw">
+              {updated ? (
+                <>
+                  Updated <time dateTime={toISODate(updated)}>{formatLongDate(updated)}</time>
+                </>
+              ) : (
+                <time dateTime={toISODate(insight.date)}>{formatLongDate(insight.date)}</time>
+              )}
+            </span>{' '}
+            · <span className="nw">{insight.readTime}</span>
           </>
         }
         lead={lead}
         note={
-          parts?.note && !error ? (
-            <div className="lnote">
-              <ArticleMarkdown>{parts.note}</ArticleMarkdown>
-            </div>
+          parts && !error && !bodyLoading ? (
+            <>
+              <ShareLink title={insight.title} url={`${SITE_URL}/insights/${insight.slug}`} />
+              {parts.note && (
+                <div className="lnote">
+                  <ArticleMarkdown>{parts.note}</ArticleMarkdown>
+                </div>
+              )}
+            </>
           ) : null
         }
         sections={sections}

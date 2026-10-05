@@ -19,6 +19,11 @@ interface LegalPageProps {
   crumb?: React.ReactNode;
   /** Number the sections (legal documents) or not (articles). */
   numbered?: boolean;
+  /**
+   * Show the contents list beside the text (the phone picker on small
+   * screens). Off for articles, which then read as one wider column.
+   */
+  contents?: boolean;
   /** How screen readers name the contents list. */
   contentsLabel?: string;
   /** Text before the first section, in the document column. */
@@ -83,6 +88,7 @@ const LegalPage: React.FC<LegalPageProps> = ({
   meta,
   crumb,
   numbered = true,
+  contents = true,
   contentsLabel = `Sections of the ${title.toLowerCase()}`,
   lead,
   note,
@@ -107,6 +113,8 @@ const LegalPage: React.FC<LegalPageProps> = ({
   // every section on the way there.
   const jumpRef = useRef<string | null>(null);
   const jumpTimerRef = useRef(0);
+
+  const showContents = contents && sections.length > 0;
 
   const activeIndex = Math.max(
     0,
@@ -262,8 +270,8 @@ const LegalPage: React.FC<LegalPageProps> = ({
         </div>
       </div>
 
-      <div className={`ldoc pad ${numbered ? '' : 'plain'}`}>
-        {sections.length > 0 && (
+      <div className={`ldoc pad ${numbered ? '' : 'plain'} ${showContents ? '' : 'solo'}`}>
+        {showContents && (
           <nav className="toc" aria-label={contentsLabel}>
             <p className="lbl tlab">
               <span className="t-on">On this page</span>
@@ -279,7 +287,7 @@ const LegalPage: React.FC<LegalPageProps> = ({
           </nav>
         )}
 
-        {sections.length > 0 && (
+        {showContents && (
           <div className="picker" ref={pickerRef} data-open={pickerOpen ? '' : undefined}>
             <button
               ref={pickerButtonRef}

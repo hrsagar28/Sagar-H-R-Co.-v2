@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
@@ -96,21 +96,31 @@ describe('InsightDetail', () => {
     } as unknown as typeof IntersectionObserver;
   });
 
-  it('shows the article with its byline, contents, sections and small print', () => {
+  it('shows the article as one column: byline, sections, share link and small print', () => {
     renderArticle('presumptive-taxation');
 
     expect(screen.getByRole('heading', { level: 1, name: insights[0]!.title })).toBeInTheDocument();
-    expect(screen.getByText(/By CA Sagar H R/)).toHaveTextContent('17 June 2026');
-    const contents = screen.getByRole('navigation', { name: 'Sections of this article' });
-    expect(
-      within(contents)
-        .getAllByRole('link')
-        .map((link) => link.getAttribute('href')),
-    ).toEqual(['#one-section-instead-of-three', '#professionals']);
+    expect(screen.getByText(/By CA Sagar H R/).closest('p')).toHaveTextContent('17 June 2026');
+    expect(screen.queryByRole('navigation', { name: /sections/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'One section instead of three' })).toBeInTheDocument();
+    expect(document.getElementById('professionals')).toBeInTheDocument();
     expect(screen.getByText('Opening paragraph.')).toBeInTheDocument();
     expect(screen.getByRole('table')).toHaveTextContent('₹75 lakh');
+    expect(screen.getByRole('button', { name: /share this article/i })).toBeInTheDocument();
     expect(screen.getByText('General information only.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /all insights/i })).toHaveAttribute('href', '/insights');
+  });
+
+  it('copies the link when shared from a computer', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    window.matchMedia = vi.fn().mockReturnValue({ matches: false }) as unknown as typeof window.matchMedia;
+    renderArticle('presumptive-taxation');
+
+    fireEvent.click(screen.getByRole('button', { name: /share this article/i }));
+
+    expect(await screen.findByText('Link copied')).toBeInTheDocument();
+    expect(writeText).toHaveBeenCalledWith('https://casagar.co.in/insights/presumptive-taxation');
   });
 
   it('shows the revision date once an article has been updated', () => {
@@ -118,7 +128,7 @@ describe('InsightDetail', () => {
     renderArticle('presumptive-taxation');
     delete insights[0]!.dateModified;
 
-    expect(screen.getByText(/By CA Sagar H R/)).toHaveTextContent('Updated 5 October 2026');
+    expect(screen.getByText(/By CA Sagar H R/).closest('p')).toHaveTextContent('Updated 5 October 2026');
   });
 
   it('suggests other articles underneath', () => {

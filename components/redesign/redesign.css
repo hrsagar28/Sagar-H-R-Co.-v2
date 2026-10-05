@@ -58,7 +58,10 @@
   --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
   --sans: 'Host Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --gut: clamp(16px, 4.45vw, 64px);
+  /* The side gutter. On screens wider than 1440px it grows so the content
+     stays in a centred 1440px frame; bands and backgrounds still run edge
+     to edge. Resolved where it is used, so 100% is the full-width row. */
+  --gut: max(clamp(16px, 4.45vw, 64px), calc((100% - 1312px) / 2));
   --seam: 76px;
   --bar: 64px;
   --tb: 72px;
@@ -2054,11 +2057,22 @@
 
 @media print {
   .rd .toc,
-  .rd .picker {
+  .rd .picker,
+  .rd .crumb,
+  .rd .ashare,
+  .rd .amore {
     display: none;
   }
   .rd .ldoc {
     display: block;
+    padding-bottom: 0;
+  }
+  .rd .doc,
+  .rd .ldoc.solo .doc {
+    max-width: none;
+  }
+  :is(.rd.head-light, .rd .head-light) .phead {
+    background: none;
   }
 }
 
@@ -2713,6 +2727,70 @@
 .rd .ldoc.plain .lsec h2 {
   grid-template-columns: minmax(0, 1fr);
 }
+/* An article has no contents list: one column under the title, with larger
+   text so a wider line still holds about 80 characters. */
+.rd .ldoc.solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+.rd .ldoc.solo .doc {
+  max-width: 800px;
+}
+.rd .ldoc.solo .lsec p,
+.rd .ldoc.solo .lsec li {
+  font-size: 19px;
+  line-height: 1.7;
+}
+.rd .ldoc.solo .alead > p {
+  font-size: 21px;
+  line-height: 1.6;
+}
+.rd .ldoc.solo .asum li {
+  font-size: 17px;
+}
+.rd .ldoc.solo .tscroll th,
+.rd .ldoc.solo .tscroll td {
+  font-size: 16px;
+}
+.rd .ldoc.solo .lsec h3 {
+  font-size: 19px;
+}
+/* the byline keeps "4 min read" and the date on one line each */
+.rd .upd .nw {
+  white-space: nowrap;
+}
+/* "Share this article" at the end of an article */
+.rd .ashare {
+  margin: clamp(40px, 4vw, 56px) 0 0;
+}
+.rd .ashare button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 16px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--copper);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  cursor: pointer;
+}
+.rd .ashare svg {
+  transition: transform 0.35s var(--ease);
+}
+.rd .ashare button:hover svg {
+  transform: translateX(3px);
+}
+.rd .ashare .done {
+  margin-left: 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.rd .ashare + .lnote {
+  margin-top: 28px;
+}
 /* a long title shown as the page name beside the contents, or in the picker */
 .rd .tlab .t-name {
   display: -webkit-box;
@@ -2889,8 +2967,16 @@
     transform: none;
     color: var(--muted);
   }
-  .rd .alead > p {
+  .rd .alead > p,
+  .rd .ldoc.solo .alead > p {
+    font-size: 18px;
+  }
+  .rd .ldoc.solo .lsec p,
+  .rd .ldoc.solo .lsec li {
     font-size: 17px;
+  }
+  .rd .ldoc.solo .asum li {
+    font-size: 15px;
   }
   .rd .asum {
     padding: 20px 18px 22px;
