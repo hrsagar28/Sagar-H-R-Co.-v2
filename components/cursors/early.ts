@@ -21,7 +21,7 @@ export const startCursorEarly = () => {
   document.addEventListener('mouseover', record, { passive: true, capture: true });
   document.addEventListener('mousemove', record, { passive: true, capture: true });
   window.setTimeout(() => {
-    if (!document.body.classList.contains('cur-plain-on')) {
+    if (!document.body.classList.contains('cur-on')) {
       document.documentElement.classList.add('cur-native');
     }
   }, 5000);

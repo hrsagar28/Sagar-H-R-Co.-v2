@@ -713,8 +713,8 @@ const Contact: React.FC = () => {
               {ADDRESS_LINE_2}
             </address>
             {/* Muted to sit with the palette until hovered or focused.
-                data-hide-cursor is read by CustomCursor.tsx so the custom
-                cursor steps aside over the embedded map. */}
+                data-hide-cursor makes the custom cursor (CustomCursor.tsx,
+                index.css) step aside for the browser's over the embedded map. */}
             <div className="map" data-hide-cursor="true">
               <iframe
                 title={`Map showing the office of ${CONTACT_INFO.name}`}

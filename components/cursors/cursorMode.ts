@@ -1,6 +1,6 @@
-// Shared by the cursor options: what the pointer is over decides how the
-// cursor looks. Text keeps the system I-beam so selecting and copying work;
-// links and buttons get the "can click" look; maps opt out entirely.
+// What the pointer is over decides how the cursor looks (CustomCursor.tsx):
+// links and buttons get the see-through circle, text gets the text cursor,
+// maps (data-hide-cursor) keep the browser's own, anything else the dot.
 export type CursorMode = 'default' | 'link' | 'text' | 'hide';
 
 export const cursorModeFor = (target: EventTarget | null): CursorMode => {

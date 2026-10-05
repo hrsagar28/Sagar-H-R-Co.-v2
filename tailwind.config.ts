@@ -25,7 +25,8 @@ export default {
         popover: '600',
         tooltip: '700',
         toast: '800',
-        cursor: '1300',
+        // Above everything, including the shared pieces in index.css.
+        cursor: '9700',
         preloader: '1000',
         'network-status': '1100',
       },
