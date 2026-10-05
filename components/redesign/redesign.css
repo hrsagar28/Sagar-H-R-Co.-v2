@@ -907,6 +907,26 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0 32px;
 }
+/* Two fields side by side share their rows (label, hint, line, error), so
+   the lines stay level when only one of the pair has a hint. */
+.rd .row2 > .fld {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+}
+.rd .row2 > .fld > label {
+  grid-row: 1;
+}
+.rd .row2 > .fld > .hint {
+  grid-row: 2;
+}
+.rd .row2 > .fld > input {
+  grid-row: 3;
+  align-self: end;
+}
+.rd .row2 > .fld > .err {
+  grid-row: 4;
+}
 .rd .fld {
   position: relative;
   margin: 0 0 26px;
@@ -923,6 +943,12 @@
   color: var(--copper-d);
 }
 .rd .fld .opt {
+  color: var(--muted);
+}
+.rd .fld .hint {
+  margin: 0 0 2px;
+  font-size: 13px;
+  line-height: 1.45;
   color: var(--muted);
 }
 /* A field is a label over a single rule, like the FAQ search box: no box or
@@ -945,10 +971,6 @@
     box-shadow 0.2s;
   -webkit-appearance: none;
   appearance: none;
-}
-.rd .fld input::placeholder,
-.rd .fld textarea::placeholder {
-  color: #94968f;
 }
 .rd .fld input:focus,
 .rd .fld textarea:focus {

@@ -102,6 +102,15 @@ describe('Contact', () => {
     expect(await screen.findByText('This email address looks incomplete. Please check it.')).toBeInTheDocument();
   });
 
+  it('shows hints under the labels, not inside the boxes, and links them to the fields', () => {
+    renderContact();
+
+    const phone = screen.getByRole('textbox', { name: /mobile number/i });
+    expect(phone).not.toHaveAttribute('placeholder');
+    expect(phone).toHaveAccessibleDescription('10 digits');
+    expect(screen.getByRole('textbox', { name: /message/i })).toHaveAccessibleDescription(/^For example:/);
+  });
+
   it('keeps the honeypot out of view, where browsers will not autofill it', () => {
     const { container } = renderContact();
     const honeypot = container.querySelector('input[name="_honey"]') as HTMLInputElement;

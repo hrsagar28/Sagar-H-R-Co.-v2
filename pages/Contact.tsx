@@ -148,7 +148,11 @@ const weekdayInIndia = () => WEEKDAYS.indexOf(IST_WEEKDAY.format(new Date()));
 const [ADDRESS_LINE_1, ADDRESS_LINE_2] = CONTACT_INFO.address.lines;
 const ADDRESS_TO_COPY = `${CONTACT_INFO.name}, ${CONTACT_INFO.address.lines.join(', ')}`;
 
-const errorProps = (field: keyof ContactFormData, error?: string) => fieldErrorProps(fieldId(field), error);
+const PHONE_HINT = '10 digits';
+const MESSAGE_HINT = 'For example: I have received a GST notice and the reply is due on 15 October.';
+
+const errorProps = (field: keyof ContactFormData, error?: string, hint?: string) =>
+  fieldErrorProps(fieldId(field), error, hint);
 
 const Contact: React.FC = () => {
   const { addToast } = useToast();
@@ -556,7 +560,7 @@ const Contact: React.FC = () => {
                     {...errorProps('name', errors.name)}
                   />
                 </FormField>
-                <FormField id={fieldId('phone')} label="Mobile number" required error={errors.phone}>
+                <FormField id={fieldId('phone')} label="Mobile number" required hint={PHONE_HINT} error={errors.phone}>
                   <input
                     id={fieldId('phone')}
                     name="phone"
@@ -565,11 +569,10 @@ const Contact: React.FC = () => {
                     autoComplete="tel"
                     maxLength={16}
                     required
-                    placeholder="10-digit mobile number"
                     value={values.phone}
                     onChange={onFieldChange('phone')}
                     onBlur={onFieldBlur('phone')}
-                    {...errorProps('phone', errors.phone)}
+                    {...errorProps('phone', errors.phone, PHONE_HINT)}
                   />
                 </FormField>
               </div>
@@ -638,6 +641,7 @@ const Contact: React.FC = () => {
                 id={fieldId('message')}
                 label="Message"
                 required
+                hint={MESSAGE_HINT}
                 error={errors.message}
                 aside={
                   <span className={`count tnum ${values.message.length > 1800 ? 'near' : ''}`} aria-hidden="true">
@@ -652,11 +656,10 @@ const Contact: React.FC = () => {
                   rows={4}
                   maxLength={MESSAGE_MAX}
                   required
-                  placeholder="For example: I have received a GST notice and the reply is due on 15 October."
                   value={values.message}
                   onChange={onFieldChange('message')}
                   onBlur={onFieldBlur('message')}
-                  {...errorProps('message', errors.message)}
+                  {...errorProps('message', errors.message, MESSAGE_HINT)}
                 />
               </FormField>
 
@@ -762,21 +765,24 @@ const Contact: React.FC = () => {
               1
             </span>
             <h3>We get back to you</h3>
-            <p>Usually within a working day, by phone or email.</p>
+            <p>We reply by phone or email.</p>
           </li>
           <li>
             <span className="sn" aria-hidden="true">
               2
             </span>
             <h3>We discuss the work</h3>
-            <p>A short call or a meeting at the office to go over the deadlines and the documents involved.</p>
+            <p>We go over the deadlines and documents on a short call or at the office.</p>
           </li>
           <li>
             <span className="sn" aria-hidden="true">
               3
             </span>
             <h3>You receive a written quote</h3>
-            <p>A fixed fee and the scope of work. Once you agree, we send a checklist of the documents we need.</p>
+            <p>
+              It sets out a fixed fee and the scope of work. Once you agree, we send a checklist of the documents we
+              need.
+            </p>
           </li>
         </ol>
         <p className="more">

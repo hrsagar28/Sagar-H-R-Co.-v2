@@ -78,7 +78,12 @@ const FIELD_ORDER: (keyof ApplicationValues | 'role')[] = [
 ];
 
 const fieldId = (field: keyof ApplicationValues | 'role') => `apply-${field}`;
-const errorProps = (field: keyof ApplicationValues, error?: string) => fieldErrorProps(fieldId(field), error);
+const MOBILE_HINT = '10 digits';
+const QUALIFICATION_HINT = 'For example: B.Com, M.Com';
+const PREVIOUS_HINT = 'Firms or companies, with the years';
+
+const errorProps = (field: keyof ApplicationValues, error?: string, hint?: string) =>
+  fieldErrorProps(fieldId(field), error, hint);
 const checkField = (field: keyof ApplicationValues, values: ApplicationValues) =>
   schema[field] ? validateForm(values, { [field]: schema[field] } as FormSchema<ApplicationValues>)[field] : undefined;
 
@@ -340,7 +345,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
                 {...errorProps('dob', errors.dob)}
               />
             </FormField>
-            <FormField id={fieldId('mobile')} label="Mobile number" required error={errors.mobile}>
+            <FormField id={fieldId('mobile')} label="Mobile number" required hint={MOBILE_HINT} error={errors.mobile}>
               <input
                 id={fieldId('mobile')}
                 name="mobile"
@@ -349,11 +354,10 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
                 autoComplete="tel"
                 maxLength={16}
                 required
-                placeholder="10-digit mobile number"
                 value={values.mobile}
                 onChange={onFieldChange('mobile')}
                 onBlur={onFieldBlur('mobile')}
-                {...errorProps('mobile', errors.mobile)}
+                {...errorProps('mobile', errors.mobile, MOBILE_HINT)}
               />
             </FormField>
           </div>
@@ -373,17 +377,22 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
             />
           </FormField>
 
-          <FormField id={fieldId('qualification')} label="Qualification" required error={errors.qualification}>
+          <FormField
+            id={fieldId('qualification')}
+            label="Qualification"
+            required
+            hint={QUALIFICATION_HINT}
+            error={errors.qualification}
+          >
             <input
               id={fieldId('qualification')}
               name="qualification"
               maxLength={200}
               required
-              placeholder="For example: B.Com, M.Com"
               value={values.qualification}
               onChange={onFieldChange('qualification')}
               onBlur={onFieldBlur('qualification')}
-              {...errorProps('qualification', errors.qualification)}
+              {...errorProps('qualification', errors.qualification, QUALIFICATION_HINT)}
             />
           </FormField>
 
@@ -420,6 +429,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
             id={fieldId('previousCompanies')}
             label="Where you’ve worked before"
             optional
+            hint={PREVIOUS_HINT}
             error={errors.previousCompanies}
           >
             <textarea
@@ -427,11 +437,10 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
               name="previousCompanies"
               rows={3}
               maxLength={PREVIOUS_MAX}
-              placeholder="Firms or companies, with the years"
               value={values.previousCompanies}
               onChange={onFieldChange('previousCompanies')}
               onBlur={onFieldBlur('previousCompanies')}
-              {...errorProps('previousCompanies', errors.previousCompanies)}
+              {...errorProps('previousCompanies', errors.previousCompanies, PREVIOUS_HINT)}
             />
           </FormField>
 

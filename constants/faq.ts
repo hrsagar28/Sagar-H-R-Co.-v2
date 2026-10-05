@@ -338,7 +338,7 @@ export const FAQS: FAQItem[] = [
     category: 'Working with us',
     question: 'How long does the work usually take?',
     answer:
-      'It depends on the work and on how soon we receive complete documents. Simple filings can be done quickly. Notices, assessments and restructuring take longer because they need more review. We give you a realistic timeline when we start.',
+      'It depends on the work and on how soon we have complete documents. We tell you the timeline when we agree the scope of the work, and the engagement letter records it.',
     lastUpdated: FAQ_LAST_UPDATED,
   },
   {
@@ -354,7 +354,7 @@ export const FAQS: FAQItem[] = [
     category: 'Working with us',
     question: 'How do you keep our information confidential?',
     answer:
-      'We follow the ICAI Code of Ethics and the confidentiality obligations that apply to chartered accountants. Only the people working on your file see your information, documents move through controlled channels, and we do not circulate records unnecessarily. Where independence or a conflict of interest matters, we raise it before we take on the work. Our [Privacy Policy](/privacy) explains how we handle data.',
+      'Only the people working on your file see it, and all of us are bound by the confidentiality rules of the ICAI Code of Ethics. We do not share your information outside the firm unless the work or the law requires it. Our [Privacy policy](/privacy) has the details.',
     lastUpdated: FAQ_LAST_UPDATED,
   },
 ];
