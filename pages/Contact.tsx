@@ -148,11 +148,7 @@ const weekdayInIndia = () => WEEKDAYS.indexOf(IST_WEEKDAY.format(new Date()));
 const [ADDRESS_LINE_1, ADDRESS_LINE_2] = CONTACT_INFO.address.lines;
 const ADDRESS_TO_COPY = `${CONTACT_INFO.name}, ${CONTACT_INFO.address.lines.join(', ')}`;
 
-const PHONE_HINT = '10 digits';
-const MESSAGE_HINT = 'For example: I have received a GST notice and the reply is due on 15 October.';
-
-const errorProps = (field: keyof ContactFormData, error?: string, hint?: string) =>
-  fieldErrorProps(fieldId(field), error, hint);
+const errorProps = (field: keyof ContactFormData, error?: string) => fieldErrorProps(fieldId(field), error);
 
 const Contact: React.FC = () => {
   const { addToast } = useToast();
@@ -560,7 +556,7 @@ const Contact: React.FC = () => {
                     {...errorProps('name', errors.name)}
                   />
                 </FormField>
-                <FormField id={fieldId('phone')} label="Mobile number" required hint={PHONE_HINT} error={errors.phone}>
+                <FormField id={fieldId('phone')} label="Mobile number" required error={errors.phone}>
                   <input
                     id={fieldId('phone')}
                     name="phone"
@@ -572,7 +568,7 @@ const Contact: React.FC = () => {
                     value={values.phone}
                     onChange={onFieldChange('phone')}
                     onBlur={onFieldBlur('phone')}
-                    {...errorProps('phone', errors.phone, PHONE_HINT)}
+                    {...errorProps('phone', errors.phone)}
                   />
                 </FormField>
               </div>
@@ -641,7 +637,6 @@ const Contact: React.FC = () => {
                 id={fieldId('message')}
                 label="Message"
                 required
-                hint={MESSAGE_HINT}
                 error={errors.message}
                 aside={
                   <span className={`count tnum ${values.message.length > 1800 ? 'near' : ''}`} aria-hidden="true">
@@ -659,7 +654,7 @@ const Contact: React.FC = () => {
                   value={values.message}
                   onChange={onFieldChange('message')}
                   onBlur={onFieldBlur('message')}
-                  {...errorProps('message', errors.message, MESSAGE_HINT)}
+                  {...errorProps('message', errors.message)}
                 />
               </FormField>
 
