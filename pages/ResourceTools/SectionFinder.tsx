@@ -45,6 +45,8 @@ const COMMON: [string, string][] = [
   ['business', '44AD, 44ADA, 44AE'],
   ['capital-gains', '54'],
   ['capital-gains', '54F'],
+  ['capital-gains', '111A'],
+  ['capital-gains', '112'],
   ['capital-gains', '112A'],
   ['returns', '139'],
   ['returns', '143'],

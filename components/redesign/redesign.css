@@ -3087,6 +3087,11 @@
 .rd .sec.band + .sec {
   margin-top: clamp(56px, 5.6vw, 80px);
 }
+/* A band that ends the page meets the footer: the list's bottom padding
+   would otherwise leave a strip of stone between sand and footer. */
+.rd .svclist:has(> .sec.band:last-child) {
+  padding-bottom: 0;
+}
 
 /* the calculator panel */
 .rd .calc {
