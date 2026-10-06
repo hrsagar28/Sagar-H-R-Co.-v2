@@ -91,10 +91,20 @@ The calculations are in `utils/resources/`, with tests in
   losses only if the return is filed on time (s.121 covers s.111 and s.112,
   not s.110). Speculation losses (s.113) and unabsorbed depreciation are left
   out.
-- **House-property loss in the new regime (s.202(3)).** Read from the text:
-  the loss that s.202(2)(b)(ii) keeps from other heads is "deemed to have been
-  given full effect", so the calculator does not carry it forward in the new
-  regime. To be confirmed by CA Sagar.
+- **House-property loss in the new regime (s.202(3)).** Not carried forward.
+  The loss that s.202(2)(b)(ii) keeps from other heads is "deemed to have been
+  given full effect", with no deduction "for any subsequent year" (the same
+  words as s.115BAC(3) of the 1961 Act). Confirmed against the department's
+  own material:
+  - the CBDT booklet "Computation of income from house property" (December
+    2021): "you cannot carry forward the loss from house property to future
+    years for set off";
+  - the e-filing validation rules for ITR-2, AY 2025-26: rule 284 (new
+    regime: Schedule CYLA 2xv, the house-property loss remaining after
+    set-off, cannot be more than zero) with rules 270 and 293 (Schedule CFL
+    takes that amount).
+    The ITR forms for tax year 2026-27 under the 2025 Act are to be checked when
+    they come out.
 - **Earlier losses in the new regime (s.202(2)(b)(i)).** A loss that came from
   a deduction the new regime does not allow cannot be set off. The calculator
   cannot tell where a loss came from, so it counts the full amount in both
