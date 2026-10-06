@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result, Row } from './fields';
+import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
 import FormField from '../../components/redesign/FormField';
 import { HRA_FIFTY_PERCENT_CITIES, HRA_LANDLORD_PAN_RENT, getResourceTool } from '../../constants/resources';
 import { calculateHra, type HraLimit } from '../../utils/resources/hra';
@@ -27,6 +27,17 @@ const HRACalculator: React.FC = () => {
     months,
     listedCity: place === 'listed',
   });
+  const entered = basic + da + hra + rent > 0;
+  const entries: [string, string][] = entered
+    ? [
+        ...amountEntry('Basic pay, a month', basic),
+        ...amountEntry('Dearness allowance, a month', da),
+        ...amountEntry('HRA received, a month', hra),
+        ...amountEntry('Rent paid, a month', rent),
+        ['Months you paid rent', String(months)],
+        ['The rented home is', place === 'listed' ? 'In one of the eight cities' : 'Elsewhere'],
+      ]
+    : [];
   const share = place === 'listed' ? '50%' : '40%';
   const limitLabel: Record<HraLimit, string> = {
     received: 'HRA received',
@@ -73,11 +84,11 @@ const HRACalculator: React.FC = () => {
           <p className="fnote">The eight cities: {cityList}.</p>
         </form>
 
-        <Result>
+        <Result entries={entries}>
           <p className="lbl">Exempt HRA for the year</p>
-          <p className="big tnum">{rupees(result.exempt)}</p>
+          <p className="big tnum">{entered ? rupees(result.exempt) : '—'}</p>
           <p className="sub">
-            Taxable HRA: <span className="tnum">{rupees(result.taxable)}</span>
+            Taxable HRA: <span className="tnum">{entered ? rupees(result.taxable) : '—'}</span>
           </p>
           <dl className="brk">
             {(Object.keys(limitLabel) as HraLimit[]).map((key) => (
@@ -95,6 +106,15 @@ const HRACalculator: React.FC = () => {
             ))}
           </dl>
           <p className="nudge">The lowest of the three is exempt. It counts only if you choose the old regime.</p>
+          {basic + da === 0 && (hra > 0 || rent > 0) && (
+            <p className="nudge">Enter your basic pay: two of the three limits are worked out from it.</p>
+          )}
+          {hra === 0 && rent > 0 && (
+            <p className="nudge">
+              With no HRA from your employer, nothing is exempt here. The deduction for rent paid (section 134) may
+              apply instead.
+            </p>
+          )}
           {result.rent > HRA_LANDLORD_PAN_RENT && (
             <p className="nudge">
               Your rent is more than ₹1 lakh for the year, so give your employer the landlord’s PAN with Form 124.
@@ -104,7 +124,11 @@ const HRACalculator: React.FC = () => {
             To see whether the old regime is worth it for you, use the{' '}
             <Link to="/resources/income-tax-calculator">income tax calculator</Link>.
           </p>
-          <Announce text={`Exempt HRA ${rupees(result.exempt)} for the year. Taxable HRA ${rupees(result.taxable)}.`} />
+          <Announce
+            text={
+              entered ? `Exempt HRA ${rupees(result.exempt)} for the year. Taxable HRA ${rupees(result.taxable)}.` : ''
+            }
+          />
         </Result>
       </div>
 
@@ -130,7 +154,7 @@ const HRACalculator: React.FC = () => {
         </ul>
       </section>
 
-      <section className="sec" aria-labelledby="hra-know-heading">
+      <section className="sec band" aria-labelledby="hra-know-heading">
         <div className="sec-h">
           <h2 id="hra-know-heading">Good to know</h2>
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import FormField from '../../components/redesign/FormField';
-import { cleanAmount, grouped, toAmount } from '../../utils/resources/format';
+import { cleanAmount, grouped, rupees, toAmount } from '../../utils/resources/format';
 
 // Inputs for the Resources calculators, in the redesigned form style (a label
 // over a single rule; see .fld in redesign.css).
@@ -80,15 +80,46 @@ export const ChoiceField = <T extends string>({ name, legend, value, options, on
   </fieldset>
 );
 
+interface ResultProps {
+  children: React.ReactNode;
+  /** What was entered, as [label, value]. Printed above the result in place of the form. */
+  entries: [string, string][];
+}
+
 /**
  * The result column of a calculator. On a wide screen its content stays in
- * view while a long form scrolls past (.cstick in redesign.css).
+ * view while a long form scrolls past (.cstick in redesign.css). Printed, the
+ * form is left out and the figures entered are listed here instead (.psum).
  */
-export const Result: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const Result: React.FC<ResultProps> = ({ children, entries }) => (
   <div className="cout">
-    <div className="cstick">{children}</div>
+    <div className="cstick">
+      {entries.length > 0 && (
+        <div className="psum">
+          <p className="lbl">The figures entered</p>
+          <dl className="brk">
+            {entries.map(([label, value]) => (
+              <Row key={label} label={label} value={value} />
+            ))}
+          </dl>
+          <p className="lbl">The result</p>
+        </div>
+      )}
+      {children}
+      {entries.length > 0 && (
+        <p className="printest">
+          <button type="button" className="link-btn" onClick={() => window.print()}>
+            Print this estimate
+          </button>
+        </p>
+      )}
+    </div>
   </div>
 );
+
+/** A non-zero amount as a printed entry; nothing for zero. */
+export const amountEntry = (label: string, value: number): [string, string][] =>
+  value > 0 ? [[label, rupees(value)]] : [];
 
 /** A labelled row in a result breakdown. */
 export const Row: React.FC<{ label: React.ReactNode; value: React.ReactNode; className?: string }> = ({

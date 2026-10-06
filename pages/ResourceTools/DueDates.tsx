@@ -110,7 +110,7 @@ const DueDates: React.FC = () => {
         ))}
       </div>
 
-      <section className="sec" aria-labelledby="dates-notes-heading">
+      <section className="sec band" aria-labelledby="dates-notes-heading">
         <div className="sec-h">
           <h2 id="dates-notes-heading">Good to know</h2>
         </div>

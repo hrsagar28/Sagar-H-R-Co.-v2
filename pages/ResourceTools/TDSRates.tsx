@@ -89,7 +89,11 @@ const TDSRates: React.FC = () => {
                   <li key={row.id} className="rrow">
                     <div className="rp">
                       <span className="t">{row.payment}</span>
-                      {row.payer && <span className="n">Paid or collected by: {row.payer}</span>}
+                      {row.payer && (
+                        <span className="n">
+                          {item.id === 'tcs' ? 'Collected by' : 'Deducted by'} {row.payer}
+                        </span>
+                      )}
                       {row.note && <span className="n">{row.note}</span>}
                     </div>
                     <div className="rc">
@@ -128,7 +132,7 @@ const TDSRates: React.FC = () => {
         </ul>
       </section>
 
-      <section className="sec" aria-labelledby="tds-notes-heading">
+      <section className="sec band" aria-labelledby="tds-notes-heading">
         <div className="sec-h">
           <h2 id="tds-notes-heading">Good to know</h2>
         </div>

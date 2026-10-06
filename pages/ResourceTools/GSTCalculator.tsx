@@ -24,6 +24,15 @@ const GSTCalculator: React.FC = () => {
   const rate = rateChoice === 'other' ? Math.min(100, Number(otherRate) || 0) : Number(rateChoice);
   const result = calculateGst(amount, rate, direction, place);
   const sameState = place === 'same-state';
+  const entries: [string, string][] =
+    amount > 0
+      ? [
+          ['Amount', rupeesPaise(amount)],
+          ['The amount is', direction === 'add' ? 'Before GST' : 'Including GST'],
+          ['GST rate', `${rate}%`],
+          ['The buyer is', sameState ? 'In the same state' : 'In another state, or an SEZ unit'],
+        ]
+      : [];
 
   return (
     <ToolPage tool={TOOL} law="GST rates in force from 22 September 2025, including the changes from 1 February 2026">
@@ -70,7 +79,7 @@ const GSTCalculator: React.FC = () => {
           />
         </form>
 
-        <Result>
+        <Result entries={entries}>
           <p className="lbl">{direction === 'add' ? 'Price including GST' : 'Price before GST'}</p>
           <p className="big tnum">{rupeesPaise(direction === 'add' ? result.total : result.taxable)}</p>
           <dl className="brk">
@@ -123,7 +132,7 @@ const GSTCalculator: React.FC = () => {
         </ul>
       </section>
 
-      <section className="sec" aria-labelledby="gst-split-heading">
+      <section className="sec band" aria-labelledby="gst-split-heading">
         <div className="sec-h">
           <h2 id="gst-split-heading">CGST, SGST or IGST</h2>
         </div>

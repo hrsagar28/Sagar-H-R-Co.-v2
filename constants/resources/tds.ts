@@ -34,7 +34,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'salary',
         payment: 'Salary',
-        payer: 'Employer',
+        payer: 'the employer',
         threshold: 'Where the year’s estimated income is above the amount not chargeable to tax',
         rate: 'Average rate on the estimated income for the year',
         ref: 's.392',
@@ -43,7 +43,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'pf-withdrawal',
         payment: 'Taxable withdrawal of provident fund balance',
-        payer: 'EPF trustees',
+        payer: 'the EPF trustees',
         threshold: '₹50,000 or more',
         rate: '10%',
         ref: 's.392(7)',
@@ -100,7 +100,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'property-purchase',
         payment: 'Purchase of immovable property other than agricultural land',
-        payer: 'The buyer',
+        payer: 'the buyer',
         threshold: 'Price or stamp duty value of ₹50 lakh or more',
         rate: '1% of the price or the stamp duty value, whichever is higher',
         ref: 's.393(1) Sl. 3(i)',
@@ -208,7 +208,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'dividend',
         payment: 'Dividend from a domestic company',
-        threshold: 'None, but no TDS for an individual paid other than in cash up to ₹10,000 in the year',
+        threshold: '₹10,000 in the year, for an individual paid other than in cash; none otherwise',
         rate: '10%',
         ref: 's.393(1) Sl. 7',
         old: '194',
@@ -224,7 +224,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'purchase-goods',
         payment: 'Purchase of goods',
-        payer: 'A buyer, as defined',
+        payer: 'a buyer whose turnover last year was above ₹10 crore',
         threshold: 'Purchases from one seller above ₹50 lakh in the year',
         rate: '0.1% of the amount above ₹50 lakh',
         ref: 's.393(1) Sl. 8(ii)',
@@ -249,7 +249,8 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'e-commerce',
         payment: 'Payments by an e-commerce operator to sellers on its platform',
-        threshold: 'None, but no TDS for an individual or HUF seller with sales up to ₹5 lakh who gives PAN or Aadhaar',
+        threshold:
+          'Sales above ₹5 lakh in the year, for an individual or HUF seller who gives PAN or Aadhaar; none otherwise',
         rate: '0.1% of gross sales',
         ref: 's.393(1) Sl. 8(v)',
         old: '194-O',
@@ -257,7 +258,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'vda',
         payment: 'Transfer of a virtual digital asset',
-        threshold: 'None, but no TDS up to ₹50,000 in the year (₹10,000 for some payers)',
+        threshold: '₹50,000 in the year (₹10,000 for some payers)',
         rate: '1%',
         ref: 's.393(1) Sl. 8(vi)',
         old: '194S',
@@ -321,7 +322,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'partners',
         payment: 'Salary, remuneration, commission, bonus or interest to a partner',
-        payer: 'The firm',
+        payer: 'the firm',
         threshold: '₹20,000 in the year',
         rate: '10%',
         ref: 's.393(3) Sl. 7',
@@ -465,7 +466,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'tcs-lrs-education',
         payment: 'Money sent abroad for education or medical treatment',
-        payer: 'Authorised dealer (the bank)',
+        payer: 'the authorised dealer (the bank)',
         threshold: 'Above ₹10 lakh in the year',
         rate: '2%; nil where paid from an education loan',
         ref: 's.394(1) Sl. 7(a)',
@@ -474,7 +475,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'tcs-lrs-other',
         payment: 'Money sent abroad for other purposes',
-        payer: 'Authorised dealer (the bank)',
+        payer: 'the authorised dealer (the bank)',
         threshold: 'Above ₹10 lakh in the year',
         rate: '20%',
         ref: 's.394(1) Sl. 7(b)',
@@ -491,7 +492,7 @@ export const TDS_TCS_GROUPS: RateGroup[] = [
       {
         id: 'tcs-parking',
         payment: 'Use of a parking lot, toll plaza, mine or quarry for business',
-        payer: 'Licensor or lessor',
+        payer: 'the licensor or lessor',
         threshold: 'None',
         rate: '2%',
         ref: 's.394(1) Sl. 9',

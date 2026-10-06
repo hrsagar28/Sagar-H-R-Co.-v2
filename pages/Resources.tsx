@@ -61,8 +61,7 @@ const Resources: React.FC = () => {
           <div>
             <h1 className="rise">Resources</h1>
             <p className="hsub rise d1">
-              Calculators, TDS rates and due dates for tax year 2026-27 under the Income-tax Act, 2025, and checklists
-              of what to send us.
+              Calculators, rates and due dates for tax year 2026-27, and lists of the documents to send us.
             </p>
           </div>
           {upcoming.length > 0 && (
@@ -135,7 +134,7 @@ const Resources: React.FC = () => {
           </ul>
         </section>
 
-        <section className="sec" aria-labelledby="portals-heading">
+        <section className="sec band" aria-labelledby="portals-heading">
           <div className="sec-h">
             <h2 id="portals-heading">Government portals</h2>
             <p className="desc">The official sites, opening in a new tab.</p>

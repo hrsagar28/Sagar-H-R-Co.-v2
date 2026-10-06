@@ -1641,7 +1641,6 @@
   .rd .topbar,
   .rd .grain,
   .rd.sbar,
-  .rd .foot,
   .rd .map,
   .rd .spanel {
     display: none;
@@ -2984,7 +2983,7 @@
 /* ---------- resources ----------
    The index reuses the Services frame (.svclist, .sec, .srows). Each tool page
    has the dark header, the tool in a panel on the seam (.seam.panel.calc: the
-   inputs on the left, the result on a limestone column on the right), notes
+   inputs on the left, the result on a sand column on the right), notes
    below, then the dark-green band. */
 
 /* index: the next due dates in the header */
@@ -3074,6 +3073,20 @@
   color: var(--muted);
 }
 
+/* One notes section per page on a sand band, edge to edge (the shadow and
+   clip carry the colour past the page gutters without changing the layout).
+   Contact and Careers use sand the same way, once per page. */
+.rd .sec.band {
+  border-top: 0;
+  padding-block: clamp(48px, 5vw, 72px);
+  background: var(--sand);
+  box-shadow: 0 0 0 100vmax var(--sand);
+  clip-path: inset(0 -100vmax);
+}
+.rd .sec.band + .sec {
+  margin-top: clamp(56px, 5.6vw, 80px);
+}
+
 /* the calculator panel */
 .rd .calc {
   display: grid;
@@ -3083,10 +3096,10 @@
   padding: clamp(24px, 2.8vw, 40px);
   min-width: 0;
 }
+/* the answer on sand, so it reads apart from the form */
 .rd .cout {
   padding: clamp(24px, 2.8vw, 40px);
-  border-left: 1px solid #e3ded2;
-  background: var(--stone);
+  background: var(--sand);
   min-width: 0;
 }
 /* the result stays in view while a long form (the income tax deductions)
@@ -3098,6 +3111,13 @@
 }
 .rd.bar-on .cstick {
   top: calc(var(--bar) + 28px);
+}
+/* printed in place of the form; see the print section at the end */
+.rd .psum {
+  display: none;
+}
+.rd .printest {
+  margin: 18px 0 0;
 }
 .rd .cin > .lbl {
   margin-top: 4px;
@@ -3377,6 +3397,32 @@
 .rd .cii li span + span {
   color: var(--ink);
 }
+/* index an amount between any two years, above the table */
+.rd .ciiw {
+  min-width: 0;
+}
+.rd .ixbox {
+  margin-bottom: clamp(28px, 3vw, 40px);
+  padding: clamp(20px, 2.2vw, 28px) clamp(20px, 2.4vw, 32px) 18px;
+  background: var(--paper);
+  border: 1px solid #e3ded2;
+}
+.rd .ixrow {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0 clamp(16px, 2vw, 28px);
+}
+.rd .ixout {
+  margin: 4px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.rd .ixout b {
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--ink);
+}
 
 /* TDS and TCS rates */
 .rd .rtab {
@@ -3452,10 +3498,10 @@
 }
 .rd .nextlist .when b {
   display: block;
-  font-weight: 400;
-  font-family: var(--serif);
-  font-size: 21px;
-  line-height: 1.15;
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--ink);
 }
 .rd .nextlist .when span {
   font-size: 13px;
@@ -3488,10 +3534,10 @@
 }
 .rd .dues .when b {
   display: block;
-  font-weight: 400;
-  font-family: var(--serif);
-  font-size: 26px;
+  font-weight: 500;
+  font-size: 22px;
   line-height: 1;
+  letter-spacing: -0.01em;
   color: var(--ink);
 }
 .rd .dues .when span {
@@ -3544,12 +3590,17 @@
   .rd .cout {
     padding: 22px 18px;
   }
-  .rd .cout {
-    border-left: 0;
-    border-top: 1px solid #e3ded2;
+  .rd .sec.band .sec-h {
+    background: transparent;
   }
   .rd .cstick {
     position: static;
+  }
+  .rd .ixrow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rd .ixrow > :first-child {
+    grid-column: 1 / -1;
   }
   .rd .cii {
     columns: 2;
@@ -3609,17 +3660,27 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+/* ---------- print ----------
+   Every redesigned page prints on white paper: the dark header's text in ink,
+   no bands, buttons or forms, headings kept with what follows them, rows not
+   split across pages, and the firm's name and contact details at the end. An
+   A4 sheet is narrower than the 900px breakpoint, so the phone layout
+   applies; the tables below go back into columns. */
 @media print {
-  .rd .phead h1,
-  .rd .phead .hsub,
-  .rd .phead .often {
-    color: var(--ink);
+  .rd .phead,
+  .rd .phead * {
+    color: var(--ink) !important;
+  }
+  .rd .phead :is(.lbl, .often, .crumb, .fnote) {
+    color: var(--muted) !important;
   }
   .rd .print-btn,
+  .rd .printest,
   .rd .ask,
   .rd .others,
   .rd .tool .topics,
-  .rd .pastnote {
+  .rd .pastnote,
+  .rd .fpanel {
     display: none;
   }
   .rd .seam {
@@ -3627,5 +3688,220 @@
   }
   .rd .panel {
     box-shadow: none;
+  }
+  /* the header without the room the dark band needed (its padding-top goes
+     in the print block above) */
+  .rd .hgrid {
+    padding-top: 0;
+    padding-bottom: 20px;
+  }
+
+  /* no full-height shell, which would push the footer onto a page of its own */
+  .rd.rd-shell,
+  .rd .rd-main {
+    display: block;
+    min-height: 0;
+  }
+
+  /* keep a heading with what follows it, and a row or block in one piece.
+     Sections lay out as plain blocks, where the browser honours the "avoid"
+     between a heading and the first rows under it. */
+  .rd .sec {
+    display: block;
+  }
+  .rd .sec-h {
+    margin-bottom: 14px;
+  }
+  .rd :is(h1, h2, h3, .sec-h, .lbl, .next-h, .rhead) {
+    break-after: avoid;
+  }
+  .rd
+    :is(
+      .srows li,
+      .needs li,
+      .inc li,
+      .steps li,
+      .most li,
+      .portals li,
+      .rrow,
+      .dues li,
+      .nextlist li,
+      .cii li,
+      .brk > div,
+      .cmp tr,
+      .duo,
+      .foot,
+      .next,
+      .sec-h
+    ) {
+    break-inside: avoid;
+  }
+
+  /* sand areas print white, set off by a rule */
+  .rd .sec.band {
+    background: none;
+    box-shadow: none;
+    clip-path: none;
+    padding-block: 20px 0;
+    border-top: 1px solid var(--ink);
+  }
+  .rd .next.sand {
+    background: none;
+    border-top: 1px solid var(--ink);
+  }
+
+  /* once figures are entered, a calculator prints as an estimate: the
+     figures and the result, without the form or the notes */
+  .rd .psum {
+    display: block;
+  }
+  .rd .tool.is-calc:has(.psum) > .sec,
+  .rd .calc:has(.psum) .cin {
+    display: none;
+  }
+  .rd .calc:has(.psum) {
+    display: block;
+  }
+  .rd .cout {
+    padding: 0;
+    background: none;
+  }
+  .rd .psum .brk {
+    margin-bottom: 18px;
+  }
+  /* page titles, figures and result rows set smaller, so an estimate fits
+     on one sheet */
+  .rd .phead h1 {
+    font-size: 36px;
+  }
+  .rd .tool .asof {
+    margin-top: 16px;
+  }
+  .rd .cout .big {
+    font-size: 34px;
+  }
+  .rd .brk > div {
+    padding: 4px 0 5px;
+    font-size: 12px;
+  }
+  .rd .cmp th,
+  .rd .cmp td {
+    padding: 4px 0 5px;
+    font-size: 12px;
+  }
+
+  /* the TDS rates back in four columns */
+  .rd .rhead {
+    display: grid;
+  }
+  .rd .rhead,
+  .rd .rrow {
+    grid-template-columns: minmax(0, 4.4fr) minmax(0, 2.8fr) minmax(0, 2fr) minmax(0, 2fr);
+    gap: 0 14px;
+  }
+  .rd .rrow {
+    padding: 6px 0 7px;
+    font-size: 12px;
+  }
+  .rd .rrow .t {
+    font-size: 14px;
+  }
+  .rd .rrow .rp,
+  .rd .rrow .ref {
+    grid-column: auto;
+  }
+  .rd .rrow .k {
+    display: none;
+  }
+  .rd .rrow .n,
+  .rd .rrow .was,
+  .rd .rrow .ref {
+    font-size: 11px;
+  }
+
+  /* due dates one line each: day, what, category */
+  .rd .dues li {
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 0 12px;
+    align-items: baseline;
+    padding: 4px 0 5px;
+  }
+  .rd .dues .when,
+  .rd .dues .cat {
+    grid-row: auto;
+    grid-column: auto;
+  }
+  .rd .dues .when b {
+    display: inline;
+    font-size: 14px;
+  }
+  .rd .dues .when span {
+    margin-left: 4px;
+    font-size: 10px;
+  }
+  .rd .dues .what {
+    padding-top: 0;
+  }
+  .rd .dues .t {
+    font-size: 13px;
+  }
+  .rd .dues .n,
+  .rd .dues .cat {
+    font-size: 11px;
+  }
+
+  /* the firm's name, address and contact details close every page */
+  .rd .foot {
+    display: block !important;
+    margin-top: 24px;
+    border-top: 1px solid var(--ink);
+    background: none;
+  }
+  .rd .foot *,
+  .rd .fword {
+    color: var(--ink) !important;
+  }
+  .rd .foot-in {
+    padding-top: 16px;
+  }
+  .rd .fgrid {
+    display: flex;
+    gap: 48px;
+  }
+  .rd .fgrid > .fcol:not(.touch),
+  .rd .fbase {
+    display: none;
+  }
+  /* name beside address, so the block stays short */
+  .rd .fbrand {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    column-gap: 40px;
+    align-items: start;
+  }
+  .rd .fbrand address {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .rd .freg {
+    grid-column: 2;
+  }
+  .rd .fword {
+    font-size: 22px;
+  }
+  .rd .ftag {
+    margin: 4px 0 8px;
+  }
+  .rd .fbrand address,
+  .rd .fcol a,
+  .rd .fcol p,
+  .rd .freg {
+    font-size: 11px;
+  }
+  .rd .freg {
+    margin-top: 6px;
+  }
+  .rd .flbl {
+    margin-bottom: 4px;
   }
 }

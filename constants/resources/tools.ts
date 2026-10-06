@@ -42,7 +42,7 @@ export const RESOURCE_TOOLS: ResourceTool[] = [
   {
     slug: 'capital-gains-calculator',
     name: 'Capital gains on property',
-    summary: 'Tax on selling land or a building: 12.5%, or 20% with indexation where that is lower.',
+    summary: 'Tax on selling land or a building since April 2024: 12.5%, or 20% with indexation where lower.',
     group: 'calculators',
     subject: 'income-tax',
     ask: 'a property sale',
@@ -77,12 +77,12 @@ export const RESOURCE_GROUPS: { id: ResourceGroup; name: string; description: st
   {
     id: 'calculators',
     name: 'Calculators',
-    description: 'Estimates for tax year 2026-27, under the Income-tax Act, 2025 and the GST rates now in force.',
+    description: 'Quick estimates for tax year 2026-27, under the Income-tax Act, 2025 and the GST rates in force.',
   },
   {
     id: 'reference',
     name: 'Rates and dates',
-    description: 'For anyone who deducts tax at source or files returns.',
+    description: 'TDS and TCS rates, and the year’s due dates for returns and payments.',
   },
 ];
 

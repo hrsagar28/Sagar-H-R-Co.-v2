@@ -105,6 +105,8 @@ export interface RegimeResult {
   /** Marginal relief taken off the surcharge. */
   marginalRelief: number;
   cess: number;
+  /** The difference that rounding the tax to ₹10 makes to the rows above (s.516). */
+  roundOff: number;
   total: number;
 }
 
@@ -216,6 +218,19 @@ const reducedTo = (normalIncome: number, gains: Gains, target: number): [number,
 /** Whole rupees, without a negative zero. */
 const whole = (value: number) => Math.round(value) || 0;
 
+/** s.516: paise are ignored and the amount is rounded to the nearest ₹10, ₹5 and above going up. */
+const roundTen = (value: number) => Math.round(Math.floor(value) / 10) * 10;
+
+/** Total income rounded under s.516, the difference taken from normal income where there is any. */
+const roundedIncome = (normalIncome: number, gains: Gains): [number, Gains] => {
+  const total = normalIncome + gains.stcg + gains.ltcgEquity + gains.ltcgOther;
+  const delta = roundTen(total) - total;
+  if (!delta) return [normalIncome, gains];
+  if (normalIncome > 0 && normalIncome + delta >= 0) return [normalIncome + delta, gains];
+  const key = (['ltcgOther', 'stcg', 'ltcgEquity'] as const).find((k) => gains[k] > 0 && gains[k] + delta >= 0);
+  return key ? [normalIncome, { ...gains, [key]: gains[key] + delta }] : [normalIncome, gains];
+};
+
 export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeResult => {
   const senior = input.age !== 'below60';
   const isNew = regime === 'new';
@@ -261,9 +276,11 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
       );
   }
   deductions = Math.min(deductions, grossNormalIncome);
-  const normalIncome = grossNormalIncome - deductions;
-
-  const gains: Gains = { stcg: input.stcgEquity, ltcgEquity: input.ltcgEquity, ltcgOther: input.ltcgOther };
+  const [normalIncome, gains] = roundedIncome(grossNormalIncome - deductions, {
+    stcg: input.stcgEquity,
+    ltcgEquity: input.ltcgEquity,
+    ltcgOther: input.ltcgOther,
+  });
   const specialGains = gains.stcg + gains.ltcgEquity + gains.ltcgOther;
   const now = taxAndSurcharge(normalIncome, gains, regime, input.age);
 
@@ -280,6 +297,9 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
 
   const surcharge = now.surcharge - marginalRelief;
   const cess = (now.tax + surcharge) * CESS;
+  const total = roundTen(now.tax + surcharge + cess);
+  const shown =
+    whole(now.parts.slabTax) + whole(now.parts.specialTax) - whole(now.rebate) + whole(surcharge) + whole(cess);
   return {
     regime,
     salaryIncome: whole(salaryIncome),
@@ -296,7 +316,8 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
     surcharge: whole(surcharge),
     marginalRelief: whole(marginalRelief),
     cess: whole(cess),
-    total: whole(now.tax + surcharge + cess),
+    roundOff: total - shown,
+    total,
   };
 };
 

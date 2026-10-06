@@ -82,6 +82,32 @@ describe('Resources', () => {
 
     fireEvent.click(screen.getByLabelText('In another state, or an SEZ unit'));
     expect(result).toHaveTextContent('IGST at 18%₹180.00');
+    // The figures entered are listed for printing.
+    expect(screen.getByText('The figures entered')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Print this estimate' })).toBeInTheDocument();
+  });
+
+  it('shows a property loss as a loss, and offers improvement years only from the purchase', async () => {
+    renderAt('/resources/capital-gains-calculator');
+
+    fireEvent.change(await screen.findByLabelText('Date bought'), { target: { value: '2012-06-15' } });
+    fireEvent.change(screen.getByLabelText('Date sold'), { target: { value: '2025-09-10' } });
+    for (const [label, value] of [
+      ['Price paid', '9000000'],
+      ['Sale price', '7000000'],
+    ]) {
+      const input = screen.getByLabelText(label!);
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value } });
+    }
+    expect(screen.getByText('Long-term loss')).toBeInTheDocument();
+    expect(screen.getByText('Loss without indexation').nextSibling).toHaveTextContent('₹20,00,000');
+    expect(screen.queryByText(/₹-/)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add an improvement' }));
+    const years = within(screen.getByLabelText('Year paid (improvement 1)')).getAllByRole('option');
+    expect(years[0]).toHaveTextContent('2012-13');
+    expect(years.at(-1)).toHaveTextContent('2025-26');
   });
 
   it('says so for a tool that does not exist', () => {

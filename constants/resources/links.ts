@@ -34,7 +34,8 @@ export const PORTAL_GROUPS: { name: string; links: PortalLink[] }[] = [
       { name: 'CBIC GST', use: 'Rate notifications and circulars', url: 'https://cbic-gst.gov.in/' },
       { name: 'E-way bill', use: 'Generate e-way bills', url: 'https://ewaybillgst.gov.in/' },
       { name: 'E-invoice', use: 'Register invoices', url: 'https://einvoice1.gst.gov.in/' },
-      { name: 'GST Appellate Tribunal', use: 'Appeals', url: 'https://gstat.gov.in/' },
+      { name: 'GST Appellate Tribunal', use: 'The tribunal’s own site', url: 'https://gstat.gov.in/' },
+      { name: 'GSTAT e-filing', use: 'File and track appeals', url: 'https://efiling.gstat.gov.in/mainPage.drt' },
     ],
   },
   {

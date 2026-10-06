@@ -64,7 +64,7 @@ const ToolPage: React.FC<ToolPageProps> = ({ tool, law, children }) => {
         </div>
       </div>
 
-      <div className="tool pad">
+      <div className={`tool pad ${tool.group === 'calculators' ? 'is-calc' : ''}`}>
         {children}
         <p className="asof">
           Figures as at {formatLongDate(RESOURCES_LAW_AS_AT)}. General information, not advice on any particular case.

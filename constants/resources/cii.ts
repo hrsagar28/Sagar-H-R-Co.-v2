@@ -36,8 +36,20 @@ export const CII_BY_YEAR = new Map(COST_INFLATION_INDEX.map((row) => [row.year, 
 /** Property is long-term when held for more than this many months (land or building). */
 export const PROPERTY_LONG_TERM_MONTHS = 24;
 
-/** s.197(3): the 20%-with-indexation comparison is for land or buildings acquired before this date. */
+/**
+ * 23 July 2024. A sale before it was taxed at 20% with indexation (s.112 of the
+ * 1961 Act as it then stood). From it, 12.5% without indexation, and for land
+ * or buildings acquired before it by a resident individual or HUF, the lower of
+ * that and 20% with indexation (s.112(1) proviso of the 1961 Act; s.197(3)).
+ */
 export const INDEXATION_CUTOFF = '2024-07-23';
+
+/** The calculator takes sales in tax years 2024-25 to 2026-27, whose returns can still be filed, revised or updated. */
+export const PROPERTY_SALE_FROM = '2024-04-01';
+export const PROPERTY_SALE_TO = '2027-03-31';
+
+/** Sales from this date fall under the Income-tax Act, 2025. */
+export const NEW_ACT_FROM = '2026-04-01';
 
 /** s.90: an asset owned before this date may use its fair market value on it (capped at stamp duty value). */
 export const FMV_DATE = '2001-04-01';

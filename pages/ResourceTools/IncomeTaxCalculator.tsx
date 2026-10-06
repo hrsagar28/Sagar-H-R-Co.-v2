@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result } from './fields';
+import { Announce, ChoiceField, MoneyField, Result, amountEntry } from './fields';
 import { getResourceTool, type AgeBand } from '../../constants/resources';
 import {
   EMPTY_INCOME_TAX_INPUT,
@@ -31,7 +31,42 @@ const ROWS: {
   { label: 'Less: rebate', value: (r) => -r.rebate, show: (a, b) => a.rebate > 0 || b.rebate > 0 },
   { label: 'Surcharge', value: (r) => r.surcharge, show: (a, b) => a.surcharge > 0 || b.surcharge > 0 },
   { label: 'Health and education cess', value: (r) => r.cess },
+  {
+    label: 'Rounded to the nearest ₹10',
+    value: (r) => r.roundOff,
+    show: (a, b) => a.roundOff !== 0 || b.roundOff !== 0,
+  },
 ];
+
+/** The amounts listed when the estimate is printed, in the form's order. */
+const ENTRY_LABELS: [NumberKey, string][] = [
+  ['salary', 'Salary'],
+  ['businessIncome', 'Profit from business or profession'],
+  ['otherIncome', 'Interest and other income'],
+  ['depositInterest', 'Of which: deposit interest'],
+  ['employerNps', 'Employer’s NPS contribution'],
+  ['basicAndDa', 'Basic pay and DA for the year'],
+  ['letOutRent', 'Rent received from a house let out'],
+  ['municipalTax', 'Municipal tax paid on it'],
+  ['letOutInterest', 'Home loan interest on that house'],
+  ['selfOccupiedInterest', 'Home loan interest on the house you live in'],
+  ['stcgEquity', 'Short-term gains on listed shares and equity funds'],
+  ['ltcgEquity', 'Long-term gains on listed shares and equity funds'],
+  ['ltcgOther', 'Other long-term gains'],
+  ['hraExempt', 'Exempt HRA'],
+  ['professionalTax', 'Professional tax paid'],
+  ['investments', 'PF, PPF, life insurance, ELSS and similar'],
+  ['ownNps', 'Your own NPS contribution'],
+  ['healthSelf', 'Health insurance for you and your family'],
+  ['healthParents', 'Health insurance for your parents'],
+  ['educationLoanInterest', 'Interest on an education loan'],
+  ['donations', 'Deduction for donations'],
+];
+
+const AGE_LABEL: Record<AgeBand, string> = { below60: 'Below 60', '60to79': '60 to 79', '80plus': '80 or more' };
+
+/** Above this, with capital gains, the surcharge and its marginal relief need working out case by case. */
+const SURCHARGE_REVIEW_INCOME = 20000000;
 
 const IncomeTaxCalculator: React.FC = () => {
   const [input, setInput] = useState<IncomeTaxInput>(EMPTY_INCOME_TAX_INPUT);
@@ -43,6 +78,14 @@ const IncomeTaxCalculator: React.FC = () => {
   const difference = Math.abs(newRegime.total - oldRegime.total);
   const senior = input.age !== 'below60';
   const entered = newRegime.totalIncome > 0 || oldRegime.totalIncome > 0;
+  const entries: [string, string][] = entered
+    ? [
+        ['Age during the year', AGE_LABEL[input.age]],
+        ...ENTRY_LABELS.flatMap(([key, label]) => amountEntry(label, input[key])),
+        ...(input.governmentEmployer ? ([['Employer', 'Central or State Government']] as [string, string][]) : []),
+        ...(input.parentsSenior ? ([['A parent is a senior citizen', 'Yes']] as [string, string][]) : []),
+      ]
+    : [];
 
   const headline = !entered
     ? 'Enter your income to compare the two regimes.'
@@ -62,11 +105,7 @@ const IncomeTaxCalculator: React.FC = () => {
             legend="Your age during the year"
             value={input.age}
             onChange={(value) => set('age', value)}
-            options={[
-              { value: 'below60', label: 'Below 60' },
-              { value: '60to79', label: '60 to 79' },
-              { value: '80plus', label: '80 or more' },
-            ]}
+            options={(Object.keys(AGE_LABEL) as AgeBand[]).map((value) => ({ value, label: AGE_LABEL[value] }))}
           />
 
           <p className="lbl">Income for the year</p>
@@ -206,7 +245,7 @@ const IncomeTaxCalculator: React.FC = () => {
           </details>
         </form>
 
-        <Result>
+        <Result entries={entries}>
           <p className="lbl">Tax for 2026-27</p>
           <div className="duo">
             {[newRegime, oldRegime].map((result) => (
@@ -215,7 +254,7 @@ const IncomeTaxCalculator: React.FC = () => {
                 className={entered && result.regime === better && difference > 0 ? 'lower' : undefined}
               >
                 <p className="rg">{result.regime === 'new' ? 'New regime' : 'Old regime'}</p>
-                <p className="big tnum">{rupees(result.total)}</p>
+                <p className="big tnum">{entered ? rupees(result.total) : '—'}</p>
               </div>
             ))}
           </div>
@@ -252,6 +291,19 @@ const IncomeTaxCalculator: React.FC = () => {
 
           {entered && (newRegime.marginalRelief > 0 || oldRegime.marginalRelief > 0) && (
             <p className="nudge">Marginal relief on surcharge has been applied.</p>
+          )}
+          {newRegime.specialGains > 0 &&
+            Math.max(newRegime.totalIncome, oldRegime.totalIncome) > SURCHARGE_REVIEW_INCOME && (
+              <p className="nudge">
+                Above ₹2 crore with capital gains, the surcharge and its marginal relief depend on how the income is
+                made up. <Link to="/contact?subject=income-tax#write">Ask us</Link> to work it out.
+              </p>
+            )}
+          {input.employerNps > 0 && input.basicAndDa === 0 && (
+            <p className="nudge">
+              Enter your basic pay and DA for the year to count the employer’s NPS contribution: the deduction is a
+              share of it.
+            </p>
           )}
           {newRegime.housePropertyLossNotSetOff > 0 && (
             <p className="nudge">
@@ -299,13 +351,13 @@ const IncomeTaxCalculator: React.FC = () => {
           <li>
             <h3>Old regime</h3>
             <p>
-              By opting out. Nil up to ₹2.5 lakh (₹3 lakh at 60, ₹5 lakh at 80), then 5%, 20% above ₹5 lakh and 30%
-              above ₹10 lakh. A standard deduction of ₹50,000. A rebate of up to ₹12,500 up to ₹5 lakh. HRA, home loan
-              interest and the deductions under sections 123 to 153 are allowed.
+              If you opt out of the new regime. Nil up to ₹2.5 lakh (₹3 lakh at 60, ₹5 lakh at 80), then 5%, 20% above
+              ₹5 lakh and 30% above ₹10 lakh. A standard deduction of ₹50,000. A rebate of up to ₹12,500 up to ₹5 lakh.
+              HRA, home loan interest and the deductions under sections 123 to 153 are allowed.
             </p>
           </li>
           <li>
-            <h3>Both</h3>
+            <h3>Under either regime</h3>
             <p>
               Capital gains on listed shares and equity funds are taxed at 20% (short-term) and 12.5% above ₹1.25 lakh
               (long-term), and other long-term gains at 12.5%. Surcharge is 10% above ₹50 lakh, 15% above ₹1 crore and
@@ -315,7 +367,7 @@ const IncomeTaxCalculator: React.FC = () => {
         </ul>
       </section>
 
-      <section className="sec" aria-labelledby="it-know-heading">
+      <section className="sec band" aria-labelledby="it-know-heading">
         <div className="sec-h">
           <h2 id="it-know-heading">Good to know</h2>
         </div>

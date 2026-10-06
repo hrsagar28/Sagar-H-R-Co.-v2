@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { calculateGst } from './gst';
 import { calculateHra } from './hra';
-import { calculatePropertyGain, taxYearOf } from './capitalGains';
+import { calculatePropertyGain, improvementYears, indexedAmount, taxYearOf } from './capitalGains';
 import { calculateRegime, compareRegimes, EMPTY_INCOME_TAX_INPUT, type IncomeTaxInput } from './incomeTax';
 import { cleanAmount, rupees, toAmount } from './format';
 
@@ -91,13 +91,13 @@ describe('capital gains on property (s.197)', () => {
   });
   it('charges others 12.5% without indexation', () => {
     const result = calculatePropertyGain({ ...plot, residentIndividualOrHuf: false });
-    expect(result?.comparisonAvailable).toBe(false);
+    expect(result?.basis).toBe('plain');
     expect(result?.tax).toBe(1312500);
   });
   it('has no comparison for property bought on or after 23 July 2024, and treats 24 months or less as short-term', () => {
     const recent = calculatePropertyGain({ ...plot, purchaseDate: '2024-07-23', residentIndividualOrHuf: true });
     expect(recent?.longTerm).toBe(true);
-    expect(recent?.comparisonAvailable).toBe(false);
+    expect(recent?.basis).toBe('plain');
     const quick = calculatePropertyGain({
       ...plot,
       purchaseDate: '2024-08-01',
@@ -134,6 +134,36 @@ describe('capital gains on property (s.197)', () => {
     expect(result?.costIndex).toBe(100);
     expect(result?.indexedCost).toBe(3840000);
     expect(result?.indexedImprovements).toBe(384000);
+  });
+  it('charges 20% with indexation, for everyone, on a sale before 23 July 2024', () => {
+    const early = calculatePropertyGain({ ...plot, saleDate: '2024-07-22', residentIndividualOrHuf: false });
+    expect(early?.basis).toBe('indexed');
+    expect(early?.method).toBe('indexed');
+    expect(early?.saleIndex).toBe(363);
+    expect(early?.newAct).toBe(false);
+    const later = calculatePropertyGain({ ...plot, saleDate: '2024-07-23', residentIndividualOrHuf: true });
+    expect(later?.basis).toBe('lower');
+  });
+  it('counts 24 months from 29 February as ending on 28 February', () => {
+    const leap = { ...plot, purchaseDate: '2024-02-29', residentIndividualOrHuf: true };
+    expect(calculatePropertyGain({ ...leap, saleDate: '2026-02-28' })?.longTerm).toBe(false);
+    expect(calculatePropertyGain({ ...leap, saleDate: '2026-03-01' })?.longTerm).toBe(true);
+  });
+  it('ignores improvements outside the years between purchase and sale', () => {
+    expect(improvementYears('2010-06-15', '2026-08-01')[0]).toBe('2010-11');
+    expect(improvementYears('1995-01-01', '2026-08-01')[0]).toBe('2001-02');
+    expect(improvementYears('2010-06-15', '2025-08-01').at(-1)).toBe('2025-26');
+    const result = calculatePropertyGain({
+      ...plot,
+      improvements: [{ year: '2008-09', amount: 1000000 }],
+      residentIndividualOrHuf: true,
+    });
+    expect(result?.plainTax).toBe(1312500);
+  });
+  it('indexes any amount between two years', () => {
+    expect(indexedAmount(100000, '2010-11', '2026-27')).toEqual({ value: 229940, from: 167, to: 384 });
+    expect(indexedAmount(100000, '1995-96', '2026-27')?.from).toBe(100);
+    expect(indexedAmount(100000, '2010-11', '2030-31')).toBeNull();
   });
 });
 
@@ -196,6 +226,15 @@ describe('income tax, tax year 2026-27', () => {
     const result = calculateRegime(income({ otherIncome: 30000000, ltcgOther: 30000000 }), 'new');
     const expected = result.slabTax * 0.25 + result.specialTax * 0.15;
     expect(result.surcharge).toBe(Math.round(expected));
+  });
+  it('rounds income and tax to the nearest ₹10 (s.516)', () => {
+    // ₹12,00,004 of income rounds down to ₹12 lakh, so the full rebate applies.
+    expect(calculateRegime(income({ salary: 1275004 }), 'new').total).toBe(0);
+    const result = calculateRegime(income({ otherIncome: 900003 }), 'old');
+    expect(result.normalIncome).toBe(900000);
+    expect(result.total % 10).toBe(0);
+    const odd = calculateRegime(income({ otherIncome: 1000000, stcgEquity: 12345 }), 'new');
+    expect(odd.totalIncome).toBe(1012350);
   });
   it('says which regime is cheaper', () => {
     expect(compareRegimes(income({ salary: 1500000 })).better).toBe('new');
