@@ -255,6 +255,9 @@ SPA fallback redirect, a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
 
 - `IMPROVEMENT-PLAN.md` at the repo root tracks planned hardening work — check
   it for context before larger changes.
+- Resources tax figures (`constants/resources/`): `AUDIT-RESOURCES-LAW.md`
+  records what each was checked against, the readings decided with CA Sagar,
+  and the yearly update list. Update it with any figure you change.
 - For UI-affecting changes, show a preview and get sign-off before applying;
   prefer subtle, restrained changes and centralised fixes (shared utilities)
   over scattered one-offs.

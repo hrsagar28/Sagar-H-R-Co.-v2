@@ -1896,10 +1896,9 @@
   content: '';
   position: absolute;
   left: 2px;
-  top: 0.82em;
+  top: 14px;
   width: 9px;
-  height: 1px;
-  background: var(--copper-d);
+  border-top: 1px solid var(--copper-d);
 }
 .rd .lsec a {
   color: var(--ink);
@@ -2248,17 +2247,21 @@
   padding-top: 14px;
   border-top: 1px solid var(--rule);
 }
+/* The copper dash before a list item, here and in .lsec, .rbody and .asum.
+   Drawn as a border at a whole-pixel offset: a box 1px tall at a fractional
+   offset (it was 0.8em) is rounded to one or two screen pixels depending on
+   where it lands when Windows scales the display (125%, 150%), so some
+   dashes came out twice as thick as others. */
 .rd .needs li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.8em;
+  top: 13px;
   width: 12px;
-  height: 1px;
-  background: var(--copper-d);
+  border-top: 1px solid var(--copper-d);
 }
 .rd .needs li + li::before {
-  top: calc(14px + 0.8em);
+  top: 27px;
 }
 .rd .others {
   margin-top: clamp(80px, 8vw, 120px);
@@ -2396,10 +2399,9 @@
   content: '';
   position: absolute;
   left: 0;
-  top: 0.8em;
+  top: 12px;
   width: 10px;
-  height: 1px;
-  background: var(--copper-d);
+  border-top: 1px solid var(--copper-d);
 }
 .rd .rbody .btn {
   margin-top: 26px;
@@ -2846,10 +2848,9 @@
   content: '';
   position: absolute;
   left: 2px;
-  top: 0.8em;
+  top: 13px;
   width: 9px;
-  height: 1px;
-  background: var(--copper-d);
+  border-top: 1px solid var(--copper-d);
 }
 /* what else an article's text can hold */
 .rd .lsec h3 {

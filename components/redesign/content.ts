@@ -22,7 +22,7 @@ export const RD_FOOTER_EXPLORE: RdLink[] = [
 ];
 
 export const RD_FOOTER_RESOURCES: RdLink[] = [
-  { label: 'Resources', to: '/resources' },
+  { label: 'Tools and checklists', to: '/resources' },
   { label: 'FAQs', to: '/faqs' },
   { label: 'Careers', to: '/careers' },
   { label: 'Contact us', to: '/contact' },
