@@ -229,10 +229,6 @@ const SectionFinder: React.FC = () => {
             TDS sections 192 to 194T are now two sections, 392 and 393, with a table of payments. The{' '}
             <Link to="/resources/tds-tcs-rates">TDS and TCS rates</Link> page gives the threshold and rate for each.
           </li>
-          <li>
-            Sections from the ICAI’s mapping of the two Acts (September 2025); forms from the CBDT’s form navigator and
-            its FAQs on the transition.
-          </li>
         </ul>
       </section>
     </ToolPage>
