@@ -57,8 +57,9 @@ describe('NotFound', () => {
     ['/no-such-page', '/resources/old-name', '/services/no-such-service', '/insights/no-such-article'].forEach((path) =>
       expect(isRedesignedRoute(path)).toBe(true),
     );
-    ['/', '/about', '/resources', '/resources/checklist/gst'].forEach((path) =>
-      expect(isRedesignedRoute(path)).toBe(false),
+    ['/', '/about'].forEach((path) => expect(isRedesignedRoute(path)).toBe(false));
+    ['/resources', '/resources/gst-calculator', '/resources/checklist/gst'].forEach((path) =>
+      expect(isRedesignedRoute(path)).toBe(true),
     );
     expect(hasLightHeader('/no-such-page')).toBe(false);
   });

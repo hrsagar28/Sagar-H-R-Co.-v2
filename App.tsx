@@ -8,7 +8,6 @@ import {
   NetworkStatus,
   RouteErrorBoundary,
   TopProgressBar,
-  ResourcesSkeleton,
 } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
@@ -27,6 +26,7 @@ const InsightDetail = lazy(() => import('./pages/InsightDetail'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 const Resources = lazy(() => import('./pages/Resources'));
 const ChecklistDetail = lazy(() => import('./pages/ChecklistDetail'));
+const ResourceTool = lazy(() => import('./pages/ResourceTool'));
 const Careers = lazy(() => import('./pages/Careers'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Disclaimer = lazy(() => import('./pages/Disclaimer'));
@@ -75,7 +75,9 @@ const RouteHandler = () => {
       } else if (pathname.startsWith('/insights/')) {
         pageName = `Insight Article`;
       } else if (pathname.startsWith('/resources/checklist/')) {
-        pageName = `Checklist Resource`;
+        pageName = `Checklist`;
+      } else if (pathname.startsWith('/resources/')) {
+        pageName = (parts[1] || '').replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()) || 'Resources';
       } else {
         // Generic fallback: Capitalize words
         const firstPart = parts[0] || '';
@@ -184,7 +186,7 @@ const MainContent = () => {
               path="/resources"
               element={
                 <RouteErrorBoundary>
-                  <Suspense fallback={<ResourcesSkeleton />}>
+                  <Suspense fallback={<RdPageSkeleton />}>
                     <Resources />
                   </Suspense>
                 </RouteErrorBoundary>
@@ -194,7 +196,19 @@ const MainContent = () => {
               path="/resources/checklist/:slug"
               element={
                 <RouteErrorBoundary>
-                  <ChecklistDetail />
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <ChecklistDetail />
+                  </Suspense>
+                </RouteErrorBoundary>
+              }
+            />
+            <Route
+              path="/resources/:tool"
+              element={
+                <RouteErrorBoundary>
+                  <Suspense fallback={<RdPageSkeleton />}>
+                    <ResourceTool />
+                  </Suspense>
                 </RouteErrorBoundary>
               }
             />

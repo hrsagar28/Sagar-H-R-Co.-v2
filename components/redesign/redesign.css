@@ -2980,3 +2980,652 @@
     font-size: 14px;
   }
 }
+
+/* ---------- resources ----------
+   The index reuses the Services frame (.svclist, .sec, .srows). Each tool page
+   has the dark header, the tool in a panel on the seam (.seam.panel.calc: the
+   inputs on the left, the result on a limestone column on the right), notes
+   below, then the dark-green band. */
+
+/* index: the next due dates in the header */
+.rd .most.soon .when {
+  display: block;
+  margin-bottom: 3px;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--cream-m);
+}
+
+/* index: government portals, three columns of external links */
+.rd .portals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 clamp(24px, 3.3vw, 48px);
+  min-width: 0;
+}
+.rd .portals h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-family: var(--sans);
+  line-height: 1.4;
+  color: var(--muted);
+}
+.rd .portals ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rd .portals a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 0 13px;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: var(--ink);
+}
+.rd .portals .t {
+  display: block;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.25s;
+}
+.rd .portals .u {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.rd .portals svg {
+  margin-top: 6px;
+  color: var(--muted);
+  transition:
+    transform 0.35s var(--ease),
+    color 0.2s;
+}
+.rd .portals a:hover .t,
+.rd .portals a:focus-visible .t {
+  text-decoration-color: var(--copper);
+}
+.rd .portals a:hover svg {
+  transform: translate(2px, -2px);
+  color: var(--ink);
+}
+
+/* a tool page */
+.rd .tool {
+  padding-bottom: clamp(80px, 8vw, 120px);
+}
+.rd .tool > .sec,
+.rd .tool > .rates,
+.rd .tool > .cal {
+  margin-top: clamp(72px, 7vw, 104px);
+}
+.rd .tool .asof {
+  margin: clamp(56px, 5.6vw, 80px) 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* the calculator panel */
+.rd .calc {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+}
+.rd .cin {
+  padding: clamp(24px, 2.8vw, 40px);
+  min-width: 0;
+}
+.rd .cout {
+  padding: clamp(24px, 2.8vw, 40px);
+  border-left: 1px solid #e3ded2;
+  background: var(--stone);
+  min-width: 0;
+}
+/* the result stays in view while a long form (the income tax deductions)
+   scrolls past; it moves down under the sticky bar as .sec-h does */
+.rd .cstick {
+  position: sticky;
+  top: 28px;
+  transition: top 0.4s var(--ease);
+}
+.rd.bar-on .cstick {
+  top: calc(var(--bar) + 28px);
+}
+.rd .cin > .lbl {
+  margin-top: 4px;
+}
+.rd .pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(20px, 2.2vw, 32px);
+}
+.rd .fnote {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.rd .cin > .fnote {
+  margin-top: -14px;
+  margin-bottom: 22px;
+}
+.rd .fnote a,
+.rd .nudge a {
+  color: var(--ink);
+  text-decoration-color: var(--copper);
+  text-underline-offset: 3px;
+}
+.rd .money {
+  position: relative;
+}
+.rd .money > span {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.rd .fld .money input {
+  padding-left: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.rd .fld select,
+.rd .fld input[type='date'] {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule-s);
+  border-radius: 0;
+  padding: 6px 0 10px;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--ink);
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.rd .fld select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235f625c' stroke-width='1.6'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+}
+.rd .fld select:focus,
+.rd .fld input[type='date']:focus {
+  border-bottom-color: var(--ink);
+  box-shadow: 0 1px 0 0 var(--ink);
+}
+.rd .check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--body);
+}
+.rd .check input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--deep);
+}
+
+/* optional sections of a calculator */
+.rd details.more {
+  border-top: 1px solid var(--rule);
+}
+.rd details.more:last-of-type {
+  border-bottom: 1px solid var(--rule);
+}
+.rd details.more > summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 12px 0;
+  list-style: none;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.rd details.more > summary::-webkit-details-marker {
+  display: none;
+}
+.rd details.more > summary::after {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-right: 4px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  transform: translateY(-3px) rotate(45deg);
+  transition: transform 0.3s var(--ease);
+}
+.rd details.more[open] > summary::after {
+  transform: translateY(2px) rotate(-135deg);
+}
+.rd details.more[open] {
+  padding-bottom: 6px;
+}
+.rd .impr .pair {
+  margin-top: 12px;
+}
+.rd .impr-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+}
+
+/* the result */
+.rd .cout .big {
+  margin: 2px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(44px, 4.2vw, 64px);
+  line-height: 1;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.rd .cout .sub {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--body);
+}
+.rd .brk {
+  margin: 24px 0 0;
+}
+.rd .brk > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 11px 0 12px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.rd .brk dt {
+  color: var(--body);
+}
+.rd .brk dd {
+  margin: 0;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.rd .brk > div.tot {
+  border-bottom-color: var(--ink);
+}
+.rd .brk > div.tot dt,
+.rd .brk > div.tot dd {
+  color: var(--ink);
+  font-weight: 500;
+}
+.rd .brk > div.least dt,
+.rd .brk > div.least dd {
+  color: var(--ink);
+}
+.rd .brk > div.least dd {
+  text-decoration: underline;
+  text-decoration-color: var(--copper);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+.rd .nudge {
+  margin: 18px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* income tax: the two regimes side by side */
+.rd .calc.wide {
+  grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+}
+.rd .duo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.rd .duo > div {
+  padding-top: 10px;
+  border-top: 2px solid var(--rule-s);
+}
+.rd .duo > div.lower {
+  border-top-color: var(--copper);
+}
+.rd .duo .rg {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--body);
+}
+.rd .duo .big {
+  font-size: clamp(34px, 3vw, 48px);
+}
+.rd .cmp {
+  width: 100%;
+  margin: 24px 0 0;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.rd .cmp th,
+.rd .cmp td {
+  padding: 10px 0 11px;
+  border-bottom: 1px solid var(--rule);
+  font-weight: 400;
+  text-align: right;
+  vertical-align: baseline;
+}
+.rd .cmp th[scope='row'] {
+  text-align: left;
+  color: var(--body);
+  padding-right: 12px;
+}
+.rd .cmp thead th {
+  font-size: 13px;
+  color: var(--muted);
+  padding-top: 0;
+}
+.rd .cmp td {
+  padding-left: 12px;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.rd .cmp tr.tot th,
+.rd .cmp tr.tot td {
+  border-bottom-color: var(--ink);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* capital gains: the index table */
+.rd .cii {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 3;
+  column-gap: clamp(24px, 3.3vw, 48px);
+}
+.rd .cii li {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 0 10px;
+  border-bottom: 1px solid var(--rule);
+  break-inside: avoid;
+  font-size: 15px;
+  color: var(--body);
+}
+.rd .cii li span + span {
+  color: var(--ink);
+}
+
+/* TDS and TCS rates */
+.rd .rtab {
+  min-width: 0;
+}
+.rd .rhead,
+.rd .rrow {
+  display: grid;
+  grid-template-columns: minmax(0, 4.4fr) minmax(0, 2.8fr) minmax(0, 2fr) minmax(0, 2fr);
+  gap: 0 clamp(14px, 1.6vw, 24px);
+}
+.rd .rhead {
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--ink);
+  font-size: 13px;
+  color: var(--muted);
+}
+.rd .rtab ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rd .rrow {
+  padding: 14px 0 15px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--body);
+}
+.rd .rrow .t {
+  display: block;
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.rd .rrow .n {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.rd .rrow .rate {
+  color: var(--ink);
+}
+.rd .rrow .ref {
+  font-size: 14px;
+}
+.rd .rrow .was {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+}
+.rd .rrow .k {
+  display: none;
+}
+
+/* due dates */
+.rd .dnext .lbl {
+  margin-bottom: 4px;
+}
+.rd .nextlist {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+}
+.rd .nextlist li {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 16px;
+  padding: 10px 0 11px;
+  border-bottom: 1px solid var(--rule);
+}
+.rd .nextlist .when b {
+  display: block;
+  font-weight: 400;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.15;
+}
+.rd .nextlist .when span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.rd .nextlist .what {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.rd .pastnote {
+  margin: 0 0 28px;
+}
+.rd .sec.mon + .sec.mon {
+  margin-top: clamp(48px, 4.6vw, 64px);
+}
+.rd .dues {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.rd .dues li {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: baseline;
+  padding: 12px 0 13px;
+  border-bottom: 1px solid var(--rule);
+}
+.rd .dues .when b {
+  display: block;
+  font-weight: 400;
+  font-family: var(--serif);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--ink);
+}
+.rd .dues .when span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.rd .dues .t {
+  display: block;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.rd .dues .n {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.rd .dues .cat {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.rd .dues li.past .when b,
+.rd .dues li.past .t {
+  color: var(--muted);
+}
+.rd .dues li.past .t {
+  text-decoration: line-through;
+  text-decoration-color: var(--rule-s);
+}
+
+/* checklists: the print button on the dark header */
+.rd .phead .print-btn {
+  color: var(--cream);
+  text-decoration-color: rgba(236, 232, 222, 0.32);
+}
+
+@media (max-width: 900px) {
+  .rd .portals {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .rd .calc,
+  .rd .calc.wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rd .cin,
+  .rd .cout {
+    padding: 22px 18px;
+  }
+  .rd .cout {
+    border-left: 0;
+    border-top: 1px solid #e3ded2;
+  }
+  .rd .cstick {
+    position: static;
+  }
+  .rd .cii {
+    columns: 2;
+  }
+  .rd .rhead {
+    display: none;
+  }
+  .rd .rrow {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px 18px;
+  }
+  .rd .rrow .rp {
+    grid-column: 1 / -1;
+  }
+  .rd .rrow .k {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .rd .rrow .ref {
+    grid-column: 1 / -1;
+  }
+  .rd .nextlist li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .rd .dues li {
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 4px 14px;
+    align-items: start;
+  }
+  /* the day spans both rows, so the category sits right under the title */
+  .rd .dues .when {
+    grid-row: 1 / span 2;
+  }
+  .rd .dues .what {
+    padding-top: 3px;
+  }
+  .rd .dues .cat {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  /* the filter chips stay on phones here: the FAQ page swaps them for a
+     picker, but these pages have no other way to filter */
+  .rd .tool .topics {
+    display: flex;
+    gap: 6px;
+    padding-top: 12px;
+  }
+  .rd .tool .topic {
+    padding: 7px 11px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 600px) {
+  .rd .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media print {
+  .rd .phead h1,
+  .rd .phead .hsub,
+  .rd .phead .often {
+    color: var(--ink);
+  }
+  .rd .print-btn,
+  .rd .ask,
+  .rd .others,
+  .rd .tool .topics,
+  .rd .pastnote {
+    display: none;
+  }
+  .rd .seam {
+    margin-top: 0;
+  }
+  .rd .panel {
+    box-shadow: none;
+  }
+}

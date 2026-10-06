@@ -10,17 +10,18 @@ export const REDESIGNED_ROUTES = [
   '/privacy',
   '/terms',
   '/disclaimer',
+  '/resources',
 ];
 
-// Every page under these paths is redesigned too. ServiceDetail and
-// InsightDetail show the redesigned NotFound for an unknown slug.
-const REDESIGNED_PREFIXES = ['/services/', '/insights/'];
+// Every page under these paths is redesigned too. ServiceDetail, InsightDetail,
+// ResourceTool and ChecklistDetail show the redesigned NotFound for an unknown slug.
+const REDESIGNED_PREFIXES = ['/services/', '/insights/', '/resources/'];
 
 // Pages still in the old design. Remove a path here when it moves to
 // REDESIGNED_ROUTES. An address that is in neither list has no page, and its
 // "not found" screen (pages/NotFound.tsx) is redesigned.
-const OLD_ROUTES = ['/', '/about', '/resources'];
-const OLD_PREFIXES = ['/resources/checklist/'];
+const OLD_ROUTES = ['/', '/about'];
+const OLD_PREFIXES: string[] = [];
 
 const clean = (pathname: string) => pathname.replace(/\/+$/, '') || '/';
 

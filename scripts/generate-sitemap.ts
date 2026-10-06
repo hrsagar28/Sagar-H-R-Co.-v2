@@ -4,7 +4,8 @@ import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 import { SERVICES } from '../constants/services.tsx';
-import { CHECKLIST_DATA } from '../constants/resources.ts';
+import { CHECKLISTS } from '../constants/resources/checklists.ts';
+import { RESOURCE_TOOLS } from '../constants/resources/tools.ts';
 import type { InsightItem } from '../types/index.ts';
 import { getLeadingH1Warning } from '../utils/insightValidation.ts';
 
@@ -187,12 +188,21 @@ const generateSitemap = (): void => {
     });
   }
 
-  for (const slug of Object.keys(CHECKLIST_DATA)) {
+  for (const tool of RESOURCE_TOOLS) {
     entries.push({
-      loc: `${BASE_URL}/resources/checklist/${slug}`,
+      loc: `${BASE_URL}/resources/${tool.slug}`,
+      priority: '0.7',
+      changefreq: 'monthly',
+      lastmod: getContentLastmod('constants/resources'),
+    });
+  }
+
+  for (const checklist of CHECKLISTS) {
+    entries.push({
+      loc: `${BASE_URL}/resources/checklist/${checklist.slug}`,
       priority: '0.6',
       changefreq: 'yearly',
-      lastmod: getContentLastmod('constants/resources.ts'),
+      lastmod: getContentLastmod('constants/resources/checklists.ts'),
     });
   }
 

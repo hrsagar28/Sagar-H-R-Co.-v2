@@ -26,4 +26,3 @@ export { default as StarField } from './home/StarField';
 export { default as ChaosToOrder } from './home/ChaosToOrder';
 
 // Skeletons
-export { default as ResourcesSkeleton } from './skeletons/ResourcesSkeleton';
