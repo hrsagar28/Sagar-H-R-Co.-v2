@@ -71,6 +71,15 @@ The calculations are in `utils/resources/`, with tests in
   and March; one instalment by 15 March on presumptive income under s.58(2),
   Table entries 1 and 3. Source: the CBDT's FAQ on advance tax under the 2025
   Act and the text of s.408.
+- **Interest on advance tax (s.424, s.425; Rule 269 of the 2026 Rules).**
+  s.425: 3% on the shortfall at 15 June, September and December and 1% at
+  15 March; none at June if 12% was paid, none at September if 36% was;
+  presumptive income one date, 1%. s.424: below 90% of the tax, 1% a month or
+  part of a month from 1 April 2027 on the shortfall, to the date the user
+  gives (31 July 2027 by default). Rule 269: the amount in whole hundreds, a
+  part of a month as a month. Payments after 31 March are not advance tax.
+  Not modelled: the s.425(4) relief for capital gains and dividends, and
+  part-payments after 31 March (s.424(4)).
 - **Losses in the income tax calculator (s.108 to 113, 121, 202(2)(b),
   202(3)).** This year's capital losses first, within capital gains: a
   short-term loss against any gains, a long-term loss against long-term gains

@@ -4,8 +4,11 @@
 const WHOLE = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
 const PAISE = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/** ₹12,34,567, rounded to the rupee. */
-export const rupees = (value: number) => `₹${WHOLE.format(Math.round(value) || 0)}`;
+/** ₹12,34,567, rounded to the rupee; a negative amount as −₹12,34,567. */
+export const rupees = (value: number) => {
+  const whole = Math.round(value) || 0;
+  return `${whole < 0 ? '−' : ''}₹${WHOLE.format(Math.abs(whole))}`;
+};
 
 /** ₹12,34,567.50, to the paisa (GST). */
 export const rupeesPaise = (value: number) => `₹${PAISE.format(Math.round(value * 100) / 100 || 0)}`;

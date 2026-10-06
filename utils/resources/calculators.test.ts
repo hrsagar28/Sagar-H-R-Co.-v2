@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { calculateGst } from './gst';
 import { calculateHra } from './hra';
 import { calculatePropertyGain, improvementYears, indexedAmount, taxYearOf } from './capitalGains';
-import { advanceTax, calculateRegime, compareRegimes, EMPTY_INCOME_TAX_INPUT, type IncomeTaxInput } from './incomeTax';
+import {
+  advanceTax,
+  advanceTaxInterest,
+  calculateRegime,
+  compareRegimes,
+  EMPTY_INCOME_TAX_INPUT,
+  type IncomeTaxInput,
+} from './incomeTax';
 import { buildIcs } from './ics';
 import { cleanAmount, rupees, toAmount } from './format';
 
@@ -370,6 +377,62 @@ describe('advance tax (s.404, s.408)', () => {
     expect(result.due && result.instalments.map((item) => item.byThen)).toEqual([15000, 45000, 75000, 100000]);
     const presumptive = advanceTax({ ...base, tax: 120000, deducted: 0, hasBusinessIncome: true, presumptive: true });
     expect(presumptive.due && presumptive.instalments).toEqual([{ date: '2027-03-15', share: 1, byThen: 120000 }]);
+  });
+});
+
+describe('interest on advance tax (s.424, s.425, Rule 269)', () => {
+  const base = { net: 100000, payments: [], presumptive: false, balanceDate: '2027-07-31' };
+  it('charges nothing when each instalment is paid on time', () => {
+    const result = advanceTaxInterest({
+      ...base,
+      payments: [
+        { date: '2026-06-15', amount: 15000 },
+        { date: '2026-09-15', amount: 30000 },
+        { date: '2026-12-15', amount: 30000 },
+        { date: '2027-03-15', amount: 25000 },
+      ],
+    });
+    expect(result.deferment).toBe(0);
+    expect(result.shortPayment.interest).toBe(0);
+    expect(result.balance).toBe(0);
+  });
+  it('charges 3%, 3%, 3% and 1% on each shortfall, and 1% a month from April on the balance', () => {
+    const result = advanceTaxInterest(base);
+    expect(result.instalments.map((item) => item.interest)).toEqual([450, 1350, 2250, 1000]);
+    // April to July 2027: four months on ₹1 lakh.
+    expect(result.shortPayment).toEqual({ months: 4, on: 100000, interest: 4000 });
+    expect(result.total).toBe(9050);
+    // A part of a month counts as a whole one.
+    expect(advanceTaxInterest({ ...base, balanceDate: '2027-08-01' }).shortPayment.months).toBe(5);
+  });
+  it('excuses the first two instalments at 12% and 36%', () => {
+    const result = advanceTaxInterest({
+      ...base,
+      payments: [
+        { date: '2026-06-10', amount: 12000 },
+        { date: '2026-09-15', amount: 24000 },
+      ],
+    });
+    expect(result.instalments[0]!.interest).toBe(0);
+    expect(result.instalments[1]!.interest).toBe(0);
+    // December: ₹75,000 due, ₹36,000 paid.
+    expect(result.instalments[2]!.interest).toBe(Math.round(39000 * 0.03));
+  });
+  it('takes the shortfall in whole hundreds and ignores payments after 31 March', () => {
+    const result = advanceTaxInterest({ ...base, net: 100080, payments: [{ date: '2027-04-10', amount: 100080 }] });
+    // ₹15,012 due in June: interest on ₹15,000.
+    expect(result.instalments[0]!.interest).toBe(450);
+    expect(result.paid).toBe(0);
+  });
+  it('has one instalment at 1% on presumptive income, and no s.424 interest at 90%', () => {
+    const result = advanceTaxInterest({
+      ...base,
+      presumptive: true,
+      payments: [{ date: '2027-03-15', amount: 90000 }],
+    });
+    expect(result.instalments).toHaveLength(1);
+    expect(result.instalments[0]!.interest).toBe(100);
+    expect(result.shortPayment.interest).toBe(0);
   });
 });
 

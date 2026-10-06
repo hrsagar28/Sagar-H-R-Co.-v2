@@ -135,6 +135,12 @@ export interface RegimeResult {
   businessLossSetOff: number;
   /** Losses left to carry forward to next year, this year's and earlier years' together. */
   carriedForward: CarriedForward;
+  /** Income under each head before any loss is set off, for the printed computation. */
+  incomeBy: { salary: number; houseProperty: number; business: number; other: number; capitalGains: number };
+  /** All losses set off this year, this year's and earlier years'. */
+  lossesSetOff: number;
+  /** Income under all heads after losses, before deductions. */
+  grossTotalIncome: number;
   grossNormalIncome: number;
   deductions: number;
   /** Income taxed at the slab rates. */
@@ -367,7 +373,7 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
   const capitalLosses =
     input.shortTermLoss + input.longTermLoss + input.earlierShortTermLoss + input.earlierLongTermLoss;
 
-  let best: { tax: TaxResult; left: LossesLeft } | undefined;
+  let best: { tax: TaxResult; left: LossesLeft; after: Heads } | undefined;
   for (const order of businessLoss || propertyLossAllowed ? LOSS_ORDERS : LOSS_ORDERS.slice(0, 1)) {
     for (const gainOrder of capitalLosses ? GAIN_ORDERS : GAIN_ORDERS.slice(0, 1)) {
       const pools = { ...base };
@@ -386,16 +392,20 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
         earlierLongTerm: drain(pools, input.earlierLongTermLoss, longTerm),
         earlierShortTerm: drain(pools, input.earlierShortTermLoss, gainOrder),
       };
-      const tax = taxOnHeads(input, regime, {
+      const after: Heads = {
         salary: pools.salary,
         other: pools.property + pools.business + pools.other,
         gains: { stcg: pools.stcg, ltcgOther: pools.ltcgOther, ltcgEquity: pools.ltcgEquity },
-      });
-      if (!best || tax.total < best.tax.total) best = { tax, left };
+      };
+      const tax = taxOnHeads(input, regime, after);
+      if (!best || tax.total < best.tax.total) best = { tax, left, after };
     }
   }
-  const { tax, left } = best!;
+  const { tax, left, after } = best!;
   const propertySetOff = propertyLossAllowed - left.property;
+  const sum = (pools: number[]) => pools.reduce((total, value) => total + value, 0);
+  const capitalGains = base.stcg + base.ltcgOther + base.ltcgEquity;
+  const grossTotalIncome = after.salary + after.other + sum(Object.values(after.gains));
 
   return {
     ...tax,
@@ -412,12 +422,29 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
       shortTermCapital: whole(left.shortTerm + left.earlierShortTerm),
       longTermCapital: whole(left.longTerm + left.earlierLongTerm),
     },
+    incomeBy: {
+      salary: whole(base.salary),
+      houseProperty: whole(base.property),
+      business: whole(base.business),
+      other: whole(base.other),
+      capitalGains: whole(capitalGains),
+    },
+    lossesSetOff: whole(base.salary + base.property + base.business + base.other + capitalGains - grossTotalIncome),
+    grossTotalIncome: whole(grossTotalIncome),
   };
 };
 
 type TaxResult = Omit<
   RegimeResult,
-  'regime' | 'salaryIncome' | 'houseProperty' | 'housePropertyLossNotSetOff' | 'businessLossSetOff' | 'carriedForward'
+  | 'regime'
+  | 'salaryIncome'
+  | 'houseProperty'
+  | 'housePropertyLossNotSetOff'
+  | 'businessLossSetOff'
+  | 'carriedForward'
+  | 'incomeBy'
+  | 'lossesSetOff'
+  | 'grossTotalIncome'
 >;
 
 /** The tax on income under each head, after losses: deductions, slab and special rates, surcharge and cess. */
@@ -518,5 +545,85 @@ export const advanceTax = (input: AdvanceTaxInput): AdvanceTaxResult => {
     due: true,
     net,
     instalments: schedule.map((item) => ({ ...item, byThen: Math.round(net * item.share) })),
+  };
+};
+
+export interface AdvancePayment {
+  /** YYYY-MM-DD */
+  date: string;
+  amount: number;
+}
+
+export interface AdvanceInterestInput {
+  /** The year's tax after TDS and TCS: the tax due on returned income. */
+  net: number;
+  payments: AdvancePayment[];
+  presumptive: boolean;
+  /** When the rest of the tax is paid, for s.424. */
+  balanceDate: string;
+}
+
+export interface AdvanceInterestResult {
+  instalments: { date: string; share: number; due: number; paid: number; interest: number }[];
+  /** s.425: interest for deferment, all instalments together. */
+  deferment: number;
+  /** Advance tax paid within the tax year. */
+  paid: number;
+  /** Tax left to pay after advance tax. */
+  balance: number;
+  /** s.424: interest for short payment, when advance tax is under 90% of the tax. */
+  shortPayment: { months: number; on: number; interest: number };
+  total: number;
+}
+
+/** Rule 269: the amount on which interest runs, in whole hundreds, the rest ignored. */
+const hundreds = (amount: number) => Math.floor(amount / ADVANCE_TAX.roundTo) * ADVANCE_TAX.roundTo;
+
+/** Months from the start of `from` to `to`, a part of a month counting as a whole one (Rule 269). */
+const monthsTo = (from: string, to: string) => {
+  if (to < from) return 0;
+  const [fy, fm] = from.split('-').map(Number) as [number, number];
+  const [ty, tm] = to.split('-').map(Number) as [number, number];
+  return (ty - fy) * 12 + (tm - fm) + 1;
+};
+
+/**
+ * Interest on advance tax (s.424, s.425) for someone liable to pay it, from
+ * the payments made in the tax year. Leaves out the s.425(4) relief for
+ * capital gains and dividends that arise after an instalment date.
+ */
+export const advanceTaxInterest = (input: AdvanceInterestInput): AdvanceInterestResult => {
+  const inYear = input.payments.filter(
+    (payment) => payment.amount > 0 && payment.date >= ADVANCE_TAX.paidFrom && payment.date <= ADVANCE_TAX.paidTo,
+  );
+  const paidBy = (date: string) =>
+    inYear.filter((payment) => payment.date <= date).reduce((sum, payment) => sum + payment.amount, 0);
+  const schedule = input.presumptive
+    ? [{ date: ADVANCE_TAX.presumptiveDate, share: 1, rate: ADVANCE_TAX.presumptiveRate, enough: undefined }]
+    : ADVANCE_TAX.instalments;
+
+  const instalments = schedule.map((item) => {
+    const due = Math.round(input.net * item.share);
+    const paid = paidBy(item.date);
+    const safe = item.enough !== undefined && paid >= input.net * item.enough;
+    const interest = safe ? 0 : Math.round(hundreds(Math.max(0, due - paid)) * item.rate);
+    return { date: item.date, share: item.share, due, paid, interest };
+  });
+  const deferment = instalments.reduce((sum, item) => sum + item.interest, 0);
+
+  const paid = paidBy(ADVANCE_TAX.paidTo);
+  const balance = Math.max(0, input.net - paid);
+  const short = paid < input.net * ADVANCE_TAX.shortPayment.below;
+  const months = short ? monthsTo(ADVANCE_TAX.shortPayment.from, input.balanceDate) : 0;
+  const on = short ? hundreds(balance) : 0;
+  const shortInterest = Math.round(on * ADVANCE_TAX.shortPayment.monthly * months);
+
+  return {
+    instalments,
+    deferment,
+    paid,
+    balance,
+    shortPayment: { months, on, interest: shortInterest },
+    total: deferment + shortInterest,
   };
 };

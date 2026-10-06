@@ -2,29 +2,73 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
 import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
-import { getResourceTool, type AgeBand } from '../../constants/resources';
+import FormField from '../../components/redesign/FormField';
+import { ADVANCE_TAX, getResourceTool, type AgeBand } from '../../constants/resources';
 import {
   EMPTY_INCOME_TAX_INPUT,
   advanceTax,
+  advanceTaxInterest,
   compareRegimes,
+  type AdvancePayment,
   type CarriedForward,
   type IncomeTaxInput,
   type RegimeResult,
 } from '../../utils/resources/incomeTax';
 import { rupees } from '../../utils/resources/format';
 import { dayMonth, todayIso } from '../../utils/resources/dates';
+import { formatLongDate } from '../../utils/insightDates';
 
 const TOOL = getResourceTool('income-tax-calculator')!;
 
 type NumberKey = { [K in keyof IncomeTaxInput]: IncomeTaxInput[K] extends number ? K : never }[keyof IncomeTaxInput];
 
+const either = (value: (result: RegimeResult) => number) => (a: RegimeResult, b: RegimeResult) =>
+  value(a) !== 0 || value(b) !== 0;
+
+/**
+ * The rows of the comparison. On screen it is short; printed, the income
+ * part is set out head by head down to total income, as a computation.
+ */
 const ROWS: {
   label: string;
   value: (result: RegimeResult) => number;
   show?: (a: RegimeResult, b: RegimeResult) => boolean;
+  /** Shown only on screen, or only in print. */
+  only?: 'screen' | 'print';
+  /** A subtotal, set a little heavier in print. */
+  sub?: boolean;
 }[] = [
-  { label: 'Income after deductions', value: (r) => r.normalIncome },
-  { label: 'Capital gains at special rates', value: (r) => r.specialGains, show: (a) => a.specialGains > 0 },
+  { label: 'Income after deductions', value: (r) => r.normalIncome, only: 'screen' },
+  {
+    label: 'Capital gains at special rates',
+    value: (r) => r.specialGains,
+    show: (a) => a.specialGains > 0,
+    only: 'screen',
+  },
+  { label: 'Salaries', value: (r) => r.incomeBy.salary, show: either((r) => r.incomeBy.salary), only: 'print' },
+  {
+    label: 'House property',
+    value: (r) => r.incomeBy.houseProperty,
+    show: either((r) => r.incomeBy.houseProperty),
+    only: 'print',
+  },
+  {
+    label: 'Business or profession',
+    value: (r) => r.incomeBy.business,
+    show: either((r) => r.incomeBy.business),
+    only: 'print',
+  },
+  { label: 'Other sources', value: (r) => r.incomeBy.other, show: either((r) => r.incomeBy.other), only: 'print' },
+  {
+    label: 'Capital gains at special rates',
+    value: (r) => r.incomeBy.capitalGains,
+    show: either((r) => r.incomeBy.capitalGains),
+    only: 'print',
+  },
+  { label: 'Less: losses set off', value: (r) => -r.lossesSetOff, show: either((r) => r.lossesSetOff), only: 'print' },
+  { label: 'Gross total income', value: (r) => r.grossTotalIncome, only: 'print', sub: true },
+  { label: 'Less: deductions', value: (r) => -r.deductions, show: either((r) => r.deductions), only: 'print' },
+  { label: 'Total income, rounded to ₹10', value: (r) => r.totalIncome, only: 'print', sub: true },
   { label: 'Tax at slab rates', value: (r) => r.slabTax },
   {
     label: 'Tax on capital gains',
@@ -78,6 +122,13 @@ const AGE_LABEL: Record<AgeBand, string> = { below60: 'Below 60', '60to79': '60 
 /** Above this, with capital gains, the surcharge and its marginal relief need working out case by case. */
 const SURCHARGE_REVIEW_INCOME = 20000000;
 
+/** Advance tax payments that can be entered. */
+const MAX_PAYMENTS = 8;
+
+/** Today, kept within the tax year, as the date of a new payment. */
+const paymentDefault = (today: string) =>
+  today < ADVANCE_TAX.paidFrom ? ADVANCE_TAX.paidFrom : today > ADVANCE_TAX.paidTo ? ADVANCE_TAX.paidTo : today;
+
 /** Losses left for next year, as rows of the carry-forward table. */
 const CARRIED: { key: keyof CarriedForward; label: string }[] = [
   { key: 'business', label: 'Business loss' },
@@ -91,6 +142,10 @@ const IncomeTaxCalculator: React.FC = () => {
   const set = <K extends keyof IncomeTaxInput>(key: K, value: IncomeTaxInput[K]) =>
     setInput((current) => ({ ...current, [key]: value }));
   const money = (key: NumberKey) => ({ value: input[key], onChange: (value: number) => set(key, value) });
+  const [payments, setPayments] = useState<AdvancePayment[]>([]);
+  const [balanceDate, setBalanceDate] = useState(ADVANCE_TAX.balanceDate);
+  const updatePayment = (index: number, change: Partial<AdvancePayment>) =>
+    setPayments((list) => list.map((item, at) => (at === index ? { ...item, ...change } : item)));
 
   const { newRegime, oldRegime, better } = compareRegimes(input);
   const difference = Math.abs(newRegime.total - oldRegime.total);
@@ -113,6 +168,16 @@ const IncomeTaxCalculator: React.FC = () => {
     presumptive: input.presumptive && businessProfit,
   });
   const today = todayIso();
+  // Once a payment is added, the schedule shows what was paid and the interest.
+  const interest =
+    advance.due && payments.length > 0
+      ? advanceTaxInterest({
+          net: advance.net,
+          payments,
+          presumptive: input.presumptive && businessProfit,
+          balanceDate,
+        })
+      : undefined;
   const entries: [string, string][] = entered
     ? [
         ['Age during the year', AGE_LABEL[input.age]],
@@ -127,6 +192,10 @@ const IncomeTaxCalculator: React.FC = () => {
         ...(input.presumptive && businessProfit
           ? ([['Business income', 'Presumptive (section 58)']] as [string, string][])
           : []),
+        ...payments.flatMap((payment) =>
+          amountEntry(`Advance tax paid on ${formatLongDate(payment.date)}`, payment.amount),
+        ),
+        ...(interest ? ([['The rest to be paid on', formatLongDate(balanceDate)]] as [string, string][]) : []),
       ]
     : [];
 
@@ -365,6 +434,61 @@ const IncomeTaxCalculator: React.FC = () => {
               />
               <span>My business income is on a presumptive basis (section 58, formerly 44AD or 44ADA)</span>
             </label>
+            <fieldset className="fld impr">
+              <legend>Advance tax paid in 2026-27</legend>
+              {payments.map((payment, index) => (
+                <div className="pair" key={index}>
+                  <FormField id={`it-paid-date-${index}`} label={`Date paid (payment ${index + 1})`}>
+                    <input
+                      id={`it-paid-date-${index}`}
+                      type="date"
+                      min={ADVANCE_TAX.paidFrom}
+                      max={ADVANCE_TAX.paidTo}
+                      value={payment.date}
+                      onChange={(event) => updatePayment(index, { date: event.target.value })}
+                    />
+                  </FormField>
+                  <MoneyField
+                    id={`it-paid-amount-${index}`}
+                    label={`Amount (payment ${index + 1})`}
+                    value={payment.amount}
+                    onChange={(amount) => updatePayment(index, { amount })}
+                  />
+                </div>
+              ))}
+              <div className="impr-acts">
+                {payments.length < MAX_PAYMENTS && (
+                  <button
+                    type="button"
+                    className="link-btn"
+                    onClick={() => setPayments((list) => [...list, { date: paymentDefault(today), amount: 0 }])}
+                  >
+                    Add a payment
+                  </button>
+                )}
+                {payments.length > 0 && (
+                  <button type="button" className="link-btn" onClick={() => setPayments((list) => list.slice(0, -1))}>
+                    Remove the last one
+                  </button>
+                )}
+              </div>
+            </fieldset>
+            {payments.length > 0 && (
+              <FormField id="it-balance-date" label="Date the rest of the tax will be paid">
+                <p className="fnote" id="it-balance-note">
+                  For interest under section 424. The return is due by 31 July for most people, and by 31 October with a
+                  tax audit.
+                </p>
+                <input
+                  id="it-balance-date"
+                  type="date"
+                  min={ADVANCE_TAX.shortPayment.from}
+                  aria-describedby="it-balance-note"
+                  value={balanceDate}
+                  onChange={(event) => setBalanceDate(event.target.value || ADVANCE_TAX.balanceDate)}
+                />
+              </FormField>
+            )}
           </details>
         </form>
 
@@ -397,7 +521,14 @@ const IncomeTaxCalculator: React.FC = () => {
               </thead>
               <tbody>
                 {ROWS.filter((row) => !row.show || row.show(newRegime, oldRegime)).map((row) => (
-                  <tr key={row.label}>
+                  <tr
+                    key={`${row.label}-${row.only ?? 'both'}`}
+                    className={
+                      [row.only === 'screen' && 'sonly', row.only === 'print' && 'ponly', row.sub && 'subt']
+                        .filter(Boolean)
+                        .join(' ') || undefined
+                    }
+                  >
                     <th scope="row">{row.label}</th>
                     <td className="tnum">{rupees(row.value(newRegime))}</td>
                     <td className="tnum">{rupees(row.value(oldRegime))}</td>
@@ -446,7 +577,58 @@ const IncomeTaxCalculator: React.FC = () => {
           {entered && (
             <div className="adv">
               <p className="lbl">Advance tax, {better} regime</p>
-              {advance.due ? (
+              {advance.due && interest ? (
+                <>
+                  <table className="cmp four">
+                    <caption className="vh">Advance tax due, paid and interest by each date</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">
+                          <span className="vh">By</span>
+                        </th>
+                        <th scope="col">Due</th>
+                        <th scope="col">Paid</th>
+                        <th scope="col">Interest</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {interest.instalments.map((item) => (
+                        <tr key={item.date}>
+                          <th scope="row">
+                            {dayMonth(item.date).replace(' ', '\u00a0')}
+                            {item.share < 1 && <span className="sh">{Math.round(item.share * 100)}%</span>}
+                          </th>
+                          <td className="tnum">{rupees(item.due)}</td>
+                          <td className="tnum">{rupees(item.paid)}</td>
+                          <td className="tnum">{rupees(item.interest)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <dl className="brk">
+                    <Row label="Interest for deferment (section 425)" value={rupees(interest.deferment)} />
+                    <Row label="Advance tax paid in the year" value={rupees(interest.paid)} />
+                    <Row label="Tax still to pay" value={rupees(interest.balance)} />
+                    <Row
+                      label={
+                        interest.shortPayment.months
+                          ? `Interest for short payment (section 424), ${interest.shortPayment.months} ${interest.shortPayment.months === 1 ? 'month' : 'months'} to ${formatLongDate(balanceDate)}`
+                          : 'Interest for short payment (section 424)'
+                      }
+                      value={rupees(interest.shortPayment.interest)}
+                    />
+                    <Row className="tot" label="Interest in all" value={rupees(interest.total)} />
+                  </dl>
+                  <p className="nudge">
+                    {interest.shortPayment.months
+                      ? ''
+                      : 'No interest under section 424: the advance tax paid is 90% or more of the tax. '}
+                    For a date still ahead, the interest is what it would be if nothing more is paid by then. Interest
+                    runs on whole hundreds of rupees, and part of a month counts as a month (Rule 269). Not included:
+                    the relief when capital gains or dividends arise after an instalment date (section 425(4)).
+                  </p>
+                </>
+              ) : advance.due ? (
                 <>
                   <dl className="brk">
                     {advance.instalments.map((item) => (
@@ -460,7 +642,8 @@ const IncomeTaxCalculator: React.FC = () => {
                   </dl>
                   <p className="nudge">
                     What should have been paid in all by each date, on {rupees(advance.net)} of tax after TDS and TCS. A
-                    shortfall carries interest under sections 424 and 425.
+                    shortfall carries interest under sections 424 and 425: add the payments made, under TDS, TCS and
+                    advance tax, to work it out.
                   </p>
                 </>
               ) : (

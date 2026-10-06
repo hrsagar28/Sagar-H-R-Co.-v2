@@ -6,6 +6,7 @@ import { CONTACT_INFO } from '../../constants';
 import { RESOURCES_LAW_AS_AT, type ResourceTool } from '../../constants/resources';
 import { SITE_URL } from '../../config/site';
 import { formatLongDate } from '../../utils/insightDates';
+import { todayIso } from '../../utils/resources/dates';
 
 // The frame of every Resources tool page (2026 redesign): the dark header with
 // a back link, the tool itself sitting on the seam, and the notes below it.
@@ -48,6 +49,17 @@ const ToolPage: React.FC<ToolPageProps> = ({ tool, law, children }) => {
           publisher: { '@type': 'AccountingService', name: CONTACT_INFO.name, url: SITE_URL },
         }}
       />
+
+      {/* Printed only: a letterhead line, so a printed estimate says whose it
+          is and when it was made. */}
+      <p className="plh pad" aria-hidden="true">
+        <span>
+          <b>{CONTACT_INFO.name}</b> {CONTACT_INFO.tagline}, {CONTACT_INFO.address.city}
+        </span>
+        <span>
+          {tool.group === 'calculators' ? 'Estimate printed on' : 'Printed on'} {formatLongDate(todayIso())}
+        </span>
+      </p>
 
       <div className="phead">
         <div className="grain" aria-hidden="true" />

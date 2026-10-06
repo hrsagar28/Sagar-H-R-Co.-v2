@@ -110,6 +110,24 @@ describe('Resources', () => {
     expect(years.at(-1)).toHaveTextContent('2025-26');
   });
 
+  it('works out interest on advance tax from the payments entered', async () => {
+    renderAt('/resources/income-tax-calculator');
+
+    const salary = await screen.findByLabelText('Salary');
+    fireEvent.focus(salary);
+    fireEvent.change(salary, { target: { value: '3000000' } });
+    expect(screen.queryByText('Interest in all')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Add a payment' }));
+    fireEvent.change(screen.getByLabelText('Date paid (payment 1)'), { target: { value: '2026-06-15' } });
+    const amount = screen.getByLabelText('Amount (payment 1)');
+    fireEvent.focus(amount);
+    fireEvent.change(amount, { target: { value: '100000' } });
+    expect(screen.getByText('Interest in all')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Interest for short payment \(section 424\), 4 months to 31 July 2027/),
+    ).toBeInTheDocument();
+  });
+
   it('finds the new section or form for an old one', async () => {
     renderAt('/resources/section-finder');
 

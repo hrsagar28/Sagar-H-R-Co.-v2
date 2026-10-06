@@ -105,7 +105,6 @@ export const Result: React.FC<ResultProps> = ({ children, entries }) => (
               <Row key={label} label={label} value={value} />
             ))}
           </dl>
-          <p className="lbl">The result</p>
         </div>
       )}
       {children}

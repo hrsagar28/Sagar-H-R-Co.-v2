@@ -3403,6 +3403,30 @@
   white-space: nowrap;
   color: var(--ink);
 }
+/* four columns: date, due, paid, interest */
+.rd .cmp.four td {
+  width: 21%;
+}
+/* the share due by a date, beside it, or under it on a phone */
+.rd .cmp .sh {
+  margin-left: 8px;
+  color: var(--muted);
+}
+@media (max-width: 600px) {
+  .rd .cmp .sh {
+    display: block;
+    margin-left: 0;
+    font-size: 12px;
+  }
+  /* four columns of figures fit a phone a size smaller */
+  .rd .cmp.four th,
+  .rd .cmp.four td {
+    font-size: 12.5px;
+  }
+  .rd .cmp.four td {
+    padding-left: 8px;
+  }
+}
 .rd .cmp tr.tot th,
 .rd .cmp tr.tot td {
   border-bottom-color: var(--ink);
@@ -4108,5 +4132,155 @@
   }
   .rd .flbl {
     margin-bottom: 4px;
+  }
+}
+
+/* ---------- printed estimates ----------
+   The Resources tools print as a sheet a client can keep: a letterhead line
+   with the date printed, the figures entered in two columns, the result, and
+   the firm's footer, without the on-screen panel. The income tax comparison
+   gains the income lines of a computation in print (tr.ponly), and drops the
+   short screen summary (tr.sonly). */
+.rd .plh,
+.rd .cmp .ponly {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 14mm 16mm;
+  }
+  .rd .crumb {
+    display: none;
+  }
+  .rd .plh {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+    margin: 0 0 22px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ink);
+    font-size: 11px;
+    color: var(--ink);
+  }
+  .rd .plh b {
+    margin-right: 6px;
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 400;
+  }
+  .rd .phead h1 {
+    font-size: 28px;
+  }
+  .rd .phead .hsub {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+  .rd .phead .often {
+    margin-top: 4px;
+    font-size: 11px;
+  }
+  .rd .hgrid {
+    padding-bottom: 14px;
+  }
+  /* no panel: no outline, fill or inner padding */
+  .rd .calc,
+  .rd .seam.panel.calc {
+    border: 0;
+    background: none;
+  }
+  .rd .cout .cstick {
+    position: static;
+  }
+  .rd .cout .lbl {
+    margin: 0 0 6px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  /* the figures entered, two to a line */
+  .rd .psum .brk {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 32px;
+    margin: 0 0 18px;
+  }
+  .rd .psum .brk > div {
+    font-size: 11px;
+  }
+  .rd .cout .big,
+  .rd .duo .big {
+    font-size: 26px;
+  }
+  .rd .duo > div {
+    border-top-width: 1px;
+    border-top-color: var(--rule-s);
+  }
+  .rd .duo > div.lower {
+    border-top: 2px solid var(--ink);
+  }
+  .rd .cout .sub {
+    margin-top: 6px;
+    font-size: 12px;
+  }
+  .rd .cmp {
+    margin-top: 12px;
+  }
+  .rd .cmp .ponly {
+    display: table-row;
+  }
+  .rd .cmp .sonly {
+    display: none;
+  }
+  .rd .cmp tr.subt th,
+  .rd .cmp tr.subt td {
+    font-weight: 500;
+    border-bottom-color: var(--rule-s);
+  }
+  .rd .cout .adv {
+    margin-top: 14px;
+    break-inside: avoid;
+  }
+  .rd .cout .brk {
+    margin-top: 10px;
+  }
+  .rd .cmp .sh {
+    display: inline;
+    margin-left: 6px;
+    font-size: inherit;
+  }
+  /* rows close together, so an ordinary estimate fits on one sheet */
+  .rd .cout .brk > div,
+  .rd .cout .cmp th,
+  .rd .cout .cmp td {
+    padding: 3px 0 4px;
+    font-size: 11.5px;
+  }
+  .rd .cout .cmp td {
+    padding-left: 12px;
+  }
+  .rd .cout .cmp thead th {
+    font-size: 10.5px;
+  }
+  /* the figures entered, then a rule, then the result under its own label */
+  .rd .psum {
+    margin-bottom: 14px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .rd .cout .nudge {
+    margin-top: 8px;
+    font-size: 10.5px;
+    line-height: 1.45;
+    color: var(--body);
+  }
+  .rd .tool .asof {
+    margin-top: 12px;
+    font-size: 10.5px;
+  }
+  .rd .foot {
+    margin-top: 16px;
   }
 }
