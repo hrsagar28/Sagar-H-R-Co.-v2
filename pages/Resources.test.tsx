@@ -120,6 +120,11 @@ describe('Resources', () => {
     ).toHaveTextContent('123');
     fireEvent.change(search, { target: { value: 'form 26AS' } });
     expect(screen.getByText('Annual tax statement').closest('li')).toHaveTextContent('168');
+    fireEvent.change(search, { target: { value: 'Schedule III' } });
+    expect(screen.getByText('House rent allowance').closest('li')).toHaveTextContent('Sl. No. 11');
+    // Moved by the Finance Act, 2026: s.446 no longer covers the audit default.
+    fireEvent.change(search, { target: { value: '271B' } });
+    expect(screen.getByText('Not getting accounts audited, now a fee').closest('li')).toHaveTextContent('428');
     fireEvent.change(search, { target: { value: 'nothing like this' } });
     expect(screen.getByRole('heading', { name: /Nothing matches/ })).toBeInTheDocument();
   });

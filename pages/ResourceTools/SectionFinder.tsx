@@ -99,7 +99,8 @@ const tokens = (cell: string) =>
 
 /**
  * A word matches the subject, or the start of a section or form number in
- * either column: "80c" finds 80C and 80CCC, "393" finds every 393 row.
+ * either column: "80c" finds 80C and 80CCC, "393" finds every 393 row. The
+ * words also match together, so "Schedule III" finds "Schedule III (Sl. No. 11)".
  */
 const matches = (row: SectionRow, query: string) => {
   const words = query
@@ -109,7 +110,8 @@ const matches = (row: SectionRow, query: string) => {
     .filter((word) => word && !FILLER.has(word));
   const subject = row.subject.toLowerCase();
   const numbers = [...tokens(row.old), ...tokens(row.now)];
-  return words.every((word) => subject.includes(word) || numbers.some((number) => number.startsWith(code(word))));
+  const starts = (text: string) => numbers.some((number) => number.startsWith(code(text)));
+  return words.every((word) => subject.includes(word) || starts(word)) || (words.length > 1 && starts(words.join('')));
 };
 
 const SectionFinder: React.FC = () => {

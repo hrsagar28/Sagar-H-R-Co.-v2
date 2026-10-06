@@ -71,19 +71,26 @@ The calculations are in `utils/resources/`, with tests in
   and March; one instalment by 15 March on presumptive income under s.58(2),
   Table entries 1 and 3. Source: the CBDT's FAQ on advance tax under the 2025
   Act and the text of s.408.
-- **Section numbers.** From the ICAI's tabular mapping of the two Acts
-  (8 September 2025). Confirmed by a second source as well (the CBDT's
-  transition FAQs, the official section text, or a published mapping table):
-  the salary, house property, capital gains, deduction, rebate, return and
-  reassessment rows, 115BAC, 111A, 112, 112A, 288A/288B and 234A to 234D.
-  Forms: the CBDT's form navigator (June 2026) and the transition FAQs.
+- **Section numbers.** Every new number in `sections.ts` was read against the
+  official text, "Income-tax Act, 2025 as amended by Finance Act, 2026"
+  (incometaxindia.gov.in), in October 2026: the section's heading and, where
+  one new section stands for several old ones, its body. Official sources
+  only; no secondary mapping tables. Changes made by that reading:
+  - 271AAC: s.443 (penalty on unexplained income) was omitted from 1 April 2026. Such income is now misreporting under s.439(11)(g), so the row
+    points to s.439.
+  - 271B: s.446 was substituted from 1 April 2026 and now covers crypto-asset
+    statements. Not getting accounts audited is a fee under s.428(c)
+    (₹75,000, then ₹1,50,000), so the row points to s.428.
+  - Old s.10 alone maps to s.11 (Schedules II to VII). Old ss.11 to 13
+    (charitable and religious trusts) are now ss.332 to 355, "registered
+    non-profit organisations"; 12A and 12AB registration is s.332.
+  - 206AB is not in the 2025 Act (withdrawn from 1 April 2025). The s.397
+    row is now 203A (TAN) and 206AA (no PAN).
+  - HRA is Schedule III, Sl. No. 11; gratuity and leave encashment are in the
+    s.19 Table.
+    Forms: the CBDT's form navigator (June 2026) and its transition FAQs.
 
 ## Open
-
-- Section numbers taken from the ICAI mapping alone, to be read against the
-  official section text before the page goes live: 30, 35 to 37, 40, 80, 144,
-  148A, 154, 156, 197, 207, 208, 234E, 234F, 244A, 246A, 253, 263, 264, 270A,
-  271A, 271AAC, 271B, 276C, 285BA and 288.
 
 - GST rates: recheck after the 57th GST Council meeting (reported for
   7 October 2026).
@@ -107,6 +114,8 @@ The calculations are in `utils/resources/`, with tests in
 
 ## Official sources read
 
+- [Income-tax Act, 2025 as amended by Finance Act, 2026](https://www.incometaxindia.gov.in/documents/d/guest/income_tax_act_2025_as_amended_by_fa_act_2026-pdf)
+  (full text, PDF): every section row of `sections.ts`.
 - Income-tax Act, 2025: [s.82](https://www.incometaxindia.gov.in/w/section-82-55),
   [s.86](https://www.incometaxindia.gov.in/w/section-86-113),
   [s.197](https://www.incometaxindia.gov.in/w/section-197-78),

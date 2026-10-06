@@ -2,12 +2,13 @@
 // Act, 1961 and the forms of the 1962 Rules, with their place in the
 // Income-tax Act, 2025 and the Income-tax Rules, 2026.
 //
-// Sections: ICAI, "Income-tax Act, 2025 (including tabular mapping of
-// sections vis-a-vis Income-tax Act, 1961)", 8 September 2025, cross-checked
-// with the CBDT's FAQs on the transition and the official text of the
-// sections on incometaxindia.gov.in (October 2026). Forms: the CBDT's form
-// navigator (June 2026) and the transition FAQs (Q4.40). The TDS and TCS rows
-// are taken from tds.ts, which carries its own sources.
+// Sections: each new number read against the official text, "Income-tax Act,
+// 2025 as amended by Finance Act, 2026" (incometaxindia.gov.in), in October
+// 2026. The Finance Act, 2026 omitted s.443 and substituted s.446 from
+// 1 April 2026, so the 271AAC and 271B rows point to where those defaults
+// now sit (s.439(11)(g) and s.428(c)). Forms: the CBDT's form navigator
+// (June 2026) and its transition FAQs (Q4.40). The TDS and TCS rows are taken
+// from tds.ts, which carries its own sources.
 
 export interface SectionRow {
   /** The 1961 Act section, or the 1962 Rules form. */
@@ -34,9 +35,15 @@ export const SECTION_GROUPS: SectionGroup[] = [
       { old: '5', now: '5', subject: 'Scope of total income' },
       { old: '6', now: '6', subject: 'Residence in India' },
       { old: '9', now: '9', subject: 'Income deemed to accrue or arise in India' },
-      { old: '10, 11', now: '11', subject: 'Income not included in total income (with the Schedules)' },
-      { old: '10(13A)', now: 'Schedule III', subject: 'House rent allowance' },
+      { old: '10', now: '11', subject: 'Income not included in total income (Schedules II to VII)' },
+      { old: '10(13A)', now: 'Schedule III (Sl. No. 11)', subject: 'House rent allowance' },
       { old: '14A', now: '14', subject: 'Expenditure on exempt income' },
+      {
+        old: '11, 12, 13',
+        now: '332 to 355',
+        subject: 'Charitable and religious trusts, now "registered non-profit organisations"',
+      },
+      { old: '12A, 12AB', now: '332', subject: 'Registration of a trust or institution' },
     ],
   },
   {
@@ -146,7 +153,7 @@ export const SECTION_GROUPS: SectionGroup[] = [
       { old: '154', now: '287', subject: 'Rectification of mistakes' },
       { old: '156', now: '289', subject: 'Notice of demand' },
       { old: '197', now: '395', subject: 'Lower or nil TDS certificate' },
-      { old: '206AA, 206AB', now: '397', subject: 'Higher TDS without PAN, and other compliance' },
+      { old: '203A, 206AA', now: '397', subject: 'TAN, and higher TDS where no PAN is given' },
       { old: '207, 208', now: '403, 404', subject: 'Advance tax: who pays' },
       { old: '211', now: '408', subject: 'Advance tax instalments and dates' },
       { old: '285BA', now: '508', subject: 'Statement of financial transactions' },
@@ -167,8 +174,8 @@ export const SECTION_GROUPS: SectionGroup[] = [
       { old: '244A', now: '437', subject: 'Interest on refunds' },
       { old: '270A', now: '439', subject: 'Penalty for under-reporting and misreporting' },
       { old: '271A', now: '441', subject: 'Penalty for not keeping books' },
-      { old: '271AAC', now: '443', subject: 'Penalty on unexplained income' },
-      { old: '271B', now: '446', subject: 'Penalty for not getting accounts audited' },
+      { old: '271AAC', now: '439', subject: 'Penalty on unexplained income, now counted as misreporting' },
+      { old: '271B', now: '428', subject: 'Not getting accounts audited, now a fee' },
       { old: '246A', now: '357', subject: 'Appeal to the Commissioner (Appeals)' },
       { old: '253', now: '362', subject: 'Appeal to the Tribunal' },
       { old: '263', now: '377', subject: 'Revision of orders against revenue' },
