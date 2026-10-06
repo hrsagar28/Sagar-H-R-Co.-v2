@@ -10,11 +10,9 @@ export default {
     './pages/Home.tsx',
     './components/Navbar.tsx',
     './components/Footer.tsx',
-    './components/Preloader.tsx',
     './components/PageLoader.tsx',
     './components/TopProgressBar.tsx',
     './components/NetworkStatus.tsx',
-    './components/WhatsAppFloat.tsx',
     './components/Toast.tsx',
     './components/ToastContainer.tsx',
     // MNT-9: LiveRegion renders globally (via AnnounceProvider) but was unscanned;

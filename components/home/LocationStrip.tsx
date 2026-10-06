@@ -185,8 +185,9 @@ const LocationStrip: React.FC = () => {
 
                 {/*
                   Map - Size Increased.
-                  `data-hide-cursor="true"` is consumed by `components/CustomCursor.tsx`
-                  (closest-ancestor lookup) so the custom cursor disables itself
+                  `data-hide-cursor="true"` is read by the custom cursor
+                  (`components/cursors/cursorMode.ts`, closest-ancestor lookup,
+                  and `index.css`) so it steps aside for the browser's cursor
                   over the iframe — mousing over a third-party embed with a
                   fake cursor layer above looks broken. Audit L-02.
                 */}

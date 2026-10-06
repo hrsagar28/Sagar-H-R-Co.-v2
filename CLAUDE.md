@@ -226,6 +226,16 @@ that paints the hero instantly and is removed on the `app:hero-ready` event.
 **SEO** — `components/SEO.tsx`, generated sitemap, structured data, and the geo
 meta tags in `index.html`.
 
+**Cursor** — `components/CustomCursor.tsx` draws every cursor itself (a dot, a
+see-through circle over links, a text bar over text), because the browser
+only redraws its own cursor when the mouse moves. For mouse/trackpad users
+with motion allowed, `index.css` hides the browser's cursor everywhere with
+`cursor: none !important`, from the first paint — so a `cursor:` rule in a
+component has no visible effect for them. `html.cur-native` gives the
+browser's cursor back (crash, or the cursor's code failing to load:
+`components/cursors/early.ts`). Put `data-hide-cursor="true"` on a region that
+must keep the browser's cursor (embedded maps).
+
 ## Deployment
 
 Netlify. Pushing to `main` triggers an auto-deploy. `netlify.toml` defines the

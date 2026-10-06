@@ -3,14 +3,12 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import {
   Navbar,
   Footer,
-  Preloader,
   PageLoader,
   ToastContainer,
   NetworkStatus,
   RouteErrorBoundary,
   TopProgressBar,
   ResourcesSkeleton,
-  WhatsAppFloat,
 } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
@@ -268,8 +266,9 @@ const MainContent = () => {
 /**
  * Persistent chrome around the routed view. The redesigned pages (see
  * components/redesign/routes.ts) bring their own top bar and footer, so the
- * floating Navbar, the WhatsApp button, the noise overlay and the old Footer
- * are left out there; everything else is shared.
+ * floating Navbar, the noise overlay and the old Footer are left out there;
+ * everything else is shared. There is no floating WhatsApp button; WhatsApp
+ * is offered on the Contact page.
  */
 const SiteLayout = () => {
   const { pathname } = useLocation();
@@ -279,7 +278,6 @@ const SiteLayout = () => {
     <>
       <div className="print:hidden">
         <NetworkStatus />
-        <Preloader />
         {/* Audit CQ-12: CustomCursor is lazy-loaded via React.lazy at
             the top of this file, so its chunk fetch is already
             deferred to a separate request. The previous
@@ -290,7 +288,6 @@ const SiteLayout = () => {
         <Suspense fallback={null}>
           <CustomCursor />
         </Suspense>
-        {!redesigned && <WhatsAppFloat />}
       </div>
 
       {/* Fixed Elements */}
@@ -336,10 +333,7 @@ const App: React.FC = () => {
       <ToastProvider>
         <BrowserRouter>
           <TopProgressBar />
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-preloader focus:rounded-full focus:bg-brand-moss focus:px-6 focus:py-3 focus:font-bold focus:text-white focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white print:hidden"
-          >
+          <a href="#main-content" className="sx-skip">
             Skip to content
           </a>
           <RouteHandler />

@@ -1,12 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { WifiOff } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
+type Status = 'online' | 'offline' | 'back';
+
+/**
+ * A bar along the bottom of the screen while the visitor is offline, and a
+ * short "Back online" note when the connection returns. Styles in index.css
+ * (.sx-offline). UX-7: announced to assistive tech through role="status".
+ */
 const NetworkStatus: React.FC = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [status, setStatus] = useState<Status>(() => (navigator.onLine ? 'online' : 'offline'));
+  const timer = useRef(0);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOffline = () => {
+      window.clearTimeout(timer.current);
+      setStatus('offline');
+    };
+    const handleOnline = () => {
+      setStatus((current) => (current === 'offline' ? 'back' : current));
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => setStatus('online'), 3000);
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -14,20 +28,17 @@ const NetworkStatus: React.FC = () => {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.clearTimeout(timer.current);
     };
   }, []);
 
-  if (isOnline) return null;
+  if (status === 'online') return null;
 
   return (
-    <div
-      // UX-7: announce the offline state to assistive tech (was visual-only).
-      role="status"
-      aria-live="polite"
-      className="fixed left-0 right-0 top-0 z-network-status flex animate-fade-in-up items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-center text-sm font-bold text-white shadow-md"
-    >
-      <WifiOff size={16} aria-hidden="true" />
-      You are currently offline. Some features may be unavailable.
+    <div role="status" aria-live="polite" className={`sx-offline ${status === 'back' ? 'back' : ''}`}>
+      {status === 'back'
+        ? 'Back online.'
+        : 'You are offline. Pages you have not opened yet will load once the connection is back.'}
     </div>
   );
 };

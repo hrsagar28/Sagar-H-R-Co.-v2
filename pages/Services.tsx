@@ -24,6 +24,7 @@ const Services: React.FC = () => (
       title={`Services | ${CONTACT_INFO.name}`}
       description="GST, income tax, TDS, NRI taxation, notices and appeals, audits, certificates, company and LLP filings, trusts, bank loans and bookkeeping, from Sagar H R & Co., Chartered Accountants, Mysuru."
       canonicalUrl="https://casagar.co.in/services"
+      ogImage="https://casagar.co.in/og-services.png"
       schema={SCHEMA}
       breadcrumbs={[
         { name: 'Home', url: '/' },

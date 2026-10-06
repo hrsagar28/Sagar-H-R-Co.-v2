@@ -9,7 +9,6 @@ export { default as Navbar } from './Navbar';
 export { default as NetworkStatus } from './NetworkStatus';
 export { PageHero } from './hero';
 export { default as PageLoader } from './PageLoader';
-export { default as Preloader } from './Preloader';
 export { default as Reveal } from './Reveal';
 export { default as RouteErrorBoundary } from './RouteErrorBoundary';
 export { default as SEO } from './SEO';
@@ -18,7 +17,6 @@ export { default as Toast } from './Toast';
 export { default as ToastContainer } from './ToastContainer';
 export { default as TopProgressBar } from './TopProgressBar';
 export { default as VisuallyHidden } from './VisuallyHidden';
-export { default as WhatsAppFloat } from './WhatsAppFloat';
 
 // Home Specific Components
 export { default as FounderSection } from './home/FounderSection';

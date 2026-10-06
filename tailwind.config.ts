@@ -25,7 +25,8 @@ export default {
         popover: '600',
         tooltip: '700',
         toast: '800',
-        cursor: '1300',
+        // Above everything, including the shared pieces in index.css.
+        cursor: '9700',
         preloader: '1000',
         'network-status': '1100',
       },
@@ -95,7 +96,6 @@ export default {
         marquee: 'marquee 25s linear infinite',
         'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'scale-in': 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        'expand-width': 'expandWidth 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
       keyframes: {
         marquee: {
@@ -109,10 +109,6 @@ export default {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.9)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
-        },
-        expandWidth: {
-          '0%': { transform: 'scaleX(0)' },
-          '100%': { transform: 'scaleX(1)' },
         },
       },
     },

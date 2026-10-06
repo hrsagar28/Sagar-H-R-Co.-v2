@@ -1,5 +1,5 @@
 import React, { ErrorInfo, ReactNode } from 'react';
-import { RefreshCw, AlertCircle } from 'lucide-react';
+import { CONTACT_INFO } from '../config/contact';
 import { logger } from '../utils/logger';
 
 interface Props {
@@ -10,6 +10,11 @@ interface RouteErrorBoundaryState {
   hasError: boolean;
 }
 
+/**
+ * Catches an error in one page (most often its code failing to download after
+ * the site has been updated) and offers a reload, while the top bar and footer
+ * stay in place. Styles in index.css (.sx-err).
+ */
 class RouteErrorBoundary extends React.Component<Props, RouteErrorBoundaryState> {
   public state: RouteErrorBoundaryState = { hasError: false };
 
@@ -30,18 +35,21 @@ class RouteErrorBoundary extends React.Component<Props, RouteErrorBoundaryState>
   render() {
     if (this.state.hasError) {
       return (
-        <div className="my-8 flex flex-col items-center justify-center rounded-2xl border border-brand-border bg-brand-bg/50 p-8 text-center">
-          <AlertCircle className="mb-4 text-red-500" size={32} />
-          <h3 className="mb-2 font-heading text-xl font-bold text-brand-dark">Unable to load content</h3>
-          <p className="mb-6 max-w-md text-brand-stone">
-            We encountered an unexpected error while loading this section.
-          </p>
-          <button
-            onClick={this.handleRetry}
-            className="flex items-center gap-2 rounded-full bg-brand-dark px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-brand-brass"
-          >
-            <RefreshCw size={14} /> Reload Page
-          </button>
+        <div className="sx-err">
+          <div>
+            <h2>This page could not load</h2>
+            <p>
+              The site may have been updated since you opened it, or the connection dropped. Reloading the page usually
+              fixes this.
+            </p>
+            <button type="button" className="sx-btn" onClick={this.handleRetry}>
+              Reload the page
+            </button>
+            <p className="sx-small">
+              If it keeps happening, call <a href={`tel:${CONTACT_INFO.phone.value}`}>{CONTACT_INFO.phone.display}</a>{' '}
+              or email <a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a>.
+            </p>
+          </div>
         </div>
       );
     }

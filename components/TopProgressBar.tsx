@@ -31,11 +31,9 @@ const TopProgressBar: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="pointer-events-none fixed left-0 top-0 z-[2000] h-1 w-full">
-      <div
-        className="h-full w-full origin-left bg-brand-moss shadow-[0_0_10px_#1A4D2E] transition-transform duration-300 ease-out"
-        style={{ transform: `scaleX(${progress / 100})` }}
-      />
+    // A 2px copper line (index.css, .sx-progress).
+    <div className="sx-progress" aria-hidden="true">
+      <i style={{ transform: `scaleX(${progress / 100})` }} />
     </div>
   );
 };
