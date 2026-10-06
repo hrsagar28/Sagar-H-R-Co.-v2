@@ -71,15 +71,25 @@ The calculations are in `utils/resources/`, with tests in
   and March; one instalment by 15 March on presumptive income under s.58(2),
   Table entries 1 and 3. Source: the CBDT's FAQ on advance tax under the 2025
   Act and the text of s.408.
-- **Losses in the income tax calculator (s.109, 110, 112, 113, 121,
-  202(2)(b)(ii)).** A business loss is set off against any head except
-  salary, including capital gains, in both regimes. A house-property loss is
-  set off against any head up to ₹2 lakh in the old regime and not at all in
-  the new. The calculator takes the set-off order that leaves the least tax.
-  What is left is carried forward for 8 years: house property against house
-  property; business against business, only if the return is filed on time
-  (s.121 covers s.112, not s.110). Speculation losses (s.113) and capital
-  losses are left out.
+- **Losses in the income tax calculator (s.108 to 113, 121, 202(2)(b),
+  202(3)).** This year's capital losses first, within capital gains: a
+  short-term loss against any gains, a long-term loss against long-term gains
+  only (s.108). Then across heads (s.109): a business loss against anything
+  but salary, in both regimes; a house-property loss up to ₹2 lakh, old
+  regime only. Then losses from earlier years, each only against the same
+  kind of income (s.110 to 112). The calculator takes the order that leaves
+  the least tax. Left over: carried forward for 8 years; business and capital
+  losses only if the return is filed on time (s.121 covers s.111 and s.112,
+  not s.110). Speculation losses (s.113) and unabsorbed depreciation are left
+  out.
+- **House-property loss in the new regime (s.202(3)).** Read from the text:
+  the loss that s.202(2)(b)(ii) keeps from other heads is "deemed to have been
+  given full effect", so the calculator does not carry it forward in the new
+  regime. To be confirmed by CA Sagar.
+- **Earlier losses in the new regime (s.202(2)(b)(i)).** A loss that came from
+  a deduction the new regime does not allow cannot be set off. The calculator
+  cannot tell where a loss came from, so it counts the full amount in both
+  regimes and says so beside the fields.
 - **Section numbers.** Every new number in `sections.ts` was read against the
   official text, "Income-tax Act, 2025 as amended by Finance Act, 2026"
   (incometaxindia.gov.in), in October 2026: the section's heading and, where

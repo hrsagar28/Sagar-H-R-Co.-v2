@@ -3396,6 +3396,9 @@
   padding-top: 0;
 }
 .rd .cmp td {
+  /* The same share for each figure column, so two tables one above the
+     other (tax, then losses carried forward) line up. */
+  width: 28%;
   padding-left: 12px;
   white-space: nowrap;
   color: var(--ink);

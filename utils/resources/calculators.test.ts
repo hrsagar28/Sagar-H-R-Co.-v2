@@ -210,7 +210,7 @@ describe('income tax, tax year 2026-27', () => {
     // With only salary, none of the loss can be set off.
     const salaried = calculateRegime(income({ salary: 1000000, businessIncome: 300000, businessLoss: true }), 'new');
     expect(salaried.businessLossSetOff).toBe(0);
-    expect(salaried.businessLossNotSetOff).toBe(300000);
+    expect(salaried.carriedForward.business).toBe(300000);
     expect(salaried.total).toBe(calculateRegime(income({ salary: 1000000 }), 'new').total);
     // It reduces capital gains.
     const gains = calculateRegime(
@@ -245,6 +245,59 @@ describe('income tax, tax year 2026-27', () => {
     expect(result.specialGains).toBe(850000);
     // ₹2.5 lakh of unused basic exemption, then 12.5%.
     expect(result.specialTax).toBe(75000);
+  });
+  it('does not carry a house-property loss forward in the new regime (s.202(3))', () => {
+    // Annual value ₹1 lakh, less 30%, less ₹5 lakh interest: a loss of ₹4.3 lakh.
+    const input = income({ salary: 1000000, letOutRent: 100000, letOutInterest: 500000 });
+    expect(calculateRegime(input, 'new').carriedForward.houseProperty).toBe(0);
+    expect(calculateRegime(input, 'old').carriedForward.houseProperty).toBe(230000);
+  });
+  it('sets this year’s capital losses off within capital gains (s.108)', () => {
+    // A short-term loss reduces long-term gains too.
+    const short = calculateRegime(income({ ltcgOther: 1000000, shortTermLoss: 300000 }), 'new');
+    expect(short.specialGains).toBe(700000);
+    // A long-term loss does not reduce short-term gains, and is carried forward.
+    const long = calculateRegime(income({ stcgEquity: 500000, longTermLoss: 200000 }), 'new');
+    expect(long.specialGains).toBe(500000);
+    expect(long.carriedForward.longTermCapital).toBe(200000);
+    // Neither reduces other income (s.109(2)).
+    const other = calculateRegime(income({ otherIncome: 900000, shortTermLoss: 100000 }), 'new');
+    expect(other.normalIncome).toBe(900000);
+    expect(other.carriedForward.shortTermCapital).toBe(100000);
+  });
+  it('sets losses from earlier years off only against the same kind of income (s.110 to s.112)', () => {
+    const business = calculateRegime(
+      income({ otherIncome: 500000, businessIncome: 200000, earlierBusinessLoss: 300000 }),
+      'new',
+    );
+    expect(business.normalIncome).toBe(500000);
+    expect(business.carriedForward.business).toBe(100000);
+    // Annual value ₹3 lakh, less 30%: ₹2.1 lakh of house-property income.
+    const property = calculateRegime(
+      income({ otherIncome: 500000, letOutRent: 300000, earlierPropertyLoss: 500000 }),
+      'old',
+    );
+    expect(property.normalIncome).toBe(500000);
+    expect(property.carriedForward.houseProperty).toBe(290000);
+    // An earlier long-term loss comes off equity gains before the ₹1.25 lakh exemption.
+    const equity = calculateRegime(income({ ltcgEquity: 400000, earlierLongTermLoss: 100000 }), 'new');
+    expect(equity.specialGains).toBe(300000);
+    expect(equity.carriedForward.longTermCapital).toBe(0);
+  });
+  it('uses this year’s house-property loss on other income before business income an earlier loss needs', () => {
+    const result = calculateRegime(
+      income({
+        salary: 800000,
+        businessIncome: 300000,
+        letOutRent: 100000,
+        letOutInterest: 250000,
+        earlierBusinessLoss: 300000,
+      }),
+      'old',
+    );
+    // The ₹1.8 lakh loss comes off salary; the earlier ₹3 lakh takes all the business income.
+    expect(result.carriedForward.business).toBe(0);
+    expect(result.normalIncome).toBe(800000 - 50000 - 180000);
   });
   it('taxes equity gains at special rates, using unused basic exemption and the ₹1.25 lakh exemption', () => {
     const result = calculateRegime(income({ otherIncome: 300000, stcgEquity: 200000, ltcgEquity: 300000 }), 'new');

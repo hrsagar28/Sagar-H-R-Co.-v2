@@ -51,6 +51,18 @@ export interface IncomeTaxInput {
   ltcgEquity: number;
   /** Other long-term gains, such as property, gold or unlisted shares (s.197). */
   ltcgOther: number;
+  /** Capital losses this year (s.108): a short-term loss reduces any gains, a long-term loss only long-term gains. */
+  shortTermLoss: number;
+  longTermLoss: number;
+  /**
+   * Losses brought forward and still within their 8 years (s.110 to s.112):
+   * business against business income, house property against house-property
+   * income, capital as this year's capital losses.
+   */
+  earlierBusinessLoss: number;
+  earlierPropertyLoss: number;
+  earlierShortTermLoss: number;
+  earlierLongTermLoss: number;
   /** Old-regime deductions. */
   investments: number;
   ownNps: number;
@@ -84,6 +96,12 @@ export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
   stcgEquity: 0,
   ltcgEquity: 0,
   ltcgOther: 0,
+  shortTermLoss: 0,
+  longTermLoss: 0,
+  earlierBusinessLoss: 0,
+  earlierPropertyLoss: 0,
+  earlierShortTermLoss: 0,
+  earlierLongTermLoss: 0,
   investments: 0,
   ownNps: 0,
   healthSelf: 0,
@@ -95,6 +113,17 @@ export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
   presumptive: false,
 };
 
+export interface CarriedForward {
+  /** Against business income (s.112), if the return is filed on time (s.121). */
+  business: number;
+  /** Against house-property income (s.110). */
+  houseProperty: number;
+  /** Against any capital gains (s.111), if the return is filed on time. */
+  shortTermCapital: number;
+  /** Against long-term gains only (s.111), if the return is filed on time. */
+  longTermCapital: number;
+}
+
 export interface RegimeResult {
   regime: Regime;
   salaryIncome: number;
@@ -104,8 +133,8 @@ export interface RegimeResult {
   housePropertyLossNotSetOff: number;
   /** A business loss set off against other income and gains this year (s.109). */
   businessLossSetOff: number;
-  /** A business loss left over; carried forward against business income (s.112). */
-  businessLossNotSetOff: number;
+  /** Losses left to carry forward to next year, this year's and earlier years' together. */
+  carriedForward: CarriedForward;
   grossNormalIncome: number;
   deductions: number;
   /** Income taxed at the slab rates. */
@@ -248,6 +277,7 @@ const roundedIncome = (normalIncome: number, gains: Gains): [number, Gains] => {
 
 /** Where a loss can go: income at the slab rates, or one of the three kinds of gains. */
 type LossTarget = 'normal' | keyof Gains;
+type GainKey = keyof Gains;
 
 const permutations = <T>(items: T[]): T[][] =>
   items.length <= 1
@@ -257,11 +287,13 @@ const permutations = <T>(items: T[]): T[][] =>
       );
 
 /**
- * Every order in which a loss can be set off. The law leaves the order to the
+ * The orders in which losses can be set off. The law leaves the order to the
  * taxpayer, so the calculator takes the one that leaves the least tax, and
- * among equals the first: income at the slab rates before gains.
+ * among equals the first: income at the slab rates before gains, and gains at
+ * the higher rate first.
  */
-const SET_OFF_ORDERS = permutations<LossTarget>(['normal', 'stcg', 'ltcgOther', 'ltcgEquity']);
+const LOSS_ORDERS = permutations<LossTarget>(['normal', 'stcg', 'ltcgOther', 'ltcgEquity']);
+const GAIN_ORDERS = permutations<GainKey>(['stcg', 'ltcgOther', 'ltcgEquity']);
 
 /** Income under each head, before deductions. `other` is everything at the slab rates except salary. */
 interface Heads {
@@ -270,30 +302,35 @@ interface Heads {
   gains: Gains;
 }
 
-/**
- * s.109: set a loss off against income under other heads, including capital
- * gains, in the given order. A business loss cannot reduce salary; a
- * house-property loss can. Returns the heads after set-off and the loss left.
- */
-const setOff = (heads: Heads, loss: number, order: LossTarget[], againstSalary: boolean): [Heads, number] => {
+/** Income by source while losses are set off, since each loss may reduce only some of them. */
+type Pool = 'salary' | 'property' | 'business' | 'other' | GainKey;
+
+/** Take a loss off the pools in turn, changing them; returns what is left of the loss. */
+const drain = (pools: Record<Pool, number>, loss: number, order: Pool[]) => {
   let left = loss;
-  const take = (amount: number) => {
-    const used = Math.min(amount, left);
+  for (const key of order) {
+    const used = Math.min(pools[key], left);
+    pools[key] -= used;
     left -= used;
-    return amount - used;
-  };
-  let { salary, other } = heads;
-  const gains = { ...heads.gains };
-  for (const target of order) {
-    if (target === 'normal') {
-      other = take(other);
-      if (againstSalary) salary = take(salary);
-    } else {
-      gains[target] = take(gains[target]);
-    }
   }
-  return [{ salary, other, gains }, left];
+  return left;
 };
+
+/** What is left of each loss after set-off. */
+interface LossesLeft {
+  longTerm: number;
+  shortTerm: number;
+  business: number;
+  property: number;
+  earlierBusiness: number;
+  earlierProperty: number;
+  earlierLongTerm: number;
+  earlierShortTerm: number;
+}
+
+/** An order of targets with "normal" opened into the slab-rate pools the loss may reduce. */
+const expand = (order: LossTarget[], normal: Pool[]): Pool[] =>
+  order.flatMap((target) => (target === 'normal' ? normal : [target]));
 
 export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeResult => {
   const isNew = regime === 'new';
@@ -312,28 +349,53 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
   const property = letOut - selfOccupied;
   const business = input.businessLoss ? -input.businessIncome : input.businessIncome;
 
-  // Losses (s.109): a house-property loss reduces other income only in the
+  // This year's losses across heads (s.109): a house-property loss only in the
   // old regime and only up to ₹2 lakh (s.202(2)(b)(ii)); a business loss
-  // reduces anything but salary, in either regime.
+  // against anything but salary, in either regime.
   const propertyLoss = Math.max(0, -property);
   const propertyLossAllowed = Math.min(propertyLoss, isNew ? 0 : HOUSE_PROPERTY.lossSetOffCap);
   const businessLoss = Math.max(0, -business);
-  const heads: Heads = {
+  const base: Record<Pool, number> = {
     salary: salaryIncome,
-    other: Math.max(0, property) + Math.max(0, business) + input.otherIncome,
-    gains: { stcg: input.stcgEquity, ltcgEquity: input.ltcgEquity, ltcgOther: input.ltcgOther },
+    property: Math.max(0, property),
+    business: Math.max(0, business),
+    other: input.otherIncome,
+    stcg: input.stcgEquity,
+    ltcgOther: input.ltcgOther,
+    ltcgEquity: input.ltcgEquity,
   };
+  const capitalLosses =
+    input.shortTermLoss + input.longTermLoss + input.earlierShortTermLoss + input.earlierLongTermLoss;
 
-  let best: { tax: TaxResult; businessLeft: number; propertyLeft: number } | undefined;
-  for (const order of propertyLossAllowed || businessLoss ? SET_OFF_ORDERS : SET_OFF_ORDERS.slice(0, 1)) {
-    // The business loss first: it has fewer heads to go to.
-    const [afterBusiness, businessLeft] = setOff(heads, businessLoss, order, false);
-    const [after, propertyLeft] = setOff(afterBusiness, propertyLossAllowed, order, true);
-    const tax = taxOnHeads(input, regime, after);
-    if (!best || tax.total < best.tax.total) best = { tax, businessLeft, propertyLeft };
+  let best: { tax: TaxResult; left: LossesLeft } | undefined;
+  for (const order of businessLoss || propertyLossAllowed ? LOSS_ORDERS : LOSS_ORDERS.slice(0, 1)) {
+    for (const gainOrder of capitalLosses ? GAIN_ORDERS : GAIN_ORDERS.slice(0, 1)) {
+      const pools = { ...base };
+      const longTerm = gainOrder.filter((key) => key !== 'stcg');
+      const left: LossesLeft = {
+        // Within capital gains first (s.108). A long-term loss goes first: it has fewer gains to go to.
+        longTerm: drain(pools, input.longTermLoss, longTerm),
+        shortTerm: drain(pools, input.shortTermLoss, gainOrder),
+        // Across heads (s.109), keeping business and house-property income
+        // till last, since the losses brought forward can reduce nothing else.
+        business: drain(pools, businessLoss, expand(order, ['other', 'property'])),
+        property: drain(pools, propertyLossAllowed, expand(order, ['other', 'salary', 'business'])),
+        // Losses brought forward (s.110 to s.112).
+        earlierBusiness: drain(pools, input.earlierBusinessLoss, ['business']),
+        earlierProperty: drain(pools, input.earlierPropertyLoss, ['property']),
+        earlierLongTerm: drain(pools, input.earlierLongTermLoss, longTerm),
+        earlierShortTerm: drain(pools, input.earlierShortTermLoss, gainOrder),
+      };
+      const tax = taxOnHeads(input, regime, {
+        salary: pools.salary,
+        other: pools.property + pools.business + pools.other,
+        gains: { stcg: pools.stcg, ltcgOther: pools.ltcgOther, ltcgEquity: pools.ltcgEquity },
+      });
+      if (!best || tax.total < best.tax.total) best = { tax, left };
+    }
   }
-  const { tax, businessLeft, propertyLeft } = best!;
-  const propertySetOff = propertyLossAllowed - propertyLeft;
+  const { tax, left } = best!;
+  const propertySetOff = propertyLossAllowed - left.property;
 
   return {
     ...tax,
@@ -341,19 +403,21 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
     salaryIncome: whole(salaryIncome),
     houseProperty: whole(property >= 0 ? property : -propertySetOff),
     housePropertyLossNotSetOff: whole(propertyLoss - propertySetOff),
-    businessLossSetOff: whole(businessLoss - businessLeft),
-    businessLossNotSetOff: whole(businessLeft),
+    businessLossSetOff: whole(businessLoss - left.business),
+    carriedForward: {
+      business: whole(left.business + left.earlierBusiness),
+      // In the new regime a house-property loss that other heads may not take
+      // is treated as used: it is not carried forward (s.202(3)).
+      houseProperty: whole((isNew ? 0 : propertyLoss - propertySetOff) + left.earlierProperty),
+      shortTermCapital: whole(left.shortTerm + left.earlierShortTerm),
+      longTermCapital: whole(left.longTerm + left.earlierLongTerm),
+    },
   };
 };
 
 type TaxResult = Omit<
   RegimeResult,
-  | 'regime'
-  | 'salaryIncome'
-  | 'houseProperty'
-  | 'housePropertyLossNotSetOff'
-  | 'businessLossSetOff'
-  | 'businessLossNotSetOff'
+  'regime' | 'salaryIncome' | 'houseProperty' | 'housePropertyLossNotSetOff' | 'businessLossSetOff' | 'carriedForward'
 >;
 
 /** The tax on income under each head, after losses: deductions, slab and special rates, surcharge and cess. */

@@ -7,6 +7,7 @@ import {
   EMPTY_INCOME_TAX_INPUT,
   advanceTax,
   compareRegimes,
+  type CarriedForward,
   type IncomeTaxInput,
   type RegimeResult,
 } from '../../utils/resources/incomeTax';
@@ -55,6 +56,12 @@ const ENTRY_LABELS: [NumberKey, string][] = [
   ['stcgEquity', 'Short-term gains on listed shares and equity funds'],
   ['ltcgEquity', 'Long-term gains on listed shares and equity funds'],
   ['ltcgOther', 'Other long-term gains'],
+  ['shortTermLoss', 'Short-term capital loss this year'],
+  ['longTermLoss', 'Long-term capital loss this year'],
+  ['earlierBusinessLoss', 'Business loss from earlier years'],
+  ['earlierPropertyLoss', 'House property loss from earlier years'],
+  ['earlierShortTermLoss', 'Short-term capital loss from earlier years'],
+  ['earlierLongTermLoss', 'Long-term capital loss from earlier years'],
   ['hraExempt', 'Exempt HRA'],
   ['professionalTax', 'Professional tax paid'],
   ['investments', 'PF, PPF, life insurance, ELSS and similar'],
@@ -71,29 +78,13 @@ const AGE_LABEL: Record<AgeBand, string> = { below60: 'Below 60', '60to79': '60 
 /** Above this, with capital gains, the surcharge and its marginal relief need working out case by case. */
 const SURCHARGE_REVIEW_INCOME = 20000000;
 
-/** What happens to a house-property loss (s.109, s.110, s.202(2)(b)(ii)). */
-const propertyLossNote = (neu: RegimeResult, old: RegimeResult) => {
-  const carry = 'carried forward against house-property income for up to 8 years.';
-  const inNew = neu.housePropertyLossNotSetOff;
-  const inOld = old.housePropertyLossNotSetOff;
-  if (inNew && inOld) {
-    return `A loss of ${rupees(inNew)} from house property does not reduce other income in the new regime. In the old regime, where the set-off is limited to ₹2 lakh, ${rupees(inOld)} is left. What is left is ${carry}`;
-  }
-  if (inNew) {
-    return `A loss of ${rupees(inNew)} from house property does not reduce other income in the new regime; in the old regime it does. In the new regime it is ${carry}`;
-  }
-  return `In the old regime, where the set-off is limited to ₹2 lakh, ${rupees(inOld)} of the loss from house property is left. It is ${carry}`;
-};
-
-/** What happens to a business loss (s.109, s.112, s.121). */
-const businessLossNote = (neu: RegimeResult, old: RegimeResult) => {
-  const rule = 'A business loss is set off against income other than salary, including capital gains (section 109).';
-  const inNew = neu.businessLossNotSetOff;
-  const inOld = old.businessLossNotSetOff;
-  if (!inNew && !inOld) return rule;
-  const left = inNew === inOld ? rupees(inNew) : `${rupees(inNew)} in the new regime and ${rupees(inOld)} in the old`;
-  return `${rule} What it cannot reduce this year, ${left}, is carried forward against business income for up to 8 years, if the return is filed by the due date.`;
-};
+/** Losses left for next year, as rows of the carry-forward table. */
+const CARRIED: { key: keyof CarriedForward; label: string }[] = [
+  { key: 'business', label: 'Business loss' },
+  { key: 'houseProperty', label: 'House property loss' },
+  { key: 'shortTermCapital', label: 'Short-term capital loss' },
+  { key: 'longTermCapital', label: 'Long-term capital loss' },
+];
 
 const IncomeTaxCalculator: React.FC = () => {
   const [input, setInput] = useState<IncomeTaxInput>(EMPTY_INCOME_TAX_INPUT);
@@ -105,13 +96,14 @@ const IncomeTaxCalculator: React.FC = () => {
   const difference = Math.abs(newRegime.total - oldRegime.total);
   const senior = input.age !== 'below60';
   const businessProfit = input.businessIncome > 0 && !input.businessLoss;
+  const carried = CARRIED.filter(({ key }) => newRegime.carriedForward[key] > 0 || oldRegime.carriedForward[key] > 0);
   // A loss alone is still something to show: how much of it is carried forward.
   const entered =
     newRegime.totalIncome > 0 ||
     oldRegime.totalIncome > 0 ||
     input.businessIncome > 0 ||
-    newRegime.housePropertyLossNotSetOff > 0 ||
-    oldRegime.housePropertyLossNotSetOff > 0;
+    carried.length > 0 ||
+    oldRegime.houseProperty < 0;
   const lower = better === 'old' ? oldRegime : newRegime;
   const advance = advanceTax({
     tax: lower.total,
@@ -247,11 +239,60 @@ const IncomeTaxCalculator: React.FC = () => {
                 note="Taxed at 12.5%."
                 {...money('ltcgOther')}
               />
+              <MoneyField
+                id="it-stcl"
+                label="Short-term capital loss this year"
+                note="On any asset. Reduces any of the gains above."
+                {...money('shortTermLoss')}
+              />
+              <MoneyField
+                id="it-ltcl"
+                label="Long-term capital loss this year"
+                note="Reduces long-term gains only."
+                {...money('longTermLoss')}
+              />
             </div>
             <p className="fnote">
-              Short-term gains on other assets are ordinary income: add them to other income. For property bought before
-              23 July 2024, the <Link to="/resources/capital-gains-calculator">capital gains calculator</Link> shows
-              whether 20% with indexation is lower.
+              Short-term gains on other assets are ordinary income: add them to other income (a capital loss is not set
+              off against them here). For property bought before 23 July 2024, the{' '}
+              <Link to="/resources/capital-gains-calculator">capital gains calculator</Link> shows whether 20% with
+              indexation is lower.
+            </p>
+          </details>
+
+          <details className="more">
+            <summary>Losses from earlier years</summary>
+            <div className="pair">
+              <MoneyField
+                id="it-bf-business"
+                label="Business loss"
+                note="Reduces business income only. Not intraday trading."
+                {...money('earlierBusinessLoss')}
+              />
+              <MoneyField
+                id="it-bf-property"
+                label="House property loss"
+                note="Reduces house-property income only."
+                {...money('earlierPropertyLoss')}
+              />
+              <MoneyField
+                id="it-bf-stcl"
+                label="Short-term capital loss"
+                note="Reduces any capital gains."
+                {...money('earlierShortTermLoss')}
+              />
+              <MoneyField
+                id="it-bf-ltcl"
+                label="Long-term capital loss"
+                note="Reduces long-term gains only."
+                {...money('earlierLongTermLoss')}
+              />
+            </div>
+            <p className="fnote">
+              Enter what is still available: each loss carries forward for 8 years, and business and capital losses only
+              if that year’s return was filed by the due date. In the new regime, a loss that came from something it
+              does not allow, such as interest on a house you live in or additional depreciation, cannot be set off
+              (section 202); the calculator counts the full amount in both regimes.
             </p>
           </details>
 
@@ -371,6 +412,37 @@ const IncomeTaxCalculator: React.FC = () => {
             </table>
           )}
 
+          {carried.length > 0 && (
+            <div className="adv">
+              <p className="lbl">Losses carried forward to next year</p>
+              <table className="cmp">
+                <caption className="vh">Losses left to carry forward under each regime</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      <span className="vh">Loss</span>
+                    </th>
+                    <th scope="col">New</th>
+                    <th scope="col">Old</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {carried.map(({ key, label }) => (
+                    <tr key={key}>
+                      <th scope="row">{label}</th>
+                      <td className="tnum">{rupees(newRegime.carriedForward[key])}</td>
+                      <td className="tnum">{rupees(oldRegime.carriedForward[key])}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="nudge">
+                Each loss can be carried forward for 8 years from the year it arose. Business and capital losses carry
+                forward only if the return is filed by the due date (section 121).
+              </p>
+            </div>
+          )}
+
           {entered && (
             <div className="adv">
               <p className="lbl">Advance tax, {better} regime</p>
@@ -416,11 +488,17 @@ const IncomeTaxCalculator: React.FC = () => {
               share of it.
             </p>
           )}
-          {(newRegime.housePropertyLossNotSetOff > 0 || oldRegime.housePropertyLossNotSetOff > 0) && (
-            <p className="nudge">{propertyLossNote(newRegime, oldRegime)}</p>
+          {(newRegime.housePropertyLossNotSetOff > 0 || oldRegime.houseProperty < 0) && (
+            <p className="nudge">
+              In the new regime, a loss from house property does not reduce other income and is not carried forward
+              (section 202). In the old regime, up to ₹2 lakh of it reduces other income, and the rest is carried
+              forward.
+            </p>
           )}
           {input.businessLoss && input.businessIncome > 0 && (
-            <p className="nudge">{businessLossNote(newRegime, oldRegime)}</p>
+            <p className="nudge">
+              A business loss is set off against income other than salary, including capital gains (section 109).
+            </p>
           )}
           {input.businessIncome > 0 && (
             <p className="nudge">
@@ -482,8 +560,8 @@ const IncomeTaxCalculator: React.FC = () => {
           </li>
           <li>The rebate does not reduce tax on capital gains taxed at special rates in the new regime.</li>
           <li>
-            This estimate is for a resident individual. It does not cover agricultural income, losses brought forward,
-            capital losses, the 15% surcharge cap on dividends, or alternate minimum tax.
+            This estimate is for a resident individual. It does not cover agricultural income, unabsorbed depreciation,
+            the 15% surcharge cap on dividends, or alternate minimum tax.
           </li>
           <li>
             A loss from intraday share trading is a speculation loss: it is set off only against speculation profit
