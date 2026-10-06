@@ -1,5 +1,3 @@
-import { CURRENT_FY, CURRENT_AY } from './financial-year';
-
 const getEnv = (key: string): string => {
   if (import.meta.env) {
     return String(import.meta.env[key] || '');
@@ -52,8 +50,6 @@ export const CONTACT_INFO = {
   tagline: 'Chartered Accountants',
   firmRegistrationNo: '026642S',
   languages: ['English', 'Kannada', 'Hindi'],
-  assessmentYear: CURRENT_AY,
-  financialYear: CURRENT_FY,
   formEndpoint: getEnv('VITE_FORM_ENDPOINT') || DEFAULT_FORM_ENDPOINT,
   stats: {
     established: '2023',

@@ -15,4 +15,3 @@ export * from './resources';
 export * from '../config/contact';
 // MNT-7: previously omitted from the barrel despite living in this directory.
 export * from './careers';
-export * from './taxConfig';

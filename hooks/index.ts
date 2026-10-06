@@ -19,7 +19,6 @@ export * from './useRateLimit';
 export * from './useReducedMotion';
 export * from './useReturnFocus';
 export * from './useToast';
-export * from './useTaxConfig';
 export * from './useInsights';
 export * from './useArticleBody';
 export * from './useScrollPosition';
