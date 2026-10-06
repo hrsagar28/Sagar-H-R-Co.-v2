@@ -135,6 +135,25 @@ describe('Resources', () => {
     fireEvent.change(screen.getByLabelText('Search the resources'), { target: { value: 'NRI' } });
     expect(screen.getByRole('link', { name: /Non-resident Indians/ })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /HRA calculator/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(screen.getByLabelText('Search the resources')).toHaveValue('');
+  });
+
+  it('filters the index to one section, as the FAQ page does', () => {
+    renderAt('/resources');
+
+    const all = screen.getByRole('button', { name: 'All' });
+    expect(all).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'Checklists' }));
+    expect(screen.getByRole('button', { name: 'Checklists' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('region', { name: 'Checklists' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Calculators' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Government portals' })).toBeNull();
+    // A search counts the matches under each button.
+    fireEvent.change(screen.getByLabelText('Search the resources'), { target: { value: 'GST' } });
+    expect(screen.getByRole('button', { name: /^Calculators \d+$/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Show all' }));
+    expect(screen.getByRole('button', { name: /^All \d+$/ })).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('opens the due dates on this month and next', async () => {

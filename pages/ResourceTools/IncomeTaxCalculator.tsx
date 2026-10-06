@@ -71,6 +71,30 @@ const AGE_LABEL: Record<AgeBand, string> = { below60: 'Below 60', '60to79': '60 
 /** Above this, with capital gains, the surcharge and its marginal relief need working out case by case. */
 const SURCHARGE_REVIEW_INCOME = 20000000;
 
+/** What happens to a house-property loss (s.109, s.110, s.202(2)(b)(ii)). */
+const propertyLossNote = (neu: RegimeResult, old: RegimeResult) => {
+  const carry = 'carried forward against house-property income for up to 8 years.';
+  const inNew = neu.housePropertyLossNotSetOff;
+  const inOld = old.housePropertyLossNotSetOff;
+  if (inNew && inOld) {
+    return `A loss of ${rupees(inNew)} from house property does not reduce other income in the new regime. In the old regime, where the set-off is limited to ₹2 lakh, ${rupees(inOld)} is left. What is left is ${carry}`;
+  }
+  if (inNew) {
+    return `A loss of ${rupees(inNew)} from house property does not reduce other income in the new regime; in the old regime it does. In the new regime it is ${carry}`;
+  }
+  return `In the old regime, where the set-off is limited to ₹2 lakh, ${rupees(inOld)} of the loss from house property is left. It is ${carry}`;
+};
+
+/** What happens to a business loss (s.109, s.112, s.121). */
+const businessLossNote = (neu: RegimeResult, old: RegimeResult) => {
+  const rule = 'A business loss is set off against income other than salary, including capital gains (section 109).';
+  const inNew = neu.businessLossNotSetOff;
+  const inOld = old.businessLossNotSetOff;
+  if (!inNew && !inOld) return rule;
+  const left = inNew === inOld ? rupees(inNew) : `${rupees(inNew)} in the new regime and ${rupees(inOld)} in the old`;
+  return `${rule} What it cannot reduce this year, ${left}, is carried forward against business income for up to 8 years, if the return is filed by the due date.`;
+};
+
 const IncomeTaxCalculator: React.FC = () => {
   const [input, setInput] = useState<IncomeTaxInput>(EMPTY_INCOME_TAX_INPUT);
   const set = <K extends keyof IncomeTaxInput>(key: K, value: IncomeTaxInput[K]) =>
@@ -80,23 +104,37 @@ const IncomeTaxCalculator: React.FC = () => {
   const { newRegime, oldRegime, better } = compareRegimes(input);
   const difference = Math.abs(newRegime.total - oldRegime.total);
   const senior = input.age !== 'below60';
-  const entered = newRegime.totalIncome > 0 || oldRegime.totalIncome > 0;
+  const businessProfit = input.businessIncome > 0 && !input.businessLoss;
+  // A loss alone is still something to show: how much of it is carried forward.
+  const entered =
+    newRegime.totalIncome > 0 ||
+    oldRegime.totalIncome > 0 ||
+    input.businessIncome > 0 ||
+    newRegime.housePropertyLossNotSetOff > 0 ||
+    oldRegime.housePropertyLossNotSetOff > 0;
   const lower = better === 'old' ? oldRegime : newRegime;
   const advance = advanceTax({
     tax: lower.total,
     deducted: input.taxDeducted,
     senior,
-    hasBusinessIncome: input.businessIncome > 0,
-    presumptive: input.presumptive,
+    hasBusinessIncome: businessProfit,
+    presumptive: input.presumptive && businessProfit,
   });
   const today = todayIso();
   const entries: [string, string][] = entered
     ? [
         ['Age during the year', AGE_LABEL[input.age]],
-        ...ENTRY_LABELS.flatMap(([key, label]) => amountEntry(label, input[key])),
+        ...ENTRY_LABELS.flatMap(([key, label]) =>
+          amountEntry(
+            key === 'businessIncome' && input.businessLoss ? 'Loss from business or profession' : label,
+            input[key],
+          ),
+        ),
         ...(input.governmentEmployer ? ([['Employer', 'Central or State Government']] as [string, string][]) : []),
         ...(input.parentsSenior ? ([['A parent is a senior citizen', 'Yes']] as [string, string][]) : []),
-        ...(input.presumptive ? ([['Business income', 'Presumptive (section 58)']] as [string, string][]) : []),
+        ...(input.presumptive && businessProfit
+          ? ([['Business income', 'Presumptive (section 58)']] as [string, string][])
+          : []),
       ]
     : [];
 
@@ -129,7 +167,21 @@ const IncomeTaxCalculator: React.FC = () => {
               note="Gross, before the standard deduction, including HRA and other allowances."
               {...money('salary')}
             />
-            <MoneyField id="it-business" label="Profit from business or profession" {...money('businessIncome')} />
+            <MoneyField
+              id="it-business"
+              label={input.businessLoss ? 'Loss from business or profession' : 'Profit from business or profession'}
+              {...money('businessIncome')}
+              after={
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={input.businessLoss}
+                    onChange={(event) => set('businessLoss', event.target.checked)}
+                  />
+                  <span>This is a loss</span>
+                </label>
+              }
+            />
             <MoneyField id="it-other" label="Interest and other income" {...money('otherIncome')} />
             <MoneyField
               id="it-deposit"
@@ -364,15 +416,11 @@ const IncomeTaxCalculator: React.FC = () => {
               share of it.
             </p>
           )}
-          {newRegime.housePropertyLossNotSetOff > 0 && (
-            <p className="nudge">
-              A loss of {rupees(newRegime.housePropertyLossNotSetOff)} from house property does not reduce other income
-              in the new regime
-              {oldRegime.housePropertyLossNotSetOff > 0
-                ? `, and ${rupees(oldRegime.housePropertyLossNotSetOff)} of it is beyond the ₹2 lakh allowed in the old`
-                : ''}
-              . It can be carried forward against house-property income.
-            </p>
+          {(newRegime.housePropertyLossNotSetOff > 0 || oldRegime.housePropertyLossNotSetOff > 0) && (
+            <p className="nudge">{propertyLossNote(newRegime, oldRegime)}</p>
+          )}
+          {input.businessLoss && input.businessIncome > 0 && (
+            <p className="nudge">{businessLossNote(newRegime, oldRegime)}</p>
           )}
           {input.businessIncome > 0 && (
             <p className="nudge">
@@ -435,7 +483,15 @@ const IncomeTaxCalculator: React.FC = () => {
           <li>The rebate does not reduce tax on capital gains taxed at special rates in the new regime.</li>
           <li>
             This estimate is for a resident individual. It does not cover agricultural income, losses brought forward,
-            the 15% surcharge cap on dividends, or alternate minimum tax.
+            capital losses, the 15% surcharge cap on dividends, or alternate minimum tax.
+          </li>
+          <li>
+            A loss from intraday share trading is a speculation loss: it is set off only against speculation profit
+            (section 113), so leave it out here.
+          </li>
+          <li>
+            Where a loss can be set off against more than one kind of income, the calculator uses the order that leaves
+            the least tax.
           </li>
         </ul>
       </section>

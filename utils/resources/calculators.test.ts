@@ -12,6 +12,10 @@ describe('format', () => {
   it('groups in the Indian style and reads typed amounts', () => {
     expect(rupees(1234567)).toBe('₹12,34,567');
     expect(cleanAmount('₹1,20,000.505')).toBe('120000.50');
+    // At most 10 digits before the point, leading zeros dropped.
+    expect(cleanAmount('9'.repeat(30))).toBe('9999999999');
+    expect(cleanAmount('000123.4')).toBe('123.4');
+    expect(cleanAmount('0.5')).toBe('0.5');
     expect(toAmount('abc')).toBe(0);
     expect(toAmount('1,00,000')).toBe(100000);
   });
@@ -201,6 +205,46 @@ describe('income tax, tax year 2026-27', () => {
     const old = calculateRegime(input, 'old');
     expect(old.houseProperty).toBe(-200000);
     expect(old.housePropertyLossNotSetOff).toBe(416000);
+  });
+  it('sets a business loss off against anything but salary, and carries the rest forward (s.109, s.112)', () => {
+    // With only salary, none of the loss can be set off.
+    const salaried = calculateRegime(income({ salary: 1000000, businessIncome: 300000, businessLoss: true }), 'new');
+    expect(salaried.businessLossSetOff).toBe(0);
+    expect(salaried.businessLossNotSetOff).toBe(300000);
+    expect(salaried.total).toBe(calculateRegime(income({ salary: 1000000 }), 'new').total);
+    // It reduces capital gains.
+    const gains = calculateRegime(
+      income({ salary: 2000000, stcgEquity: 500000, businessIncome: 300000, businessLoss: true }),
+      'new',
+    );
+    expect(gains.businessLossSetOff).toBe(300000);
+    expect(gains.specialGains).toBe(200000);
+    expect(gains.specialTax).toBe(40000);
+  });
+  it('sets a loss off in the order that leaves the least tax', () => {
+    // At ₹30 lakh, slab income is taxed at 30%, above the 20% on short-term gains.
+    const high = calculateRegime(
+      income({ otherIncome: 3000000, stcgEquity: 1000000, businessIncome: 500000, businessLoss: true }),
+      'new',
+    );
+    expect(high.normalIncome).toBe(2500000);
+    expect(high.specialGains).toBe(1000000);
+    // At ₹13 lakh, slab income is taxed at 15%, below the 20% on the gains.
+    const low = calculateRegime(
+      income({ otherIncome: 1300000, stcgEquity: 1000000, businessIncome: 100000, businessLoss: true }),
+      'new',
+    );
+    expect(low.normalIncome).toBe(1300000);
+    expect(low.specialGains).toBe(900000);
+  });
+  it('sets a house-property loss off against capital gains in the old regime', () => {
+    // Annual value ₹1 lakh, less 30%, less ₹2.2 lakh interest: a loss of ₹1.5 lakh.
+    const result = calculateRegime(income({ letOutRent: 100000, letOutInterest: 220000, ltcgOther: 1000000 }), 'old');
+    expect(result.houseProperty).toBe(-150000);
+    expect(result.housePropertyLossNotSetOff).toBe(0);
+    expect(result.specialGains).toBe(850000);
+    // ₹2.5 lakh of unused basic exemption, then 12.5%.
+    expect(result.specialTax).toBe(75000);
   });
   it('taxes equity gains at special rates, using unused basic exemption and the ₹1.25 lakh exemption', () => {
     const result = calculateRegime(income({ otherIncome: 300000, stcgEquity: 200000, ltcgEquity: 300000 }), 'new');

@@ -71,6 +71,15 @@ The calculations are in `utils/resources/`, with tests in
   and March; one instalment by 15 March on presumptive income under s.58(2),
   Table entries 1 and 3. Source: the CBDT's FAQ on advance tax under the 2025
   Act and the text of s.408.
+- **Losses in the income tax calculator (s.109, 110, 112, 113, 121,
+  202(2)(b)(ii)).** A business loss is set off against any head except
+  salary, including capital gains, in both regimes. A house-property loss is
+  set off against any head up to ₹2 lakh in the old regime and not at all in
+  the new. The calculator takes the set-off order that leaves the least tax.
+  What is left is carried forward for 8 years: house property against house
+  property; business against business, only if the return is filed on time
+  (s.121 covers s.112, not s.110). Speculation losses (s.113) and capital
+  losses are left out.
 - **Section numbers.** Every new number in `sections.ts` was read against the
   official text, "Income-tax Act, 2025 as amended by Finance Act, 2026"
   (incometaxindia.gov.in), in October 2026: the section's heading and, where

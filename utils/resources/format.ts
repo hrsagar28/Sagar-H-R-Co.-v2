@@ -13,10 +13,18 @@ export const rupeesPaise = (value: number) => `₹${PAISE.format(Math.round(valu
 /** 12,34,567 without the symbol, for an input that is not being edited. */
 export const grouped = (value: number) => WHOLE.format(value);
 
+/**
+ * Digits allowed before the decimal point: up to ₹999 crore, more than any of
+ * the tools needs. Longer numbers lose precision and widen the results past
+ * a phone screen.
+ */
+export const MAX_DIGITS = 10;
+
 /** A typed amount: digits and at most one decimal point; anything else is dropped. */
-export const cleanAmount = (text: string) => {
+export const cleanAmount = (text: string, maxDigits = MAX_DIGITS) => {
   const kept = text.replace(/[^\d.]/g, '');
-  const [whole = '', ...rest] = kept.split('.');
+  const [first = '', ...rest] = kept.split('.');
+  const whole = first.replace(/^0+(?=\d)/, '').slice(0, maxDigits);
   return rest.length ? `${whole}.${rest.join('').slice(0, 2)}` : whole;
 };
 

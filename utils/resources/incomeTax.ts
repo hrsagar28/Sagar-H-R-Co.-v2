@@ -37,8 +37,10 @@ export interface IncomeTaxInput {
   letOutInterest: number;
   /** Home-loan interest on the house you live in (old regime only). */
   selfOccupiedInterest: number;
-  /** Profit from a business or profession. */
+  /** Profit from a business or profession, or the loss when `businessLoss` is set. */
   businessIncome: number;
+  /** The business or profession made a loss (not a speculation loss, which s.113 keeps apart). */
+  businessLoss: boolean;
   /** Interest and other income taxed at normal rates. */
   otherIncome: number;
   /** Of other income: savings account interest, or for a senior citizen any bank or post office deposit interest. */
@@ -76,6 +78,7 @@ export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
   letOutInterest: 0,
   selfOccupiedInterest: 0,
   businessIncome: 0,
+  businessLoss: false,
   otherIncome: 0,
   depositInterest: 0,
   stcgEquity: 0,
@@ -95,9 +98,14 @@ export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
 export interface RegimeResult {
   regime: Regime;
   salaryIncome: number;
+  /** Income from house property, or the part of a loss set off this year (negative). */
   houseProperty: number;
-  /** A house-property loss that cannot reduce other income this year. */
+  /** A house-property loss that does not reduce other income this year; carried forward (s.110). */
   housePropertyLossNotSetOff: number;
+  /** A business loss set off against other income and gains this year (s.109). */
+  businessLossSetOff: number;
+  /** A business loss left over; carried forward against business income (s.112). */
+  businessLossNotSetOff: number;
   grossNormalIncome: number;
   deductions: number;
   /** Income taxed at the slab rates. */
@@ -238,8 +246,56 @@ const roundedIncome = (normalIncome: number, gains: Gains): [number, Gains] => {
   return key ? [normalIncome, { ...gains, [key]: gains[key] + delta }] : [normalIncome, gains];
 };
 
+/** Where a loss can go: income at the slab rates, or one of the three kinds of gains. */
+type LossTarget = 'normal' | keyof Gains;
+
+const permutations = <T>(items: T[]): T[][] =>
+  items.length <= 1
+    ? [items]
+    : items.flatMap((item, index) =>
+        permutations([...items.slice(0, index), ...items.slice(index + 1)]).map((rest) => [item, ...rest]),
+      );
+
+/**
+ * Every order in which a loss can be set off. The law leaves the order to the
+ * taxpayer, so the calculator takes the one that leaves the least tax, and
+ * among equals the first: income at the slab rates before gains.
+ */
+const SET_OFF_ORDERS = permutations<LossTarget>(['normal', 'stcg', 'ltcgOther', 'ltcgEquity']);
+
+/** Income under each head, before deductions. `other` is everything at the slab rates except salary. */
+interface Heads {
+  salary: number;
+  other: number;
+  gains: Gains;
+}
+
+/**
+ * s.109: set a loss off against income under other heads, including capital
+ * gains, in the given order. A business loss cannot reduce salary; a
+ * house-property loss can. Returns the heads after set-off and the loss left.
+ */
+const setOff = (heads: Heads, loss: number, order: LossTarget[], againstSalary: boolean): [Heads, number] => {
+  let left = loss;
+  const take = (amount: number) => {
+    const used = Math.min(amount, left);
+    left -= used;
+    return amount - used;
+  };
+  let { salary, other } = heads;
+  const gains = { ...heads.gains };
+  for (const target of order) {
+    if (target === 'normal') {
+      other = take(other);
+      if (againstSalary) salary = take(salary);
+    } else {
+      gains[target] = take(gains[target]);
+    }
+  }
+  return [{ salary, other, gains }, left];
+};
+
 export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeResult => {
-  const senior = input.age !== 'below60';
   const isNew = regime === 'new';
 
   // Salary: standard deduction (s.19), and in the old regime professional tax and exempt HRA.
@@ -254,12 +310,57 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
   const letOut = annualValue * (1 - HOUSE_PROPERTY.standardDeduction) - input.letOutInterest;
   const selfOccupied = isNew ? 0 : Math.min(input.selfOccupiedInterest, HOUSE_PROPERTY.selfOccupiedInterestCap);
   const property = letOut - selfOccupied;
-  // A loss cannot reduce other income in the new regime, and only up to ₹2 lakh in the old (s.109).
-  const allowedLoss = isNew ? 0 : HOUSE_PROPERTY.lossSetOffCap;
-  const houseProperty = Math.max(property, -allowedLoss);
-  const housePropertyLossNotSetOff = Math.max(0, houseProperty - property);
+  const business = input.businessLoss ? -input.businessIncome : input.businessIncome;
 
-  const grossNormalIncome = Math.max(0, salaryIncome + houseProperty + input.businessIncome + input.otherIncome);
+  // Losses (s.109): a house-property loss reduces other income only in the
+  // old regime and only up to ₹2 lakh (s.202(2)(b)(ii)); a business loss
+  // reduces anything but salary, in either regime.
+  const propertyLoss = Math.max(0, -property);
+  const propertyLossAllowed = Math.min(propertyLoss, isNew ? 0 : HOUSE_PROPERTY.lossSetOffCap);
+  const businessLoss = Math.max(0, -business);
+  const heads: Heads = {
+    salary: salaryIncome,
+    other: Math.max(0, property) + Math.max(0, business) + input.otherIncome,
+    gains: { stcg: input.stcgEquity, ltcgEquity: input.ltcgEquity, ltcgOther: input.ltcgOther },
+  };
+
+  let best: { tax: TaxResult; businessLeft: number; propertyLeft: number } | undefined;
+  for (const order of propertyLossAllowed || businessLoss ? SET_OFF_ORDERS : SET_OFF_ORDERS.slice(0, 1)) {
+    // The business loss first: it has fewer heads to go to.
+    const [afterBusiness, businessLeft] = setOff(heads, businessLoss, order, false);
+    const [after, propertyLeft] = setOff(afterBusiness, propertyLossAllowed, order, true);
+    const tax = taxOnHeads(input, regime, after);
+    if (!best || tax.total < best.tax.total) best = { tax, businessLeft, propertyLeft };
+  }
+  const { tax, businessLeft, propertyLeft } = best!;
+  const propertySetOff = propertyLossAllowed - propertyLeft;
+
+  return {
+    ...tax,
+    regime,
+    salaryIncome: whole(salaryIncome),
+    houseProperty: whole(property >= 0 ? property : -propertySetOff),
+    housePropertyLossNotSetOff: whole(propertyLoss - propertySetOff),
+    businessLossSetOff: whole(businessLoss - businessLeft),
+    businessLossNotSetOff: whole(businessLeft),
+  };
+};
+
+type TaxResult = Omit<
+  RegimeResult,
+  | 'regime'
+  | 'salaryIncome'
+  | 'houseProperty'
+  | 'housePropertyLossNotSetOff'
+  | 'businessLossSetOff'
+  | 'businessLossNotSetOff'
+>;
+
+/** The tax on income under each head, after losses: deductions, slab and special rates, surcharge and cess. */
+const taxOnHeads = (input: IncomeTaxInput, regime: Regime, heads: Heads): TaxResult => {
+  const senior = input.age !== 'below60';
+  const isNew = regime === 'new';
+  const grossNormalIncome = heads.salary + heads.other;
 
   // Chapter VIII deductions come off income other than special-rate gains.
   const npsShare =
@@ -283,11 +384,7 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
       );
   }
   deductions = Math.min(deductions, grossNormalIncome);
-  const [normalIncome, gains] = roundedIncome(grossNormalIncome - deductions, {
-    stcg: input.stcgEquity,
-    ltcgEquity: input.ltcgEquity,
-    ltcgOther: input.ltcgOther,
-  });
+  const [normalIncome, gains] = roundedIncome(grossNormalIncome - deductions, heads.gains);
   const specialGains = gains.stcg + gains.ltcgEquity + gains.ltcgOther;
   const now = taxAndSurcharge(normalIncome, gains, regime, input.age);
 
@@ -308,10 +405,6 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
   const shown =
     whole(now.parts.slabTax) + whole(now.parts.specialTax) - whole(now.rebate) + whole(surcharge) + whole(cess);
   return {
-    regime,
-    salaryIncome: whole(salaryIncome),
-    houseProperty: whole(houseProperty),
-    housePropertyLossNotSetOff: whole(housePropertyLossNotSetOff),
     grossNormalIncome: whole(grossNormalIncome),
     deductions: whole(deductions),
     normalIncome: whole(normalIncome),

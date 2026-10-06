@@ -62,7 +62,11 @@ const GSTCalculator: React.FC = () => {
                 inputMode="decimal"
                 autoComplete="off"
                 value={otherRate}
-                onChange={(event) => setOtherRate(cleanAmount(event.target.value))}
+                onChange={(event) => {
+                  // A rate, so at most 100%.
+                  const next = cleanAmount(event.target.value, 3);
+                  setOtherRate(Number(next) > 100 ? '100' : next);
+                }}
               />
             </FormField>
           )}

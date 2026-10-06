@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { ArrowRight, SearchIcon } from '../components/redesign/icons';
@@ -21,10 +21,15 @@ const found = (query: string, ...texts: string[]) => {
   return words.every((word) => haystack.includes(word));
 };
 
-const JUMPS = [
-  ...RESOURCE_GROUPS.map((group) => ({ id: `resource-group-${group.id}`, name: group.name })),
-  { id: 'checklists-heading', name: 'Checklists' },
-  { id: 'portals-heading', name: 'Government portals' },
+/**
+ * The filter buttons, as on the FAQ page: one stays pressed and only its
+ * section shows; while searching, each shows how many matches it holds.
+ */
+const FILTERS: { id: string; name: string }[] = [
+  { id: 'all', name: 'All' },
+  ...RESOURCE_GROUPS.map((group) => ({ id: group.id, name: group.name })),
+  { id: 'checklists', name: 'Checklists' },
+  { id: 'portals', name: 'Government portals' },
 ];
 
 const ExternalIcon: React.FC = () => (
@@ -45,6 +50,8 @@ const Resources: React.FC = () => {
   const today = todayIso();
   const upcoming = DUE_DATES.filter((due) => due.date >= today && !due.minor).slice(0, UPCOMING_COUNT);
   const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState('all');
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const tools = RESOURCE_TOOLS.filter((tool) => found(query, tool.name, tool.summary));
   const checklists = CHECKLISTS.filter((checklist) => found(query, checklist.title, checklist.summary));
@@ -52,10 +59,25 @@ const Resources: React.FC = () => {
     ...group,
     links: group.links.filter((link) => found(query, link.name, link.use, group.name)),
   })).filter((group) => group.links.length > 0);
-  const count = tools.length + checklists.length + portals.reduce((sum, group) => sum + group.links.length, 0);
 
-  const jump = (id: string) =>
-    document.getElementById(id)?.closest('section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Matches under each filter, and in all.
+  const counts: Record<string, number> = {
+    ...Object.fromEntries(
+      RESOURCE_GROUPS.map((group) => [group.id, tools.filter((tool) => tool.group === group.id).length]),
+    ),
+    checklists: checklists.length,
+    portals: portals.reduce((sum, group) => sum + group.links.length, 0),
+  };
+  counts.all = Object.values(counts).reduce((sum, value) => sum + value, 0);
+  const count = counts[filter] ?? 0;
+  const showing = (id: string) => filter === 'all' || filter === id;
+
+  const filterName = FILTERS.find((item) => item.id === filter)?.name ?? '';
+  const where = filter === 'all' ? '' : ` in ${filterName}`;
+  const noun = (n: number) => (n === 1 ? 'resource' : 'resources');
+  let status = '';
+  if (query && count) status = `${count} ${noun(count)}${where} ${count === 1 ? 'matches' : 'match'} “${query}”.`;
+  else if (!query && filter !== 'all') status = `Showing ${count} ${noun(count)} in ${filterName}.`;
 
   return (
     <div className="rd-page">
@@ -115,69 +137,117 @@ const Resources: React.FC = () => {
 
       <div className="pad">
         <div className="seam panel spanel">
-          <div className="srow">
+          <div className="srow" role="search">
             <SearchIcon />
             <label className="vh" htmlFor="resource-search">
               Search the resources
             </label>
             <input
+              ref={searchRef}
               id="resource-search"
               type="search"
               placeholder="Search, such as HRA, NRI or GST"
               autoComplete="off"
+              enterKeyHint="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape' && query) {
+                  event.preventDefault();
+                  setQuery('');
+                }
+              }}
             />
+            {query && (
+              <button
+                className="link-btn"
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  searchRef.current?.focus();
+                }}
+              >
+                Clear
+              </button>
+            )}
           </div>
-          {!query && (
-            <div className="topics keep" role="group" aria-label="Go to">
-              {JUMPS.map((item) => (
-                <button key={item.id} type="button" className="topic" onClick={() => jump(item.id)}>
-                  {item.name}
+          <div className="topics keep" role="group" aria-label="Show">
+            {FILTERS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`topic ${query && !counts[item.id] ? 'empty' : ''}`}
+                aria-pressed={filter === item.id}
+                onClick={() => setFilter(item.id)}
+              >
+                <span>{item.name}</span>
+                {query && <span className="c">{counts[item.id]}</span>}
+              </button>
+            ))}
+          </div>
+          {status && (
+            <p className="sstatus">
+              {status}
+              {filter !== 'all' && (
+                <button type="button" className="link-btn" onClick={() => setFilter('all')}>
+                  Show all
                 </button>
-              ))}
-            </div>
+              )}
+            </p>
           )}
         </div>
       </div>
       <p className="vh" role="status" aria-live="polite">
-        {query ? `${count} ${count === 1 ? 'resource' : 'resources'} found` : ''}
+        {query || filter !== 'all' ? `${count} ${noun(count)} shown` : ''}
       </p>
 
       <div className="svclist pad">
         {count === 0 && (
           <div className="nores">
-            <h2>Nothing matches “{query}”</h2>
-            <p>Try one word, such as rent, property or registration.</p>
+            <h2>
+              Nothing matches “{query}”{where}
+            </h2>
+            {filter !== 'all' && counts.all > 0 ? (
+              <p>
+                There {counts.all === 1 ? 'is a match' : `are ${counts.all} matches`} in the others.{' '}
+                <button type="button" className="link-btn" onClick={() => setFilter('all')}>
+                  Show all
+                </button>
+              </p>
+            ) : (
+              <p>Try one word, such as rent, property or registration.</p>
+            )}
           </div>
         )}
-        {RESOURCE_GROUPS.filter((group) => tools.some((tool) => tool.group === group.id)).map((group) => (
-          <section key={group.id} className="sec" aria-labelledby={`resource-group-${group.id}`}>
-            <div className="sec-h">
-              <h2 id={`resource-group-${group.id}`}>{group.name}</h2>
-              <p className="desc">{group.description}</p>
-            </div>
-            <ul className="srows">
-              {tools
-                .filter((tool) => tool.group === group.id)
-                .map((tool) => (
-                  <li key={tool.slug}>
-                    <Link to={`/resources/${tool.slug}`}>
-                      <span>
-                        <span className="t">{tool.name}</span>
-                        <span className="d">{tool.summary}</span>
-                      </span>
-                      <span className="go">
-                        <ArrowRight size={18} />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-            </ul>
-          </section>
-        ))}
+        {RESOURCE_GROUPS.filter((group) => showing(group.id) && tools.some((tool) => tool.group === group.id)).map(
+          (group) => (
+            <section key={group.id} className="sec" aria-labelledby={`resource-group-${group.id}`}>
+              <div className="sec-h">
+                <h2 id={`resource-group-${group.id}`}>{group.name}</h2>
+                <p className="desc">{group.description}</p>
+              </div>
+              <ul className="srows">
+                {tools
+                  .filter((tool) => tool.group === group.id)
+                  .map((tool) => (
+                    <li key={tool.slug}>
+                      <Link to={`/resources/${tool.slug}`}>
+                        <span>
+                          <span className="t">{tool.name}</span>
+                          <span className="d">{tool.summary}</span>
+                        </span>
+                        <span className="go">
+                          <ArrowRight size={18} />
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          ),
+        )}
 
-        {checklists.length > 0 && (
+        {showing('checklists') && checklists.length > 0 && (
           <section className="sec" aria-labelledby="checklists-heading">
             <div className="sec-h">
               <h2 id="checklists-heading">Checklists</h2>
@@ -201,7 +271,7 @@ const Resources: React.FC = () => {
           </section>
         )}
 
-        {portals.length > 0 && (
+        {showing('portals') && portals.length > 0 && (
           <section className="sec band" aria-labelledby="portals-heading">
             <div className="sec-h">
               <h2 id="portals-heading">Government portals</h2>

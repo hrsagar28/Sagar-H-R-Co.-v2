@@ -3211,6 +3211,22 @@
   margin: 2px 0 0;
   accent-color: var(--deep);
 }
+/* A checkbox under an amount, inside its field (the business loss): clear of
+   the field's own label and input rules. */
+.rd .fld .check {
+  display: flex;
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+.rd .fld .check input {
+  display: inline-block;
+  width: 18px;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  -webkit-appearance: auto;
+  appearance: auto;
+}
 
 /* optional sections of a calculator */
 .rd details.more {
