@@ -26,7 +26,6 @@ const ChecklistDetail: React.FC = () => {
   }
 
   const others = CHECKLISTS.filter((other) => other.slug !== checklist.slug);
-  const contact = checklist.subject ? `/contact?subject=${checklist.subject}#write` : '/contact#write';
 
   return (
     <div className="rd-page">
@@ -77,6 +76,21 @@ const ChecklistDetail: React.FC = () => {
           </section>
         ))}
 
+        <section className="sec band" aria-labelledby="checklist-send-heading">
+          <div className="sec-h">
+            <h2 id="checklist-send-heading">Sending them</h2>
+          </div>
+          <ul className="needs">
+            <li>
+              <b>By email</b>: to <a href={`mailto:${CONTACT_INFO.email}`}>{CONTACT_INFO.email}</a>, as PDFs or clear
+              photographs.
+            </li>
+            <li>
+              <b>At the office</b>: {CONTACT_INFO.address.lines.join(', ')}, {RD_HOURS_SUMMARY}.
+            </li>
+          </ul>
+        </section>
+
         <nav className="others" aria-labelledby="other-checklists-heading">
           <p className="lbl" id="other-checklists-heading">
             Other checklists
@@ -93,27 +107,6 @@ const ChecklistDetail: React.FC = () => {
           </ul>
         </nav>
       </div>
-
-      <section className="ask pad" aria-labelledby="ask-heading">
-        <div className="ask-in">
-          <div>
-            <h2 id="ask-heading">Ready to send these?</h2>
-            <p>
-              Send us a message and we will tell you the easiest way to share them, or call during office hours,{' '}
-              {RD_HOURS_SUMMARY}.
-            </p>
-          </div>
-          <div className="ask-acts">
-            <Link className="btn btn-c" to={contact}>
-              <span>Send us a message</span>
-              <ArrowRight />
-            </Link>
-            <a className="tel" href={`tel:${CONTACT_INFO.phone.value}`}>
-              {CONTACT_INFO.phone.display}
-            </a>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { calculateGst } from './gst';
 import { calculateHra } from './hra';
 import { calculatePropertyGain, improvementYears, indexedAmount, taxYearOf } from './capitalGains';
-import { calculateRegime, compareRegimes, EMPTY_INCOME_TAX_INPUT, type IncomeTaxInput } from './incomeTax';
+import { advanceTax, calculateRegime, compareRegimes, EMPTY_INCOME_TAX_INPUT, type IncomeTaxInput } from './incomeTax';
+import { buildIcs } from './ics';
 import { cleanAmount, rupees, toAmount } from './format';
 
 const income = (over: Partial<IncomeTaxInput>): IncomeTaxInput => ({ ...EMPTY_INCOME_TAX_INPUT, ...over });
@@ -249,5 +250,51 @@ describe('income tax, tax year 2026-27', () => {
       selfOccupiedInterest: 200000,
     });
     expect(compareRegimes(heavy).better).toBe('old');
+  });
+});
+
+describe('advance tax (s.404, s.408)', () => {
+  const base = { senior: false, hasBusinessIncome: false, presumptive: false };
+  it('is not due under ₹10,000 after TDS and TCS', () => {
+    expect(advanceTax({ ...base, tax: 50000, deducted: 41000 })).toMatchObject({
+      due: false,
+      reason: 'below-threshold',
+    });
+  });
+  it('is not due from a senior citizen without business income', () => {
+    expect(advanceTax({ ...base, tax: 200000, deducted: 0, senior: true })).toMatchObject({
+      due: false,
+      reason: 'senior',
+    });
+    expect(advanceTax({ ...base, tax: 200000, deducted: 0, senior: true, hasBusinessIncome: true }).due).toBe(true);
+  });
+  it('is due in four instalments, or once by 15 March on presumptive income', () => {
+    const result = advanceTax({ ...base, tax: 120000, deducted: 20000 });
+    expect(result.due && result.instalments.map((item) => item.byThen)).toEqual([15000, 45000, 75000, 100000]);
+    const presumptive = advanceTax({ ...base, tax: 120000, deducted: 0, hasBusinessIncome: true, presumptive: true });
+    expect(presumptive.due && presumptive.instalments).toEqual([{ date: '2027-03-15', share: 1, byThen: 120000 }]);
+  });
+});
+
+describe('calendar file', () => {
+  it('writes all-day events with a reminder, escaped and folded', () => {
+    const ics = buildIcs(
+      [
+        {
+          date: '2026-10-31',
+          category: 'tds',
+          title: 'TDS, TCS statements; July to September',
+          detail: 'Forms 138, 140',
+        },
+      ],
+      'Due dates',
+      '2026-10-06T10:00:00.000Z',
+    );
+    expect(ics).toContain('DTSTART;VALUE=DATE:20261031\r\n');
+    expect(ics).toContain('DTEND;VALUE=DATE:20261101\r\n');
+    expect(ics).toContain('SUMMARY:TDS\\, TCS statements\\; July to September');
+    expect(ics).toContain('TRIGGER:-P2D');
+    expect(ics).toContain('DTSTAMP:20261006T100000Z');
+    expect(ics.split('\r\n').every((line) => new TextEncoder().encode(line).length <= 75)).toBe(true);
   });
 });

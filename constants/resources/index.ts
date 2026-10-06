@@ -7,3 +7,4 @@ export * from './tds';
 export * from './calendar';
 export * from './checklists';
 export * from './links';
+export * from './sections';

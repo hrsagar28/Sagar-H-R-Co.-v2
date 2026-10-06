@@ -13,6 +13,7 @@ const TOOLS: Record<string, React.LazyExoticComponent<React.FC>> = {
   'gst-calculator': lazy(() => import('./ResourceTools/GSTCalculator')),
   'tds-tcs-rates': lazy(() => import('./ResourceTools/TDSRates')),
   'due-dates': lazy(() => import('./ResourceTools/DueDates')),
+  'section-finder': lazy(() => import('./ResourceTools/SectionFinder')),
 };
 
 const ResourceTool: React.FC = () => {

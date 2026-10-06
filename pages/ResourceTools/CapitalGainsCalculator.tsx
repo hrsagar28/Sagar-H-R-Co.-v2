@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
 import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
 import FormField from '../../components/redesign/FormField';
@@ -31,6 +30,8 @@ const defaultSaleDate = () => {
 const CII_YEARS = COST_INFLATION_INDEX.map((row) => row.year);
 const LATEST_CII_YEAR = CII_YEARS[CII_YEARS.length - 1] ?? '2026-27';
 const MAX_IMPROVEMENTS = 3;
+/** Years of the index shown before "Show every year". */
+const CII_SHOWN = 9;
 const CUTOFF_TEXT = formatLongDate(INDEXATION_CUTOFF);
 
 /** "₹5,00,000", or for a negative figure the label's loss form. */
@@ -99,6 +100,7 @@ const CapitalGainsCalculator: React.FC = () => {
   const [stampDutyValue, setStampDutyValue] = useState(0);
   const [saleCosts, setSaleCosts] = useState(0);
   const [improvements, setImprovements] = useState<Improvement[]>([]);
+  const [allYears, setAllYears] = useState(false);
 
   const before2001 = Boolean(purchaseDate) && purchaseDate < FMV_DATE;
   const saleInRange = saleDate >= PROPERTY_SALE_FROM && saleDate <= PROPERTY_SALE_TO;
@@ -364,10 +366,7 @@ const CapitalGainsCalculator: React.FC = () => {
           {result && !result.newAct && (
             <p className="nudge">A sale before 1 April 2026 falls under section 112 of the Income-tax Act, 1961.</p>
           )}
-          <p className="nudge">
-            Planning to reinvest, or selling with others? <Link to="/contact?subject=income-tax#write">Ask us</Link> to
-            work out the exemption and the TDS.
-          </p>
+          <p className="nudge">An estimate. Reinvesting the gain can reduce it: see the exemptions below.</p>
           <Announce text={spoken} />
         </Result>
       </div>
@@ -441,14 +440,28 @@ const CapitalGainsCalculator: React.FC = () => {
         </div>
         <div className="ciiw">
           <IndexedCostBox />
-          <ul className="cii">
-            {[...COST_INFLATION_INDEX].reverse().map((row) => (
-              <li key={row.year}>
-                <span>{row.year}</span>
-                <span className="tnum">{row.index}</span>
-              </li>
-            ))}
+          <ul className="cii" id="cii-list">
+            {[...COST_INFLATION_INDEX]
+              .reverse()
+              .slice(0, allYears ? undefined : CII_SHOWN)
+              .map((row) => (
+                <li key={row.year}>
+                  <span>{row.year}</span>
+                  <span className="tnum">{row.index}</span>
+                </li>
+              ))}
           </ul>
+          <p className="pastnote more">
+            <button
+              type="button"
+              className="link-btn"
+              aria-expanded={allYears}
+              aria-controls="cii-list"
+              onClick={() => setAllYears((value) => !value)}
+            >
+              {allYears ? 'Show recent years only' : `Show every year, back to 2001-02`}
+            </button>
+          </p>
         </div>
       </section>
     </ToolPage>

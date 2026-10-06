@@ -1,4 +1,5 @@
 import {
+  ADVANCE_TAX,
   CESS,
   DEDUCTIONS,
   HOUSE_PROPERTY,
@@ -56,6 +57,10 @@ export interface IncomeTaxInput {
   parentsSenior: boolean;
   educationLoanInterest: number;
   donations: number;
+  /** TDS and TCS expected for the year, for advance tax. */
+  taxDeducted: number;
+  /** Business income declared on a presumptive basis (s.58: the old 44AD or 44ADA). */
+  presumptive: boolean;
 }
 
 export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
@@ -83,6 +88,8 @@ export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
   parentsSenior: false,
   educationLoanInterest: 0,
   donations: 0,
+  taxDeducted: 0,
+  presumptive: false,
 };
 
 export interface RegimeResult {
@@ -325,4 +332,34 @@ export const compareRegimes = (input: IncomeTaxInput) => {
   const newRegime = calculateRegime(input, 'new');
   const oldRegime = calculateRegime(input, 'old');
   return { newRegime, oldRegime, better: oldRegime.total < newRegime.total ? ('old' as const) : ('new' as const) };
+};
+
+export interface AdvanceTaxInput {
+  /** The year's tax, after rebate, with surcharge and cess. */
+  tax: number;
+  /** TDS and TCS expected for the year. */
+  deducted: number;
+  senior: boolean;
+  hasBusinessIncome: boolean;
+  presumptive: boolean;
+}
+
+export type AdvanceTaxResult =
+  | { due: false; reason: 'below-threshold' | 'senior'; net: number }
+  | { due: true; net: number; instalments: { date: string; share: number; byThen: number }[] };
+
+/** Advance tax for the year (s.404, s.408): what must have been paid by each date. */
+export const advanceTax = (input: AdvanceTaxInput): AdvanceTaxResult => {
+  const net = Math.max(0, input.tax - input.deducted);
+  if (input.senior && !input.hasBusinessIncome) return { due: false, reason: 'senior', net };
+  if (net < ADVANCE_TAX.threshold) return { due: false, reason: 'below-threshold', net };
+  const schedule =
+    input.presumptive && input.hasBusinessIncome
+      ? [{ date: ADVANCE_TAX.presumptiveDate, share: 1 }]
+      : ADVANCE_TAX.instalments;
+  return {
+    due: true,
+    net,
+    instalments: schedule.map((item) => ({ ...item, byThen: Math.round(net * item.share) })),
+  };
 };

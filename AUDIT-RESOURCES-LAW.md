@@ -22,6 +22,7 @@ changes.
 | `constants/resources/gst.ts`        | GST rates                                                                                                    |
 | `constants/resources/tools.ts`      | `RESOURCES_TAX_YEAR` and `RESOURCES_LAW_AS_AT` (the "Figures as at" date on every tool)                      |
 | `constants/resources/checklists.ts` | Documents to send, with new form numbers and the old names in brackets                                       |
+| `constants/resources/sections.ts`   | Old and new section numbers (1961 Act to 2025 Act) and form numbers (1962 Rules to 2026 Rules)               |
 
 The calculations are in `utils/resources/`, with tests in
 `utils/resources/calculators.test.ts` and `constants/resources/calendar.test.ts`.
@@ -64,7 +65,25 @@ The calculations are in `utils/resources/`, with tests in
   old names in brackets (Form 130 for Form 16, and so on). Both decided by CA
   Sagar.
 
+- **Advance tax (s.404, s.408).** Due when the year's tax after TDS and TCS
+  is ₹10,000 or more; not from a resident aged 60 or more without business or
+  professional income; 15%, 45%, 75% and 100% by 15 June, September, December
+  and March; one instalment by 15 March on presumptive income under s.58(2),
+  Table entries 1 and 3. Source: the CBDT's FAQ on advance tax under the 2025
+  Act and the text of s.408.
+- **Section numbers.** From the ICAI's tabular mapping of the two Acts
+  (8 September 2025). Confirmed by a second source as well (the CBDT's
+  transition FAQs, the official section text, or a published mapping table):
+  the salary, house property, capital gains, deduction, rebate, return and
+  reassessment rows, 115BAC, 111A, 112, 112A, 288A/288B and 234A to 234D.
+  Forms: the CBDT's form navigator (June 2026) and the transition FAQs.
+
 ## Open
+
+- Section numbers taken from the ICAI mapping alone, to be read against the
+  official section text before the page goes live: 30, 35 to 37, 40, 80, 144,
+  148A, 154, 156, 197, 207, 208, 234E, 234F, 244A, 246A, 253, 263, 264, 270A,
+  271A, 271AAC, 271B, 276C, 285BA and 288.
 
 - GST rates: recheck after the 57th GST Council meeting (reported for
   7 October 2026).

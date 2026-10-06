@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result, amountEntry } from './fields';
+import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
 import { getResourceTool, type AgeBand } from '../../constants/resources';
 import {
   EMPTY_INCOME_TAX_INPUT,
+  advanceTax,
   compareRegimes,
   type IncomeTaxInput,
   type RegimeResult,
 } from '../../utils/resources/incomeTax';
 import { rupees } from '../../utils/resources/format';
+import { dayMonth, todayIso } from '../../utils/resources/dates';
 
 const TOOL = getResourceTool('income-tax-calculator')!;
 
@@ -61,6 +63,7 @@ const ENTRY_LABELS: [NumberKey, string][] = [
   ['healthParents', 'Health insurance for your parents'],
   ['educationLoanInterest', 'Interest on an education loan'],
   ['donations', 'Deduction for donations'],
+  ['taxDeducted', 'TDS and TCS for the year'],
 ];
 
 const AGE_LABEL: Record<AgeBand, string> = { below60: 'Below 60', '60to79': '60 to 79', '80plus': '80 or more' };
@@ -78,12 +81,22 @@ const IncomeTaxCalculator: React.FC = () => {
   const difference = Math.abs(newRegime.total - oldRegime.total);
   const senior = input.age !== 'below60';
   const entered = newRegime.totalIncome > 0 || oldRegime.totalIncome > 0;
+  const lower = better === 'old' ? oldRegime : newRegime;
+  const advance = advanceTax({
+    tax: lower.total,
+    deducted: input.taxDeducted,
+    senior,
+    hasBusinessIncome: input.businessIncome > 0,
+    presumptive: input.presumptive,
+  });
+  const today = todayIso();
   const entries: [string, string][] = entered
     ? [
         ['Age during the year', AGE_LABEL[input.age]],
         ...ENTRY_LABELS.flatMap(([key, label]) => amountEntry(label, input[key])),
         ...(input.governmentEmployer ? ([['Employer', 'Central or State Government']] as [string, string][]) : []),
         ...(input.parentsSenior ? ([['A parent is a senior citizen', 'Yes']] as [string, string][]) : []),
+        ...(input.presumptive ? ([['Business income', 'Presumptive (section 58)']] as [string, string][]) : []),
       ]
     : [];
 
@@ -243,6 +256,23 @@ const IncomeTaxCalculator: React.FC = () => {
               <span>A parent is a senior citizen</span>
             </label>
           </details>
+          <details className="more">
+            <summary>TDS, TCS and advance tax</summary>
+            <MoneyField
+              id="it-deducted"
+              label="Tax deducted or collected for the year"
+              note="TDS on salary, interest, rent and so on, and TCS, as in Form 168 (formerly 26AS)."
+              {...money('taxDeducted')}
+            />
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={input.presumptive}
+                onChange={(event) => set('presumptive', event.target.checked)}
+              />
+              <span>My business income is on a presumptive basis (section 58, formerly 44AD or 44ADA)</span>
+            </label>
+          </details>
         </form>
 
         <Result entries={entries}>
@@ -289,6 +319,35 @@ const IncomeTaxCalculator: React.FC = () => {
             </table>
           )}
 
+          {entered && (
+            <div className="adv">
+              <p className="lbl">Advance tax, {better} regime</p>
+              {advance.due ? (
+                <>
+                  <dl className="brk">
+                    {advance.instalments.map((item) => (
+                      <Row
+                        key={item.date}
+                        className={item.date < today ? 'gone' : undefined}
+                        label={`By ${dayMonth(item.date)} ${item.date.slice(0, 4)}${item.share < 1 ? `, ${Math.round(item.share * 100)}%` : ''}${item.date < today ? ' (passed)' : ''}`}
+                        value={rupees(item.byThen)}
+                      />
+                    ))}
+                  </dl>
+                  <p className="nudge">
+                    What should have been paid in all by each date, on {rupees(advance.net)} of tax after TDS and TCS. A
+                    shortfall carries interest under sections 424 and 425.
+                  </p>
+                </>
+              ) : (
+                <p className="nudge">
+                  {advance.reason === 'senior'
+                    ? 'None: a resident aged 60 or more with no business or professional income does not pay advance tax.'
+                    : `None: the tax after TDS and TCS is ${rupees(advance.net)}, under ₹10,000.`}
+                </p>
+              )}
+            </div>
+          )}
           {entered && (newRegime.marginalRelief > 0 || oldRegime.marginalRelief > 0) && (
             <p className="nudge">Marginal relief on surcharge has been applied.</p>
           )}
@@ -296,7 +355,7 @@ const IncomeTaxCalculator: React.FC = () => {
             Math.max(newRegime.totalIncome, oldRegime.totalIncome) > SURCHARGE_REVIEW_INCOME && (
               <p className="nudge">
                 Above ₹2 crore with capital gains, the surcharge and its marginal relief depend on how the income is
-                made up. <Link to="/contact?subject=income-tax#write">Ask us</Link> to work it out.
+                made up, so this figure may not be exact.
               </p>
             )}
           {input.employerNps > 0 && input.basicAndDa === 0 && (
@@ -321,10 +380,7 @@ const IncomeTaxCalculator: React.FC = () => {
               once.
             </p>
           )}
-          <p className="nudge">
-            An estimate. For your return, <Link to="/contact?subject=income-tax#write">send us your documents</Link> and
-            we will work it out.
-          </p>
+          <p className="nudge">An estimate, for planning. The return is worked out from the actual documents.</p>
           <Announce
             text={
               entered ? `New regime ${rupees(newRegime.total)}. Old regime ${rupees(oldRegime.total)}. ${headline}` : ''

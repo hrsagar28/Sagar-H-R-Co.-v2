@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
 import { Announce, ChoiceField, MoneyField, Result, Row } from './fields';
 import FormField from '../../components/redesign/FormField';
@@ -95,9 +94,7 @@ const GSTCalculator: React.FC = () => {
             <Row className="tot" label="Total GST" value={rupeesPaise(result.gst)} />
             <Row className="tot" label="Price including GST" value={rupeesPaise(result.total)} />
           </dl>
-          <p className="nudge">
-            Unsure of the rate for your goods or services? <Link to="/contact?subject=gst#write">Ask us</Link>.
-          </p>
+          <p className="nudge">The rate depends on the goods or service, by its HSN or SAC code.</p>
           <Announce
             text={`GST ${rupeesPaise(result.gst)}. Price before GST ${rupeesPaise(result.taxable)}, including GST ${rupeesPaise(result.total)}.`}
           />

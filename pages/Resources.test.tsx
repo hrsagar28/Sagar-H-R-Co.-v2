@@ -110,6 +110,52 @@ describe('Resources', () => {
     expect(years.at(-1)).toHaveTextContent('2025-26');
   });
 
+  it('finds the new section or form for an old one', async () => {
+    renderAt('/resources/section-finder');
+
+    const search = await screen.findByLabelText('Search the sections and forms');
+    fireEvent.change(search, { target: { value: '80C' } });
+    expect(
+      screen.getByText('PF, PPF, life insurance, ELSS, tuition fees and pension plans').closest('li'),
+    ).toHaveTextContent('123');
+    fireEvent.change(search, { target: { value: 'form 26AS' } });
+    expect(screen.getByText('Annual tax statement').closest('li')).toHaveTextContent('168');
+    fireEvent.change(search, { target: { value: 'nothing like this' } });
+    expect(screen.getByRole('heading', { name: /Nothing matches/ })).toBeInTheDocument();
+  });
+
+  it('searches the index', () => {
+    renderAt('/resources');
+
+    fireEvent.change(screen.getByLabelText('Search the resources'), { target: { value: 'NRI' } });
+    expect(screen.getByRole('link', { name: /Non-resident Indians/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /HRA calculator/ })).toBeNull();
+  });
+
+  it('opens the due dates on this month and next', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-06T10:00:00+05:30'));
+    try {
+      renderAt('/resources/due-dates');
+      expect(await screen.findByRole('heading', { level: 2, name: 'October 2026' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'November 2026' })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 2, name: 'December 2026' })).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'Show the rest of the year' }));
+      expect(screen.getByRole('heading', { level: 2, name: 'March 2027' })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('invites no work on the tool pages', async () => {
+    for (const tool of RESOURCE_TOOLS) {
+      const { unmount } = renderAt(`/resources/${tool.slug}`);
+      await screen.findByRole('heading', { level: 1, name: tool.name });
+      expect(screen.queryByText(/ask us|send us your|we will work/i)).toBeNull();
+      unmount();
+    }
+  });
+
   it('says so for a tool that does not exist', () => {
     renderAt('/resources/no-such-tool');
     expect(screen.getByRole('heading', { level: 1, name: 'Tool not found' })).toBeInTheDocument();

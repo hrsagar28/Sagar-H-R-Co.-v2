@@ -3304,6 +3304,14 @@
 .rd .brk > div.least dd {
   color: var(--ink);
 }
+/* an advance tax date already passed */
+.rd .brk > div.gone dt,
+.rd .brk > div.gone dd {
+  color: var(--muted);
+}
+.rd .cout .adv {
+  margin-top: 28px;
+}
 .rd .brk > div.least dd {
   text-decoration: underline;
   text-decoration-color: var(--copper);
@@ -3481,6 +3489,87 @@
   display: none;
 }
 
+/* TDS groups folded on a phone: the heading is a button with the count */
+.rd .sec.fold + .sec.fold {
+  margin-top: 2px;
+}
+.rd .foldbtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.rd .foldbtn .cnt {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+}
+.rd .foldbtn .cnt::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.3s var(--ease);
+}
+.rd .foldbtn[aria-expanded='true'] .cnt::after {
+  margin-top: 4px;
+  transform: rotate(-135deg);
+}
+
+/* old and new section numbers: old, new, what it covers */
+.rd .mtab {
+  min-width: 0;
+}
+.rd .mtab ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rd .mhead,
+.rd .mrow {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 2.4fr) minmax(0, 6fr);
+  gap: 0 clamp(14px, 1.6vw, 24px);
+  align-items: baseline;
+}
+.rd .mhead {
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--ink);
+  font-size: 13px;
+  color: var(--muted);
+}
+.rd .mrow {
+  padding: 11px 0 12px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--body);
+}
+.rd .mrow .mo {
+  color: var(--muted);
+}
+.rd .mrow .mn {
+  font-weight: 500;
+  color: var(--ink);
+}
+.rd .mrow .arr {
+  display: none;
+}
+
 /* due dates */
 .rd .dnext .lbl {
   margin-bottom: 4px;
@@ -3515,6 +3604,58 @@
 }
 .rd .pastnote {
   margin: 0 0 28px;
+}
+.rd .pastnote.more {
+  margin: 28px 0 0;
+}
+/* the filings toggle and the calendar download, under the category chips */
+.rd .dtools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 24px;
+  padding-top: 16px;
+}
+.rd .dtools .check {
+  margin: 0;
+  font-size: 14px;
+}
+/* one month at a time, or this month and next, or the year */
+.rd .mstrip {
+  display: flex;
+  gap: 6px;
+  margin: clamp(32px, 3.4vw, 48px) 0 clamp(28px, 3vw, 40px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rd .mstrip::-webkit-scrollbar {
+  display: none;
+}
+.rd .mstrip button {
+  flex: none;
+  padding: 7px 12px;
+  border: 1px solid var(--rule-s);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+.rd .mstrip button:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.rd .mstrip button[aria-pressed='true'] {
+  background: var(--deep);
+  border-color: var(--deep);
+  color: var(--cream);
 }
 .rd .sec.mon + .sec.mon {
   margin-top: clamp(48px, 4.6vw, 64px);
@@ -3603,6 +3744,21 @@
   .rd .ixrow > :first-child {
     grid-column: 1 / -1;
   }
+  .rd .mhead {
+    display: none;
+  }
+  .rd .mrow {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px 10px;
+  }
+  .rd .mrow .arr {
+    display: inline;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .rd .mrow .ms {
+    grid-column: 1 / -1;
+  }
   .rd .cii {
     columns: 2;
   }
@@ -3646,12 +3802,14 @@
   }
   /* the filter chips stay on phones here: the FAQ page swaps them for a
      picker, but these pages have no other way to filter */
-  .rd .tool .topics {
+  .rd .tool .topics,
+  .rd .topics.keep {
     display: flex;
     gap: 6px;
     padding-top: 12px;
   }
-  .rd .tool .topic {
+  .rd .tool .topic,
+  .rd .topics.keep .topic {
     padding: 7px 11px;
     font-size: 13px;
   }
@@ -3681,6 +3839,7 @@
   .rd .others,
   .rd .tool .topics,
   .rd .pastnote,
+  .rd .mstrip,
   .rd .fpanel {
     display: none;
   }
@@ -3725,6 +3884,7 @@
       .most li,
       .portals li,
       .rrow,
+      .mrow,
       .dues li,
       .nextlist li,
       .cii li,
@@ -3818,6 +3978,26 @@
   .rd .rrow .was,
   .rd .rrow .ref {
     font-size: 11px;
+  }
+
+  /* the section finder back in three columns */
+  .rd .mhead {
+    display: grid;
+  }
+  .rd .mhead,
+  .rd .mrow {
+    grid-template-columns: minmax(0, 2.4fr) minmax(0, 2.4fr) minmax(0, 6fr);
+    gap: 0 14px;
+  }
+  .rd .mrow {
+    padding: 5px 0 6px;
+    font-size: 12px;
+  }
+  .rd .mrow .arr {
+    display: none;
+  }
+  .rd .mrow .ms {
+    grid-column: auto;
   }
 
   /* due dates one line each: day, what, category */

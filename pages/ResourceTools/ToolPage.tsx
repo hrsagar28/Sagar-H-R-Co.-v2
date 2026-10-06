@@ -1,16 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../../components/SEO';
-import { RD_HOURS_SUMMARY } from '../../components/redesign/content';
-import { ArrowLeft, ArrowRight } from '../../components/redesign/icons';
+import { ArrowLeft } from '../../components/redesign/icons';
 import { CONTACT_INFO } from '../../constants';
 import { RESOURCES_LAW_AS_AT, type ResourceTool } from '../../constants/resources';
 import { SITE_URL } from '../../config/site';
 import { formatLongDate } from '../../utils/insightDates';
 
 // The frame of every Resources tool page (2026 redesign): the dark header with
-// a back link, the tool itself sitting on the seam, the notes below it, and
-// the dark-green "ask us" band. Rendered inside RedesignLayout.
+// a back link, the tool itself sitting on the seam, and the notes below it.
+// No "ask us" band: the ICAI's Code of Ethics (2026, Vol. I, 2.14.1.6(iv)) bars
+// anything that "could be interpreted as soliciting or offering to undertake
+// professional work", so the tools carry no invitations; the contact details
+// are in the footer. Rendered inside RedesignLayout.
 
 interface ToolPageProps {
   tool: ResourceTool;
@@ -21,7 +23,6 @@ interface ToolPageProps {
 
 const ToolPage: React.FC<ToolPageProps> = ({ tool, law, children }) => {
   const url = `${SITE_URL}/resources/${tool.slug}`;
-  const contact = tool.subject ? `/contact?subject=${tool.subject}#write` : '/contact#write';
 
   return (
     <div className="rd-page">
@@ -43,7 +44,6 @@ const ToolPage: React.FC<ToolPageProps> = ({ tool, law, children }) => {
           ...(tool.group === 'calculators' && {
             applicationCategory: 'FinanceApplication',
             operatingSystem: 'Any',
-            isAccessibleForFree: true,
           }),
           publisher: { '@type': 'AccountingService', name: CONTACT_INFO.name, url: SITE_URL },
         }}
@@ -70,24 +70,6 @@ const ToolPage: React.FC<ToolPageProps> = ({ tool, law, children }) => {
           Figures as at {formatLongDate(RESOURCES_LAW_AS_AT)}. General information, not advice on any particular case.
         </p>
       </div>
-
-      <section className="ask pad" aria-labelledby="ask-heading">
-        <div className="ask-in">
-          <div>
-            <h2 id="ask-heading">Ask us about {tool.ask}</h2>
-            <p>Send us a message with your figures, or call during office hours, {RD_HOURS_SUMMARY}.</p>
-          </div>
-          <div className="ask-acts">
-            <Link className="btn btn-c" to={contact}>
-              <span>Send us a message</span>
-              <ArrowRight />
-            </Link>
-            <a className="tel" href={`tel:${CONTACT_INFO.phone.value}`}>
-              {CONTACT_INFO.phone.display}
-            </a>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

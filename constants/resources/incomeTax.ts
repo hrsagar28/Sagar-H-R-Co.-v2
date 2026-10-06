@@ -103,3 +103,20 @@ export const DEDUCTIONS = {
   /** s.153 (old 80TTA / 80TTB). */
   depositInterest: { savings: 10000, senior: 50000 },
 };
+
+/**
+ * Advance tax, s.404 and s.408: due when the year's tax after TDS and TCS is
+ * ₹10,000 or more; not for a resident senior citizen without business or
+ * professional income; one instalment by 15 March for presumptive income
+ * under s.58(2), Table entries 1 and 3 (the old 44AD and 44ADA).
+ */
+export const ADVANCE_TAX = {
+  threshold: 10000,
+  instalments: [
+    { date: '2026-06-15', share: 0.15 },
+    { date: '2026-09-15', share: 0.45 },
+    { date: '2026-12-15', share: 0.75 },
+    { date: '2027-03-15', share: 1 },
+  ],
+  presumptiveDate: '2027-03-15',
+};
