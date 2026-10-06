@@ -22,6 +22,7 @@ changes.
 | `constants/resources/gst.ts`        | GST rates                                                                                                    |
 | `constants/resources/tools.ts`      | `RESOURCES_TAX_YEAR` and `RESOURCES_LAW_AS_AT` (the "Figures as at" date on every tool)                      |
 | `constants/resources/checklists.ts` | Documents to send, with new form numbers and the old names in brackets                                       |
+| `constants/resources/sections.ts`   | Old and new section numbers (1961 Act to 2025 Act) and form numbers (1962 Rules to 2026 Rules)               |
 
 The calculations are in `utils/resources/`, with tests in
 `utils/resources/calculators.test.ts` and `constants/resources/calendar.test.ts`.
@@ -64,6 +65,69 @@ The calculations are in `utils/resources/`, with tests in
   old names in brackets (Form 130 for Form 16, and so on). Both decided by CA
   Sagar.
 
+- **Advance tax (s.404, s.408).** Due when the year's tax after TDS and TCS
+  is ₹10,000 or more; not from a resident aged 60 or more without business or
+  professional income; 15%, 45%, 75% and 100% by 15 June, September, December
+  and March; one instalment by 15 March on presumptive income under s.58(2),
+  Table entries 1 and 3. Source: the CBDT's FAQ on advance tax under the 2025
+  Act and the text of s.408.
+- **Interest on advance tax (s.424, s.425; Rule 269 of the 2026 Rules).**
+  s.425: 3% on the shortfall at 15 June, September and December and 1% at
+  15 March; none at June if 12% was paid, none at September if 36% was;
+  presumptive income one date, 1%. s.424: below 90% of the tax, 1% a month or
+  part of a month from 1 April 2027 on the shortfall, to the date the user
+  gives (31 July 2027 by default). Rule 269: the amount in whole hundreds, a
+  part of a month as a month. Payments after 31 March are not advance tax.
+  Not modelled: the s.425(4) relief for capital gains and dividends, and
+  part-payments after 31 March (s.424(4)).
+- **Losses in the income tax calculator (s.108 to 113, 121, 202(2)(b),
+  202(3)).** This year's capital losses first, within capital gains: a
+  short-term loss against any gains, a long-term loss against long-term gains
+  only (s.108). Then across heads (s.109): a business loss against anything
+  but salary, in both regimes; a house-property loss up to ₹2 lakh, old
+  regime only. Then losses from earlier years, each only against the same
+  kind of income (s.110 to 112). The calculator takes the order that leaves
+  the least tax. Left over: carried forward for 8 years; business and capital
+  losses only if the return is filed on time (s.121 covers s.111 and s.112,
+  not s.110). Speculation losses (s.113) and unabsorbed depreciation are left
+  out.
+- **House-property loss in the new regime (s.202(3)).** Not carried forward.
+  The loss that s.202(2)(b)(ii) keeps from other heads is "deemed to have been
+  given full effect", with no deduction "for any subsequent year" (the same
+  words as s.115BAC(3) of the 1961 Act). Confirmed against the department's
+  own material:
+  - the CBDT booklet "Computation of income from house property" (December
+    2021): "you cannot carry forward the loss from house property to future
+    years for set off";
+  - the e-filing validation rules for ITR-2, AY 2025-26: rule 284 (new
+    regime: Schedule CYLA 2xv, the house-property loss remaining after
+    set-off, cannot be more than zero) with rules 270 and 293 (Schedule CFL
+    takes that amount).
+    The ITR forms for tax year 2026-27 under the 2025 Act are to be checked when
+    they come out.
+- **Earlier losses in the new regime (s.202(2)(b)(i)).** A loss that came from
+  a deduction the new regime does not allow cannot be set off. The calculator
+  cannot tell where a loss came from, so it counts the full amount in both
+  regimes and says so beside the fields.
+- **Section numbers.** Every new number in `sections.ts` was read against the
+  official text, "Income-tax Act, 2025 as amended by Finance Act, 2026"
+  (incometaxindia.gov.in), in October 2026: the section's heading and, where
+  one new section stands for several old ones, its body. Official sources
+  only; no secondary mapping tables. Changes made by that reading:
+  - 271AAC: s.443 (penalty on unexplained income) was omitted from 1 April 2026. Such income is now misreporting under s.439(11)(g), so the row
+    points to s.439.
+  - 271B: s.446 was substituted from 1 April 2026 and now covers crypto-asset
+    statements. Not getting accounts audited is a fee under s.428(c)
+    (₹75,000, then ₹1,50,000), so the row points to s.428.
+  - Old s.10 alone maps to s.11 (Schedules II to VII). Old ss.11 to 13
+    (charitable and religious trusts) are now ss.332 to 355, "registered
+    non-profit organisations"; 12A and 12AB registration is s.332.
+  - 206AB is not in the 2025 Act (withdrawn from 1 April 2025). The s.397
+    row is now 203A (TAN) and 206AA (no PAN).
+  - HRA is Schedule III, Sl. No. 11; gratuity and leave encashment are in the
+    s.19 Table.
+    Forms: the CBDT's form navigator (June 2026) and its transition FAQs.
+
 ## Open
 
 - GST rates: recheck after the 57th GST Council meeting (reported for
@@ -88,6 +152,8 @@ The calculations are in `utils/resources/`, with tests in
 
 ## Official sources read
 
+- [Income-tax Act, 2025 as amended by Finance Act, 2026](https://www.incometaxindia.gov.in/documents/d/guest/income_tax_act_2025_as_amended_by_fa_act_2026-pdf)
+  (full text, PDF): every section row of `sections.ts`.
 - Income-tax Act, 2025: [s.82](https://www.incometaxindia.gov.in/w/section-82-55),
   [s.86](https://www.incometaxindia.gov.in/w/section-86-113),
   [s.197](https://www.incometaxindia.gov.in/w/section-197-78),

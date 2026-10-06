@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { calculateGst } from './gst';
 import { calculateHra } from './hra';
 import { calculatePropertyGain, improvementYears, indexedAmount, taxYearOf } from './capitalGains';
-import { calculateRegime, compareRegimes, EMPTY_INCOME_TAX_INPUT, type IncomeTaxInput } from './incomeTax';
+import {
+  advanceTax,
+  advanceTaxInterest,
+  calculateRegime,
+  compareRegimes,
+  EMPTY_INCOME_TAX_INPUT,
+  type IncomeTaxInput,
+} from './incomeTax';
+import { buildIcs } from './ics';
 import { cleanAmount, rupees, toAmount } from './format';
 
 const income = (over: Partial<IncomeTaxInput>): IncomeTaxInput => ({ ...EMPTY_INCOME_TAX_INPUT, ...over });
@@ -11,6 +19,10 @@ describe('format', () => {
   it('groups in the Indian style and reads typed amounts', () => {
     expect(rupees(1234567)).toBe('₹12,34,567');
     expect(cleanAmount('₹1,20,000.505')).toBe('120000.50');
+    // At most 10 digits before the point, leading zeros dropped.
+    expect(cleanAmount('9'.repeat(30))).toBe('9999999999');
+    expect(cleanAmount('000123.4')).toBe('123.4');
+    expect(cleanAmount('0.5')).toBe('0.5');
     expect(toAmount('abc')).toBe(0);
     expect(toAmount('1,00,000')).toBe(100000);
   });
@@ -201,6 +213,99 @@ describe('income tax, tax year 2026-27', () => {
     expect(old.houseProperty).toBe(-200000);
     expect(old.housePropertyLossNotSetOff).toBe(416000);
   });
+  it('sets a business loss off against anything but salary, and carries the rest forward (s.109, s.112)', () => {
+    // With only salary, none of the loss can be set off.
+    const salaried = calculateRegime(income({ salary: 1000000, businessIncome: 300000, businessLoss: true }), 'new');
+    expect(salaried.businessLossSetOff).toBe(0);
+    expect(salaried.carriedForward.business).toBe(300000);
+    expect(salaried.total).toBe(calculateRegime(income({ salary: 1000000 }), 'new').total);
+    // It reduces capital gains.
+    const gains = calculateRegime(
+      income({ salary: 2000000, stcgEquity: 500000, businessIncome: 300000, businessLoss: true }),
+      'new',
+    );
+    expect(gains.businessLossSetOff).toBe(300000);
+    expect(gains.specialGains).toBe(200000);
+    expect(gains.specialTax).toBe(40000);
+  });
+  it('sets a loss off in the order that leaves the least tax', () => {
+    // At ₹30 lakh, slab income is taxed at 30%, above the 20% on short-term gains.
+    const high = calculateRegime(
+      income({ otherIncome: 3000000, stcgEquity: 1000000, businessIncome: 500000, businessLoss: true }),
+      'new',
+    );
+    expect(high.normalIncome).toBe(2500000);
+    expect(high.specialGains).toBe(1000000);
+    // At ₹13 lakh, slab income is taxed at 15%, below the 20% on the gains.
+    const low = calculateRegime(
+      income({ otherIncome: 1300000, stcgEquity: 1000000, businessIncome: 100000, businessLoss: true }),
+      'new',
+    );
+    expect(low.normalIncome).toBe(1300000);
+    expect(low.specialGains).toBe(900000);
+  });
+  it('sets a house-property loss off against capital gains in the old regime', () => {
+    // Annual value ₹1 lakh, less 30%, less ₹2.2 lakh interest: a loss of ₹1.5 lakh.
+    const result = calculateRegime(income({ letOutRent: 100000, letOutInterest: 220000, ltcgOther: 1000000 }), 'old');
+    expect(result.houseProperty).toBe(-150000);
+    expect(result.housePropertyLossNotSetOff).toBe(0);
+    expect(result.specialGains).toBe(850000);
+    // ₹2.5 lakh of unused basic exemption, then 12.5%.
+    expect(result.specialTax).toBe(75000);
+  });
+  it('does not carry a house-property loss forward in the new regime (s.202(3))', () => {
+    // Annual value ₹1 lakh, less 30%, less ₹5 lakh interest: a loss of ₹4.3 lakh.
+    const input = income({ salary: 1000000, letOutRent: 100000, letOutInterest: 500000 });
+    expect(calculateRegime(input, 'new').carriedForward.houseProperty).toBe(0);
+    expect(calculateRegime(input, 'old').carriedForward.houseProperty).toBe(230000);
+  });
+  it('sets this year’s capital losses off within capital gains (s.108)', () => {
+    // A short-term loss reduces long-term gains too.
+    const short = calculateRegime(income({ ltcgOther: 1000000, shortTermLoss: 300000 }), 'new');
+    expect(short.specialGains).toBe(700000);
+    // A long-term loss does not reduce short-term gains, and is carried forward.
+    const long = calculateRegime(income({ stcgEquity: 500000, longTermLoss: 200000 }), 'new');
+    expect(long.specialGains).toBe(500000);
+    expect(long.carriedForward.longTermCapital).toBe(200000);
+    // Neither reduces other income (s.109(2)).
+    const other = calculateRegime(income({ otherIncome: 900000, shortTermLoss: 100000 }), 'new');
+    expect(other.normalIncome).toBe(900000);
+    expect(other.carriedForward.shortTermCapital).toBe(100000);
+  });
+  it('sets losses from earlier years off only against the same kind of income (s.110 to s.112)', () => {
+    const business = calculateRegime(
+      income({ otherIncome: 500000, businessIncome: 200000, earlierBusinessLoss: 300000 }),
+      'new',
+    );
+    expect(business.normalIncome).toBe(500000);
+    expect(business.carriedForward.business).toBe(100000);
+    // Annual value ₹3 lakh, less 30%: ₹2.1 lakh of house-property income.
+    const property = calculateRegime(
+      income({ otherIncome: 500000, letOutRent: 300000, earlierPropertyLoss: 500000 }),
+      'old',
+    );
+    expect(property.normalIncome).toBe(500000);
+    expect(property.carriedForward.houseProperty).toBe(290000);
+    // An earlier long-term loss comes off equity gains before the ₹1.25 lakh exemption.
+    const equity = calculateRegime(income({ ltcgEquity: 400000, earlierLongTermLoss: 100000 }), 'new');
+    expect(equity.specialGains).toBe(300000);
+    expect(equity.carriedForward.longTermCapital).toBe(0);
+  });
+  it('uses this year’s house-property loss on other income before business income an earlier loss needs', () => {
+    const result = calculateRegime(
+      income({
+        salary: 800000,
+        businessIncome: 300000,
+        letOutRent: 100000,
+        letOutInterest: 250000,
+        earlierBusinessLoss: 300000,
+      }),
+      'old',
+    );
+    // The ₹1.8 lakh loss comes off salary; the earlier ₹3 lakh takes all the business income.
+    expect(result.carriedForward.business).toBe(0);
+    expect(result.normalIncome).toBe(800000 - 50000 - 180000);
+  });
   it('taxes equity gains at special rates, using unused basic exemption and the ₹1.25 lakh exemption', () => {
     const result = calculateRegime(income({ otherIncome: 300000, stcgEquity: 200000, ltcgEquity: 300000 }), 'new');
     // ₹1 lakh of unused exemption comes off the STCG; LTCG above ₹1.25 lakh at 12.5%.
@@ -249,5 +354,107 @@ describe('income tax, tax year 2026-27', () => {
       selfOccupiedInterest: 200000,
     });
     expect(compareRegimes(heavy).better).toBe('old');
+  });
+});
+
+describe('advance tax (s.404, s.408)', () => {
+  const base = { senior: false, hasBusinessIncome: false, presumptive: false };
+  it('is not due under ₹10,000 after TDS and TCS', () => {
+    expect(advanceTax({ ...base, tax: 50000, deducted: 41000 })).toMatchObject({
+      due: false,
+      reason: 'below-threshold',
+    });
+  });
+  it('is not due from a senior citizen without business income', () => {
+    expect(advanceTax({ ...base, tax: 200000, deducted: 0, senior: true })).toMatchObject({
+      due: false,
+      reason: 'senior',
+    });
+    expect(advanceTax({ ...base, tax: 200000, deducted: 0, senior: true, hasBusinessIncome: true }).due).toBe(true);
+  });
+  it('is due in four instalments, or once by 15 March on presumptive income', () => {
+    const result = advanceTax({ ...base, tax: 120000, deducted: 20000 });
+    expect(result.due && result.instalments.map((item) => item.byThen)).toEqual([15000, 45000, 75000, 100000]);
+    const presumptive = advanceTax({ ...base, tax: 120000, deducted: 0, hasBusinessIncome: true, presumptive: true });
+    expect(presumptive.due && presumptive.instalments).toEqual([{ date: '2027-03-15', share: 1, byThen: 120000 }]);
+  });
+});
+
+describe('interest on advance tax (s.424, s.425, Rule 269)', () => {
+  const base = { net: 100000, payments: [], presumptive: false, balanceDate: '2027-07-31' };
+  it('charges nothing when each instalment is paid on time', () => {
+    const result = advanceTaxInterest({
+      ...base,
+      payments: [
+        { date: '2026-06-15', amount: 15000 },
+        { date: '2026-09-15', amount: 30000 },
+        { date: '2026-12-15', amount: 30000 },
+        { date: '2027-03-15', amount: 25000 },
+      ],
+    });
+    expect(result.deferment).toBe(0);
+    expect(result.shortPayment.interest).toBe(0);
+    expect(result.balance).toBe(0);
+  });
+  it('charges 3%, 3%, 3% and 1% on each shortfall, and 1% a month from April on the balance', () => {
+    const result = advanceTaxInterest(base);
+    expect(result.instalments.map((item) => item.interest)).toEqual([450, 1350, 2250, 1000]);
+    // April to July 2027: four months on ₹1 lakh.
+    expect(result.shortPayment).toEqual({ months: 4, on: 100000, interest: 4000 });
+    expect(result.total).toBe(9050);
+    // A part of a month counts as a whole one.
+    expect(advanceTaxInterest({ ...base, balanceDate: '2027-08-01' }).shortPayment.months).toBe(5);
+  });
+  it('excuses the first two instalments at 12% and 36%', () => {
+    const result = advanceTaxInterest({
+      ...base,
+      payments: [
+        { date: '2026-06-10', amount: 12000 },
+        { date: '2026-09-15', amount: 24000 },
+      ],
+    });
+    expect(result.instalments[0]!.interest).toBe(0);
+    expect(result.instalments[1]!.interest).toBe(0);
+    // December: ₹75,000 due, ₹36,000 paid.
+    expect(result.instalments[2]!.interest).toBe(Math.round(39000 * 0.03));
+  });
+  it('takes the shortfall in whole hundreds and ignores payments after 31 March', () => {
+    const result = advanceTaxInterest({ ...base, net: 100080, payments: [{ date: '2027-04-10', amount: 100080 }] });
+    // ₹15,012 due in June: interest on ₹15,000.
+    expect(result.instalments[0]!.interest).toBe(450);
+    expect(result.paid).toBe(0);
+  });
+  it('has one instalment at 1% on presumptive income, and no s.424 interest at 90%', () => {
+    const result = advanceTaxInterest({
+      ...base,
+      presumptive: true,
+      payments: [{ date: '2027-03-15', amount: 90000 }],
+    });
+    expect(result.instalments).toHaveLength(1);
+    expect(result.instalments[0]!.interest).toBe(100);
+    expect(result.shortPayment.interest).toBe(0);
+  });
+});
+
+describe('calendar file', () => {
+  it('writes all-day events with a reminder, escaped and folded', () => {
+    const ics = buildIcs(
+      [
+        {
+          date: '2026-10-31',
+          category: 'tds',
+          title: 'TDS, TCS statements; July to September',
+          detail: 'Forms 138, 140',
+        },
+      ],
+      'Due dates',
+      '2026-10-06T10:00:00.000Z',
+    );
+    expect(ics).toContain('DTSTART;VALUE=DATE:20261031\r\n');
+    expect(ics).toContain('DTEND;VALUE=DATE:20261101\r\n');
+    expect(ics).toContain('SUMMARY:TDS\\, TCS statements\\; July to September');
+    expect(ics).toContain('TRIGGER:-P2D');
+    expect(ics).toContain('DTSTAMP:20261006T100000Z');
+    expect(ics.split('\r\n').every((line) => new TextEncoder().encode(line).length <= 75)).toBe(true);
   });
 });

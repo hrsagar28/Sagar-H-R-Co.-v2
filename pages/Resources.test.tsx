@@ -110,6 +110,94 @@ describe('Resources', () => {
     expect(years.at(-1)).toHaveTextContent('2025-26');
   });
 
+  it('works out interest on advance tax from the payments entered', async () => {
+    renderAt('/resources/income-tax-calculator');
+
+    const salary = await screen.findByLabelText('Salary');
+    fireEvent.focus(salary);
+    fireEvent.change(salary, { target: { value: '3000000' } });
+    expect(screen.queryByText('Interest in all')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Add a payment' }));
+    fireEvent.change(screen.getByLabelText('Date paid (payment 1)'), { target: { value: '2026-06-15' } });
+    const amount = screen.getByLabelText('Amount (payment 1)');
+    fireEvent.focus(amount);
+    fireEvent.change(amount, { target: { value: '100000' } });
+    expect(screen.getByText('Interest in all')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Interest for short payment \(section 424\), 4 months to 31 July 2027/),
+    ).toBeInTheDocument();
+  });
+
+  it('finds the new section or form for an old one', async () => {
+    renderAt('/resources/section-finder');
+
+    const search = await screen.findByLabelText('Search the sections and forms');
+    fireEvent.change(search, { target: { value: '80C' } });
+    expect(
+      screen.getByText('PF, PPF, life insurance, ELSS, tuition fees and pension plans').closest('li'),
+    ).toHaveTextContent('123');
+    fireEvent.change(search, { target: { value: 'form 26AS' } });
+    expect(screen.getByText('Annual tax statement').closest('li')).toHaveTextContent('168');
+    fireEvent.change(search, { target: { value: 'Schedule III' } });
+    expect(screen.getByText('House rent allowance').closest('li')).toHaveTextContent('Sl. No. 11');
+    // Moved by the Finance Act, 2026: s.446 no longer covers the audit default.
+    fireEvent.change(search, { target: { value: '271B' } });
+    expect(screen.getByText('Not getting accounts audited, now a fee').closest('li')).toHaveTextContent('428');
+    fireEvent.change(search, { target: { value: 'nothing like this' } });
+    expect(screen.getByRole('heading', { name: /Nothing matches/ })).toBeInTheDocument();
+  });
+
+  it('searches the index', () => {
+    renderAt('/resources');
+
+    fireEvent.change(screen.getByLabelText('Search the resources'), { target: { value: 'NRI' } });
+    expect(screen.getByRole('link', { name: /Non-resident Indians/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /HRA calculator/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(screen.getByLabelText('Search the resources')).toHaveValue('');
+  });
+
+  it('filters the index to one section, as the FAQ page does', () => {
+    renderAt('/resources');
+
+    const all = screen.getByRole('button', { name: 'All' });
+    expect(all).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'Checklists' }));
+    expect(screen.getByRole('button', { name: 'Checklists' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('region', { name: 'Checklists' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Calculators' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Government portals' })).toBeNull();
+    // A search counts the matches under each button.
+    fireEvent.change(screen.getByLabelText('Search the resources'), { target: { value: 'GST' } });
+    expect(screen.getByRole('button', { name: /^Calculators \d+$/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Show all' }));
+    expect(screen.getByRole('button', { name: /^All \d+$/ })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('opens the due dates on this month and next', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-06T10:00:00+05:30'));
+    try {
+      renderAt('/resources/due-dates');
+      expect(await screen.findByRole('heading', { level: 2, name: 'October 2026' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'November 2026' })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 2, name: 'December 2026' })).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'Show the rest of the year' }));
+      expect(screen.getByRole('heading', { level: 2, name: 'March 2027' })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('invites no work on the tool pages', async () => {
+    for (const tool of RESOURCE_TOOLS) {
+      const { unmount } = renderAt(`/resources/${tool.slug}`);
+      await screen.findByRole('heading', { level: 1, name: tool.name });
+      expect(screen.queryByText(/ask us|send us your|we will work/i)).toBeNull();
+      unmount();
+    }
+  });
+
   it('says so for a tool that does not exist', () => {
     renderAt('/resources/no-such-tool');
     expect(screen.getByRole('heading', { level: 1, name: 'Tool not found' })).toBeInTheDocument();

@@ -1,27 +1,74 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result, amountEntry } from './fields';
-import { getResourceTool, type AgeBand } from '../../constants/resources';
+import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
+import FormField from '../../components/redesign/FormField';
+import { ADVANCE_TAX, getResourceTool, type AgeBand } from '../../constants/resources';
 import {
   EMPTY_INCOME_TAX_INPUT,
+  advanceTax,
+  advanceTaxInterest,
   compareRegimes,
+  type AdvancePayment,
+  type CarriedForward,
   type IncomeTaxInput,
   type RegimeResult,
 } from '../../utils/resources/incomeTax';
 import { rupees } from '../../utils/resources/format';
+import { dayMonth, todayIso } from '../../utils/resources/dates';
+import { formatLongDate } from '../../utils/insightDates';
 
 const TOOL = getResourceTool('income-tax-calculator')!;
 
 type NumberKey = { [K in keyof IncomeTaxInput]: IncomeTaxInput[K] extends number ? K : never }[keyof IncomeTaxInput];
 
+const either = (value: (result: RegimeResult) => number) => (a: RegimeResult, b: RegimeResult) =>
+  value(a) !== 0 || value(b) !== 0;
+
+/**
+ * The rows of the comparison. On screen it is short; printed, the income
+ * part is set out head by head down to total income, as a computation.
+ */
 const ROWS: {
   label: string;
   value: (result: RegimeResult) => number;
   show?: (a: RegimeResult, b: RegimeResult) => boolean;
+  /** Shown only on screen, or only in print. */
+  only?: 'screen' | 'print';
+  /** A subtotal, set a little heavier in print. */
+  sub?: boolean;
 }[] = [
-  { label: 'Income after deductions', value: (r) => r.normalIncome },
-  { label: 'Capital gains at special rates', value: (r) => r.specialGains, show: (a) => a.specialGains > 0 },
+  { label: 'Income after deductions', value: (r) => r.normalIncome, only: 'screen' },
+  {
+    label: 'Capital gains at special rates',
+    value: (r) => r.specialGains,
+    show: (a) => a.specialGains > 0,
+    only: 'screen',
+  },
+  { label: 'Salaries', value: (r) => r.incomeBy.salary, show: either((r) => r.incomeBy.salary), only: 'print' },
+  {
+    label: 'House property',
+    value: (r) => r.incomeBy.houseProperty,
+    show: either((r) => r.incomeBy.houseProperty),
+    only: 'print',
+  },
+  {
+    label: 'Business or profession',
+    value: (r) => r.incomeBy.business,
+    show: either((r) => r.incomeBy.business),
+    only: 'print',
+  },
+  { label: 'Other sources', value: (r) => r.incomeBy.other, show: either((r) => r.incomeBy.other), only: 'print' },
+  {
+    label: 'Capital gains at special rates',
+    value: (r) => r.incomeBy.capitalGains,
+    show: either((r) => r.incomeBy.capitalGains),
+    only: 'print',
+  },
+  { label: 'Less: losses set off', value: (r) => -r.lossesSetOff, show: either((r) => r.lossesSetOff), only: 'print' },
+  { label: 'Gross total income', value: (r) => r.grossTotalIncome, only: 'print', sub: true },
+  { label: 'Less: deductions', value: (r) => -r.deductions, show: either((r) => r.deductions), only: 'print' },
+  { label: 'Total income, rounded to ₹10', value: (r) => r.totalIncome, only: 'print', sub: true },
   { label: 'Tax at slab rates', value: (r) => r.slabTax },
   {
     label: 'Tax on capital gains',
@@ -53,6 +100,12 @@ const ENTRY_LABELS: [NumberKey, string][] = [
   ['stcgEquity', 'Short-term gains on listed shares and equity funds'],
   ['ltcgEquity', 'Long-term gains on listed shares and equity funds'],
   ['ltcgOther', 'Other long-term gains'],
+  ['shortTermLoss', 'Short-term capital loss this year'],
+  ['longTermLoss', 'Long-term capital loss this year'],
+  ['earlierBusinessLoss', 'Business loss from earlier years'],
+  ['earlierPropertyLoss', 'House property loss from earlier years'],
+  ['earlierShortTermLoss', 'Short-term capital loss from earlier years'],
+  ['earlierLongTermLoss', 'Long-term capital loss from earlier years'],
   ['hraExempt', 'Exempt HRA'],
   ['professionalTax', 'Professional tax paid'],
   ['investments', 'PF, PPF, life insurance, ELSS and similar'],
@@ -61,6 +114,7 @@ const ENTRY_LABELS: [NumberKey, string][] = [
   ['healthParents', 'Health insurance for your parents'],
   ['educationLoanInterest', 'Interest on an education loan'],
   ['donations', 'Deduction for donations'],
+  ['taxDeducted', 'TDS and TCS for the year'],
 ];
 
 const AGE_LABEL: Record<AgeBand, string> = { below60: 'Below 60', '60to79': '60 to 79', '80plus': '80 or more' };
@@ -68,22 +122,80 @@ const AGE_LABEL: Record<AgeBand, string> = { below60: 'Below 60', '60to79': '60 
 /** Above this, with capital gains, the surcharge and its marginal relief need working out case by case. */
 const SURCHARGE_REVIEW_INCOME = 20000000;
 
+/** Advance tax payments that can be entered. */
+const MAX_PAYMENTS = 8;
+
+/** Today, kept within the tax year, as the date of a new payment. */
+const paymentDefault = (today: string) =>
+  today < ADVANCE_TAX.paidFrom ? ADVANCE_TAX.paidFrom : today > ADVANCE_TAX.paidTo ? ADVANCE_TAX.paidTo : today;
+
+/** Losses left for next year, as rows of the carry-forward table. */
+const CARRIED: { key: keyof CarriedForward; label: string }[] = [
+  { key: 'business', label: 'Business loss' },
+  { key: 'houseProperty', label: 'House property loss' },
+  { key: 'shortTermCapital', label: 'Short-term capital loss' },
+  { key: 'longTermCapital', label: 'Long-term capital loss' },
+];
+
 const IncomeTaxCalculator: React.FC = () => {
   const [input, setInput] = useState<IncomeTaxInput>(EMPTY_INCOME_TAX_INPUT);
   const set = <K extends keyof IncomeTaxInput>(key: K, value: IncomeTaxInput[K]) =>
     setInput((current) => ({ ...current, [key]: value }));
   const money = (key: NumberKey) => ({ value: input[key], onChange: (value: number) => set(key, value) });
+  const [payments, setPayments] = useState<AdvancePayment[]>([]);
+  const [balanceDate, setBalanceDate] = useState(ADVANCE_TAX.balanceDate);
+  const updatePayment = (index: number, change: Partial<AdvancePayment>) =>
+    setPayments((list) => list.map((item, at) => (at === index ? { ...item, ...change } : item)));
 
   const { newRegime, oldRegime, better } = compareRegimes(input);
   const difference = Math.abs(newRegime.total - oldRegime.total);
   const senior = input.age !== 'below60';
-  const entered = newRegime.totalIncome > 0 || oldRegime.totalIncome > 0;
+  const businessProfit = input.businessIncome > 0 && !input.businessLoss;
+  const carried = CARRIED.filter(({ key }) => newRegime.carriedForward[key] > 0 || oldRegime.carriedForward[key] > 0);
+  // A loss alone is still something to show: how much of it is carried forward.
+  const entered =
+    newRegime.totalIncome > 0 ||
+    oldRegime.totalIncome > 0 ||
+    input.businessIncome > 0 ||
+    carried.length > 0 ||
+    oldRegime.houseProperty < 0;
+  const lower = better === 'old' ? oldRegime : newRegime;
+  const advance = advanceTax({
+    tax: lower.total,
+    deducted: input.taxDeducted,
+    senior,
+    hasBusinessIncome: businessProfit,
+    presumptive: input.presumptive && businessProfit,
+  });
+  const today = todayIso();
+  // Once a payment is added, the schedule shows what was paid and the interest.
+  const interest =
+    advance.due && payments.length > 0
+      ? advanceTaxInterest({
+          net: advance.net,
+          payments,
+          presumptive: input.presumptive && businessProfit,
+          balanceDate,
+        })
+      : undefined;
   const entries: [string, string][] = entered
     ? [
         ['Age during the year', AGE_LABEL[input.age]],
-        ...ENTRY_LABELS.flatMap(([key, label]) => amountEntry(label, input[key])),
+        ...ENTRY_LABELS.flatMap(([key, label]) =>
+          amountEntry(
+            key === 'businessIncome' && input.businessLoss ? 'Loss from business or profession' : label,
+            input[key],
+          ),
+        ),
         ...(input.governmentEmployer ? ([['Employer', 'Central or State Government']] as [string, string][]) : []),
         ...(input.parentsSenior ? ([['A parent is a senior citizen', 'Yes']] as [string, string][]) : []),
+        ...(input.presumptive && businessProfit
+          ? ([['Business income', 'Presumptive (section 58)']] as [string, string][])
+          : []),
+        ...payments.flatMap((payment) =>
+          amountEntry(`Advance tax paid on ${formatLongDate(payment.date)}`, payment.amount),
+        ),
+        ...(interest ? ([['The rest to be paid on', formatLongDate(balanceDate)]] as [string, string][]) : []),
       ]
     : [];
 
@@ -116,7 +228,21 @@ const IncomeTaxCalculator: React.FC = () => {
               note="Gross, before the standard deduction, including HRA and other allowances."
               {...money('salary')}
             />
-            <MoneyField id="it-business" label="Profit from business or profession" {...money('businessIncome')} />
+            <MoneyField
+              id="it-business"
+              label={input.businessLoss ? 'Loss from business or profession' : 'Profit from business or profession'}
+              {...money('businessIncome')}
+              after={
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={input.businessLoss}
+                    onChange={(event) => set('businessLoss', event.target.checked)}
+                  />
+                  <span>This is a loss</span>
+                </label>
+              }
+            />
             <MoneyField id="it-other" label="Interest and other income" {...money('otherIncome')} />
             <MoneyField
               id="it-deposit"
@@ -182,11 +308,60 @@ const IncomeTaxCalculator: React.FC = () => {
                 note="Taxed at 12.5%."
                 {...money('ltcgOther')}
               />
+              <MoneyField
+                id="it-stcl"
+                label="Short-term capital loss this year"
+                note="On any asset. Reduces any of the gains above."
+                {...money('shortTermLoss')}
+              />
+              <MoneyField
+                id="it-ltcl"
+                label="Long-term capital loss this year"
+                note="Reduces long-term gains only."
+                {...money('longTermLoss')}
+              />
             </div>
             <p className="fnote">
-              Short-term gains on other assets are ordinary income: add them to other income. For property bought before
-              23 July 2024, the <Link to="/resources/capital-gains-calculator">capital gains calculator</Link> shows
-              whether 20% with indexation is lower.
+              Short-term gains on other assets are ordinary income: add them to other income (a capital loss is not set
+              off against them here). For property bought before 23 July 2024, the{' '}
+              <Link to="/resources/capital-gains-calculator">capital gains calculator</Link> shows whether 20% with
+              indexation is lower.
+            </p>
+          </details>
+
+          <details className="more">
+            <summary>Losses from earlier years</summary>
+            <div className="pair">
+              <MoneyField
+                id="it-bf-business"
+                label="Business loss"
+                note="Reduces business income only. Not intraday trading."
+                {...money('earlierBusinessLoss')}
+              />
+              <MoneyField
+                id="it-bf-property"
+                label="House property loss"
+                note="Reduces house-property income only."
+                {...money('earlierPropertyLoss')}
+              />
+              <MoneyField
+                id="it-bf-stcl"
+                label="Short-term capital loss"
+                note="Reduces any capital gains."
+                {...money('earlierShortTermLoss')}
+              />
+              <MoneyField
+                id="it-bf-ltcl"
+                label="Long-term capital loss"
+                note="Reduces long-term gains only."
+                {...money('earlierLongTermLoss')}
+              />
+            </div>
+            <p className="fnote">
+              Enter what is still available: each loss carries forward for 8 years, and business and capital losses only
+              if that year’s return was filed by the due date. In the new regime, a loss that came from something it
+              does not allow, such as interest on a house you live in or additional depreciation, cannot be set off
+              (section 202); the calculator counts the full amount in both regimes.
             </p>
           </details>
 
@@ -243,6 +418,78 @@ const IncomeTaxCalculator: React.FC = () => {
               <span>A parent is a senior citizen</span>
             </label>
           </details>
+          <details className="more">
+            <summary>TDS, TCS and advance tax</summary>
+            <MoneyField
+              id="it-deducted"
+              label="Tax deducted or collected for the year"
+              note="TDS on salary, interest, rent and so on, and TCS, as in Form 168 (formerly 26AS)."
+              {...money('taxDeducted')}
+            />
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={input.presumptive}
+                onChange={(event) => set('presumptive', event.target.checked)}
+              />
+              <span>My business income is on a presumptive basis (section 58, formerly 44AD or 44ADA)</span>
+            </label>
+            <fieldset className="fld impr">
+              <legend>Advance tax paid in 2026-27</legend>
+              {payments.map((payment, index) => (
+                <div className="pair" key={index}>
+                  <FormField id={`it-paid-date-${index}`} label={`Date paid (payment ${index + 1})`}>
+                    <input
+                      id={`it-paid-date-${index}`}
+                      type="date"
+                      min={ADVANCE_TAX.paidFrom}
+                      max={ADVANCE_TAX.paidTo}
+                      value={payment.date}
+                      onChange={(event) => updatePayment(index, { date: event.target.value })}
+                    />
+                  </FormField>
+                  <MoneyField
+                    id={`it-paid-amount-${index}`}
+                    label={`Amount (payment ${index + 1})`}
+                    value={payment.amount}
+                    onChange={(amount) => updatePayment(index, { amount })}
+                  />
+                </div>
+              ))}
+              <div className="impr-acts">
+                {payments.length < MAX_PAYMENTS && (
+                  <button
+                    type="button"
+                    className="link-btn"
+                    onClick={() => setPayments((list) => [...list, { date: paymentDefault(today), amount: 0 }])}
+                  >
+                    Add a payment
+                  </button>
+                )}
+                {payments.length > 0 && (
+                  <button type="button" className="link-btn" onClick={() => setPayments((list) => list.slice(0, -1))}>
+                    Remove the last one
+                  </button>
+                )}
+              </div>
+            </fieldset>
+            {payments.length > 0 && (
+              <FormField id="it-balance-date" label="Date the rest of the tax will be paid">
+                <p className="fnote" id="it-balance-note">
+                  For interest under section 424. The return is due by 31 July for most people, and by 31 October with a
+                  tax audit.
+                </p>
+                <input
+                  id="it-balance-date"
+                  type="date"
+                  min={ADVANCE_TAX.shortPayment.from}
+                  aria-describedby="it-balance-note"
+                  value={balanceDate}
+                  onChange={(event) => setBalanceDate(event.target.value || ADVANCE_TAX.balanceDate)}
+                />
+              </FormField>
+            )}
+          </details>
         </form>
 
         <Result entries={entries}>
@@ -274,7 +521,14 @@ const IncomeTaxCalculator: React.FC = () => {
               </thead>
               <tbody>
                 {ROWS.filter((row) => !row.show || row.show(newRegime, oldRegime)).map((row) => (
-                  <tr key={row.label}>
+                  <tr
+                    key={`${row.label}-${row.only ?? 'both'}`}
+                    className={
+                      [row.only === 'screen' && 'sonly', row.only === 'print' && 'ponly', row.sub && 'subt']
+                        .filter(Boolean)
+                        .join(' ') || undefined
+                    }
+                  >
                     <th scope="row">{row.label}</th>
                     <td className="tnum">{rupees(row.value(newRegime))}</td>
                     <td className="tnum">{rupees(row.value(oldRegime))}</td>
@@ -289,6 +543,118 @@ const IncomeTaxCalculator: React.FC = () => {
             </table>
           )}
 
+          {carried.length > 0 && (
+            <div className="adv">
+              <p className="lbl">Losses carried forward to next year</p>
+              <table className="cmp">
+                <caption className="vh">Losses left to carry forward under each regime</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      <span className="vh">Loss</span>
+                    </th>
+                    <th scope="col">New</th>
+                    <th scope="col">Old</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {carried.map(({ key, label }) => (
+                    <tr key={key}>
+                      <th scope="row">{label}</th>
+                      <td className="tnum">{rupees(newRegime.carriedForward[key])}</td>
+                      <td className="tnum">{rupees(oldRegime.carriedForward[key])}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="nudge">
+                Each loss can be carried forward for 8 years from the year it arose. Business and capital losses carry
+                forward only if the return is filed by the due date (section 121).
+              </p>
+            </div>
+          )}
+
+          {entered && (
+            <div className="adv">
+              <p className="lbl">Advance tax, {better} regime</p>
+              {advance.due && interest ? (
+                <>
+                  <table className="cmp four">
+                    <caption className="vh">Advance tax due, paid and interest by each date</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">
+                          <span className="vh">By</span>
+                        </th>
+                        <th scope="col">Due</th>
+                        <th scope="col">Paid</th>
+                        <th scope="col">Interest</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {interest.instalments.map((item) => (
+                        <tr key={item.date}>
+                          <th scope="row">
+                            {dayMonth(item.date).replace(' ', '\u00a0')}
+                            {item.share < 1 && <span className="sh">{Math.round(item.share * 100)}%</span>}
+                          </th>
+                          <td className="tnum">{rupees(item.due)}</td>
+                          <td className="tnum">{rupees(item.paid)}</td>
+                          <td className="tnum">{rupees(item.interest)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <dl className="brk">
+                    <Row label="Interest for deferment (section 425)" value={rupees(interest.deferment)} />
+                    <Row label="Advance tax paid in the year" value={rupees(interest.paid)} />
+                    <Row label="Tax still to pay" value={rupees(interest.balance)} />
+                    <Row
+                      label={
+                        interest.shortPayment.months
+                          ? `Interest for short payment (section 424), ${interest.shortPayment.months} ${interest.shortPayment.months === 1 ? 'month' : 'months'} to ${formatLongDate(balanceDate)}`
+                          : 'Interest for short payment (section 424)'
+                      }
+                      value={rupees(interest.shortPayment.interest)}
+                    />
+                    <Row className="tot" label="Interest in all" value={rupees(interest.total)} />
+                  </dl>
+                  <p className="nudge">
+                    {interest.shortPayment.months
+                      ? ''
+                      : 'No interest under section 424: the advance tax paid is 90% or more of the tax. '}
+                    For a date still ahead, the interest is what it would be if nothing more is paid by then. Interest
+                    runs on whole hundreds of rupees, and part of a month counts as a month (Rule 269). Not included:
+                    the relief when capital gains or dividends arise after an instalment date (section 425(4)).
+                  </p>
+                </>
+              ) : advance.due ? (
+                <>
+                  <dl className="brk">
+                    {advance.instalments.map((item) => (
+                      <Row
+                        key={item.date}
+                        className={item.date < today ? 'gone' : undefined}
+                        label={`By ${dayMonth(item.date)} ${item.date.slice(0, 4)}${item.share < 1 ? `, ${Math.round(item.share * 100)}%` : ''}${item.date < today ? ' (passed)' : ''}`}
+                        value={rupees(item.byThen)}
+                      />
+                    ))}
+                  </dl>
+                  <p className="nudge">
+                    What should have been paid in all by each date, on {rupees(advance.net)} of tax after TDS and TCS. A
+                    shortfall carries interest under sections 424 and 425: add the payments made, under TDS, TCS and
+                    advance tax, to work it out.
+                  </p>
+                </>
+              ) : (
+                <p className="nudge">
+                  {advance.reason === 'senior'
+                    ? 'None: a resident aged 60 or more with no business or professional income does not pay advance tax.'
+                    : `None: the tax after TDS and TCS is ${rupees(advance.net)}, under ₹10,000.`}
+                </p>
+              )}
+            </div>
+          )}
           {entered && (newRegime.marginalRelief > 0 || oldRegime.marginalRelief > 0) && (
             <p className="nudge">Marginal relief on surcharge has been applied.</p>
           )}
@@ -296,7 +662,7 @@ const IncomeTaxCalculator: React.FC = () => {
             Math.max(newRegime.totalIncome, oldRegime.totalIncome) > SURCHARGE_REVIEW_INCOME && (
               <p className="nudge">
                 Above ₹2 crore with capital gains, the surcharge and its marginal relief depend on how the income is
-                made up. <Link to="/contact?subject=income-tax#write">Ask us</Link> to work it out.
+                made up, so this figure may not be exact.
               </p>
             )}
           {input.employerNps > 0 && input.basicAndDa === 0 && (
@@ -305,14 +671,16 @@ const IncomeTaxCalculator: React.FC = () => {
               share of it.
             </p>
           )}
-          {newRegime.housePropertyLossNotSetOff > 0 && (
+          {(newRegime.housePropertyLossNotSetOff > 0 || oldRegime.houseProperty < 0) && (
             <p className="nudge">
-              A loss of {rupees(newRegime.housePropertyLossNotSetOff)} from house property does not reduce other income
-              in the new regime
-              {oldRegime.housePropertyLossNotSetOff > 0
-                ? `, and ${rupees(oldRegime.housePropertyLossNotSetOff)} of it is beyond the ₹2 lakh allowed in the old`
-                : ''}
-              . It can be carried forward against house-property income.
+              In the new regime, a loss from house property does not reduce other income and is not carried forward
+              (section 202). In the old regime, up to ₹2 lakh of it reduces other income, and the rest is carried
+              forward.
+            </p>
+          )}
+          {input.businessLoss && input.businessIncome > 0 && (
+            <p className="nudge">
+              A business loss is set off against income other than salary, including capital gains (section 109).
             </p>
           )}
           {input.businessIncome > 0 && (
@@ -321,10 +689,7 @@ const IncomeTaxCalculator: React.FC = () => {
               once.
             </p>
           )}
-          <p className="nudge">
-            An estimate. For your return, <Link to="/contact?subject=income-tax#write">send us your documents</Link> and
-            we will work it out.
-          </p>
+          <p className="nudge">An estimate, for planning. The return is worked out from the actual documents.</p>
           <Announce
             text={
               entered ? `New regime ${rupees(newRegime.total)}. Old regime ${rupees(oldRegime.total)}. ${headline}` : ''
@@ -378,8 +743,16 @@ const IncomeTaxCalculator: React.FC = () => {
           </li>
           <li>The rebate does not reduce tax on capital gains taxed at special rates in the new regime.</li>
           <li>
-            This estimate is for a resident individual. It does not cover agricultural income, losses brought forward,
+            This estimate is for a resident individual. It does not cover agricultural income, unabsorbed depreciation,
             the 15% surcharge cap on dividends, or alternate minimum tax.
+          </li>
+          <li>
+            A loss from intraday share trading is a speculation loss: it is set off only against speculation profit
+            (section 113), so leave it out here.
+          </li>
+          <li>
+            Where a loss can be set off against more than one kind of income, the calculator uses the order that leaves
+            the least tax.
           </li>
         </ul>
       </section>

@@ -10,10 +10,6 @@ export interface ResourceTool {
   /** One line for the index and the page's description. */
   summary: string;
   group: ResourceGroup;
-  /** The Contact page subject the "ask us" band opens with (a service slug, or '' for none). */
-  subject: string;
-  /** Completes "Ask us about …" in the dark-green band. */
-  ask: string;
 }
 
 /** The year every tool works for (the owner chose 2026-27 only, October 2026). */
@@ -28,48 +24,42 @@ export const RESOURCE_TOOLS: ResourceTool[] = [
     name: 'Income tax calculator',
     summary: 'Your tax for 2026-27 under the new regime and the old, side by side.',
     group: 'calculators',
-    subject: 'income-tax',
-    ask: 'your income tax',
   },
   {
     slug: 'hra-calculator',
     name: 'HRA calculator',
     summary: 'How much of the house rent allowance you receive is exempt, under the old regime.',
     group: 'calculators',
-    subject: 'income-tax',
-    ask: 'your income tax',
   },
   {
     slug: 'capital-gains-calculator',
     name: 'Capital gains on property',
     summary: 'Tax on selling land or a building since April 2024: 12.5%, or 20% with indexation where lower.',
     group: 'calculators',
-    subject: 'income-tax',
-    ask: 'a property sale',
   },
   {
     slug: 'gst-calculator',
     name: 'GST calculator',
     summary: 'Add GST to a price or take it out, with the CGST and SGST or IGST split.',
     group: 'calculators',
-    subject: 'gst',
-    ask: 'GST',
   },
   {
     slug: 'tds-tcs-rates',
     name: 'TDS and TCS rates',
     summary: 'Thresholds and rates for 2026-27 under the Income-tax Act, 2025, with the due dates.',
     group: 'reference',
-    subject: 'tds-and-tcs',
-    ask: 'TDS and TCS',
   },
   {
     slug: 'due-dates',
     name: 'Due dates',
     summary: 'GST, income tax, TDS, company, LLP and payroll due dates from April 2026 to March 2027.',
     group: 'reference',
-    subject: '',
-    ask: 'your compliance',
+  },
+  {
+    slug: 'section-finder',
+    name: 'Old and new section numbers',
+    summary: 'Where a section of the 1961 Act, or a form, is in the Income-tax Act, 2025 and the 2026 Rules.',
+    group: 'reference',
   },
 ];
 
@@ -81,8 +71,8 @@ export const RESOURCE_GROUPS: { id: ResourceGroup; name: string; description: st
   },
   {
     id: 'reference',
-    name: 'Rates and dates',
-    description: 'TDS and TCS rates, and the year’s due dates for returns and payments.',
+    name: 'Rates, dates and sections',
+    description: 'TDS and TCS rates, the year’s due dates, and where the old sections and forms are now.',
   },
 ];
 

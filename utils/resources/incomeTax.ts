@@ -1,4 +1,5 @@
 import {
+  ADVANCE_TAX,
   CESS,
   DEDUCTIONS,
   HOUSE_PROPERTY,
@@ -36,8 +37,10 @@ export interface IncomeTaxInput {
   letOutInterest: number;
   /** Home-loan interest on the house you live in (old regime only). */
   selfOccupiedInterest: number;
-  /** Profit from a business or profession. */
+  /** Profit from a business or profession, or the loss when `businessLoss` is set. */
   businessIncome: number;
+  /** The business or profession made a loss (not a speculation loss, which s.113 keeps apart). */
+  businessLoss: boolean;
   /** Interest and other income taxed at normal rates. */
   otherIncome: number;
   /** Of other income: savings account interest, or for a senior citizen any bank or post office deposit interest. */
@@ -48,6 +51,18 @@ export interface IncomeTaxInput {
   ltcgEquity: number;
   /** Other long-term gains, such as property, gold or unlisted shares (s.197). */
   ltcgOther: number;
+  /** Capital losses this year (s.108): a short-term loss reduces any gains, a long-term loss only long-term gains. */
+  shortTermLoss: number;
+  longTermLoss: number;
+  /**
+   * Losses brought forward and still within their 8 years (s.110 to s.112):
+   * business against business income, house property against house-property
+   * income, capital as this year's capital losses.
+   */
+  earlierBusinessLoss: number;
+  earlierPropertyLoss: number;
+  earlierShortTermLoss: number;
+  earlierLongTermLoss: number;
   /** Old-regime deductions. */
   investments: number;
   ownNps: number;
@@ -56,6 +71,10 @@ export interface IncomeTaxInput {
   parentsSenior: boolean;
   educationLoanInterest: number;
   donations: number;
+  /** TDS and TCS expected for the year, for advance tax. */
+  taxDeducted: number;
+  /** Business income declared on a presumptive basis (s.58: the old 44AD or 44ADA). */
+  presumptive: boolean;
 }
 
 export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
@@ -71,11 +90,18 @@ export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
   letOutInterest: 0,
   selfOccupiedInterest: 0,
   businessIncome: 0,
+  businessLoss: false,
   otherIncome: 0,
   depositInterest: 0,
   stcgEquity: 0,
   ltcgEquity: 0,
   ltcgOther: 0,
+  shortTermLoss: 0,
+  longTermLoss: 0,
+  earlierBusinessLoss: 0,
+  earlierPropertyLoss: 0,
+  earlierShortTermLoss: 0,
+  earlierLongTermLoss: 0,
   investments: 0,
   ownNps: 0,
   healthSelf: 0,
@@ -83,14 +109,38 @@ export const EMPTY_INCOME_TAX_INPUT: IncomeTaxInput = {
   parentsSenior: false,
   educationLoanInterest: 0,
   donations: 0,
+  taxDeducted: 0,
+  presumptive: false,
 };
+
+export interface CarriedForward {
+  /** Against business income (s.112), if the return is filed on time (s.121). */
+  business: number;
+  /** Against house-property income (s.110). */
+  houseProperty: number;
+  /** Against any capital gains (s.111), if the return is filed on time. */
+  shortTermCapital: number;
+  /** Against long-term gains only (s.111), if the return is filed on time. */
+  longTermCapital: number;
+}
 
 export interface RegimeResult {
   regime: Regime;
   salaryIncome: number;
+  /** Income from house property, or the part of a loss set off this year (negative). */
   houseProperty: number;
-  /** A house-property loss that cannot reduce other income this year. */
+  /** A house-property loss that does not reduce other income this year; carried forward (s.110). */
   housePropertyLossNotSetOff: number;
+  /** A business loss set off against other income and gains this year (s.109). */
+  businessLossSetOff: number;
+  /** Losses left to carry forward to next year, this year's and earlier years' together. */
+  carriedForward: CarriedForward;
+  /** Income under each head before any loss is set off, for the printed computation. */
+  incomeBy: { salary: number; houseProperty: number; business: number; other: number; capitalGains: number };
+  /** All losses set off this year, this year's and earlier years'. */
+  lossesSetOff: number;
+  /** Income under all heads after losses, before deductions. */
+  grossTotalIncome: number;
   grossNormalIncome: number;
   deductions: number;
   /** Income taxed at the slab rates. */
@@ -231,8 +281,64 @@ const roundedIncome = (normalIncome: number, gains: Gains): [number, Gains] => {
   return key ? [normalIncome, { ...gains, [key]: gains[key] + delta }] : [normalIncome, gains];
 };
 
+/** Where a loss can go: income at the slab rates, or one of the three kinds of gains. */
+type LossTarget = 'normal' | keyof Gains;
+type GainKey = keyof Gains;
+
+const permutations = <T>(items: T[]): T[][] =>
+  items.length <= 1
+    ? [items]
+    : items.flatMap((item, index) =>
+        permutations([...items.slice(0, index), ...items.slice(index + 1)]).map((rest) => [item, ...rest]),
+      );
+
+/**
+ * The orders in which losses can be set off. The law leaves the order to the
+ * taxpayer, so the calculator takes the one that leaves the least tax, and
+ * among equals the first: income at the slab rates before gains, and gains at
+ * the higher rate first.
+ */
+const LOSS_ORDERS = permutations<LossTarget>(['normal', 'stcg', 'ltcgOther', 'ltcgEquity']);
+const GAIN_ORDERS = permutations<GainKey>(['stcg', 'ltcgOther', 'ltcgEquity']);
+
+/** Income under each head, before deductions. `other` is everything at the slab rates except salary. */
+interface Heads {
+  salary: number;
+  other: number;
+  gains: Gains;
+}
+
+/** Income by source while losses are set off, since each loss may reduce only some of them. */
+type Pool = 'salary' | 'property' | 'business' | 'other' | GainKey;
+
+/** Take a loss off the pools in turn, changing them; returns what is left of the loss. */
+const drain = (pools: Record<Pool, number>, loss: number, order: Pool[]) => {
+  let left = loss;
+  for (const key of order) {
+    const used = Math.min(pools[key], left);
+    pools[key] -= used;
+    left -= used;
+  }
+  return left;
+};
+
+/** What is left of each loss after set-off. */
+interface LossesLeft {
+  longTerm: number;
+  shortTerm: number;
+  business: number;
+  property: number;
+  earlierBusiness: number;
+  earlierProperty: number;
+  earlierLongTerm: number;
+  earlierShortTerm: number;
+}
+
+/** An order of targets with "normal" opened into the slab-rate pools the loss may reduce. */
+const expand = (order: LossTarget[], normal: Pool[]): Pool[] =>
+  order.flatMap((target) => (target === 'normal' ? normal : [target]));
+
 export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeResult => {
-  const senior = input.age !== 'below60';
   const isNew = regime === 'new';
 
   // Salary: standard deduction (s.19), and in the old regime professional tax and exempt HRA.
@@ -247,12 +353,105 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
   const letOut = annualValue * (1 - HOUSE_PROPERTY.standardDeduction) - input.letOutInterest;
   const selfOccupied = isNew ? 0 : Math.min(input.selfOccupiedInterest, HOUSE_PROPERTY.selfOccupiedInterestCap);
   const property = letOut - selfOccupied;
-  // A loss cannot reduce other income in the new regime, and only up to ₹2 lakh in the old (s.109).
-  const allowedLoss = isNew ? 0 : HOUSE_PROPERTY.lossSetOffCap;
-  const houseProperty = Math.max(property, -allowedLoss);
-  const housePropertyLossNotSetOff = Math.max(0, houseProperty - property);
+  const business = input.businessLoss ? -input.businessIncome : input.businessIncome;
 
-  const grossNormalIncome = Math.max(0, salaryIncome + houseProperty + input.businessIncome + input.otherIncome);
+  // This year's losses across heads (s.109): a house-property loss only in the
+  // old regime and only up to ₹2 lakh (s.202(2)(b)(ii)); a business loss
+  // against anything but salary, in either regime.
+  const propertyLoss = Math.max(0, -property);
+  const propertyLossAllowed = Math.min(propertyLoss, isNew ? 0 : HOUSE_PROPERTY.lossSetOffCap);
+  const businessLoss = Math.max(0, -business);
+  const base: Record<Pool, number> = {
+    salary: salaryIncome,
+    property: Math.max(0, property),
+    business: Math.max(0, business),
+    other: input.otherIncome,
+    stcg: input.stcgEquity,
+    ltcgOther: input.ltcgOther,
+    ltcgEquity: input.ltcgEquity,
+  };
+  const capitalLosses =
+    input.shortTermLoss + input.longTermLoss + input.earlierShortTermLoss + input.earlierLongTermLoss;
+
+  let best: { tax: TaxResult; left: LossesLeft; after: Heads } | undefined;
+  for (const order of businessLoss || propertyLossAllowed ? LOSS_ORDERS : LOSS_ORDERS.slice(0, 1)) {
+    for (const gainOrder of capitalLosses ? GAIN_ORDERS : GAIN_ORDERS.slice(0, 1)) {
+      const pools = { ...base };
+      const longTerm = gainOrder.filter((key) => key !== 'stcg');
+      const left: LossesLeft = {
+        // Within capital gains first (s.108). A long-term loss goes first: it has fewer gains to go to.
+        longTerm: drain(pools, input.longTermLoss, longTerm),
+        shortTerm: drain(pools, input.shortTermLoss, gainOrder),
+        // Across heads (s.109), keeping business and house-property income
+        // till last, since the losses brought forward can reduce nothing else.
+        business: drain(pools, businessLoss, expand(order, ['other', 'property'])),
+        property: drain(pools, propertyLossAllowed, expand(order, ['other', 'salary', 'business'])),
+        // Losses brought forward (s.110 to s.112).
+        earlierBusiness: drain(pools, input.earlierBusinessLoss, ['business']),
+        earlierProperty: drain(pools, input.earlierPropertyLoss, ['property']),
+        earlierLongTerm: drain(pools, input.earlierLongTermLoss, longTerm),
+        earlierShortTerm: drain(pools, input.earlierShortTermLoss, gainOrder),
+      };
+      const after: Heads = {
+        salary: pools.salary,
+        other: pools.property + pools.business + pools.other,
+        gains: { stcg: pools.stcg, ltcgOther: pools.ltcgOther, ltcgEquity: pools.ltcgEquity },
+      };
+      const tax = taxOnHeads(input, regime, after);
+      if (!best || tax.total < best.tax.total) best = { tax, left, after };
+    }
+  }
+  const { tax, left, after } = best!;
+  const propertySetOff = propertyLossAllowed - left.property;
+  const sum = (pools: number[]) => pools.reduce((total, value) => total + value, 0);
+  const capitalGains = base.stcg + base.ltcgOther + base.ltcgEquity;
+  const grossTotalIncome = after.salary + after.other + sum(Object.values(after.gains));
+
+  return {
+    ...tax,
+    regime,
+    salaryIncome: whole(salaryIncome),
+    houseProperty: whole(property >= 0 ? property : -propertySetOff),
+    housePropertyLossNotSetOff: whole(propertyLoss - propertySetOff),
+    businessLossSetOff: whole(businessLoss - left.business),
+    carriedForward: {
+      business: whole(left.business + left.earlierBusiness),
+      // In the new regime a house-property loss that other heads may not take
+      // is treated as used: it is not carried forward (s.202(3)).
+      houseProperty: whole((isNew ? 0 : propertyLoss - propertySetOff) + left.earlierProperty),
+      shortTermCapital: whole(left.shortTerm + left.earlierShortTerm),
+      longTermCapital: whole(left.longTerm + left.earlierLongTerm),
+    },
+    incomeBy: {
+      salary: whole(base.salary),
+      houseProperty: whole(base.property),
+      business: whole(base.business),
+      other: whole(base.other),
+      capitalGains: whole(capitalGains),
+    },
+    lossesSetOff: whole(base.salary + base.property + base.business + base.other + capitalGains - grossTotalIncome),
+    grossTotalIncome: whole(grossTotalIncome),
+  };
+};
+
+type TaxResult = Omit<
+  RegimeResult,
+  | 'regime'
+  | 'salaryIncome'
+  | 'houseProperty'
+  | 'housePropertyLossNotSetOff'
+  | 'businessLossSetOff'
+  | 'carriedForward'
+  | 'incomeBy'
+  | 'lossesSetOff'
+  | 'grossTotalIncome'
+>;
+
+/** The tax on income under each head, after losses: deductions, slab and special rates, surcharge and cess. */
+const taxOnHeads = (input: IncomeTaxInput, regime: Regime, heads: Heads): TaxResult => {
+  const senior = input.age !== 'below60';
+  const isNew = regime === 'new';
+  const grossNormalIncome = heads.salary + heads.other;
 
   // Chapter VIII deductions come off income other than special-rate gains.
   const npsShare =
@@ -276,11 +475,7 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
       );
   }
   deductions = Math.min(deductions, grossNormalIncome);
-  const [normalIncome, gains] = roundedIncome(grossNormalIncome - deductions, {
-    stcg: input.stcgEquity,
-    ltcgEquity: input.ltcgEquity,
-    ltcgOther: input.ltcgOther,
-  });
+  const [normalIncome, gains] = roundedIncome(grossNormalIncome - deductions, heads.gains);
   const specialGains = gains.stcg + gains.ltcgEquity + gains.ltcgOther;
   const now = taxAndSurcharge(normalIncome, gains, regime, input.age);
 
@@ -301,10 +496,6 @@ export const calculateRegime = (input: IncomeTaxInput, regime: Regime): RegimeRe
   const shown =
     whole(now.parts.slabTax) + whole(now.parts.specialTax) - whole(now.rebate) + whole(surcharge) + whole(cess);
   return {
-    regime,
-    salaryIncome: whole(salaryIncome),
-    houseProperty: whole(houseProperty),
-    housePropertyLossNotSetOff: whole(housePropertyLossNotSetOff),
     grossNormalIncome: whole(grossNormalIncome),
     deductions: whole(deductions),
     normalIncome: whole(normalIncome),
@@ -325,4 +516,114 @@ export const compareRegimes = (input: IncomeTaxInput) => {
   const newRegime = calculateRegime(input, 'new');
   const oldRegime = calculateRegime(input, 'old');
   return { newRegime, oldRegime, better: oldRegime.total < newRegime.total ? ('old' as const) : ('new' as const) };
+};
+
+export interface AdvanceTaxInput {
+  /** The year's tax, after rebate, with surcharge and cess. */
+  tax: number;
+  /** TDS and TCS expected for the year. */
+  deducted: number;
+  senior: boolean;
+  hasBusinessIncome: boolean;
+  presumptive: boolean;
+}
+
+export type AdvanceTaxResult =
+  | { due: false; reason: 'below-threshold' | 'senior'; net: number }
+  | { due: true; net: number; instalments: { date: string; share: number; byThen: number }[] };
+
+/** Advance tax for the year (s.404, s.408): what must have been paid by each date. */
+export const advanceTax = (input: AdvanceTaxInput): AdvanceTaxResult => {
+  const net = Math.max(0, input.tax - input.deducted);
+  if (input.senior && !input.hasBusinessIncome) return { due: false, reason: 'senior', net };
+  if (net < ADVANCE_TAX.threshold) return { due: false, reason: 'below-threshold', net };
+  const schedule =
+    input.presumptive && input.hasBusinessIncome
+      ? [{ date: ADVANCE_TAX.presumptiveDate, share: 1 }]
+      : ADVANCE_TAX.instalments;
+  return {
+    due: true,
+    net,
+    instalments: schedule.map((item) => ({ ...item, byThen: Math.round(net * item.share) })),
+  };
+};
+
+export interface AdvancePayment {
+  /** YYYY-MM-DD */
+  date: string;
+  amount: number;
+}
+
+export interface AdvanceInterestInput {
+  /** The year's tax after TDS and TCS: the tax due on returned income. */
+  net: number;
+  payments: AdvancePayment[];
+  presumptive: boolean;
+  /** When the rest of the tax is paid, for s.424. */
+  balanceDate: string;
+}
+
+export interface AdvanceInterestResult {
+  instalments: { date: string; share: number; due: number; paid: number; interest: number }[];
+  /** s.425: interest for deferment, all instalments together. */
+  deferment: number;
+  /** Advance tax paid within the tax year. */
+  paid: number;
+  /** Tax left to pay after advance tax. */
+  balance: number;
+  /** s.424: interest for short payment, when advance tax is under 90% of the tax. */
+  shortPayment: { months: number; on: number; interest: number };
+  total: number;
+}
+
+/** Rule 269: the amount on which interest runs, in whole hundreds, the rest ignored. */
+const hundreds = (amount: number) => Math.floor(amount / ADVANCE_TAX.roundTo) * ADVANCE_TAX.roundTo;
+
+/** Months from the start of `from` to `to`, a part of a month counting as a whole one (Rule 269). */
+const monthsTo = (from: string, to: string) => {
+  if (to < from) return 0;
+  const [fy, fm] = from.split('-').map(Number) as [number, number];
+  const [ty, tm] = to.split('-').map(Number) as [number, number];
+  return (ty - fy) * 12 + (tm - fm) + 1;
+};
+
+/**
+ * Interest on advance tax (s.424, s.425) for someone liable to pay it, from
+ * the payments made in the tax year. Leaves out the s.425(4) relief for
+ * capital gains and dividends that arise after an instalment date.
+ */
+export const advanceTaxInterest = (input: AdvanceInterestInput): AdvanceInterestResult => {
+  const inYear = input.payments.filter(
+    (payment) => payment.amount > 0 && payment.date >= ADVANCE_TAX.paidFrom && payment.date <= ADVANCE_TAX.paidTo,
+  );
+  const paidBy = (date: string) =>
+    inYear.filter((payment) => payment.date <= date).reduce((sum, payment) => sum + payment.amount, 0);
+  const schedule = input.presumptive
+    ? [{ date: ADVANCE_TAX.presumptiveDate, share: 1, rate: ADVANCE_TAX.presumptiveRate, enough: undefined }]
+    : ADVANCE_TAX.instalments;
+
+  const instalments = schedule.map((item) => {
+    const due = Math.round(input.net * item.share);
+    const paid = paidBy(item.date);
+    const safe = item.enough !== undefined && paid >= input.net * item.enough;
+    const interest = safe ? 0 : Math.round(hundreds(Math.max(0, due - paid)) * item.rate);
+    return { date: item.date, share: item.share, due, paid, interest };
+  });
+  const deferment = instalments.reduce((sum, item) => sum + item.interest, 0);
+
+  const paid = paidBy(ADVANCE_TAX.paidTo);
+  const balance = Math.max(0, input.net - paid);
+  const short = paid < input.net * ADVANCE_TAX.shortPayment.below;
+  const months = short ? monthsTo(ADVANCE_TAX.shortPayment.from, input.balanceDate) : 0;
+  const on = short ? hundreds(balance) : 0;
+  const shortInterest = Math.round(on * ADVANCE_TAX.shortPayment.monthly * months);
+
+  return {
+    instalments,
+    deferment,
+    paid,
+    balance,
+    shortPayment: { months, on, interest: shortInterest },
+    total: deferment + shortInterest,
+  };
 };

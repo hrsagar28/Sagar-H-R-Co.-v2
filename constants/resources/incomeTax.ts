@@ -103,3 +103,39 @@ export const DEDUCTIONS = {
   /** s.153 (old 80TTA / 80TTB). */
   depositInterest: { savings: 10000, senior: 50000 },
 };
+
+/**
+ * Advance tax, s.404 and s.408: due when the year's tax after TDS and TCS is
+ * ₹10,000 or more; not for a resident senior citizen without business or
+ * professional income; one instalment by 15 March for presumptive income
+ * under s.58(2), Table entries 1 and 3 (the old 44AD and 44ADA).
+ */
+export const ADVANCE_TAX = {
+  threshold: 10000,
+  /**
+   * s.425(1) Table: the share due by each date and the interest on a
+   * shortfall (3% for each of the first three, 1% for the last). s.425(2):
+   * none on the first if 12% was paid by then, or on the second if 36% was.
+   */
+  instalments: [
+    { date: '2026-06-15', share: 0.15, rate: 0.03, enough: 0.12 },
+    { date: '2026-09-15', share: 0.45, rate: 0.03, enough: 0.36 },
+    { date: '2026-12-15', share: 0.75, rate: 0.03 },
+    { date: '2027-03-15', share: 1, rate: 0.01 },
+  ] as { date: string; share: number; rate: number; enough?: number }[],
+  /** s.425(3): presumptive income, one date, 1% on the shortfall. */
+  presumptiveDate: '2027-03-15',
+  presumptiveRate: 0.01,
+  /** Advance tax is what is paid within the tax year (s.406, s.407). */
+  paidFrom: '2026-04-01',
+  paidTo: '2027-03-31',
+  /**
+   * s.424: when advance tax paid is under 90% of the tax, 1% a month or part
+   * of a month from 1 April after the tax year on the shortfall.
+   */
+  shortPayment: { below: 0.9, monthly: 0.01, from: '2027-04-01' },
+  /** The return due date for most individuals, as the default date the rest is paid (s.263(1)). */
+  balanceDate: '2027-07-31',
+  /** Rule 269 of the Income-tax Rules, 2026: the amount is taken in whole hundreds of rupees. */
+  roundTo: 100,
+};

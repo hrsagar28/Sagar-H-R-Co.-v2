@@ -12,10 +12,12 @@ interface MoneyFieldProps {
   onChange: (value: number) => void;
   /** A short line under the label, when the label alone is not enough. */
   note?: string;
+  /** Shown under the input, such as a checkbox that changes what the amount means. */
+  after?: React.ReactNode;
 }
 
 /** A rupee amount: typed as plain digits, shown in the Indian grouping once you move on. */
-export const MoneyField: React.FC<MoneyFieldProps> = ({ id, label, value, onChange, note }) => {
+export const MoneyField: React.FC<MoneyFieldProps> = ({ id, label, value, onChange, note, after }) => {
   const [text, setText] = useState('');
   const [editing, setEditing] = useState(false);
   const noteId = note ? `${id}-note` : undefined;
@@ -47,6 +49,7 @@ export const MoneyField: React.FC<MoneyFieldProps> = ({ id, label, value, onChan
           }}
         />
       </div>
+      {after}
     </FormField>
   );
 };
@@ -102,7 +105,6 @@ export const Result: React.FC<ResultProps> = ({ children, entries }) => (
               <Row key={label} label={label} value={value} />
             ))}
           </dl>
-          <p className="lbl">The result</p>
         </div>
       )}
       {children}
