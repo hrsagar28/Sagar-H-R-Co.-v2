@@ -138,7 +138,7 @@ const generateSitemap = (): void => {
   const insights = getPublicInsights();
   warnOnInvalidInsightMarkdown(insights);
 
-  entries.push({ loc: BASE_URL, priority: '1.0', changefreq: 'weekly', lastmod: getContentLastmod('App.tsx') });
+  entries.push({ loc: BASE_URL, priority: '1.0', changefreq: 'weekly', lastmod: getContentLastmod('pages/Home.tsx') });
   entries.push({
     loc: `${BASE_URL}/services`,
     priority: '0.9',
@@ -153,7 +153,6 @@ const generateSitemap = (): void => {
   });
 
   const staticPages: Array<[string, string]> = [
-    ['/about', 'pages/About.tsx'],
     ['/resources', 'pages/Resources.tsx'],
     ['/faqs', 'pages/FAQ.tsx'],
     ['/careers', 'pages/Careers.tsx'],

@@ -26,7 +26,7 @@ export const pickHomeInsights = (insights: readonly InsightItem[]): InsightItem[
   return [...featured, ...recent].slice(0, HOME_INSIGHTS_COUNT);
 };
 
-/** The principal's photograph. */
+/** The proprietor's photograph: black and white on black, so it sits on the dark band without a frame. */
 export const Portrait: React.FC<{ sizes: string }> = ({ sizes }) => (
   <picture>
     <source
@@ -43,9 +43,9 @@ export const Portrait: React.FC<{ sizes: string }> = ({ sizes }) => (
       src="/images/founder-800.jpg"
       srcSet="/images/founder-400.jpg 400w, /images/founder-800.jpg 800w, /images/founder-1080.jpg 1080w"
       sizes={sizes}
-      alt={`${CONTACT_INFO.founder.name}, proprietor of ${CONTACT_INFO.name}`}
+      alt={`Portrait of ${CONTACT_INFO.founder.name}`}
       width="800"
-      height="1067"
+      height="1422"
       loading="lazy"
       decoding="async"
     />

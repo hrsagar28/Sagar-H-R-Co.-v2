@@ -18,6 +18,7 @@ import { headerSafe, normalizeInput } from '../utils/sanitize';
 import { logger } from '../utils/logger';
 import { ArrowRight } from '../components/redesign/icons';
 import FormField, { fieldErrorProps } from '../components/redesign/FormField';
+import OfficeMap from '../components/redesign/OfficeMap';
 import { RD_HOURS_TABLE } from '../components/redesign/content';
 
 // 2026 redesign of /contact. Rendered inside RedesignLayout, which supplies the
@@ -712,20 +713,7 @@ const Contact: React.FC = () => {
               <br />
               {ADDRESS_LINE_2}
             </address>
-            {/* Muted to sit with the palette until hovered or focused.
-                data-hide-cursor makes the custom cursor (CustomCursor.tsx,
-                index.css) step aside for the browser's over the embedded map. */}
-            <div className="map" data-hide-cursor="true">
-              <iframe
-                title={`Map showing the office of ${CONTACT_INFO.name}`}
-                src={CONTACT_INFO.geo.mapEmbedUrl}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                allow="geolocation 'none'"
-                sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-                allowFullScreen
-              />
-            </div>
+            <OfficeMap />
             <div className="acts">
               <a href={CONTACT_INFO.geo.mapShareUrl} target="_blank" rel="noopener noreferrer">
                 Get directions<span className="vh"> (opens Google Maps in a new tab)</span>

@@ -111,8 +111,8 @@ const SECTIONS: LegalSection[] = [
           </li>
         </ul>
         <p>
-          The map on our Contact page comes from Google. When it loads, Google receives your IP address and may set its
-          own cookies under Google’s privacy policy.
+          The map of our office, on the home page and the Contact page, comes from Google. When it loads, Google
+          receives your IP address and may set its own cookies under Google’s privacy policy.
         </p>
         <p>Clearing your browser’s data for this site removes everything listed above.</p>
       </>
@@ -127,7 +127,7 @@ const SECTIONS: LegalSection[] = [
           rows={[
             ['Netlify', 'Hosts this website.'],
             ['FormSubmit', 'Delivers contact and careers form messages to our email inbox.'],
-            ['Google', 'Runs our email (Google Workspace) and the map on the Contact page.'],
+            ['Google', 'Runs our email (Google Workspace) and the map on the home page and the Contact page.'],
             [
               'Government departments',
               'When the work requires it, for example filing returns with the Income Tax Department or on the GST and MCA portals.',

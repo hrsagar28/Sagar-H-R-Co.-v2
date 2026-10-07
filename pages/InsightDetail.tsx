@@ -4,6 +4,7 @@ import SEO from '../components/SEO';
 import LegalPage from '../components/redesign/LegalPage';
 import ArticleMarkdown from '../components/redesign/ArticleMarkdown';
 import RdPageSkeleton from '../components/redesign/RdPageSkeleton';
+import { ABOUT_PATH } from '../components/redesign/routes';
 import ShareLink from '../components/redesign/ShareLink';
 import { ArrowLeft, ArrowRight } from '../components/redesign/icons';
 import { CONTACT_INFO } from '../constants';
@@ -115,7 +116,7 @@ const InsightDetail: React.FC = () => {
         article={{
           headline: insight.title,
           author: insight.author,
-          authorUrl: `${SITE_URL}/about`,
+          authorUrl: `${SITE_URL}${ABOUT_PATH}`,
           datePublished: toISODate(insight.date),
           dateModified: toISODate(insight.dateModified || insight.date),
           image: insight.image,

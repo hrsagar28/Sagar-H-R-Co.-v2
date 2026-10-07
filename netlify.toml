@@ -8,6 +8,13 @@
   to = "/faqs"
   status = 301
 
+# The About page became a section of the home page in October 2026. App.tsx
+# sends /about the same way for a link followed inside the app.
+[[redirects]]
+  from = "/about"
+  to = "/#about"
+  status = 301
+
 # Retired Aug-2025 insight articles (replaced by the 2025-Act refresh).
 # 301 to the topical successor where one exists, else to the insights index,
 # so old inbound links and search results don't 404.
@@ -126,6 +133,6 @@
     # analytics.
     # SEC-7: frame-ancestors 'none' now matches X-Frame-Options: DENY (no
     # contradiction); report-to mirrors report-uri for modern browsers.
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'self' 'sha256-HlvowgSnFxem1hAXwaUiT+xqF4+DdA4nnPgfjX973B0='; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://formsubmit.co; frame-src 'self' https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /.netlify/functions/csp-report; report-to csp-endpoint; upgrade-insecure-requests;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'self' 'sha256-CKFP/qFWAChbppdDznd2y56E73Ry0bvGJ2BTp651mDk='; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://formsubmit.co; frame-src 'self' https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /.netlify/functions/csp-report; report-to csp-endpoint; upgrade-insecure-requests;"
     X-Frame-Options = "DENY"
 

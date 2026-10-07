@@ -20,24 +20,18 @@ if (!netlifyToml.includes(expectedToken)) {
   );
 }
 
-// The first-paint overlay on the home page is the dark top bar over the
-// limestone page, so the page does not change colour as it appears.
-const preloadMatch = indexHtml.match(/#preload-hero\s*{([\s\S]*?)}/);
-const preloadBar = preloadMatch?.[1]?.match(/border-top:\s*\d+px solid\s*(#[0-9a-fA-F]{3,8})\s*;/)?.[1];
-const preloadBg = preloadMatch?.[1]?.match(/background:\s*(#[0-9a-fA-F]{3,8})\s*;/)?.[1];
-const night = redesignCss.match(/--night:\s*(#[0-9a-fA-F]{3,8})\s*;/)?.[1];
+// The first-paint overlay on the home page is the limestone the page opens on,
+// so the page does not change colour as it appears.
+const preloadBg = indexHtml.match(/#preload-hero\s*{[\s\S]*?background:\s*(#[0-9a-fA-F]{3,8})\s*;/)?.[1];
 const stone = redesignCss.match(/--stone:\s*(#[0-9a-fA-F]{3,8})\s*;/)?.[1];
 
-if (!preloadBar || !preloadBg || !night || !stone) {
-  throw new Error('Unable to compare the #preload-hero colours with --night and --stone in redesign.css.');
+if (!preloadBg || !stone) {
+  throw new Error('Unable to compare the #preload-hero background with --stone in redesign.css.');
 }
 
-if (preloadBar.toLowerCase() !== night.toLowerCase()) {
-  throw new Error(`Preload hero top bar (${preloadBar}) must match --night (${night}).`);
-}
 if (preloadBg.toLowerCase() !== stone.toLowerCase()) {
   throw new Error(`Preload hero background (${preloadBg}) must match --stone (${stone}).`);
 }
 
 console.log(`CSP inline style hash is current: ${expectedToken}`);
-console.log(`Preload hero matches --night (${night}) over --stone (${stone})`);
+console.log(`Preload hero background matches --stone: ${stone}`);
