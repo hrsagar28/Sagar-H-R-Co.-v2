@@ -4136,1088 +4136,606 @@
 }
 
 /* ---------- home ----------
-   The home page prototypes (pages/home/): 1 built around the date, 2 a front
-   page, 3 portrait and principle. Shared: the sections (.hblock), the
-   numbered services index (.sidx), the firm's facts, and the office details
-   beside the map on the sand band (.visit). */
+   The home page (pages/Home.tsx), on the light header: the coming due dates as
+   a row of days that scrolls sideways (.hdue), the services as four short lists
+   on sand (.hsvc), the firm and how an engagement runs on the dark band
+   (.hdark), and the latest articles beside three questions (.hread). The
+   office details are in the footer, so the page does not repeat them. */
 
-/* a section of the home page: a large heading over its content */
-.rd .hblock {
-  padding-top: clamp(80px, 8.3vw, 120px);
+/* opening: the actions under the introduction */
+.rd .home .hacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 28px;
+  margin: 26px 0 0;
 }
-.rd .hblock + .hblock {
-  padding-top: clamp(72px, 7vw, 104px);
+.rd .home .hcall {
+  font-size: 16px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule-s);
+  text-underline-offset: 5px;
+  font-variant-numeric: tabular-nums;
+  transition: text-decoration-color 0.25s;
 }
-.rd .hblock:last-of-type {
-  padding-bottom: clamp(80px, 8.3vw, 120px);
+.rd .home .hcall:hover {
+  text-decoration-color: var(--copper);
 }
-.rd .hblock-h {
+
+/* a section's heading, with a line beside it on larger screens */
+.rd .hsec-h {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
-  gap: 12px 40px;
-  margin-bottom: clamp(28px, 3vw, 44px);
-  padding-top: 20px;
-  border-top: 1px solid var(--ink);
+  gap: 8px 40px;
+  margin-bottom: clamp(28px, 3vw, 40px);
 }
-.rd .hblock-h h2 {
+.rd .hsec-h h2,
+.rd .hdue-h h2,
+.rd .hread-h {
   margin: 0;
   font-family: var(--serif);
-  font-size: clamp(40px, 4.4vw, 64px);
-  line-height: 1;
+  font-size: clamp(34px, 3.3vw, 48px);
+  line-height: 1.04;
 }
-.rd .hblock-h p {
+.rd .hsec-h p {
   margin: 0;
   max-width: 34em;
   font-size: 16px;
   line-height: 1.55;
   color: var(--body);
 }
-.rd .smore {
-  margin: 28px 0 0;
+.rd .hmore {
+  margin: 24px 0 0;
+  font-size: 15px;
 }
-.rd .smore a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
+.rd .hmore a {
   color: var(--ink);
   text-decoration: underline;
   text-decoration-color: var(--rule-s);
   text-underline-offset: 5px;
   transition: text-decoration-color 0.25s;
 }
-.rd .smore a:hover {
+.rd .hmore a:hover {
   text-decoration-color: var(--copper);
 }
-.rd .home .hlinks {
+
+/* due dates: one column per day, the month's name standing up before its
+   first day; the strip runs to the right edge and scrolls sideways */
+.rd .hdue {
+  padding-bottom: clamp(56px, 5.6vw, 80px);
+}
+.rd .hdue-h {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 30px;
-  margin: 30px 0 0;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px 40px;
+  margin-bottom: 24px;
 }
-.rd .home .hlinks a {
+.rd .hdue-h p {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--body);
+}
+.rd .hdue-ctl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+.rd .hdue-ctl .topics {
+  padding-top: 0;
+}
+.rd .hdue-nav {
+  display: flex;
+  gap: 8px;
+}
+.rd .hdue-nav button {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: var(--cream);
-  font-size: 16px;
-  text-decoration: underline;
-  text-decoration-color: rgba(236, 232, 222, 0.35);
-  text-underline-offset: 5px;
-  transition: text-decoration-color 0.25s;
+  justify-content: center;
+  width: 42px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--rule-s);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.2s;
 }
-.rd .home .hlinks a:hover {
-  text-decoration-color: var(--cream);
+.rd .hdue-nav button:hover {
+  border-color: var(--ink);
 }
-
-/* the services, numbered through, under their groups */
-.rd .sidx-g + .sidx-g {
-  margin-top: 36px;
+.rd .hdue-scroll {
+  overflow-x: auto;
+  /* Without paint containment Chrome counts the standing month names
+     (writing-mode: vertical-rl) in the page's width, and the whole page
+     scrolls sideways to the end of the strip. */
+  contain: paint;
+  scroll-snap-type: x proximity;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-s) transparent;
 }
-.rd .sidx .lbl {
-  margin: 0 0 4px;
+.rd .hdue-scroll:focus-visible {
+  outline-offset: -2px;
 }
-.rd .sidx ul {
+.rd .hdue-days {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--gut);
+  display: flex;
+  width: max-content;
+}
+/* room after the last day, the width of the side gutter */
+.rd .hdue-days::after {
+  content: '';
+  flex: 0 0 clamp(16px, 4.45vw, 64px);
+}
+.rd .hdue-days > li {
+  display: flex;
+  flex: 0 0 auto;
+  border-left: 1px solid var(--rule);
+  scroll-snap-align: start;
+  scroll-margin-left: clamp(16px, 4.45vw, 64px);
+}
+.rd .hdue-days > li:last-child {
+  border-right: 1px solid var(--rule);
+}
+.rd .hdue-m {
+  writing-mode: vertical-rl;
+  padding: 20px 14px;
+  border-right: 1px solid var(--rule);
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.rd .hdue-day {
+  width: 236px;
+  min-height: 400px;
+  padding: 18px 20px 28px;
+}
+.rd .hdue-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.rd .hdue-top span + span {
+  color: var(--muted);
+}
+.rd .hdue-n {
+  margin: 8px 0 24px;
+  font-family: var(--serif);
+  font-size: clamp(96px, 9vw, 132px);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.rd .hdue-day ul {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 1px solid var(--rule-s);
 }
-.rd .sidx a {
-  display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) minmax(0, 0.9fr);
-  gap: 0 24px;
-  align-items: baseline;
-  padding: 14px 0 16px;
-  border-bottom: 1px solid var(--rule);
+.rd .hdue-day ul li + li {
+  margin-top: 16px;
+}
+.rd .hdue-day .t {
+  display: block;
+  font-size: 15px;
+  line-height: 1.4;
   color: var(--ink);
-  text-decoration: none;
 }
-.rd .sidx .n {
+.rd .hdue-day .d {
+  display: block;
+  margin-top: 3px;
   font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.rd .hdue-day .c {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  line-height: 1.45;
   color: var(--copper-d);
-  font-variant-numeric: tabular-nums;
 }
-.rd .sidx .t {
-  font-family: var(--serif);
-  font-size: clamp(30px, 3.3vw, 48px);
-  line-height: 1.05;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 7px;
-  transition:
-    text-decoration-color 0.25s,
-    transform 0.45s var(--ease);
-}
-.rd .sidx .w {
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--muted);
-  transition: color 0.25s;
-}
-.rd .sidx a:hover .t,
-.rd .sidx a:focus-visible .t {
-  text-decoration-color: var(--copper);
-  transform: translateX(6px);
-}
-.rd .sidx a:hover .w {
-  color: var(--ink);
-}
-
-/* sectors as one flowing paragraph */
-.rd .hflow {
+.rd .hdue-none {
   margin: 0;
-  max-width: 1100px;
-  font-family: var(--serif);
-  font-size: clamp(26px, 2.6vw, 38px);
-  line-height: 1.3;
-  color: var(--ink);
-}
-.rd .hflow .sep {
-  color: var(--copper);
-}
-.rd .hflow em {
-  color: var(--muted);
-}
-
-/* membership and registration numbers, and languages */
-.rd .facts {
-  margin: 24px 0 0;
-  max-width: 520px;
+  padding-top: 32px;
+  padding-bottom: 32px;
   border-top: 1px solid var(--rule);
-}
-.rd .facts div {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 9px 0 10px;
   border-bottom: 1px solid var(--rule);
-  font-size: 15px;
-}
-.rd .facts dt {
-  color: var(--muted);
-}
-.rd .facts dd {
-  margin: 0;
-  text-align: right;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-/* visit or call: the office details beside the map */
-.rd .visit .vgrid {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(32px, 4.4vw, 64px);
-  align-items: start;
-}
-.rd .visit .lbl {
   color: var(--body);
 }
-.rd .visit .vline {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(24px, 2vw, 28px);
-  line-height: 1.3;
-}
-.rd .visit .vline a,
-.rd .visit .vlink a,
-.rd .visit .more a {
-  color: var(--ink);
-  text-decoration-color: var(--rule-s);
-  text-underline-offset: 5px;
-}
-.rd .visit .vline a:hover,
-.rd .visit .vlink a:hover {
-  text-decoration-color: var(--copper);
-}
-.rd .visit .vlink {
-  margin: 12px 0 0;
-  font-size: 15px;
-}
-.rd .visit .map {
-  margin: 0;
-  border-color: var(--rule-s);
-}
-.rd .visit .hours th,
-.rd .visit .hours td {
-  border-bottom-color: var(--rule-s);
-}
 
-/* 1. built around the date */
-.rd .hd-in {
-  position: relative;
-  z-index: 3;
-  padding-top: clamp(36px, 4vw, 56px);
-  padding-bottom: clamp(36px, 4vw, 52px);
-}
-.rd .hd-top {
+/* how far into the tax year we are, with the dates shown in copper */
+.rd .hdue-f {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 24px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--rule-d);
+  gap: 18px 48px;
+  padding-top: 22px;
 }
-.rd .hd-top h1 {
+.rd .hdue-f .hmore {
   margin: 0;
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(30px, 2.6vw, 40px);
-  line-height: 1;
-  color: var(--cream);
 }
-.rd .hd-sub {
-  margin: 8px 0 0;
-  font-size: 15px;
-  color: var(--cream-m);
+.rd .hyear {
+  flex: 1 1 560px;
+  max-width: 1000px;
 }
-.rd .hd-line {
-  margin: 0;
+.rd .hyear p {
+  margin: 0 0 10px;
   font-size: 14px;
-  color: var(--cream-m);
-  white-space: nowrap;
+  color: var(--body);
 }
-.rd .hd-main {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(40px, 5.6vw, 96px);
-  align-items: end;
-  padding-top: clamp(44px, 5.6vw, 80px);
+.rd .hyear-bar {
+  position: relative;
+  border-top: 1px solid var(--rule-s);
 }
-.rd .hd-big {
-  margin: 10px 0 0;
-  font-family: var(--serif);
-  font-size: clamp(46px, 6.6vw, 100px);
-  line-height: 0.98;
-  letter-spacing: -0.012em;
-  text-wrap: balance;
+.rd .hyear-bar .past {
+  position: absolute;
+  left: 0;
+  top: -1px;
+  height: 1px;
+  background: var(--ink);
 }
-.rd .hd-big a {
-  color: var(--cream);
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 10px;
-  transition: text-decoration-color 0.25s;
+.rd .hyear-bar .now {
+  position: absolute;
+  top: -2px;
+  height: 3px;
+  background: var(--copper);
 }
-.rd .hd-big a:hover {
-  text-decoration-color: var(--copper);
-}
-.rd .hd-count {
-  margin: 20px 0 0;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: clamp(28px, 2.6vw, 38px);
-  line-height: 1;
-  color: var(--copper);
-}
-/* the year at a glance */
-.rd .ystrip {
-  margin-top: clamp(44px, 5vw, 72px);
-}
-.rd .ystrip ol {
+.rd .hyear-bar ol {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  border-top: 1px solid var(--rule-d);
 }
-.rd .ystrip a {
-  display: block;
-  padding: 12px 10px 10px 0;
-  color: var(--cream-m);
-  text-decoration: none;
-  transition: color 0.2s;
+.rd .hyear-bar li {
+  padding: 6px 0 0 6px;
+  border-left: 1px solid var(--rule);
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--muted);
 }
-.rd .ystrip li + li a {
-  padding-left: 10px;
-  border-left: 1px solid var(--rule-d);
+
+/* services: the four groups side by side, each a short list */
+.rd .hsvc {
+  background: var(--sand);
+  padding-top: clamp(64px, 6.4vw, 92px);
+  padding-bottom: clamp(64px, 6.4vw, 92px);
 }
-.rd .ystrip .ym {
-  display: block;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-}
-.rd .ystrip .yt {
-  position: relative;
-  display: block;
-  height: 22px;
-  margin: 10px 0 6px;
-}
-.rd .ystrip .yt::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  border-top: 1px solid var(--rule-d);
-}
-.rd .ystrip i {
-  position: absolute;
-  top: 50%;
-  width: 5px;
-  height: 5px;
-  margin: -2.5px 0 0 -2.5px;
-  border-radius: 50%;
-  background: var(--cream-m);
-}
-.rd .ystrip .ynow {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  margin-left: -1px;
-  background: var(--copper);
-}
-.rd .ystrip .yc {
-  display: block;
-  font-family: var(--serif);
-  font-size: 22px;
-  line-height: 1;
-  color: var(--cream);
-}
-.rd .ystrip li.past a {
-  opacity: 0.38;
-}
-.rd .ystrip li.now .ym {
-  color: var(--cream);
-}
-.rd .ystrip li.now i {
-  background: var(--cream);
-}
-.rd .ystrip a:hover {
-  color: var(--cream);
-}
-/* the firm, on the dark green band */
-.rd .hfirm {
+.rd .hsvc-g {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(36px, 5vw, 80px);
-  align-items: end;
-  margin-top: clamp(80px, 8.3vw, 120px);
-  padding-top: clamp(64px, 7vw, 104px);
-  padding-bottom: clamp(64px, 7vw, 104px);
-  background: var(--deep);
-  color: var(--cream);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 36px clamp(24px, 3.3vw, 48px);
 }
-.rd .hfirm img {
-  display: block;
-  width: 100%;
-  max-width: 520px;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: 50% 18%;
+.rd .hsvc-g .lbl {
+  margin: 0 0 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule-s);
 }
-.rd .hfirm .lbl {
-  color: var(--cream-m);
-}
-.rd .hfirm h2 {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(44px, 5vw, 76px);
-  line-height: 1;
-}
-.rd .hfirm .role {
-  margin: 12px 0 0;
-  font-size: 16px;
-  color: var(--cream-m);
-}
-.rd .hfirm .bio {
-  margin: 24px 0 0;
-  max-width: 58ch;
-  font-size: 18px;
-  line-height: 1.65;
-  color: var(--cream);
-}
-.rd .hfirm .facts,
-.rd .hfirm .facts div {
-  border-color: var(--rule-d);
-}
-.rd .hfirm .facts dt {
-  color: var(--cream-m);
-}
-.rd .hfirm .facts dd,
-.rd .hfirm .smore a {
-  color: var(--cream);
-}
-.rd .hfirm .smore a {
-  text-decoration-color: rgba(236, 232, 222, 0.35);
-}
-/* the tools, each with one figure */
-.rd .hfig {
+.rd .hsvc-g ul {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0 clamp(20px, 2.4vw, 36px);
 }
-.rd .hfig a {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding-top: 18px;
-  border-top: 1px solid var(--rule-s);
-  color: var(--ink);
-  text-decoration: none;
-}
-.rd .hfig .fv {
+.rd .hsvc-g li a {
+  display: inline-block;
+  padding: 6px 0;
   font-family: var(--serif);
-  font-size: clamp(44px, 4.4vw, 68px);
-  line-height: 1;
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
-}
-.rd .hfig .ft {
-  margin: 14px 0 22px;
-  font-size: 16px;
-  line-height: 1.55;
-  color: var(--body);
-}
-.rd .hfig .fl {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: auto;
-  font-size: 15px;
+  font-size: clamp(21px, 1.75vw, 25px);
+  line-height: 1.2;
+  color: var(--ink);
   text-decoration: underline;
-  text-decoration-color: var(--rule-s);
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
   text-underline-offset: 5px;
   transition: text-decoration-color 0.25s;
 }
-.rd .hfig a:hover .fl {
+.rd .hsvc-g li a:hover {
   text-decoration-color: var(--copper);
 }
-/* the latest articles, three across */
-.rd .hart {
+.rd .hsvc-f {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px 40px;
+  margin-top: clamp(40px, 4vw, 56px);
+  padding-top: 22px;
+  border-top: 1px solid var(--rule-s);
+}
+.rd .hsvc-f p {
+  margin: 0;
+  max-width: 52em;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--body);
+}
+
+/* the firm, and how an engagement runs, on the dark band */
+.rd .hdark {
+  background: var(--night);
+  color: var(--cream);
+}
+.rd .habout {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(32px, 4.4vw, 64px);
+  padding-top: clamp(72px, 7vw, 104px);
+}
+.rd .habout-photo img {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  filter: grayscale(1);
+}
+.rd .habout .lbl {
+  margin-bottom: 18px;
+  color: var(--cream-m);
+}
+.rd .habout-st {
+  margin: 0;
+  max-width: 22em;
+  font-family: var(--serif);
+  font-size: clamp(30px, 2.9vw, 42px);
+  line-height: 1.12;
+  color: var(--cream);
+}
+.rd .habout-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(28px, 3.3vw, 48px);
+  margin-top: clamp(36px, 3.6vw, 52px);
+}
+.rd .habout-bio h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 28px;
+  line-height: 1.1;
+}
+.rd .habout-bio .role {
+  margin: 4px 0 18px;
+  font-size: 14px;
+  color: var(--cream-m);
+}
+.rd .habout-bio p:not(.role) {
+  margin: 0 0 12px;
+  max-width: 34em;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--cream-m);
+}
+.rd .hfacts {
+  align-self: start;
+  margin: 0;
+  border-top: 1px solid var(--rule-d);
+}
+.rd .hfacts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-d);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.rd .hfacts dt {
+  color: var(--cream-m);
+}
+.rd .hfacts dd {
+  margin: 0;
+  text-align: right;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+.rd .hsteps {
+  padding-top: clamp(72px, 7vw, 104px);
+  padding-bottom: clamp(72px, 7vw, 104px);
+}
+.rd .hsteps .hsec-h {
+  padding-top: 24px;
+  border-top: 1px solid var(--rule-d);
+}
+.rd .hsteps .hsec-h p {
+  color: var(--cream-m);
+}
+.rd .hsteps ol {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0 clamp(20px, 2.4vw, 36px);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 28px clamp(20px, 2.2vw, 32px);
 }
-.rd .hart a {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding-top: 18px;
-  border-top: 1px solid var(--rule-s);
-  color: var(--ink);
-  text-decoration: none;
-}
-.rd .hart .am {
-  font-size: 14px;
-  color: var(--muted);
-}
-.rd .hart .t {
-  margin-top: 12px;
+.rd .hsteps .sn {
+  display: block;
+  margin-bottom: 12px;
   font-family: var(--serif);
-  font-size: clamp(26px, 2.2vw, 32px);
-  line-height: 1.12;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--copper);
+}
+.rd .hsteps h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--cream);
+}
+.rd .hsteps li p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--cream-m);
+}
+.rd .hdark ::selection {
+  background-color: rgba(236, 232, 222, 0.24);
+}
+
+/* the latest articles, and three questions beside them */
+.rd .hread {
+  display: grid;
+  grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+  gap: clamp(40px, 5.6vw, 96px);
+  padding-top: clamp(72px, 7vw, 104px);
+  padding-bottom: clamp(80px, 8.3vw, 120px);
+}
+.rd .hread-h {
+  margin-bottom: 24px;
+}
+.rd .hlead h3 {
+  margin: 0;
+  max-width: 18em;
+  font-family: var(--serif);
+  font-size: clamp(30px, 2.9vw, 42px);
+  line-height: 1.08;
+}
+.rd .hlead h3 a {
+  color: var(--ink);
   text-decoration: underline;
   text-decoration-color: transparent;
   text-decoration-thickness: 1px;
   text-underline-offset: 6px;
   transition: text-decoration-color 0.25s;
 }
-.rd .hart .d {
-  margin-top: 12px;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--body);
-}
-.rd .hart a:hover .t {
+.rd .hlead h3 a:hover {
   text-decoration-color: var(--copper);
 }
-
-/* 2. a front page */
-.rd .mast {
-  padding-top: calc(var(--tb) + clamp(28px, 3.3vw, 48px));
-  background: linear-gradient(var(--night) 0 var(--tb), transparent var(--tb));
-  text-align: center;
-}
-.rd .mast-line {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 0;
-  padding: 10px 0;
-  border-top: 3px double var(--ink);
-  border-bottom: 1px solid var(--ink);
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--body);
-}
-.rd .mast-name {
-  margin: clamp(18px, 2.4vw, 32px) 0 0;
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(56px, 10.5vw, 168px);
-  line-height: 0.9;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-.rd .mast-sub {
-  margin: 10px 0 0;
-  padding-bottom: 16px;
-  border-bottom: 3px double var(--ink);
-  font-size: 13px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--body);
-}
-.rd .front {
-  display: grid;
-  grid-template-columns: minmax(0, 6fr) minmax(0, 3fr) minmax(0, 3fr);
-  padding-top: 28px;
-}
-.rd .front .col {
-  padding: 0 clamp(18px, 2.2vw, 32px);
-}
-.rd .front .col:first-child {
-  padding-left: 0;
-}
-.rd .front .col:last-child {
-  padding-right: 0;
-}
-.rd .front .col + .col {
-  border-left: 1px solid var(--rule-s);
-}
-.rd .paper .kick {
-  margin: 0 0 12px;
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--copper-d);
-}
-.rd .front .lead h2 {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(36px, 3.6vw, 56px);
-  line-height: 1.02;
-}
-.rd .front .stand {
-  margin: 18px 0 0;
-  font-size: 18px;
-  line-height: 1.6;
-  color: var(--body);
-}
-.rd .byline {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 22px 0 0;
-  padding: 14px 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-}
-.rd .byline img {
-  display: block;
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  object-position: 50% 18%;
-  border-radius: 50%;
-}
-.rd .byline p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--body);
-}
-.rd .byline strong {
-  font-weight: 500;
-  color: var(--ink);
-}
-.rd .byline a,
-.rd .paper .colmore a,
-.rd .paper .desk a {
-  color: var(--ink);
-  text-decoration-color: var(--rule-s);
-  text-underline-offset: 4px;
-}
-.rd .kick.inside {
-  margin-top: 30px;
-}
-.rd .inside-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px clamp(18px, 2.2vw, 32px);
-}
-.rd .inside-grid h4 {
-  margin: 0 0 6px;
-  font-family: var(--serif);
-  font-size: 22px;
-  font-weight: 400;
-  font-style: italic;
-}
-.rd .inside-grid ul,
-.rd .front .week ul,
-.rd .front .law ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.rd .inside-grid li a {
-  display: block;
-  padding: 5px 0;
-  border-bottom: 1px dotted var(--rule-s);
-  font-size: 15px;
-  color: var(--ink);
-  text-decoration: none;
-}
-.rd .inside-grid li a:hover {
-  color: var(--copper-d);
-}
-.rd .front .week li a {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
-  padding: 12px 0 14px;
-  border-bottom: 1px solid var(--rule);
-  color: var(--ink);
-  text-decoration: none;
-}
-.rd .front .week li:first-child a {
-  padding-top: 0;
-}
-.rd .front .dd {
-  font-family: var(--serif);
-  font-size: 44px;
-  line-height: 0.9;
-}
-.rd .front .wd {
-  display: block;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.rd .front .dt {
-  display: block;
-  margin-top: 4px;
-  font-family: var(--serif);
-  font-size: 20px;
-  line-height: 1.2;
-}
-.rd .front .week a:hover .dt {
-  color: var(--copper-d);
-}
-.rd .paper .colmore {
+.rd .hlead p {
   margin: 14px 0 0;
-  font-size: 14px;
-}
-.rd .paper .colmore a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.rd .front .law li {
-  padding: 0 0 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--rule);
-}
-.rd .front .fg {
-  display: block;
-  font-family: var(--serif);
-  font-size: clamp(36px, 3.3vw, 48px);
-  line-height: 1;
-}
-.rd .front .fx {
-  display: block;
-  margin-top: 8px;
-  font-size: 15px;
-  line-height: 1.5;
+  max-width: 40em;
+  font-size: 16px;
+  line-height: 1.6;
   color: var(--body);
 }
-.rd .paper .desk li {
-  padding: 6px 0;
-  border-bottom: 1px dotted var(--rule-s);
-  font-size: 15px;
-}
-.rd .desk-row,
-.rd .who-row {
-  margin-top: clamp(48px, 5vw, 72px);
-}
-.rd .desk-row > .kick,
-.rd .who-row > .kick {
-  padding-top: 12px;
-  border-top: 3px double var(--ink);
-}
-.rd .desk-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
-  gap: clamp(24px, 3.3vw, 48px);
-}
-.rd .story .am,
-.rd .also .am {
-  margin: 0;
-  font-size: 13px;
-  color: var(--muted);
-}
-.rd .story h3 {
-  margin: 8px 0 0;
-  font-family: var(--serif);
-  font-size: clamp(36px, 3.6vw, 56px);
-  line-height: 1.02;
-}
-.rd .story h3 a,
-.rd .also a {
-  color: var(--ink);
-  text-decoration: none;
-}
-.rd .story h3 a:hover,
-.rd .also li:not(.allarts) a:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--copper);
-  text-underline-offset: 6px;
-}
-.rd .drop {
-  margin: 18px 0 0;
-  max-width: 62ch;
-  font-size: 18px;
-  line-height: 1.65;
-  color: var(--body);
-}
-.rd .drop::first-letter {
-  float: left;
-  margin: 6px 10px 0 0;
-  font-family: var(--serif);
-  font-size: 76px;
-  line-height: 0.8;
-  color: var(--ink);
-}
-.rd .also {
-  list-style: none;
-  margin: 0;
-  padding: 0 0 0 clamp(18px, 2.2vw, 32px);
-  border-left: 1px solid var(--rule-s);
-}
-.rd .also li {
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--rule);
-}
-.rd .also li > a {
-  display: block;
-  margin-top: 6px;
-  font-family: var(--serif);
-  font-size: 24px;
-  line-height: 1.15;
-}
-.rd .also .allarts {
-  border-bottom: 0;
-}
-.rd .also .allarts a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--sans);
+.rd .hlead .am {
+  margin-top: 10px;
   font-size: 14px;
-  text-decoration: underline;
-  text-decoration-color: var(--rule-s);
-  text-underline-offset: 4px;
-}
-.rd .who-cols {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  columns: 3;
-  column-gap: clamp(24px, 3.3vw, 48px);
-  column-rule: 1px solid var(--rule);
-}
-.rd .who-cols li {
-  break-inside: avoid;
-  padding: 6px 0;
-  font-family: var(--serif);
-  font-size: 21px;
-  line-height: 1.25;
-}
-.rd .who-cols .more {
-  font-style: italic;
   color: var(--muted);
 }
-.rd .paper .visit {
-  margin-top: clamp(72px, 7vw, 104px);
-}
-
-/* 3. portrait and principle */
-.rd .hp-in {
-  position: relative;
-  z-index: 3;
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(36px, 5vw, 80px);
-  align-items: end;
-  padding-top: clamp(40px, 4.4vw, 64px);
-}
-.rd .hp-text {
-  padding-bottom: clamp(48px, 5vw, 76px);
-}
-.rd .hp h1 {
-  margin: 0;
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(26px, 2.2vw, 32px);
-  line-height: 1.1;
-  color: var(--cream);
-}
-.rd .hp h1 span {
-  display: block;
-  margin-top: 6px;
-  font-family: var(--sans);
-  font-size: 15px;
-  color: var(--cream-m);
-}
-.rd .hp-line {
-  margin: clamp(32px, 4vw, 56px) 0 0;
-  font-family: var(--serif);
-  font-size: clamp(54px, 7.4vw, 116px);
-  line-height: 0.95;
-  letter-spacing: -0.015em;
-  color: var(--cream);
-  text-wrap: balance;
-}
-.rd .hp-photo {
-  margin: 0;
-  align-self: end;
-}
-.rd .hp-photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: 50% 18%;
-}
-.rd .hp-photo figcaption {
-  padding: 10px 0 14px;
-  font-size: 13px;
-  color: var(--cream-m);
-}
-.rd .hp-how {
-  margin-top: clamp(80px, 8.3vw, 120px);
-}
-.rd .hp-facts {
-  margin-top: clamp(44px, 4.4vw, 64px);
-}
-.rd .hp-facts .facts,
-.rd .hp-facts .facts div {
-  border-color: var(--rule-d);
-}
-.rd .hp-facts .facts dt {
-  color: var(--cream-m);
-}
-.rd .hp-facts .facts dd {
-  color: var(--cream);
-}
-.rd .hp-two {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(36px, 5vw, 80px);
-}
-.rd .hp-two h2 {
-  margin: 0 0 18px;
-  padding-top: 20px;
-  border-top: 1px solid var(--ink);
-  font-family: var(--serif);
-  font-size: clamp(36px, 3.6vw, 52px);
-  line-height: 1;
-}
-.rd .hp-dates,
-.rd .hp-tools {
+.rd .hrows {
   list-style: none;
-  margin: 0;
+  margin: 28px 0 0;
   padding: 0;
+  border-top: 1px solid var(--rule);
 }
-.rd .hp-dates a,
-.rd .hp-tools a {
+.rd .hread-f .hrows {
+  margin-top: 0;
+}
+.rd .hrows a {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 16px;
-  padding: 14px 0 15px;
+  gap: 20px;
+  padding: 16px 0 17px;
   border-bottom: 1px solid var(--rule);
-  color: var(--ink);
   text-decoration: none;
+  color: var(--ink);
 }
-.rd .hp-dates a {
-  flex-direction: column;
-  gap: 4px;
+.rd .hrows .t {
+  font-family: var(--serif);
+  font-size: clamp(21px, 1.75vw, 25px);
+  line-height: 1.2;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.25s;
 }
-.rd .hp-dates .when {
+.rd .hrows a:hover .t,
+.rd .hrows a:focus-visible .t {
+  text-decoration-color: var(--copper);
+}
+.rd .hrows time {
+  flex: none;
   font-size: 14px;
   color: var(--muted);
 }
-.rd .hp-dates .t,
-.rd .hp-tools .t {
-  font-family: var(--serif);
-  font-size: clamp(22px, 1.8vw, 26px);
-  line-height: 1.2;
-}
-.rd .hp-dates a:hover .t,
-.rd .hp-tools a:hover .t {
-  text-decoration: underline;
-  text-decoration-color: var(--copper);
-  text-underline-offset: 5px;
-}
-
-/* the prototype switcher, on preview builds only (pages/Home.tsx) */
-.rd .vswitch {
-  position: fixed;
-  left: 50%;
-  bottom: 16px;
-  z-index: 60;
-  display: flex;
-  gap: 4px;
-  padding: 5px;
-  transform: translateX(-50%);
-  background: var(--night);
-  box-shadow: 0 12px 32px -12px rgba(12, 16, 14, 0.6);
-}
-.rd .vswitch a {
-  padding: 8px 12px;
-  font-size: 13px;
-  white-space: nowrap;
-  color: var(--cream-m);
-  text-decoration: none;
-}
-.rd .vswitch a[aria-current='page'] {
-  background: var(--cream);
-  color: var(--night);
-}
 
 @media (max-width: 900px) {
-  .rd .hblock-h {
-    display: block;
+  .rd .home .hacts {
+    margin-top: 20px;
   }
-  .rd .hblock-h p {
-    margin-top: 12px;
+  .rd .hdue-h {
+    margin-bottom: 18px;
   }
-  .rd .sidx a {
-    grid-template-columns: 34px minmax(0, 1fr);
+  /* on a phone the strip is swiped, so the arrows go */
+  .rd .hdue-nav {
+    display: none;
   }
-  .rd .sidx .w {
-    grid-column: 2;
-    margin-top: 4px;
-    font-size: 14px;
+  .rd .hdue-day {
+    width: min(64vw, 260px);
+    min-height: 0;
+    padding: 16px 16px 24px;
   }
-  .rd .hd-top {
-    display: block;
+  .rd .hdue-n {
+    margin-bottom: 16px;
+    font-size: 84px;
   }
-  .rd .hd-line {
-    margin-top: 14px;
+  .rd .hdue-m {
+    padding: 16px 10px;
+    font-size: 18px;
   }
-  .rd .hd-main,
-  .rd .hfirm,
-  .rd .hp-in,
-  .rd .hp-two,
-  .rd .visit .vgrid,
-  .rd .front,
-  .rd .desk-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .rd .hfirm {
-    align-items: start;
-  }
-  .rd .hfirm img {
-    max-width: 320px;
-  }
-  .rd .hfig {
+  .rd .hsvc-g {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 32px 20px;
   }
-  .rd .hart {
+  .rd .habout,
+  .rd .habout-cols,
+  .rd .hread {
     grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
   }
-  .rd .ystrip a,
-  .rd .ystrip li + li a {
-    padding-left: 3px;
-    padding-right: 3px;
+  .rd .habout-photo img {
+    max-width: 240px;
   }
-  .rd .ystrip .ym {
-    font-size: 11px;
-    letter-spacing: 0;
+  .rd .hsteps ol {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
   }
-  .rd .ystrip .yc {
-    font-size: 16px;
+  .rd .hsteps li {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 12px;
   }
-  .rd .front .col,
-  .rd .front .col:first-child,
-  .rd .front .col:last-child {
-    padding: 0;
+  .rd .hsteps .sn {
+    grid-row: span 2;
+    margin: 0;
+    font-size: 28px;
   }
-  .rd .front .col + .col {
-    margin-top: 36px;
-    padding-top: 20px;
-    border-left: 0;
-    border-top: 1px solid var(--ink);
-  }
-  .rd .mast-line {
-    flex-wrap: wrap;
-    justify-content: center;
-    font-size: 11px;
-  }
-  .rd .also {
-    padding-left: 0;
-    border-left: 0;
-  }
-  .rd .who-cols {
-    columns: 2;
-  }
-  .rd .hp-text {
-    padding-bottom: 0;
-  }
-  .rd .hp-photo {
-    max-width: 360px;
-  }
-  .rd .vswitch {
-    left: 8px;
-    right: 8px;
-    transform: none;
-    overflow-x: auto;
+  .rd .hrows a {
+    flex-direction: column;
+    gap: 4px;
   }
 }
-@media (max-width: 600px) {
-  .rd .hfig {
+@media (max-width: 560px) {
+  .rd .hsvc-g {
     grid-template-columns: minmax(0, 1fr);
   }
-  .rd .who-cols {
-    columns: 1;
+  .rd .hdue-f {
+    display: block;
   }
-  .rd .inside-grid {
-    grid-template-columns: minmax(0, 1fr);
+  .rd .hdue-f .hmore {
+    margin-top: 18px;
   }
 }
 @media print {
-  .rd .vswitch {
+  .rd .hdue-nav {
     display: none;
-  }
-  /* a figure prints at its final value, whether or not it has counted up */
-  .rd .hfig .fv [aria-hidden='true'] {
-    display: none;
-  }
-  .rd .hfig .fv .vh {
-    position: static !important;
-    width: auto;
-    height: auto;
-    margin: 0;
-    overflow: visible;
-    clip: auto;
-    clip-path: none;
-    white-space: normal;
   }
 }
 

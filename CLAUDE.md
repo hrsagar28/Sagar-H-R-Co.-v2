@@ -188,8 +188,9 @@ A Husky `pre-commit` hook runs `lint-staged`.
 **`check-csp-hash` matters:** the production CSP in `netlify.toml` pins a
 `sha256` hash of the inline `<style>` block in `index.html`. If you edit that
 inline `<style>`, the build will fail until you regenerate the hash in
-`netlify.toml`. The same script also asserts the `#preload-hero` background
-matches `--night` in `components/redesign/redesign.css`.
+`netlify.toml`. The same script also asserts that the `#preload-hero` top bar
+matches `--night` and its background `--stone` in
+`components/redesign/redesign.css`.
 
 ### Sandbox build caveat
 
@@ -221,8 +222,8 @@ fallbacks; `content-visibility` on offscreen sections; the React Compiler
 `'use memo'` rollout; code-split CSS (the multi-config Tailwind setup); manual
 vendor chunks in `vite.config.ts` (`react-vendor`, `ui-vendor`,
 `markdown-vendor`); self-hosted preloaded fonts; the `#preload-hero` overlay
-that paints the home page's header colour instantly and is removed on the
-`app:hero-ready` event.
+that paints the home page's dark top bar and limestone page instantly and is
+removed on the `app:hero-ready` event.
 
 **SEO** — `components/SEO.tsx`, generated sitemap, structured data, and the geo
 meta tags in `index.html`.

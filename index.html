@@ -59,16 +59,23 @@
     />
     <meta name="twitter:image" content="https://casagar.co.in/og/og-default.png" />
     <style>
-      /* First paint of the home page, before the app has loaded: the colour of
-         the redesigned header band (--night in components/redesign/redesign.css;
-         scripts/check-csp-hash.ts checks the two match). index.tsx removes it
-         once the page has painted. */
+      /* First paint of the home page, before the app has loaded: the dark top
+         bar over the limestone page, as the home page's light header opens
+         (--night and --stone in components/redesign/redesign.css, the bar --tb
+         tall; scripts/check-csp-hash.ts checks the colours match). index.tsx
+         removes it once the page has painted. */
       #preload-hero {
         position: fixed;
         inset: 0;
         z-index: 2;
         pointer-events: none;
-        background: #0c100e;
+        border-top: 72px solid #0c100e;
+        background: #f2efe8;
+      }
+      @media (max-width: 900px) {
+        #preload-hero {
+          border-top-width: 62px;
+        }
       }
     </style>
   </head>

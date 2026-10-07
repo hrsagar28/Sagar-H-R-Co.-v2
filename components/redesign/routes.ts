@@ -39,8 +39,9 @@ export const isRedesignedRoute = (pathname: string): boolean => {
 // under a dark band. RedesignLayout marks these routes with `.head-light`, so
 // their loading skeleton is light too. A page can also turn its own header
 // light by carrying `.head-light` itself, as NotFound does (it shows on any
-// address, including /services/<unknown>).
-export const LIGHT_HEADER_ROUTES = ['/privacy', '/terms', '/disclaimer'];
+// address, including /services/<unknown>). The home page is light too: its
+// due dates and services open straight onto the limestone.
+export const LIGHT_HEADER_ROUTES = ['/', '/privacy', '/terms', '/disclaimer'];
 // The Insights articles are documents too.
 const LIGHT_HEADER_PREFIXES = ['/insights/'];
 
