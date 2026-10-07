@@ -60,9 +60,9 @@ vi.mock('../hooks', async (importActual) => ({
 }));
 
 describe('Home page', () => {
-  const renderHome = () =>
+  const renderHome = (path = '/') =>
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[path]}>
         <AnnounceProvider>
           <ToastProvider>
             <Home />
@@ -94,7 +94,9 @@ describe('Home page', () => {
     SERVICE_GROUPS.forEach((group) => {
       const list = screen.getByRole('list', { name: group.name });
       const links = within(list).getAllByRole('link');
-      expect(links.map((link) => link.textContent)).toEqual(group.slugs.map((slug) => getServicePage(slug)?.name));
+      expect(links.map((link) => link.querySelector('.t')?.textContent)).toEqual(
+        group.slugs.map((slug) => getServicePage(slug)?.name),
+      );
       expect(links.map((link) => link.getAttribute('href'))).toEqual(group.slugs.map((slug) => `/services/${slug}`));
     });
   });
@@ -113,5 +115,14 @@ describe('Home page', () => {
       `tel:${CONTACT_INFO.phone.value}`,
     );
     expect(screen.queryByText(/book a consultation/i)).toBeNull();
+  });
+
+  it.each(['2', '3'])('renders prototype %s with one h1 and no axe violations', async (variant) => {
+    const { container } = renderHome(`/?v=${variant}`);
+
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole('region', { name: 'Visit or call' })).toBeInTheDocument();
+    container.querySelectorAll('iframe').forEach((frame) => frame.remove());
+    expect(await axe(container)).toHaveNoViolations();
   });
 });
