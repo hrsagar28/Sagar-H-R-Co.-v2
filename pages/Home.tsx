@@ -5,9 +5,11 @@ import { CONTACT_INFO, SERVICES } from '../constants';
 import { useInsights } from '../hooks';
 import { SITE_URL } from '../config/site';
 import { formatLongDate, toISODate } from '../utils/insightDates';
+import { dayMonth } from '../utils/resources/dates';
 import { ArrowRight } from '../components/redesign/icons';
 import OfficeMap from '../components/redesign/OfficeMap';
 import { RD_HOURS_SUMMARY } from '../components/redesign/content';
+import { ABOUT_PATH } from '../components/redesign/routes';
 import type { InsightItem } from '../types';
 import DueStrip from './home/DueStrip';
 import HomeFaqs from './home/HomeFaqs';
@@ -24,6 +26,8 @@ import { GROUPS, Portrait, pickHomeInsights } from './home/shared';
 // section numbers; and the office with its map.
 
 const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString().slice(0, 10);
+
+const HOME_DESCRIPTION = `${CONTACT_INFO.name}, Chartered Accountants in Mysuru: income tax, GST, TDS, audit, company law and trusts, for individuals, businesses and institutions.`;
 
 /**
  * Static AccountingService, Person and WebSite JSON-LD for the home page.
@@ -46,7 +50,7 @@ const HOME_SCHEMA = {
         url: `${SITE_URL}/logo.png`,
       },
       image: `${SITE_URL}/og/og-default.png`,
-      description: 'Chartered Accountancy Firm in Mysuru specializing in Audit, Taxation, and Advisory.',
+      description: HOME_DESCRIPTION,
       priceRange: '₹₹',
       availableLanguage: CONTACT_INFO.languages,
       areaServed: [
@@ -96,6 +100,7 @@ const HOME_SCHEMA = {
       '@type': 'Person',
       '@id': `${SITE_URL}/#founder`,
       name: CONTACT_INFO.founder.name,
+      url: `${SITE_URL}${ABOUT_PATH}`,
       givenName: 'Sagar',
       familyName: 'H R',
       jobTitle: 'Proprietor',
@@ -129,7 +134,7 @@ const STEPS = [
   {
     title: 'Preparation and review',
     // The name stays on one line.
-    text: `The return, accounts or report is prepared from your records and checked against the law. ${CONTACT_INFO.founder.name.replace(/ /g, ' ')} reviews it before it reaches you.`,
+    text: `The return, accounts or report is prepared from your records and checked against the law. ${CONTACT_INFO.founder.name.replace(/ /g, '\u00a0')} reviews it before it reaches you.`,
   },
   {
     title: 'Approval and filing',
@@ -141,31 +146,19 @@ const STEPS = [
   },
 ];
 
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
 /** ", updated 5 October" when an article has changed since it was published; the year only when it differs. */
 const updatedNote = (insight: InsightItem) => {
   const published = toISODate(insight.date);
   const updated = insight.dateModified ? toISODate(insight.dateModified) : '';
   if (!updated || updated <= published) return null;
-  const [year = '', month = '1', day = '1'] = updated.split('-');
-  const words = `${Number(day)} ${MONTHS[Number(month) - 1] ?? ''}${year === published.slice(0, 4) ? '' : ` ${year}`}`;
+  const year = updated.slice(0, 4);
   return (
     <>
-      , updated <time dateTime={updated}>{words}</time>
+      , updated{' '}
+      <time dateTime={updated}>
+        {dayMonth(updated)}
+        {year === published.slice(0, 4) ? '' : ` ${year}`}
+      </time>
     </>
   );
 };
@@ -174,7 +167,9 @@ const Home: React.FC = () => {
   const { insights, loading, error } = useInsights();
   const [lead, ...more] = pickHomeInsights(insights);
   const { hash, key } = useLocation();
-  const arrived = useRef(false);
+  // The history entry the last run of the effect below saw. A plain "has
+  // run" flag would not do: in development StrictMode runs effects twice.
+  const lastKey = useRef<string | null>(null);
 
   // Tell index.tsx the page has painted, so it can take away the first-paint
   // overlay (#preload-hero in index.html; audit H-02). rAF puts the event
@@ -187,14 +182,19 @@ const Home: React.FC = () => {
   }, []);
 
   // "About" in the menu, the footer and the old /about address all lead to
-  // /#about. RouteHandler (App.tsx) puts every new page at the top, so the
-  // section is brought into view here, a frame later. Arriving from another
-  // page it is a jump; on the home page itself the scroll follows the site's
+  // /#about. RouteHandler (App.tsx) puts every new page at the top and only
+  // acts when the page changes, so the moves within this page are made here:
+  // to the section named in the address, or back to the top when the address
+  // loses it (the wordmark, "Home", the browser's Back). Arriving from another
+  // page it is a jump; on the page itself the scroll follows the site's
   // setting, which is smooth unless the reader has asked for less motion.
   useEffect(() => {
-    const first = !arrived.current;
-    arrived.current = true;
-    if (!hash) return;
+    const first = lastKey.current === null || lastKey.current === key;
+    lastKey.current = key;
+    if (!hash) {
+      if (!first) window.scrollTo({ top: 0, behavior: 'auto' });
+      return;
+    }
     let target: HTMLElement | null = null;
     try {
       target = document.getElementById(decodeURIComponent(hash.slice(1)));
@@ -212,12 +212,19 @@ const Home: React.FC = () => {
       for (let node: HTMLElement | null = section; node; node = node.offsetParent as HTMLElement | null) {
         top += node.offsetTop;
       }
+      // Going up the page brings the slim bar in; stop below it.
+      if (!first && top < window.scrollY) {
+        top -= document.querySelector<HTMLElement>('.rd.sbar')?.offsetHeight ?? 0;
+      }
       placedAt = top;
       window.scrollTo({ top, behavior: first ? 'instant' : 'auto' });
     };
     let cancelled = false;
     const rafId = window.requestAnimationFrame(() => {
       place();
+      // Move focus with the view, so the next Tab starts from the section
+      // and a screen reader says where the reader now is.
+      section.focus({ preventScroll: true });
       // On a first visit the fonts may arrive after this, and the sections
       // above change height as they do. Put the section back in place then,
       // unless the reader has already scrolled.
@@ -237,7 +244,7 @@ const Home: React.FC = () => {
     <div className="rd-page home">
       <SEO
         title={`${CONTACT_INFO.name} | Chartered Accountants | Mysuru`}
-        description={`${CONTACT_INFO.name}, Chartered Accountants in Mysuru: income tax, GST, TDS, audit, company law and trusts, for individuals, businesses and institutions.`}
+        description={HOME_DESCRIPTION}
         schema={HOME_SCHEMA}
       />
 
@@ -295,7 +302,8 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      <section className="habout pad" id="about" aria-labelledby="home-about-heading">
+      {/* tabIndex: the effect above moves focus here with the view. */}
+      <section className="habout pad" id="about" aria-labelledby="home-about-heading" tabIndex={-1}>
         <div className="habout-top">
           <div className="habout-photo">
             <Portrait sizes="(max-width: 600px) 92vw, 540px" />

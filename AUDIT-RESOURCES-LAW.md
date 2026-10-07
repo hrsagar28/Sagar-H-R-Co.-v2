@@ -142,7 +142,9 @@ The calculations are in `utils/resources/`, with tests in
    range and the years in the generated monthly items in `calendar.ts`; one-off
    dates for the new year; `PROPERTY_SALE_FROM` and `PROPERTY_SALE_TO` in
    `cii.ts` (keep the years whose returns can still be filed, revised or
-   updated); the tax year in page text and SEO descriptions.
+   updated); the tax year in page text and SEO descriptions; the fixed date
+   and the dates it expects in `pages/Home.test.tsx` and
+   `pages/Resources.test.tsx`.
 3. **Cost Inflation Index (usually June or July).** Add the new year to
    `cii.ts`.
 4. **Extensions and circulars, as issued.** Due dates in `calendar.ts`.

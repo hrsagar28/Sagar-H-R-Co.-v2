@@ -83,13 +83,23 @@ dropped **silently**. A custom class written inside `@layer utilities` in
 ### Left from the old design
 
 The old Home and About pages, the floating Navbar, the old Footer and their
-components were removed in October 2026. Still in the repository, unused by
-any page, and safe to remove in a clean-up of their own: the base Tailwind
-theme in `tailwind.config.ts` (brand colours, old fonts, radii), the `zone-*`
-and `.glass*` rules in `index.css`, the Fraunces, Plus Jakarta Sans and
-JetBrains Mono files in `public/fonts`, and three components nothing imports
-(`components/ui/Button.tsx`, `components/ui/FormField.tsx`,
-`components/forms/CustomDropdown.tsx`).
+components were removed in October 2026. Still in the repository and unused
+by any page, for a clean-up of their own:
+
+- The base Tailwind theme in `tailwind.config.ts` (brand colours, radii, the
+  `heading`, `serif` and `mono` faces). Its `sans` face is Host Grotesk, the
+  document's default, so that one is in use.
+- In `index.css`: the `zone-*`, `.glass*`, `.bg-grid`, `.bg-noise` and similar
+  helpers, and the `@font-face` rules for Fraunces, Plus Jakarta Sans and
+  JetBrains Mono, with their files in `public/fonts`. Check nothing asks for a
+  face before deleting its file.
+- Code nothing imports: `components/ui/Button.tsx`,
+  `components/ui/FormField.tsx`, `components/forms/CustomDropdown.tsx`,
+  `utils/dateUtils.ts`, and the hooks `useLocalStorage` and `useSpotlight`.
+- Fields of `CONTACT_INFO` (`config/contact.ts`) that only the old pages read:
+  `hours`, `address.full`, the `stats` counts other than `established`, and
+  the founder's `title`, `qualifications`, `specializations`, `bio` and
+  `quote`.
 
 ## Design tokens
 
@@ -113,6 +123,7 @@ rather than raw values. `index.css` repeats the few the shared pieces need as
   mode** (`vite.config.ts`): only files/functions carrying a `'use memo'`
   directive are compiled; everything else behaves exactly as before. Adding the
   directive opts a file in — only do so once it follows the Rules of React.
+  No file carries it at present: the ones that did went with the old design.
 - **ESLint promotion ratchet (Audit CQ-07).** `eslint.config.js` keeps five
   `react-hooks/*` rules (`set-state-in-effect`, `static-components`,
   `immutability`, `refs`, `purity`) at `'warn'` instead of `'error'`, with a
@@ -171,8 +182,8 @@ styling; `inert` on hidden interactive regions; a global
 print stylesheet. The focus ring is copper, set in `redesign.css`.
 
 **Performance** — routes are `React.lazy`-loaded with Suspense skeleton
-fallbacks; the React Compiler `'use memo'` rollout; the page styles in a
-stylesheet of their own (`redesign.css`, loaded with the layout); manual
+fallbacks; the React Compiler, there for files that opt in; the page styles in
+a stylesheet of their own (`redesign.css`, loaded with the layout); manual
 vendor chunks in `vite.config.ts` (`react-vendor`, `ui-vendor`,
 `markdown-vendor`); self-hosted preloaded fonts; the `#preload-hero` overlay
 that paints the home page's limestone instantly and is removed on the

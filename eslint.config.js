@@ -63,10 +63,10 @@ export default tseslint.config(
       //      hoist it then flip this.
       //   3. 'react-hooks/immutability'   — usually trivial to fix
       //      (immutable update spreads); flip after a sweep.
-      //   4. 'react-hooks/purity'         — the old Navbar's
-      //      `document.body.style.overflow` mutation was the known offender;
-      //      it went with the old design (RdHeader locks scrolling in its
-      //      open and close handlers, not during render).
+      //   4. 'react-hooks/purity'         — `hooks/useRateLimit.ts` still
+      //      warns. (The old Navbar's `document.body.style.overflow` mutation
+      //      went with the old design; RdHeader locks scrolling in its open
+      //      and close handlers, not during render.)
       //   5. 'react-hooks/set-state-in-effect' — last because effects such
       //      as `hooks/useReducedMotion.ts` still set state as they
       //      subscribe. When promoting this rule, refactor those or add the

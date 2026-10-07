@@ -138,7 +138,9 @@ const generateSitemap = (): void => {
   const insights = getPublicInsights();
   warnOnInvalidInsightMarkdown(insights);
 
-  entries.push({ loc: BASE_URL, priority: '1.0', changefreq: 'weekly', lastmod: getContentLastmod('pages/Home.tsx') });
+  // The home page is pages/Home.tsx and its sections in pages/home.
+  const homeLastmod = [getContentLastmod('pages/Home.tsx'), getContentLastmod('pages/home')].sort().pop() ?? '';
+  entries.push({ loc: BASE_URL, priority: '1.0', changefreq: 'weekly', lastmod: homeLastmod });
   entries.push({
     loc: `${BASE_URL}/services`,
     priority: '0.9',

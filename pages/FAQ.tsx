@@ -4,6 +4,7 @@ import SEO from '../components/SEO';
 import { CONTACT_INFO, FAQ_CATEGORIES, FAQ_LAST_UPDATED, FAQ_LEGACY_IDS, FAQS } from '../constants';
 import type { FAQItem } from '../types';
 import { markdownToHtml } from '../utils/markdownToHtml';
+import { routeAnswerClick } from '../utils/answerLinks';
 import { SITE_URL } from '../config/site';
 import { useReducedMotion } from '../hooks';
 import { ArrowRight, ChevronDown, SearchIcon } from '../components/redesign/icons';
@@ -296,32 +297,7 @@ const FAQ: React.FC = () => {
     buttons[next]?.focus();
   };
 
-  // FQ-09: answers render from an HTML string, so their internal links are
-  // plain <a> tags that would otherwise reload the whole document. Same-origin
-  // paths go through the router; modified clicks, new-tab links, external
-  // URLs, mailto:/tel: and in-page hash jumps keep the browser's behaviour.
-  const onAnswerClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return;
-    }
-    const anchor = (event.target as HTMLElement).closest('a');
-    if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) {
-      return;
-    }
-    const url = new URL(anchor.href, window.location.href);
-    if (url.origin !== window.location.origin || (url.pathname === window.location.pathname && url.hash)) {
-      return;
-    }
-    event.preventDefault();
-    navigate(`${url.pathname}${url.search}${url.hash}`);
-  };
+  const onAnswerClick = (event: React.MouseEvent<HTMLDivElement>) => routeAnswerClick(event, navigate);
 
   const onSearchFocus = () => {
     if (!window.matchMedia(NARROW_QUERY).matches) {

@@ -3,9 +3,9 @@ import { vi } from 'vitest';
 /**
  * Global test setup.
  *
- * jsdom implements neither IntersectionObserver nor matchMedia, but the
- * Reveal component and the useReducedMotion hook call them inside effects —
- * so any test that renders a page needs both stubbed. Registered once via
+ * jsdom implements neither IntersectionObserver nor matchMedia, but pages and
+ * the useReducedMotion hook call them inside effects — so any test that
+ * renders a page needs both stubbed. Registered once via
  * vite.config.ts -> test.setupFiles, so individual test files no longer
  * need their own ad-hoc mocks.
  */

@@ -1,7 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import * as matchers from 'vitest-axe/matchers';
@@ -154,11 +154,51 @@ describe('Home page', () => {
     expect(within(about).getAllByRole('heading', { level: 4 })).toHaveLength(5);
   });
 
-  it('brings the About section into view when the address asks for it', async () => {
+  it('brings the About section into view when the address asks for it, and moves focus there', async () => {
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
     renderHome(ABOUT_PATH);
 
     await waitFor(() => expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'instant' })));
+    await waitFor(() => expect(screen.getByRole('region', { name: 'About the firm' })).toHaveFocus());
+    scrollTo.mockRestore();
+  });
+
+  it('goes back to the top when the address loses the section', async () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    // Stands in for the wordmark and the footer's "Home", which link to "/".
+    const HomeLink = () => {
+      const navigate = useNavigate();
+      return (
+        <button type="button" onClick={() => navigate('/')}>
+          Go to the top of the home page
+        </button>
+      );
+    };
+    render(
+      <MemoryRouter initialEntries={[ABOUT_PATH]}>
+        <AnnounceProvider>
+          <ToastProvider>
+            <HomeLink />
+            <Home />
+          </ToastProvider>
+        </AnnounceProvider>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'instant' })));
+    scrollTo.mockClear();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Go to the top of the home page' }));
+    await waitFor(() => expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' }));
+    scrollTo.mockRestore();
+  });
+
+  it('does not move the page when it opens without a section in the address', async () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    renderHome();
+
+    await screen.findByRole('heading', { level: 2, name: 'Services' });
+    await new Promise((resolve) => window.requestAnimationFrame(resolve));
+    expect(scrollTo).not.toHaveBeenCalled();
     scrollTo.mockRestore();
   });
 
@@ -219,7 +259,12 @@ describe('Home page', () => {
     expect(within(sections).getByRole('button', { name: first?.old })).toHaveAttribute('aria-pressed', 'true');
     expect(within(numbers).getByText(first?.subject ?? 'missing')).toBeInTheDocument();
 
+    // Nothing is read out until a choice is made.
+    expect(within(numbers).getByRole('status')).toBeEmptyDOMElement();
     fireEvent.click(within(sections).getByRole('button', { name: '87A' }));
+    expect(within(numbers).getByRole('status')).toHaveTextContent(
+      'Section 87A of the 1961 Act is section 156 of the 2025 Act: Rebate.',
+    );
     expect(within(numbers).getByText('Section of the 2025 Act')).toBeInTheDocument();
     expect(within(numbers).getByText('156')).toBeInTheDocument();
     expect(within(numbers).getByText('Rebate')).toBeInTheDocument();

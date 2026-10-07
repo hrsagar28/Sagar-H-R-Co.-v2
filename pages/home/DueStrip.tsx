@@ -10,7 +10,7 @@ import {
   type DueDate,
 } from '../../constants/resources';
 import { useReducedMotion } from '../../hooks';
-import { dayMonth, daysBetween, monthYear, todayIso, weekday } from '../../utils/resources/dates';
+import { dayMonth, inDays, monthYear, todayIso, weekday } from '../../utils/resources/dates';
 
 // The home page's due dates: every main due date from today to the end of next
 // month, one column per day, scrolling sideways, with a filter by area. The
@@ -27,13 +27,6 @@ const endOfNextMonth = (iso: string) => {
   const [year = 0, month = 1] = iso.split('-').map(Number);
   const end = new Date(Date.UTC(year, month + 1, 0)).toISOString().slice(0, 10);
   return end < DUE_DATES_TO ? end : DUE_DATES_TO;
-};
-
-const inDays = (today: string, date: string) => {
-  const days = daysBetween(today, date);
-  if (days === 0) return 'Today';
-  if (days === 1) return 'Tomorrow';
-  return `In ${days} days`;
 };
 
 /** Keeps "GSTR-1" and "2025-26" whole: a browser may otherwise break the line after the hyphen. */
@@ -70,6 +63,14 @@ const DueStrip: React.FC = () => {
     }
     return [...byDate.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, dues]): Day => ({ date, dues }));
   }, [today, until, shown]);
+
+  // What the last column says when no date is left to show. Once the strip
+  // reaches the end of the calendar, it is the year that has run out.
+  const where = shown === 'all' ? '' : ' in this area';
+  const nothingDue =
+    until >= DUE_DATES_TO
+      ? `Nothing left${where} for ${RESOURCES_TAX_YEAR}.`
+      : `Nothing due${where} until the end of next month.`;
 
   const move = (direction: 1 | -1) => {
     const element = scroller.current;
@@ -155,7 +156,7 @@ const DueStrip: React.FC = () => {
             );
           })}
           <li className="hdue-all">
-            {days.length === 0 && <p>Nothing due in this area until the end of next month.</p>}
+            {days.length === 0 && <p>{nothingDue}</p>}
             <Link to="/resources/due-dates">All due dates for {RESOURCES_TAX_YEAR}</Link>
             <span>GST, income tax, TDS, company, LLP and payroll due dates for the year.</span>
           </li>

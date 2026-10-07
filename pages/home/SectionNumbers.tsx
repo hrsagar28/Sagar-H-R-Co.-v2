@@ -22,6 +22,8 @@ const FORMS = COMMON_SECTIONS.filter((row) => row.form);
 
 const SectionNumbers: React.FC = () => {
   const [picked, setPicked] = useState(() => (COMMON_SECTIONS[0] ? keyOf(COMMON_SECTIONS[0]) : ''));
+  // Read out after a choice; empty until then, so nothing is said as the page loads.
+  const [said, setSaid] = useState('');
   const row = COMMON_SECTIONS.find((item) => keyOf(item) === picked) ?? COMMON_SECTIONS[0];
 
   if (!row) return null;
@@ -33,7 +35,14 @@ const SectionNumbers: React.FC = () => {
         type="button"
         className="hchip tnum"
         aria-pressed={keyOf(item) === keyOf(row)}
-        onClick={() => setPicked(keyOf(item))}
+        onClick={() => {
+          setPicked(keyOf(item));
+          setSaid(
+            item.form
+              ? `Form ${item.old} of the 1962 Rules is Form ${item.now} of the 2026 Rules: ${item.subject}.`
+              : `Section ${item.old} of the 1961 Act is section ${item.now} of the 2025 Act: ${item.subject}.`,
+          );
+        }}
       >
         {item.old}
       </button>
@@ -51,7 +60,10 @@ const SectionNumbers: React.FC = () => {
         </p>
       </div>
 
-      <div className="hnum-r" aria-live="polite">
+      <p className="vh" role="status">
+        {said}
+      </p>
+      <div className="hnum-r">
         <div>
           <p className="cap">{row.form ? 'Form under the 1962 Rules' : 'Section of the 1961 Act'}</p>
           <p className={`old ${sizeOf(row.old)}`}>{row.old}</p>

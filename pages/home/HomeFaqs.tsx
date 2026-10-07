@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FAQS } from '../../constants';
 import { markdownToHtml } from '../../utils/markdownToHtml';
+import { routeAnswerClick } from '../../utils/answerLinks';
 
 // The questions marked `featuredOnHome` in constants/faq.ts, answered in
 // place. The rows are the FAQ page's own (.qi, .qb, .ans in redesign.css), and
@@ -26,31 +27,6 @@ const HomeFaqs: React.FC = () => {
       return next;
     });
 
-  // A link written into an answer goes through the router when it points to a
-  // page of this site, as on the FAQ page; anything else is left to the browser.
-  const onAnswerClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return;
-    }
-    const anchor = (event.target as HTMLElement).closest('a');
-    if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) {
-      return;
-    }
-    const url = new URL(anchor.href, window.location.href);
-    if (url.origin !== window.location.origin) {
-      return;
-    }
-    event.preventDefault();
-    navigate(`${url.pathname}${url.search}${url.hash}`);
-  };
-
   return (
     <div className="qlist hfaq">
       {HOME_FAQS.map((faq) => {
@@ -61,7 +37,6 @@ const HomeFaqs: React.FC = () => {
               <button
                 className="qb"
                 type="button"
-                id={`home-faq-q-${faq.id}`}
                 aria-expanded={open}
                 aria-controls={`home-faq-a-${faq.id}`}
                 onClick={() => toggle(faq.id)}
@@ -77,7 +52,8 @@ const HomeFaqs: React.FC = () => {
                   // `inert` keeps a closed answer and its links out of the tab
                   // order and the accessibility tree.
                   inert={!open}
-                  onClick={onAnswerClick}
+                  // A link written into an answer goes through the router, as on the FAQ page.
+                  onClick={(event) => routeAnswerClick(event, navigate)}
                   dangerouslySetInnerHTML={{ __html: faq.html }}
                 />
               </div>

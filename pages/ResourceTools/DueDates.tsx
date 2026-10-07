@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ToolPage from './ToolPage';
 import { DUE_CATEGORIES, DUE_DATES, getResourceTool, type DueCategory } from '../../constants/resources';
-import { dayMonth, daysBetween, monthYear, todayIso, weekday } from '../../utils/resources/dates';
+import { dayMonth, inDays, monthYear, todayIso, weekday } from '../../utils/resources/dates';
 import { buildIcs, downloadText } from '../../utils/resources/ics';
 
 const TOOL = getResourceTool('due-dates')!;
@@ -14,13 +14,6 @@ const MONTH_KEYS = [...new Set(DUE_DATES.map((due) => due.date.slice(0, 7)))];
 
 /** "this month and next" (the default), one month ("2026-11"), or the whole year. */
 type View = 'soon' | 'year' | string;
-
-const inDays = (today: string, date: string) => {
-  const days = daysBetween(today, date);
-  if (days === 0) return 'Today';
-  if (days === 1) return 'Tomorrow';
-  return `In ${days} days`;
-};
 
 const monthAfter = (key: string) => {
   const [year = 0, month = 1] = key.split('-').map(Number);

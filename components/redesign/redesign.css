@@ -4186,6 +4186,19 @@
   /* lines around controls, a shade darker than --rule-s so they hold on sand */
   --hline: #b3ad9e;
 }
+/* the focus ring: the darker copper on the light grounds, where the lighter
+   one is hard to see; the lighter one stays on the dark band */
+.rd.head-home .topbar :focus-visible,
+.rd .home :focus-visible {
+  outline-color: var(--copper-d);
+}
+.rd .home .habout :focus-visible {
+  outline-color: var(--copper);
+}
+/* the About section takes focus only when the page moves to it (Home.tsx) */
+.rd .home .habout:focus-visible {
+  outline: none;
+}
 
 /* opening: the firm's name, then what it does and the two ways to get in touch */
 .rd .hhero {
@@ -5061,6 +5074,28 @@
   .rd .hdue-nav,
   .rd .hnum-c {
     display: none;
+  }
+  /* the days wrap onto the sheet instead of running off its edge */
+  .rd .hdue-scroll {
+    overflow: visible;
+    contain: none;
+  }
+  .rd .hdue-days {
+    flex-wrap: wrap;
+    width: auto;
+    padding-left: 0;
+  }
+  /* index.css prints all text in black, so the dark band loses its ground */
+  .rd .habout {
+    background: none;
+  }
+  .rd .habout-photo img {
+    mix-blend-mode: normal;
+  }
+  .rd .hfacts dt,
+  .rd .hfacts dd,
+  .rd .hsteps .sn {
+    color: #000;
   }
 }
 
