@@ -2,6 +2,7 @@
 // top bar, sticky bar, phone menu and footer) instead of the site-wide Navbar
 // and Footer. Add a path here as each page moves over.
 export const REDESIGNED_ROUTES = [
+  '/',
   '/services',
   '/insights',
   '/careers',
@@ -20,7 +21,7 @@ const REDESIGNED_PREFIXES = ['/services/', '/insights/', '/resources/'];
 // Pages still in the old design. Remove a path here when it moves to
 // REDESIGNED_ROUTES. An address that is in neither list has no page, and its
 // "not found" screen (pages/NotFound.tsx) is redesigned.
-const OLD_ROUTES = ['/', '/about'];
+const OLD_ROUTES = ['/about'];
 const OLD_PREFIXES: string[] = [];
 
 const clean = (pathname: string) => pathname.replace(/\/+$/, '') || '/';

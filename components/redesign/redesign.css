@@ -4135,6 +4135,215 @@
   }
 }
 
+/* ---------- home ----------
+   The redesigned home page (pages/Home.tsx): the dark band with the firm's
+   name and the next due dates, the sections in the Services frame, and the
+   office details beside the map on the sand band at the end. */
+.rd .home .hlinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 30px;
+  margin: 30px 0 0;
+}
+.rd .home .hlinks a,
+.rd .home .hmore a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cream);
+  font-size: 16px;
+  text-decoration: underline;
+  text-decoration-color: rgba(236, 232, 222, 0.35);
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.25s;
+}
+.rd .home .hlinks a:hover,
+.rd .home .hmore a:hover {
+  text-decoration-color: var(--cream);
+}
+.rd .home .hmore {
+  margin: 16px 0 0;
+}
+.rd .home .hmore a {
+  font-size: 14px;
+  color: var(--cream-m);
+}
+
+/* what we do: the four groups of services, two to a row */
+.rd .hsvc {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px clamp(24px, 3.3vw, 48px);
+}
+.rd .hsvc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule-s);
+}
+.rd .hsvc a {
+  display: block;
+  padding: 11px 0 12px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--serif);
+  font-size: clamp(21px, 1.7vw, 24px);
+  line-height: 1.2;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.25s;
+}
+.rd .hsvc a:hover,
+.rd .hsvc a:focus-visible {
+  text-decoration-color: var(--copper);
+}
+.rd .smore {
+  margin: 28px 0 0;
+}
+.rd .smore a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule-s);
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.25s;
+}
+.rd .smore a:hover {
+  text-decoration-color: var(--copper);
+}
+
+/* the firm: the principal's photograph beside the text */
+.rd .firm {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: clamp(28px, 3.3vw, 48px);
+  align-items: start;
+}
+.rd .firm img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: 50% 18%;
+  background: var(--sand);
+}
+.rd .firm h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(30px, 2.6vw, 38px);
+  line-height: 1.05;
+}
+.rd .firm .role {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+.rd .firm .bio {
+  margin: 18px 0 0;
+  max-width: 62ch;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--body);
+}
+.rd .facts {
+  margin: 24px 0 0;
+  max-width: 520px;
+  border-top: 1px solid var(--rule);
+}
+.rd .facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0 10px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+}
+.rd .facts dt {
+  color: var(--muted);
+}
+.rd .facts dd {
+  margin: 0;
+  text-align: right;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* visit or call: the office details beside the map */
+.rd .visit .vgrid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(32px, 4.4vw, 64px);
+  align-items: start;
+}
+.rd .visit .lbl {
+  color: var(--body);
+}
+.rd .visit .vline {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(24px, 2vw, 28px);
+  line-height: 1.3;
+}
+.rd .visit .vline a,
+.rd .visit .vlink a {
+  color: var(--ink);
+  text-decoration-color: var(--rule-s);
+  text-underline-offset: 5px;
+}
+.rd .visit .vline a:hover,
+.rd .visit .vlink a:hover {
+  text-decoration-color: var(--copper);
+}
+.rd .visit .vlink {
+  margin: 12px 0 0;
+  font-size: 15px;
+}
+.rd .visit .map {
+  margin: 0;
+  border-color: var(--rule-s);
+}
+.rd .visit .hours th,
+.rd .visit .hours td {
+  border-bottom-color: var(--rule-s);
+}
+.rd .visit .more a {
+  color: var(--ink);
+  text-underline-offset: 5px;
+}
+@media (max-width: 900px) {
+  /* clear of the section heading's sand strip */
+  .rd .hsvc,
+  .rd .firm {
+    padding-top: 20px;
+  }
+  .rd .hsvc {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .rd .firm {
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 20px;
+  }
+  .rd .visit .vgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .rd .firm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rd .firm picture {
+    max-width: 168px;
+  }
+}
+
 /* ---------- printed estimates ----------
    The Resources tools print as a sheet a client can keep: a letterhead line
    with the date printed, the figures entered in two columns, the result, and

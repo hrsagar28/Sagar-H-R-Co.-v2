@@ -126,6 +126,6 @@
     # analytics.
     # SEC-7: frame-ancestors 'none' now matches X-Frame-Options: DENY (no
     # contradiction); report-to mirrors report-uri for modern browsers.
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'self' 'sha256-Rx8sbJNM1PHpI2EpyvoJsMjRmGaPTL1bc7kw0VlR/K4='; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://formsubmit.co; frame-src 'self' https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /.netlify/functions/csp-report; report-to csp-endpoint; upgrade-insecure-requests;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'self' 'sha256-mV97orbP01RvWefX6pRufQTFQJCiP+DQnqgSVIFTW64='; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://formsubmit.co; frame-src 'self' https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /.netlify/functions/csp-report; report-to csp-endpoint; upgrade-insecure-requests;"
     X-Frame-Options = "DENY"
 

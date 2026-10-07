@@ -1,13 +1,13 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import * as matchers from 'vitest-axe/matchers';
 import { ToastProvider } from '../context/ToastContext';
 import { AnnounceProvider } from '../context/AnnounceContext';
-import { SERVICES } from '../constants';
+import { CONTACT_INFO, SERVICE_GROUPS, getServicePage } from '../constants';
 import type { InsightItem } from '../types';
 import Home from './Home';
 
@@ -71,91 +71,47 @@ describe('Home page', () => {
       </MemoryRouter>,
     );
 
-  beforeAll(() => {
-    HTMLCanvasElement.prototype.getContext = vi.fn(() => null);
-
-    class MockIntersectionObserver {
-      constructor(private readonly callback: IntersectionObserverCallback) {}
-
-      observe = (target: Element) => {
-        this.callback(
-          [
-            {
-              isIntersecting: true,
-              target,
-              intersectionRatio: 1,
-              boundingClientRect: target.getBoundingClientRect(),
-              intersectionRect: target.getBoundingClientRect(),
-              rootBounds: null,
-              time: performance.now(),
-            } as IntersectionObserverEntry,
-          ],
-          this as unknown as IntersectionObserver,
-        );
-      };
-      unobserve = vi.fn();
-      disconnect = vi.fn();
-      takeRecords = () => [];
-    }
-
-    class MockResizeObserver {
-      observe = vi.fn();
-      unobserve = vi.fn();
-      disconnect = vi.fn();
-    }
-
-    window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
-    window.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
-  });
-
-  beforeEach(() => {
-    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-      matches: query === '(prefers-reduced-motion: reduce)',
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }));
-  });
-
   it('has exactly one h1 naming the practice', () => {
     renderHome();
 
     const headings = screen.getAllByRole('heading', { level: 1 });
     expect(headings).toHaveLength(1);
-    expect(headings[0]).toHaveAccessibleName(/Chartered Accountants in Mysuru/);
+    expect(headings[0]).toHaveAccessibleName(CONTACT_INFO.name);
+    expect(screen.getByText(/Chartered Accountants in Mysuru/)).toBeInTheDocument();
   });
 
   it('has no axe violations', async () => {
     const { container } = renderHome();
 
-    await screen.findByRole('heading', { level: 2, name: /services/i });
+    await screen.findByRole('heading', { level: 2, name: 'What we do' });
     container.querySelectorAll('iframe').forEach((frame) => frame.remove());
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it('renders service titles in source order', async () => {
+  it('lists every service under its group, in order', () => {
     renderHome();
 
-    await screen.findByRole('heading', { level: 2, name: /services/i });
-
-    const expectedTitles = SERVICES.map((service) => service.title);
-
-    await waitFor(() => {
-      for (const title of expectedTitles) {
-        expect(screen.getByRole('heading', { level: 3, name: title })).toBeInTheDocument();
-      }
+    SERVICE_GROUPS.forEach((group) => {
+      const list = screen.getByRole('list', { name: group.name });
+      const links = within(list).getAllByRole('link');
+      expect(links.map((link) => link.textContent)).toEqual(group.slugs.map((slug) => getServicePage(slug)?.name));
+      expect(links.map((link) => link.getAttribute('href'))).toEqual(group.slugs.map((slug) => `/services/${slug}`));
     });
+  });
 
-    const serviceTitleSet = new Set(expectedTitles);
-    const renderedServiceTitles = screen
-      .getAllByRole('heading', { level: 3 })
-      .map((heading) => heading.textContent?.trim() ?? '')
-      .filter((title) => serviceTitleSet.has(title));
+  it('shows the latest articles and the office details, with no call to book', () => {
+    renderHome();
 
-    expect(renderedServiceTitles).toEqual(expectedTitles);
+    const articles = screen.getByRole('region', { name: 'Latest articles' });
+    expect(within(articles).getByRole('link', { name: /GST compliance calendar/ })).toHaveAttribute(
+      'href',
+      '/insights/gst-compliance-calendar',
+    );
+    const visit = screen.getByRole('region', { name: 'Visit or call' });
+    expect(within(visit).getByRole('link', { name: CONTACT_INFO.phone.display })).toHaveAttribute(
+      'href',
+      `tel:${CONTACT_INFO.phone.value}`,
+    );
+    expect(screen.queryByText(/book a consultation/i)).toBeNull();
   });
 });
