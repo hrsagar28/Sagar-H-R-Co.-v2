@@ -4,10 +4,8 @@
 // only. Node / TypeScript / Vite all resolve `from '../constants'` to
 // either `../constants.ts(x)` or `../constants/index.ts`, so callers
 // don't need to change.
-export * from './navigation';
 export * from './services';
 export * from './servicesSchema';
-export * from './industries';
 export * from './faq';
 export * from './resources';
 // MNT-5: point straight at the source of truth (was a one-line re-export in

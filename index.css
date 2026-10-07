@@ -193,38 +193,6 @@ html {
   -webkit-text-size-adjust: 100%; /* stops iOS auto-upsizing landscape text */
 }
 
-/* Roll Text Effect for Navbar */
-.roll-text-group {
-  display: inline-block;
-  position: relative;
-  overflow: hidden;
-  height: 1.2em; /* Adjust based on line-height */
-  vertical-align: bottom;
-}
-
-.roll-text-group .original-text,
-.roll-text-group .hover-text {
-  display: block;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.roll-text-group .hover-text {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translateY(100%);
-  font-weight: 700; /* Optional bold on hover */
-  color: #1a4d2e;
-}
-
-.group:hover .roll-text-group .original-text {
-  transform: translateY(-100%);
-}
-
-.group:hover .roll-text-group .hover-text {
-  transform: translateY(0);
-}
-
 /* Horizontal Bounce Animation */
 @keyframes bounce-x {
   0%,
@@ -267,12 +235,6 @@ html {
   border-radius: 4px;
   box-shadow: 0 0 0 6px rgb(var(--zone-accent-rgb, 26 77 46) / 0.18);
   z-index: 999;
-}
-
-[data-hero-dark] :focus-visible,
-.bg-brand-black :focus-visible {
-  outline-color: #b8924c;
-  box-shadow: 0 0 0 6px rgb(184 146 76 / 0.28);
 }
 
 /* Remove default outline for mouse users if desired, but keep for keyboard */
@@ -427,46 +389,10 @@ html {
     --zone-hairline: rgba(17, 17, 17, 0.12);
   }
 
-  [data-zone='editorial'] {
-    --zone-bg: #0a0908;
-    --zone-surface: #322d28;
-    --zone-text: #f4f1ea;
-    --zone-text-rgb: 244 241 234;
-    --zone-text-muted: #dad3c3;
-    --zone-text-muted-rgb: 218 211 195;
-    --zone-accent: #b8924c; /* brass */
-    --zone-accent-rgb: 184 146 76;
-    --zone-accent-alt: #8b3a2f; /* rust */
-    --zone-hairline: rgba(244, 241, 234, 0.14);
-    background-color: var(--zone-bg);
-    color: var(--zone-text);
-  }
-
-  [data-zone='editorial-paper'] {
-    --zone-bg: #f4f1ea;
-    --zone-surface: #eae5d9;
-    --zone-text: #0a0908;
-    --zone-text-rgb: 10 9 8;
-    /* A11Y-1: darkened from #7a7366 (~4.2:1) to meet WCAG AA (~5:1 on #f4f1ea). */
-    --zone-text-muted: #6d6559;
-    --zone-text-muted-rgb: 109 101 89;
-    --zone-accent: #8b3a2f; /* rust dominates on paper */
-    --zone-accent-rgb: 139 58 47;
-    --zone-accent-alt: #b8924c;
-    --zone-hairline: rgba(10, 9, 8, 0.12);
-    background-color: var(--zone-bg);
-    color: var(--zone-text);
-  }
-
   /* Selected text: a light wash of the firm's green. The text keeps its own
      colour. Replaced a solid gold block in October 2026. */
   ::selection {
     background-color: rgb(26 77 46 / 0.2);
-  }
-
-  /* On the dark zone, a wash of the zone's own light text colour instead. */
-  [data-zone='editorial'] ::selection {
-    background-color: rgb(var(--zone-text-rgb) / 0.24);
   }
 }
 
@@ -513,153 +439,6 @@ html {
   text-wrap: balance;
 }
 
-/* ---- FAQ answer styling (global) -------------------------------------- */
-/* UX-1 / PERF-1: FAQ answers render from the lightweight `markdownToHtml`
-   helper (class-less HTML) on BOTH the /faqs page and the home-page
-   `FAQPreview`. Previously these rules lived in `pages/FAQ.css` (route bundle
-   only), so the home preview — which the home Tailwind config scans — had no
-   list/typography styling and ordered lists rendered without numbers on a
-   fresh landing. Kept as PLAIN top-level CSS here so it is never purged and
-   resolves on every route. `.faq-answer` is also referenced by the FAQ page's
-   `speakable` schema. */
-.faq-answer {
-  padding-top: 1.5rem;
-}
-.faq-answer p {
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.65;
-  color: #746d68; /* brand-stone — AA on the white card surface */
-}
-.faq-answer p:last-child {
-  margin-bottom: 0;
-}
-.faq-answer a {
-  font-weight: 700;
-  color: #1a4d2e; /* brand-moss */
-  border-bottom: 1px solid rgba(26, 77, 46, 0.4);
-  word-break: break-word;
-  transition: border-color 0.2s ease;
-}
-.faq-answer a:hover {
-  border-bottom-color: #1a4d2e;
-}
-.faq-answer ul,
-.faq-answer ol {
-  margin: 1rem 0;
-  padding-left: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.faq-answer ul {
-  list-style: disc;
-}
-.faq-answer ol {
-  list-style: decimal;
-}
-.faq-answer li {
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.65;
-  color: #746d68;
-}
-@media (min-width: 768px) {
-  .faq-answer p,
-  .faq-answer li {
-    font-size: 1.125rem;
-  }
-}
-
-/* ---- ChaosToOrder section --------------------------------------------- */
-
-/* Section-scoped CSS variables for the Chaos → Order demo. Lifting them out
-   of an inline `style` object keeps the JSX leaner and lets browser devtools
-   tweak the palette in place. Keep colours in sync with CHAOS_COLORS in
-   components/home/ChaosToOrder.tsx. */
-.chaos-section {
-  --chaos-ink: #0a0908;
-  --chaos-ink-rgb: 10 9 8;
-  --chaos-ink-text: #2a251d;
-  --chaos-ink-text-rgb: 42 37 29;
-  --chaos-brass: #b8924c;
-  --chaos-brass-rgb: 184 146 76;
-  --chaos-rust: #8b3a2f;
-  --chaos-rust-rgb: 139 58 47;
-  --chaos-paper: #f4f1ea;
-  --chaos-paper-rgb: 244 241 234;
-  --chaos-paper-surface: #eae5d9;
-  --chaos-paper-warm: #e5dfd0;
-  --chaos-paper-yellowed: #f5ecd6;
-  --chaos-paper-cream: #fbf7ec;
-  --chaos-paper-cream-2: #f8f5ec;
-  --chaos-moss-deep: #1a4d2e;
-  /* `--divider` is set on the inner panel <div> at runtime via
-     `containerRef.current?.style.setProperty('--divider', ...)`. */
-}
-
-/* `--divider` is set on the ChaosToOrder panel and read by descendants
-   (clip-path on the Order pane, the divider rule, the handle's `left`,
-   the "Drag ↔" affordance pill, and the @keyframes drift animation).
-   `inherits: true` is critical: without it, descendants would resolve
-   `var(--divider)` to the initial 50% regardless of how far the user
-   has dragged, because non-inherited registered custom properties fall
-   back to the initial-value on every element that doesn't declare them
-   explicitly. We still need the registration so @keyframes can
-   interpolate the percentage smoothly. */
-@property --divider {
-  syntax: '<percentage>';
-  inherits: true;
-  initial-value: 50%;
-}
-
-/* Pre-interaction drift hints at draggability. Bumped from ±1.2% / 7s to
-   ±2.5% / 9s after audit C-04: the previous amplitude was too subtle to
-   notice on first sight. */
-@keyframes chaos-drift {
-  0%,
-  100% {
-    --divider: 52.5%;
-  }
-  50% {
-    --divider: 47.5%;
-  }
-}
-
-.chaos-drift {
-  animation: chaos-drift 9s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .chaos-drift {
-    animation: none;
-  }
-}
-
-/* ---- Hero word size ---------------------------------------------------- */
-
-/* Single source of truth for the three hero h1 spans ("Audit.", "Taxation.",
-   "Advisory."). Previously each span carried `text-[12vw] md:text-[7rem]
-   lg:text-[9rem]` inline — three copies that had to be kept in lockstep. The
-   preload-hero <style> block in index.html still mirrors these breakpoints,
-   so changes here must be mirrored there too. */
-.hero-word {
-  font-size: 12vw;
-}
-
-@media (min-width: 768px) {
-  .hero-word {
-    font-size: 7rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero-word {
-    font-size: 9rem;
-  }
-}
-
 /* REDUCED MOTION — Global override for all CSS animations & transitions
    This covers Tailwind's animate-* classes and any custom keyframes.
    React hooks (useReducedMotion) cover JS-driven animations separately. */
@@ -685,24 +464,11 @@ html {
   animation: none !important;
 }
 
-.nav-links {
-  counter-reset: nav-counter;
-}
-.nav-links a::before {
-  content: counter(nav-counter, decimal-leading-zero);
-  counter-increment: nav-counter;
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  margin-right: 0.5rem;
-  opacity: 0.5;
-  vertical-align: top;
-}
-
 /* ---------- shared pieces, 2026 redesign ----------
    Toasts, the offline bar, the page-loading bar, the skip link, the loading
-   screen and the two error screens. They appear on every page, old design
-   or new, and sometimes before redesign.css has loaded, so they are plain
-   top-level CSS here (never purged) with their own colours. */
+   screen and the two error screens. They appear on every page, sometimes
+   before redesign.css has loaded, so they are plain top-level CSS here
+   (never purged) with their own colours. */
 :root {
   --sx-night: #0c100e;
   --sx-stone: #f2efe8;

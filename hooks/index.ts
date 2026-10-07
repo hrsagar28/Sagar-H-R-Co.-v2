@@ -6,23 +6,18 @@
 // Rollup tree-shake unused hooks out of the build by static analysis,
 // so importing a single hook through `from '../hooks'` does not pull in
 // the rest. If a future hook needs module-level state (e.g., a singleton
-// observer pool like utils/sharedIntersectionObserver.ts), prefer
-// putting it in `utils/` and re-exporting only the hook wrapper here, so
-// this property continues to hold.
+// observer pool), prefer putting it in `utils/` and re-exporting only the
+// hook wrapper here, so this property continues to hold.
 export * from './useAnnounce';
 export * from './useFocusTrap';
 export * from './useFormDraft';
 export * from './useFormValidation';
-export * from './useInView';
 export * from './useLocalStorage';
 export * from './useRateLimit';
 export * from './useReducedMotion';
-export * from './useReturnFocus';
 export * from './useToast';
 export * from './useInsights';
 export * from './useArticleBody';
-export * from './useScrollPosition';
-export * from './useCountUp';
 export * from './useSpotlight';
 // MNT-7: previously omitted from the barrel despite being consumed by the
 // Resources calculators/tables.
