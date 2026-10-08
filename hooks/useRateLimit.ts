@@ -9,8 +9,6 @@ interface UseRateLimitOptions {
 
 interface UseRateLimitReturn {
   canSubmit: boolean;
-  attemptsRemaining: number;
-  resetTime: Date | null;
   recordAttempt: () => void;
   timeUntilReset: number;
 }
@@ -26,7 +24,14 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
   const [attempts, setAttempts] = useState<number[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey);
+    // A browser that blocks site data throws on any access to localStorage.
+    // Treat that as "no attempts yet" rather than letting the page crash.
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem(storageKey);
+    } catch (e) {
+      logger.warn('Rate limit storage unavailable', e);
+    }
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -44,15 +49,14 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
     const now = Date.now();
     const recentAttempts = attempts.filter((timestamp) => now - timestamp < windowMs);
     const canSubmit = recentAttempts.length < maxAttempts;
-    const attemptsRemaining = Math.max(0, maxAttempts - recentAttempts.length);
     const oldestAttempt = recentAttempts.length > 0 ? recentAttempts[0] : null;
     const resetTime = oldestAttempt ? new Date(oldestAttempt + windowMs) : null;
     const timeUntilReset = resetTime ? Math.max(0, Math.ceil((resetTime.getTime() - now) / 1000)) : 0;
 
-    return { canSubmit, attemptsRemaining, resetTime, timeUntilReset };
+    return { canSubmit, resetTime, timeUntilReset };
   }, [attempts, maxAttempts, windowMs]);
 
-  const { canSubmit, attemptsRemaining, resetTime, timeUntilReset } = rateLimitState;
+  const { canSubmit, resetTime, timeUntilReset } = rateLimitState;
 
   useEffect(() => {
     if (canSubmit || !resetTime) return;
@@ -76,6 +80,8 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
       } catch (e) {
         if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
           logger.warn('Failed to update rate limit: localStorage quota exceeded');
+        } else {
+          logger.warn('Rate limit storage unavailable', e);
         }
       }
 
@@ -83,5 +89,5 @@ export const useRateLimit = ({ maxAttempts, windowMs, storageKey }: UseRateLimit
     });
   }, [windowMs, storageKey]);
 
-  return { canSubmit, attemptsRemaining, resetTime, recordAttempt, timeUntilReset };
+  return { canSubmit, recordAttempt, timeUntilReset };
 };

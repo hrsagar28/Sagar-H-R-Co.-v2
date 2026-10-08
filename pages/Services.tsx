@@ -4,6 +4,7 @@ import SEO from '../components/SEO';
 import { ArrowRight } from '../components/redesign/icons';
 import { CLIENT_SECTORS, CONTACT_INFO, SERVICE_GROUPS, getServicePage } from '../constants';
 import { buildServicesSchema } from '../constants/servicesSchema';
+import { PAGE_META } from '../constants/pageMeta';
 import type { ServicePage } from '../types';
 
 // 2026 redesign of /services. Rendered inside RedesignLayout, which supplies the
@@ -21,10 +22,10 @@ const SCHEMA = buildServicesSchema();
 const Services: React.FC = () => (
   <div className="rd-page">
     <SEO
-      title={`Services | ${CONTACT_INFO.name}`}
-      description="GST, income tax, TDS, NRI taxation, notices and appeals, audits, certificates, company and LLP filings, trusts, bank loans and bookkeeping, from Sagar H R & Co., Chartered Accountants, Mysuru."
+      title={PAGE_META.services.title}
+      description={PAGE_META.services.description}
       canonicalUrl="https://casagar.co.in/services"
-      ogImage="https://casagar.co.in/og-services.png"
+      ogImage={PAGE_META.services.ogImage}
       schema={SCHEMA}
       breadcrumbs={[
         { name: 'Home', url: '/' },

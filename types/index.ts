@@ -1,27 +1,7 @@
-import type { ComponentType } from 'react';
-
-export interface IconComponentProps {
-  size?: number;
-  className?: string;
-  strokeWidth?: number;
-  'aria-hidden'?: boolean | 'true' | 'false';
-  focusable?: boolean | 'true' | 'false';
-}
-
-/**
- * Lucide icon components and any other icon library exposing `size` /
- * `className` / `strokeWidth` props are assignable to this type. Use this
- * for any data-driven list of icons (services, industries, contact cards)
- * so consumers can render `<item.Icon size={32} />` instead of cloning a
- * pre-built JSX node — audit S-05.
- */
-export type IconComponent = ComponentType<IconComponentProps>;
-
 export interface ServiceItem {
   id: string;
   title: string;
   description: string;
-  Icon: IconComponent;
   link: string;
 }
 
@@ -89,7 +69,6 @@ export interface ServicePage {
   needs: string[];
   /** Ids from constants/faq.ts, shown as "Common questions". */
   faqIds: string[];
-  Icon: IconComponent;
 }
 
 export interface ServiceGroup {

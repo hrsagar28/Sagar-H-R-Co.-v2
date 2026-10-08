@@ -11,11 +11,16 @@ import { SITE_URL } from '../../config/site';
 // comes from redesign.css (`.lsec`, `.alead`), so this stays free of classes
 // except the summary box and the table wrapper.
 
-/** `:::summary … :::` becomes the "Key takeaways" box. */
+/** `:::summary … :::` becomes the "Key takeaways" box. Its heading ("### In
+ * short") sits above the article's first H2, so it is rendered as a paragraph
+ * rather than an H3, which would break the heading order. */
 const remarkSummary = () => (tree: Root) => {
   visit(tree, 'containerDirective', (node) => {
     if (node.name !== 'summary') return;
     node.data = { ...(node.data ?? {}), hName: 'div', hProperties: { className: 'asum' } };
+    visit(node, 'heading', (heading) => {
+      heading.data = { ...(heading.data ?? {}), hName: 'p', hProperties: { className: 'asum-h' } };
+    });
   });
 };
 
@@ -24,6 +29,7 @@ const schema = {
   attributes: {
     ...defaultSchema.attributes,
     div: [...(defaultSchema.attributes?.div ?? []), ['className', 'asum']],
+    p: [...(defaultSchema.attributes?.p ?? []), ['className', 'asum-h']],
   },
 };
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { ArrowRight } from '../components/redesign/icons';
 import { CONTACT_INFO } from '../constants';
+import { PAGE_META } from '../constants/pageMeta';
 import { SITE_URL } from '../config/site';
 import { useInsights } from '../hooks';
 import { formatLongDate, toISODate } from '../utils/insightDates';
@@ -12,7 +13,7 @@ import { formatLongDate, toISODate } from '../utils/insightDates';
 // category filter: with a handful of articles they only get in the way.
 // Rendered inside RedesignLayout.
 
-const DESCRIPTION = 'Notes on changes in tax law, by CA Sagar H R of Sagar H R & Co., Mysuru.';
+const DESCRIPTION = PAGE_META.insights.description;
 
 const Insights: React.FC = () => {
   const { insights, loading, error } = useInsights();
@@ -41,7 +42,7 @@ const Insights: React.FC = () => {
         author: { '@type': 'Person', name: insight.author },
         articleSection: insight.category,
         ...(insight.wordCount ? { wordCount: insight.wordCount } : {}),
-        image: insight.image || `${SITE_URL}/og/og-default.png`,
+        image: insight.image ? `${SITE_URL}${insight.image}` : `${SITE_URL}/og/og-default.png`,
       })),
     }),
     [sorted],
@@ -50,7 +51,7 @@ const Insights: React.FC = () => {
   return (
     <div className="rd-page">
       <SEO
-        title={`Insights | ${CONTACT_INFO.name}`}
+        title={PAGE_META.insights.title}
         description={DESCRIPTION}
         canonicalUrl={`${SITE_URL}/insights`}
         schema={schema}

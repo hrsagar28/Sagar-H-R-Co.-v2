@@ -1,7 +1,7 @@
 # MNT-6: pin the Node version so Netlify's build matches package.json engines
-# (20.x) and CI, instead of relying on Netlify's shifting default.
+# (22.x) and CI, instead of relying on Netlify's shifting default.
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
 
 [[redirects]]
   from = "/faq"
@@ -92,6 +92,15 @@
   to = "/services/bookkeeping-and-payroll"
   status = 301
 
+# The single-page fallback. Every public address also has a file of its own
+# in dist/ (scripts/generate-route-html.ts, Audit SEO-02), which Netlify serves
+# ahead of this rule; this rule answers everything else.
+#
+# Audit SEO-05: once a deploy shows the route files being served (a link to
+# /services/gst previews with its own title, and answers 200), this status can
+# become 404, so that an unknown address answers 404 while the application
+# still boots on it and shows "Page not found". Do not change it before then:
+# if the route files were not served, every page would answer 404.
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -111,6 +120,18 @@
   for = "/og/*"
   [headers.values]
     Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# Vite names every file under /assets/ with a hash of its content, and the
+# fonts never change, so a browser can keep them for a year without asking.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/*"

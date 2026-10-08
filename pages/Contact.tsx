@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Honeypot from '../components/forms/Honeypot';
 import { CONTACT_INFO } from '../constants';
+import { PAGE_META } from '../constants/pageMeta';
 import { useFormDraft, useFormValidation, useRateLimit, useToast } from '../hooks';
 import {
   anyCountryPhone,
@@ -187,14 +188,11 @@ const Contact: React.FC = () => {
   });
 
   // Errors appear when a field is left, and update as it is corrected.
-  const { values, handleChange, errors, setValues, setErrors } = useFormValidation<ContactFormData>(
-    {
-      ...INITIAL_CONTACT,
-      subject: initialSubject,
-      message: prefill,
-    },
-    { validationSchema: contactSchema },
-  );
+  const { values, handleChange, errors, setValues, setErrors } = useFormValidation<ContactFormData>({
+    ...INITIAL_CONTACT,
+    subject: initialSubject,
+    message: prefill,
+  });
 
   const { loadDraft, clearDraft, lastSaved } = useFormDraft('contact_form_draft', values);
 
@@ -406,7 +404,7 @@ const Contact: React.FC = () => {
           msg = 'The request timed out. Please check your connection and try again.';
         } else if (error.status === 429) {
           msg =
-            error.message || `You've reached the submission limit. Please email us directly at ${CONTACT_INFO.email}`;
+            error.message || `You’ve reached the submission limit. Please email us directly at ${CONTACT_INFO.email}`;
         } else if (error.status === 422 || error.status === 400) {
           msg =
             error.message ||
@@ -429,10 +427,10 @@ const Contact: React.FC = () => {
   return (
     <div className="rd-page">
       <SEO
-        title={`Contact Us | ${CONTACT_INFO.name}`}
-        description="Contact Sagar H R & Co. in Mysuru for Audit, Tax, GST and Business Advisory. Visit our KR Mohalla office or reach us by phone, email or WhatsApp."
+        title={PAGE_META.contact.title}
+        description={PAGE_META.contact.description}
         canonicalUrl="https://casagar.co.in/contact"
-        ogImage="https://casagar.co.in/og-contact.png"
+        ogImage={PAGE_META.contact.ogImage}
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Contact', url: '/contact' },

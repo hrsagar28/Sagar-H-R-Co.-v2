@@ -37,8 +37,5 @@ export const toAmount = (text: string) => {
   return Number.isFinite(value) && value > 0 ? value : 0;
 };
 
-/** 12.5% → "12.5%", 0.25 → "0.25%". */
-export const percent = (fraction: number) => `${Math.round(fraction * 10000) / 100}%`;
-
 /** Round to the paisa. */
 export const toPaise = (value: number) => Math.round(value * 100) / 100;

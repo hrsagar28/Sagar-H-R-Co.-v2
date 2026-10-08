@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CATEGORY_ORDER, FAQS } from '../constants';
@@ -171,5 +171,37 @@ describe('FAQ', () => {
 
     expect(screen.getByRole('heading', { name: 'No questions match “zzzz qqqq”.' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /ask us this question/i })).toHaveAttribute('href', '/contact#write');
+  });
+
+  it('opens every answer for printing and closes them again afterwards (Audit PRINT-01)', () => {
+    const { container } = renderFaq();
+    expect(container.querySelectorAll('.rd-answer')).toHaveLength(0);
+
+    act(() => {
+      window.dispatchEvent(new Event('beforeprint'));
+    });
+    expect(container.querySelectorAll('.rd-answer')).toHaveLength(FAQS.length);
+    FAQS.forEach((faq) => expect(questionButton(faq.id)).toHaveAttribute('aria-expanded', 'true'));
+
+    act(() => {
+      window.dispatchEvent(new Event('afterprint'));
+    });
+    FAQS.forEach((faq) => expect(questionButton(faq.id)).toHaveAttribute('aria-expanded', 'false'));
+  });
+
+  it('opens every answer for printing and closes them again afterwards (Audit PRINT-01)', () => {
+    const { container } = renderFaq();
+    expect(container.querySelectorAll('.rd-answer')).toHaveLength(0);
+
+    act(() => {
+      window.dispatchEvent(new Event('beforeprint'));
+    });
+    expect(container.querySelectorAll('.rd-answer')).toHaveLength(FAQS.length);
+    FAQS.forEach((faq) => expect(questionButton(faq.id)).toHaveAttribute('aria-expanded', 'true'));
+
+    act(() => {
+      window.dispatchEvent(new Event('afterprint'));
+    });
+    FAQS.forEach((faq) => expect(questionButton(faq.id)).toHaveAttribute('aria-expanded', 'false'));
   });
 });

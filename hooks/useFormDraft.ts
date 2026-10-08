@@ -13,6 +13,16 @@ type StoredDraft = {
 
 const DRAFT_SALT_KEY = 'form_draft_session_salt';
 
+// A browser that blocks site data throws on any access to sessionStorage
+// (Audit UX-02). The form then simply keeps no draft.
+const removeStored = (key: string) => {
+  try {
+    sessionStorage.removeItem(key);
+  } catch {
+    // storage unavailable
+  }
+};
+
 const bytesToBase64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes));
 const base64ToBytes = (value: string) => Uint8Array.from(atob(value), (char) => char.charCodeAt(0));
 
@@ -59,26 +69,31 @@ const decryptValues = async <T>(encrypted: StoredDraft['encrypted']): Promise<T 
 };
 
 const parseDraft = async <T>(key: string): Promise<{ values: T; savedAt: Date } | null> => {
-  const item = sessionStorage.getItem(key);
+  let item: string | null = null;
+  try {
+    item = sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
   if (!item) return null;
 
   try {
     const parsed = JSON.parse(item) as StoredDraft;
     const timestamp = Number(parsed.timestamp);
     if ((!parsed.values && !parsed.encrypted) || !Number.isFinite(timestamp)) {
-      sessionStorage.removeItem(key);
+      removeStored(key);
       return null;
     }
 
     const values = parsed.encrypted ? await decryptValues<T>(parsed.encrypted) : (parsed.values as T);
     if (!values) {
-      sessionStorage.removeItem(key);
+      removeStored(key);
       return null;
     }
 
     return { values, savedAt: new Date(timestamp) };
   } catch {
-    sessionStorage.removeItem(key);
+    removeStored(key);
     return null;
   }
 };
@@ -99,7 +114,6 @@ const parseDraft = async <T>(key: string): Promise<{ values: T; savedAt: Date } 
  * @returns {object} Draft management methods and state.
  */
 export function useFormDraft<T>(key: string, currentValues: T, debounceMs: number = 1000) {
-  const [hasDraft, setHasDraft] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const isFirstRender = useRef(true);
 
@@ -115,7 +129,6 @@ export function useFormDraft<T>(key: string, currentValues: T, debounceMs: numbe
 
     void parseDraft<T>(key).then((draft) => {
       if (draft) {
-        setHasDraft(true);
         setLastSaved(draft.savedAt);
       }
     });
@@ -130,15 +143,13 @@ export function useFormDraft<T>(key: string, currentValues: T, debounceMs: numbe
 
     const handler = setTimeout(() => {
       const saveDraft = async () => {
-        const payload = {
-          encrypted: await encryptValues(currentValues),
-          timestamp: Date.now(),
-        };
-
         try {
+          const payload = {
+            encrypted: await encryptValues(currentValues),
+            timestamp: Date.now(),
+          };
           sessionStorage.setItem(key, JSON.stringify(payload));
           setLastSaved(new Date());
-          setHasDraft(true);
         } catch (e) {
           if (
             e instanceof DOMException &&
@@ -166,10 +177,9 @@ export function useFormDraft<T>(key: string, currentValues: T, debounceMs: numbe
   const loadDraft = useCallback(async (): Promise<T | null> => (await parseDraft<T>(key))?.values || null, [key]);
 
   const clearDraft = useCallback(() => {
-    sessionStorage.removeItem(key);
-    setHasDraft(false);
+    removeStored(key);
     setLastSaved(null);
   }, [key]);
 
-  return { hasDraft, loadDraft, clearDraft, lastSaved };
+  return { loadDraft, clearDraft, lastSaved };
 }

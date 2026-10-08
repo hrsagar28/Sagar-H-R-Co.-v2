@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { stringifyJsonLd } from '../utils/jsonLd';
 import { SITE_URL } from '../config/site';
 
@@ -159,6 +159,13 @@ const SEO: React.FC<SEOProps> = ({
         }
       : null;
 
+  // The static tags in index.html exist for clients that do not run
+  // JavaScript. Once the page's own tags are in the head, remove them, so
+  // the document carries one title and one description.
+  useEffect(() => {
+    document.head.querySelectorAll('[data-fallback]').forEach((element) => element.remove());
+  }, []);
+
   return (
     <>
       <title>{title}</title>
@@ -166,11 +173,14 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="keywords" content={keywords} />
       <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
 
-      <link rel="canonical" href={canonicalUrl} />
+      {/* Audit SEO-05: a page that asks not to be indexed (the not-found
+          screens) names no canonical address, which would otherwise be the
+          unknown address itself. */}
+      {noindex ? null : <link rel="canonical" href={canonicalUrl} />}
 
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:url" content={canonicalUrl} />
+      {noindex ? null : <meta property="og:url" content={canonicalUrl} />}
       <meta property="og:type" content={ogType} />
       <meta property="og:image" content={ogImage} />
       <meta property="og:locale" content="en_IN" />

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { ArrowRight, SearchIcon } from '../components/redesign/icons';
-import { CONTACT_INFO } from '../constants';
+import { PAGE_META } from '../constants/pageMeta';
 import { CHECKLISTS, DUE_DATES, PORTAL_GROUPS, RESOURCE_GROUPS, RESOURCE_TOOLS } from '../constants/resources';
 import { SITE_URL } from '../config/site';
 import { dayMonth, todayIso } from '../utils/resources/dates';
@@ -82,8 +82,8 @@ const Resources: React.FC = () => {
   return (
     <div className="rd-page">
       <SEO
-        title={`Resources | ${CONTACT_INFO.name}`}
-        description="Income tax, HRA, capital gains and GST calculators, TDS and TCS rates, due dates and old-to-new section numbers for tax year 2026-27, and checklists of documents, from Sagar H R & Co., Chartered Accountants, Mysuru."
+        title={PAGE_META.resources.title}
+        description={PAGE_META.resources.description}
         canonicalUrl={`${SITE_URL}/resources`}
         breadcrumbs={[
           { name: 'Home', url: '/' },

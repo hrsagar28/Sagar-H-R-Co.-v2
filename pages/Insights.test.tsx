@@ -34,6 +34,7 @@ const mockInsights = [
     slug: 'income-tax-act-2025-in-force',
     author: 'CA Sagar H R',
     readTime: '4 min read',
+    image: '/og/income-tax-act-2025-in-force.png',
   },
   {
     id: '10',
@@ -100,6 +101,17 @@ describe('Insights', () => {
     expect(schema.blogPost).toHaveLength(mockInsights.length);
     expect(schema.blogPost.map((post) => post.url)).toContain(
       'https://casagar.co.in/insights/income-tax-act-2025-in-force',
+    );
+  });
+
+  it('gives every article image as an absolute address (Audit SEO-03)', () => {
+    renderInsights();
+
+    const calls = seoMock.mock.calls as unknown as Array<[Record<string, unknown>]>;
+    const schema = calls.at(-1)?.[0].schema as { blogPost: Array<{ url: string; image: string }> };
+    schema.blogPost.forEach((post) => expect(post.image).toMatch(/^https:\/\//));
+    expect(schema.blogPost.map((post) => post.image)).toContain(
+      'https://casagar.co.in/og/income-tax-act-2025-in-force.png',
     );
   });
 

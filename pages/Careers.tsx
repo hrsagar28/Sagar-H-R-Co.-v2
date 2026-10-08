@@ -4,6 +4,7 @@ import ApplicationForm, { ANY_ROLE } from '../components/redesign/ApplicationFor
 import { ArrowRight } from '../components/redesign/icons';
 import { useReducedMotion } from '../hooks';
 import { CONTACT_INFO } from '../constants';
+import { careersMeta } from '../constants/pageMeta';
 import { CAREERS_APPLY_URL, CAREERS_RESPONSE_TIME, getOpenRoles, type JobPosting } from '../constants/careers';
 
 // 2026 redesign of /careers. Rendered inside RedesignLayout, which supplies the
@@ -98,6 +99,7 @@ const AFTER_YOU_APPLY = [
 const Careers: React.FC = () => {
   // Roles hide themselves once their closing date has passed (CT-8).
   const [openRoles] = useState(getOpenRoles);
+  const meta = careersMeta(openRoles.map((role) => role.role));
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(openRoles.map((role) => role.id)));
   const [chosenRole, setChosenRole] = useState(() => (openRoles.length ? '' : ANY_ROLE));
   const prefersReducedMotion = useReducedMotion();
@@ -126,14 +128,10 @@ const Careers: React.FC = () => {
   return (
     <div className="rd-page">
       <SEO
-        title={`Careers | ${CONTACT_INFO.name}`}
-        description={
-          openRoles.length
-            ? `Open roles at ${CONTACT_INFO.name}, Chartered Accountants, Mysuru: ${openRoles.map((role) => role.role).join(' and ')}.`
-            : `Careers at ${CONTACT_INFO.name}, Chartered Accountants, Mysuru. No roles are open right now; you can still send us your details.`
-        }
+        title={meta.title}
+        description={meta.description}
         canonicalUrl="https://casagar.co.in/careers"
-        ogImage="https://casagar.co.in/og-careers.png"
+        ogImage={meta.ogImage}
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Careers', url: '/careers' },
@@ -178,7 +176,7 @@ const Careers: React.FC = () => {
                           {role.meta.map((part, index) => (
                             <span key={part}>
                               {part}
-                              {index < role.meta.length - 1 ? ' ·' : ''}
+                              {index < role.meta.length - 1 ? ' · ' : ''}
                             </span>
                           ))}
                         </span>

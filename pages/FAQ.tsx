@@ -6,6 +6,7 @@ import type { FAQItem } from '../types';
 import { markdownToHtml } from '../utils/markdownToHtml';
 import { routeAnswerClick } from '../utils/answerLinks';
 import { SITE_URL } from '../config/site';
+import { PAGE_META } from '../constants/pageMeta';
 import { useReducedMotion } from '../hooks';
 import { ArrowRight, ChevronDown, SearchIcon } from '../components/redesign/icons';
 
@@ -13,10 +14,9 @@ import { ArrowRight, ChevronDown, SearchIcon } from '../components/redesign/icon
 // top bar, footer and stylesheet (components/redesign/redesign.css).
 
 const FAQ_CANONICAL_URL = `${SITE_URL}/faqs`;
-const FAQ_OG_IMAGE = `${SITE_URL}/og-faq.png`;
-const FAQ_TITLE = 'CA FAQs | Tax, GST, Audit - Sagar H R & Co., Mysuru';
-const FAQ_DESCRIPTION =
-  'Answers on income tax, GST, company and LLP filings, tax notices, appeals and trust registration from Sagar H R & Co., Chartered Accountants in Mysuru.';
+const FAQ_OG_IMAGE = PAGE_META.faqs.ogImage;
+const FAQ_TITLE = PAGE_META.faqs.title;
+const FAQ_DESCRIPTION = PAGE_META.faqs.description;
 
 const NARROW_QUERY = '(max-width: 900px)';
 const PLACEHOLDER_WIDE = 'Search the questions, for example ‘notice’ or ‘GST returns’';
@@ -252,6 +252,31 @@ const FAQ: React.FC = () => {
       `${window.location.pathname}${window.location.search}#${value}`,
     );
   };
+
+  // Audit PRINT-01: printing mounts and opens every answer first (they are
+  // mounted lazily, FQ-01), so the printed page carries the questions and
+  // their answers; afterwards the questions the reader had open are restored.
+  const openBeforePrintRef = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const revealAll = () => {
+      setOpenIds((previous) => {
+        openBeforePrintRef.current = previous;
+        return new Set(FAQS.map((faq) => faq.id));
+      });
+      setRevealedIds(new Set(FAQS.map((faq) => faq.id)));
+    };
+    const restore = () => {
+      const previous = openBeforePrintRef.current;
+      openBeforePrintRef.current = null;
+      if (previous) setOpenIds(previous);
+    };
+    window.addEventListener('beforeprint', revealAll);
+    window.addEventListener('afterprint', restore);
+    return () => {
+      window.removeEventListener('beforeprint', revealAll);
+      window.removeEventListener('afterprint', restore);
+    };
+  }, []);
 
   const toggleQuestion = (id: string) => {
     setRevealedIds(addTo(id));

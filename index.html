@@ -40,25 +40,28 @@
          The wording is the home page's: its title and description
          (pages/Home.tsx), and its opening line for the share text. Keep the
          two in step. -->
-    <title>Sagar H R &amp; Co. | Chartered Accountants | Mysuru</title>
+    <title data-fallback>Sagar H R &amp; Co. | Chartered Accountants | Mysuru</title>
     <meta
+      data-fallback
       name="description"
       content="Sagar H R &amp; Co., Chartered Accountants in Mysuru: income tax, GST, TDS, audit, company law and trusts, for individuals, businesses and institutions."
     />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Sagar H R &amp; Co. | Chartered Accountants | Mysuru" />
+    <meta data-fallback property="og:type" content="website" />
+    <meta data-fallback property="og:title" content="Sagar H R &amp; Co. | Chartered Accountants | Mysuru" />
     <meta
+      data-fallback
       property="og:description"
       content="Taxation, audit, company law and accounting services for individuals, businesses, institutions and trusts."
     />
-    <meta property="og:image" content="https://casagar.co.in/og/og-default.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Sagar H R &amp; Co. | Chartered Accountants | Mysuru" />
+    <meta data-fallback property="og:image" content="https://casagar.co.in/og/og-default.png" />
+    <meta data-fallback name="twitter:card" content="summary_large_image" />
+    <meta data-fallback name="twitter:title" content="Sagar H R &amp; Co. | Chartered Accountants | Mysuru" />
     <meta
+      data-fallback
       name="twitter:description"
       content="Taxation, audit, company law and accounting services for individuals, businesses, institutions and trusts."
     />
-    <meta name="twitter:image" content="https://casagar.co.in/og/og-default.png" />
+    <meta data-fallback name="twitter:image" content="https://casagar.co.in/og/og-default.png" />
     <style>
       /* First paint, before the app has loaded. A first visit opens with the
          splash (components/Preloader.tsx), so the screen starts in the

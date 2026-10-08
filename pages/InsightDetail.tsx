@@ -8,6 +8,7 @@ import { ABOUT_PATH } from '../components/redesign/routes';
 import ShareLink from '../components/redesign/ShareLink';
 import { ArrowLeft, ArrowRight } from '../components/redesign/icons';
 import { CONTACT_INFO } from '../constants';
+import { articleTitle } from '../constants/pageMeta';
 import { SITE_URL } from '../config/site';
 import { useArticleBody, useInsights } from '../hooks';
 import { splitArticle } from '../utils/articleSections';
@@ -99,7 +100,7 @@ const InsightDetail: React.FC = () => {
   return (
     <>
       <SEO
-        title={`${insight.title} | Insights`}
+        title={articleTitle(insight.title)}
         description={insight.summary}
         ogType="article"
         noindex={Boolean(error)}
@@ -165,7 +166,7 @@ const InsightDetail: React.FC = () => {
         }
         sections={sections}
       >
-        {related.length > 0 && (
+        {related.length > 0 && parts && !error && !bodyLoading && (
           <div className="amore pad">
             <section className="sec" aria-labelledby="more-insights">
               <div className="sec-h">

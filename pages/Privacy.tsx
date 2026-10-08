@@ -2,6 +2,7 @@ import React from 'react';
 import SEO from '../components/SEO';
 import LegalPage, { ContactCard, LegalTable, type LegalSection } from '../components/redesign/LegalPage';
 import { CONTACT_INFO } from '../constants';
+import { PAGE_META } from '../constants/pageMeta';
 
 // 2026 redesign of /privacy. Rendered inside RedesignLayout, which supplies the
 // top bar, footer and stylesheet. Written to meet the IT Act, 2000 and its 2011
@@ -104,10 +105,13 @@ const SECTIONS: LegalSection[] = [
         </p>
         <ul>
           <li>When you last sent a form, so that one browser can’t send dozens in a row.</li>
-          <li>Articles you save on the Insights page.</li>
           <li>
             An unfinished contact or careers form, encrypted, so that reloading the page doesn’t lose it. It is deleted
             when you close the browser tab.
+          </li>
+          <li>
+            Where you were on each page, so that the back button returns you there. It is deleted when you close the
+            browser tab.
           </li>
         </ul>
         <p>
@@ -250,8 +254,8 @@ const Privacy: React.FC = () => (
     {/* SEO-3: legal pages previously rendered no metadata despite being in
         the sitemap. */}
     <SEO
-      title="Privacy Policy | Sagar H R & Co."
-      description="What Sagar H R & Co. collects through its website and in its work, why, who else sees it, how long it is kept, and how to reach the grievance officer."
+      title={PAGE_META.privacy.title}
+      description={PAGE_META.privacy.description}
       canonicalUrl="https://casagar.co.in/privacy"
       breadcrumbs={[
         { name: 'Home', url: '/' },

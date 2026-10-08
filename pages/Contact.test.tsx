@@ -33,7 +33,6 @@ vi.mock('../hooks', async () => {
     ...actual,
     useToast: () => ({ addToast: mocks.addToast }),
     useFormDraft: () => ({
-      hasDraft: false,
       loadDraft: mocks.loadDraft,
       clearDraft: mocks.clearDraft,
       lastSaved: null,
