@@ -95,6 +95,14 @@ describe('Home page', () => {
     );
   });
 
+  it('states no fee level in its structured data (Audit ICAI-01)', () => {
+    renderHome();
+
+    const jsonLd = [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => s.textContent);
+    expect(jsonLd.join('')).toContain('AccountingService');
+    expect(jsonLd.join('')).not.toContain('priceRange');
+  });
+
   it('has no axe violations', async () => {
     const { container } = renderHome();
 
