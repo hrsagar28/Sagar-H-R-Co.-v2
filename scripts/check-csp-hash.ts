@@ -20,18 +20,32 @@ if (!netlifyToml.includes(expectedToken)) {
   );
 }
 
-// The first-paint overlay on the home page is the limestone the page opens on,
-// so the page does not change colour as it appears.
-const preloadBg = indexHtml.match(/#preload-hero\s*{[\s\S]*?background:\s*(#[0-9a-fA-F]{3,8})\s*;/)?.[1];
-const stone = redesignCss.match(/--stone:\s*(#[0-9a-fA-F]{3,8})\s*;/)?.[1];
+// The first-paint overlay starts in the black of the first-visit splash
+// (components/Preloader.tsx) and turns to the limestone the home page opens
+// on, so the screen does not change colour as either appears.
+const preloaderSource = readFileSync('components/Preloader.tsx', 'utf8');
+const hex = '(#[0-9a-fA-F]{3,8})';
+const overlayBg = indexHtml.match(new RegExp(`#preload-hero\\s*{[^}]*?background:\\s*${hex}\\s*;`))?.[1];
+const overlayPageBg = indexHtml.match(new RegExp(`#preload-hero\\.page\\s*{[^}]*?background:\\s*${hex}\\s*;`))?.[1];
+const splashBg = preloaderSource.match(new RegExp(`bg-\\[${hex}\\]`))?.[1];
+const stone = redesignCss.match(new RegExp(`--stone:\\s*${hex}\\s*;`))?.[1];
 
-if (!preloadBg || !stone) {
-  throw new Error('Unable to compare the #preload-hero background with --stone in redesign.css.');
+if (!overlayBg || !overlayPageBg || !splashBg || !stone) {
+  throw new Error('Unable to compare the #preload-hero colours with the splash and --stone in redesign.css.');
 }
 
-if (preloadBg.toLowerCase() !== stone.toLowerCase()) {
-  throw new Error(`Preload hero background (${preloadBg}) must match --stone (${stone}).`);
+if (overlayBg.toLowerCase() !== splashBg.toLowerCase()) {
+  throw new Error(`Preload overlay (${overlayBg}) must match the splash in Preloader.tsx (${splashBg}).`);
+}
+if (overlayPageBg.toLowerCase() !== stone.toLowerCase()) {
+  throw new Error(`Preload overlay .page (${overlayPageBg}) must match --stone (${stone}).`);
+}
+const reducedBg = indexHtml.match(
+  new RegExp(`prefers-reduced-motion: reduce\\)\\s*{\\s*#preload-hero\\s*{[^}]*?background:\\s*${hex}\\s*;`),
+)?.[1];
+if (reducedBg?.toLowerCase() !== stone.toLowerCase()) {
+  throw new Error(`Preload overlay for reduced motion (${reducedBg}) must match --stone (${stone}).`);
 }
 
 console.log(`CSP inline style hash is current: ${expectedToken}`);
-console.log(`Preload hero background matches --stone: ${stone}`);
+console.log(`Preload overlay matches the splash (${splashBg}), then --stone (${stone})`);

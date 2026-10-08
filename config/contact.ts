@@ -29,23 +29,20 @@ export const CONTACT_INFO = {
     state: 'Karnataka',
     zip: '570004',
     country: 'India',
-    full: '1479, 2nd Floor, Thyagaraja Road, KR Mohalla, Mysuru - 570004',
-    // Postal form used by the redesigned FAQ and Contact pages, one entry per line.
+    // Postal form shown on the pages and in the footer, one entry per line.
     lines: ['No. 1479, 2nd Floor, Thyagaraja Road', 'K.R. Mohalla, Mysuru – 570004'],
-  },
-  hours: {
-    display: 'Mon - Sat: 10:00 AM - 8:00 PM (IST)',
-    value: 'Mo-Sa 10:00-20:00',
   },
   social: {
     whatsapp: 'https://wa.me/919482359455?text=Hi,%20I%20would%20like%20to%20book%20a%20consultation.',
   },
+  // The office's exact position, as given by CA Sagar (October 2026). The
+  // search data, the embedded map and the directions link all use it.
   geo: {
-    latitude: 12.3051,
-    longitude: 76.6551,
+    latitude: 12.300441780819392,
+    longitude: 76.65174665460887,
     mapEmbedUrl:
-      'https://maps.google.com/maps?q=12.300430367886586,76.65174852128196&t=&z=15&ie=UTF8&iwloc=&output=embed',
-    mapShareUrl: 'https://www.google.com/maps?q=12.300430,76.651748',
+      'https://maps.google.com/maps?q=12.300441780819392,76.65174665460887&t=&z=15&ie=UTF8&iwloc=&output=embed',
+    mapShareUrl: 'https://www.google.com/maps?q=12.300441780819392,76.65174665460887',
   },
   tagline: 'Chartered Accountants',
   firmRegistrationNo: '026642S',
@@ -53,18 +50,9 @@ export const CONTACT_INFO = {
   formEndpoint: getEnv('VITE_FORM_ENDPOINT') || DEFAULT_FORM_ENDPOINT,
   stats: {
     established: '2023',
-    clientsServed: '500+',
-    industriesServed: '10+',
-    consultations: '500+',
   },
   founder: {
     name: 'CA Sagar H R',
-    title: 'Founder & Principal',
-    qualifications: ['Chartered Accountant'],
     icaiMembershipNo: '273511',
-    specializations: ['Direct Tax', 'GST', 'Audit', 'Business Advisory'],
-    bio: 'Sagar H R qualified as a CA in 2023 after planning for it most of his life. His working habit is to read the law before answering. It may take longer. It also means the advice is less likely to be wrong. He believes in building long term client relationships he expects to last years. Outside the office: teaching, finance writing, fiction, and cricket.',
-    quote:
-      "Our approach is to provide practical solutions that align with regulatory requirements while understanding the client's business context.",
   },
 };

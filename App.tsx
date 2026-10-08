@@ -1,6 +1,6 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
-import { PageLoader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar } from './components';
+import { PageLoader, Preloader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
 import { useAnnounce } from './hooks';
@@ -267,6 +267,8 @@ const SiteLayout = () => (
   <>
     <div className="print:hidden">
       <NetworkStatus />
+      {/* The first-visit splash. Kept at the owner's request: see Preloader.tsx. */}
+      <Preloader />
       {/* Audit CQ-12: CustomCursor is lazy-loaded via React.lazy at
           the top of this file, so its chunk fetch is already
           deferred to a separate request. The previous

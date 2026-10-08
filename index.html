@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <!-- viewport-fit=cover lets us read env(safe-area-inset-*) on
-         notched iPhones so fixed UI (WhatsApp float, etc.) can sit above
-         the iOS home indicator instead of being clipped by it. -->
+         notched iPhones so fixed UI (the toasts, the offline bar) can sit
+         above the iOS home indicator instead of being clipped by it. -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0c100e" />
 
@@ -13,7 +13,11 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <!-- The fonts of the first screen. The @font-face rules are in index.css. -->
+    <!-- The fonts of the first screen. The @font-face rules are in index.css.
+         The italic is "Sagar" on the first-visit splash
+         (components/Preloader.tsx); without it the name would appear in a
+         fallback face first. -->
+    <link rel="preload" href="/fonts/instrument-serif-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/instrument-serif-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/host-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/host-grotesk-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -53,16 +57,29 @@
     />
     <meta name="twitter:image" content="https://casagar.co.in/og/og-default.png" />
     <style>
-      /* First paint of the home page, before the app has loaded: the limestone
-         the page opens on (--stone in components/redesign/redesign.css;
-         scripts/check-csp-hash.ts checks the colour matches). index.tsx
-         removes it once the page has painted. */
+      /* First paint, before the app has loaded. A first visit opens with the
+         splash (components/Preloader.tsx), so the screen starts in the
+         splash's black and the firm's name arrives on it without a flash.
+         index.tsx adds .page once the splash has taken over, or at once when
+         none is due (it has already been shown in this tab): the limestone
+         the home page opens on (--stone in components/redesign/redesign.css).
+         Readers who ask for less motion get no splash, so they start on the
+         limestone. scripts/check-csp-hash.ts checks both colours. index.tsx
+         removes the overlay once the page has painted. */
       #preload-hero {
         position: fixed;
         inset: 0;
         z-index: 2;
         pointer-events: none;
+        background: #0a0a0a;
+      }
+      #preload-hero.page {
         background: #f2efe8;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #preload-hero {
+          background: #f2efe8;
+        }
       }
     </style>
   </head>

@@ -57,49 +57,34 @@ inside the app).
 
 ### Tailwind — what is left of it
 
-Tailwind is still wired in for the app shell and the shared pieces
-(`App.tsx`, `PageLoader`, the toasts, …). There is one config in use:
-`tailwind.home.config.ts`, activated by `index.css` via
-`@config './tailwind.home.config.ts'`. It spreads the base config
-(`tailwind.config.ts`, where the old design's tokens still live) and narrows
-`content` to an explicit file list.
+Tailwind styles only the app shell and the shared pieces (`App.tsx`,
+`PageLoader`, the first-visit splash, the toasts, …). There is one config,
+`tailwind.config.ts`: an explicit `content` list of those files, and the few
+theme values they use.
 
 **The purge footgun:** Tailwind tree-shakes unused classes against that
-narrow list, so a Tailwind class used in a file the list does not name is
-dropped **silently**. A custom class written inside `@layer utilities` in
-`index.css` is purged the same way. Genuinely global custom CSS must be
-**plain top-level CSS** (as the `sx-*` shared pieces and the cursor rules in
-`index.css` are); page styles belong in `redesign.css`.
+list, so a Tailwind class used in a file the list does not name is dropped
+**silently**. A custom class written inside `@layer utilities` in `index.css`
+is purged the same way. Genuinely global custom CSS must be **plain top-level
+CSS** (as the `sx-*` shared pieces and the cursor rules in `index.css` are);
+page styles belong in `redesign.css`.
 
 ### Stylesheet entry points
 
 - `index.css` — global: `@font-face` declarations, `@tailwind` layers, the
   shared pieces (`sx-*`: toasts, offline bar, loading screen, error screens),
-  the cursor, focus styles, print styles and reduced-motion overrides. It
-  still carries the old design's `--zone-*` tokens, `zone-*` utilities and
-  `.glass*` surfaces, which no page uses now (see "Left from the old design").
+  the cursor, focus styles, print styles and reduced-motion overrides.
 - `components/redesign/redesign.css` — everything a page shows.
 
-### Left from the old design
+### The old design
 
-The old Home and About pages, the floating Navbar, the old Footer and their
-components were removed in October 2026. Still in the repository and unused
-by any page, for a clean-up of their own:
-
-- The base Tailwind theme in `tailwind.config.ts` (brand colours, radii, the
-  `heading`, `serif` and `mono` faces). Its `sans` face is Host Grotesk, the
-  document's default, so that one is in use.
-- In `index.css`: the `zone-*`, `.glass*`, `.bg-grid`, `.bg-noise` and similar
-  helpers, and the `@font-face` rules for Fraunces, Plus Jakarta Sans and
-  JetBrains Mono, with their files in `public/fonts`. Check nothing asks for a
-  face before deleting its file.
-- Code nothing imports: `components/ui/Button.tsx`,
-  `components/ui/FormField.tsx`, `components/forms/CustomDropdown.tsx`,
-  `utils/dateUtils.ts`, and the hooks `useLocalStorage` and `useSpotlight`.
-- Fields of `CONTACT_INFO` (`config/contact.ts`) that only the old pages read:
-  `hours`, `address.full`, the `stats` counts other than `established`, and
-  the founder's `title`, `qualifications`, `specializations`, `bio` and
-  `quote`.
+The old Home and About pages, the floating Navbar and the old Footer were
+removed in October 2026, and their components, styles, Tailwind theme and
+fonts (Fraunces, Plus Jakarta Sans, JetBrains Mono) after them. None of it is
+left in the code. The working docs at the repo root (`AUDIT-*.md`,
+`IMPROVEMENT-PLAN.md`, `*-CODEX-PROMPTS.md`) were written about that design
+and still describe it (the zones, the three Tailwind configs); they are kept
+because code comments cite their audit IDs.
 
 ## Design tokens
 
@@ -154,7 +139,8 @@ A Husky `pre-commit` hook runs `lint-staged`.
 `sha256` hash of the inline `<style>` block in `index.html`. If you edit that
 inline `<style>`, the build will fail until you regenerate the hash in
 `netlify.toml`. The same script also asserts that the `#preload-hero`
-background matches `--stone` in `components/redesign/redesign.css`.
+overlay starts in the splash's black (`Preloader.tsx`) and turns to `--stone`
+(`components/redesign/redesign.css`).
 
 ### Sandbox build caveat
 
@@ -173,6 +159,19 @@ sandbox-infrastructure issue, not a project problem.
 
 These are deliberate. Do not "simplify" them away.
 
+**First-visit splash** — `components/Preloader.tsx`: the firm's name on black,
+held for a second and a half and then lifted away, once per browser tab. **The
+owner wants it.** It was removed in October 2026 as "a two-second black
+screen" and he asked for it back the same week, unchanged except for the
+typefaces, which are now the redesign's. Do not remove, shorten or restyle it
+without asking him. These exist for it and stay: the Instrument Serif italic
+font ("Sagar"), with its `@font-face` rule and its preload in `index.html`;
+the `serif` face, the `expand-width` and `fade-in-up` animations and
+`z-preloader` in `tailwind.config.ts`; and `Preloader.tsx` in that file's
+`content` list. The other splash the site once had, the
+words "Audit. Taxation. Advisory." painted by `index.html`, is gone for good:
+the two clashed.
+
 **Accessibility** — skip-to-content link; programmatic focus of `#main-content`
 on every route change (`RouteHandler` in `App.tsx`); route-change screen-reader
 announcements via `AnnounceProvider` / `useAnnounce`; `:focus-visible`
@@ -186,8 +185,8 @@ fallbacks; the React Compiler, there for files that opt in; the page styles in
 a stylesheet of their own (`redesign.css`, loaded with the layout); manual
 vendor chunks in `vite.config.ts` (`react-vendor`, `ui-vendor`,
 `markdown-vendor`); self-hosted preloaded fonts; the `#preload-hero` overlay
-that paints the home page's limestone instantly and is removed on the
-`app:hero-ready` event.
+that paints the first screen instantly (the splash's black on a first visit,
+then the home page's limestone) and is removed on the `app:hero-ready` event.
 
 **SEO** — `components/SEO.tsx`, generated sitemap, structured data, and the geo
 meta tags in `index.html`.
@@ -219,8 +218,8 @@ SPA fallback redirect, a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
 
 ## Working norms
 
-- `IMPROVEMENT-PLAN.md` at the repo root tracks planned hardening work — check
-  it for context before larger changes.
+- `IMPROVEMENT-PLAN.md` at the repo root tracked hardening work on the old
+  design. Read it as history: much of what it plans no longer exists.
 - Resources tax figures (`constants/resources/`): `AUDIT-RESOURCES-LAW.md`
   records what each was checked against, the readings decided with CA Sagar,
   and the yearly update list. Update it with any figure you change.

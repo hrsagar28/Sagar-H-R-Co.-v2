@@ -12,13 +12,8 @@ export * from './useAnnounce';
 export * from './useFocusTrap';
 export * from './useFormDraft';
 export * from './useFormValidation';
-export * from './useLocalStorage';
 export * from './useRateLimit';
 export * from './useReducedMotion';
 export * from './useToast';
 export * from './useInsights';
 export * from './useArticleBody';
-export * from './useSpotlight';
-// MNT-7: previously omitted from the barrel despite being consumed by the
-// Resources calculators/tables.
-export * from './useResourceData';
