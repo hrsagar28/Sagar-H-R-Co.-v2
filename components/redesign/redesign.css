@@ -1,11 +1,10 @@
 /*
- * 2026 redesign — shared styles for the pages rebuilt so far (Services, Careers,
- * FAQ, Contact and the legal pages).
+ * 2026 redesign — the styles of every page.
  *
  * Plain top-level CSS on purpose: nothing here sits in `@layer utilities`, so the
- * multi-config Tailwind purge (see CLAUDE.md) can never strip it. Every rule is
- * scoped under `.rd`, the wrapper the redesigned pages render, so none of it
- * reaches pages that still use the old design.
+ * Tailwind purge (see CLAUDE.md) can never strip it. Every rule is scoped under
+ * `.rd`, the wrapper RedesignLayout renders, so none of it reaches the shared
+ * pieces outside it (toasts, the loading and error screens: index.css).
  *
  * Layout: dark header that hands over to the page through one panel sitting on
  * the seam; limestone body; one dark-green band; square-edged footer with the
@@ -4132,6 +4131,971 @@
   }
   .rd .flbl {
     margin-bottom: 4px;
+  }
+}
+
+/* ---------- home ----------
+   The home page (pages/Home.tsx), which is also the About page (#about). It
+   opens on the limestone with no dark band: the firm's name is the title, so
+   the top bar there carries no wordmark (.head-home, set by RedesignLayout;
+   the sticky bar keeps it). Then the coming due dates as a row of days that
+   scrolls sideways (.hdue), the services in large type on sand (.hsvc), the
+   firm and how an engagement runs on the dark band (.habout), the latest
+   articles beside three questions (.hread), old and new section numbers on
+   sand (.hnum), and the office with its map on paper (.hoffice). The grounds
+   run stone, sand, night, stone, sand, paper, so no two neighbours match. */
+
+/* the top bar on the limestone, in ink */
+.rd.rd-shell.head-home {
+  background: var(--stone);
+}
+.rd.head-home .topbar .wordmark {
+  visibility: hidden;
+}
+.rd.head-home .topbar .navrow a,
+.rd.head-home .topbar .cta-ghost,
+.rd.head-home .topbar .icon-btn,
+.rd.head-home .topbar .menu-btn {
+  color: var(--ink);
+}
+.rd.head-home .topbar .cta-ghost,
+.rd.head-home .topbar .icon-btn,
+.rd.head-home .topbar .menu-btn {
+  border-color: rgba(22, 25, 26, 0.45);
+}
+.rd.head-home .topbar .cta-ghost:hover {
+  background: var(--ink);
+  color: var(--stone);
+}
+.rd.head-home .phead {
+  color: var(--ink);
+  background: var(--stone);
+}
+.rd.head-home .topbar ::selection,
+.rd.head-home .phead ::selection {
+  background-color: rgb(26 77 46 / 0.2);
+}
+.rd.head-home .skel-line {
+  background: rgba(22, 25, 26, 0.07);
+}
+.rd.head-home .skel-h1 {
+  height: clamp(40px, 6vw, 86px);
+}
+
+.rd .home {
+  /* lines around controls, a shade darker than --rule-s so they hold on sand */
+  --hline: #b3ad9e;
+}
+/* the focus ring: the darker copper on the light grounds, where the lighter
+   one is hard to see; the lighter one stays on the dark band */
+.rd.head-home .topbar :focus-visible,
+.rd .home :focus-visible {
+  outline-color: var(--copper-d);
+}
+.rd .home .habout :focus-visible {
+  outline-color: var(--copper);
+}
+/* the About section takes focus only when the page moves to it (Home.tsx) */
+.rd .home .habout:focus-visible {
+  outline: none;
+}
+
+/* opening: the firm's name, then what it does and the two ways to get in touch */
+.rd .hhero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 32px 64px;
+  padding-top: clamp(48px, 6.2vw, 92px);
+}
+.rd .hhero h1 {
+  flex: 999 1 600px;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(40px, 6vw, 86px);
+  line-height: 1;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+}
+.rd .hhero h1 span {
+  display: block;
+}
+.rd .hhero h1 .sub {
+  color: var(--muted);
+}
+.rd .hhero-side {
+  flex: 1 1 340px;
+  max-width: 440px;
+  padding-bottom: 6px;
+}
+.rd .hhero .hsub {
+  margin: 0;
+  max-width: none;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.rd .home .hacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin: 22px 0 0;
+}
+.rd .home .hcall {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 15px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+  font-variant-numeric: tabular-nums;
+}
+.rd .home .hcall:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* a section's heading, the size of the headings on the other pages (.sec-h h2) */
+.rd .home .hh {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(32px, 2.9vw, 42px);
+  line-height: 1.04;
+}
+/* "All insights", "All FAQs" and the like */
+.rd .hmore {
+  margin: 28px 0 0;
+  font-size: 15px;
+}
+.rd .hmore a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+}
+.rd .hmore a:hover {
+  text-decoration-thickness: 2px;
+}
+/* buttons that choose: the due-date areas, and the sections and forms */
+.rd .hchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.rd .hchip {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--hline);
+  background: transparent;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+.rd .hchip:hover {
+  border-color: var(--ink);
+}
+.rd .hchip[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--stone);
+}
+
+/* due dates: one column per day, the month's name standing up before its
+   first day; the strip runs to the right edge and scrolls sideways */
+.rd .hdue {
+  padding-top: clamp(52px, 5.6vw, 84px);
+  padding-bottom: clamp(56px, 6.6vw, 96px);
+}
+.rd .hdue-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 20px 16px;
+  margin-bottom: 28px;
+}
+/* the heading on the left; the areas and the two arrows on the right */
+.rd .hdue-h .hh {
+  margin-right: auto;
+  padding-right: 24px;
+}
+.rd .hdue-nav {
+  display: flex;
+  gap: 8px;
+}
+.rd .hdue-nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--hline);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.rd .hdue-nav button:hover {
+  border-color: var(--ink);
+}
+.rd .hdue-scroll {
+  overflow-x: auto;
+  /* Without paint containment Chrome counts the standing month names
+     (writing-mode: vertical-rl) in the page's width, and the whole page
+     scrolls sideways to the end of the strip. */
+  contain: paint;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: var(--gut);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(22, 25, 26, 0.3) transparent;
+}
+.rd .hdue-scroll:focus-visible {
+  outline-offset: -2px;
+}
+.rd .hdue-days {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--gut);
+  display: flex;
+  width: max-content;
+}
+/* room after the last column, the width of the side gutter */
+.rd .hdue-days::after {
+  content: '';
+  flex: 0 0 clamp(16px, 4.45vw, 64px);
+}
+.rd .hdue-days > li {
+  display: flex;
+  flex: 0 0 auto;
+  border-left: 1px solid var(--rule);
+  scroll-snap-align: start;
+}
+.rd .hdue-m {
+  display: flex;
+  justify-content: center;
+  width: 54px;
+  padding: 20px 0;
+  border-right: 1px solid var(--rule);
+}
+.rd .hdue-m span {
+  writing-mode: vertical-rl;
+  font-family: var(--serif);
+  font-size: 24px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.rd .hdue-day {
+  /* holds the visually hidden heading, which is absolutely placed */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: clamp(184px, 17vw, 244px);
+  padding: 18px 20px 32px;
+}
+/* a day with three or more filings: double width, its filings in two columns */
+.rd .hdue-day.wide {
+  width: clamp(344px, 30vw, 430px);
+}
+.rd .hdue-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.rd .hdue-top span + span {
+  color: var(--muted);
+}
+.rd .hdue-n {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(108px, 13.6vw, 196px);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.rd .hdue-day.today .hdue-n,
+.rd .hdue-day.today .hdue-top span + span {
+  color: var(--copper-d);
+}
+.rd .hdue-day ul {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 16px 24px;
+}
+.rd .hdue-day.wide ul {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.rd .hdue-day ul li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.rd .hdue-day .t {
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.rd .hdue-day .d {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.rd .hdue-day .c {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+/* the last column: the way to the whole year */
+.rd .hdue-days > .hdue-all {
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  width: clamp(184px, 17vw, 244px);
+  min-height: 300px;
+  padding: 18px 20px 32px;
+  border-right: 1px solid var(--rule);
+}
+.rd .hdue-all p {
+  margin: 0 0 auto;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--body);
+}
+.rd .hdue-all a {
+  font-family: var(--serif);
+  font-size: 28px;
+  line-height: 1.1;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+.rd .hdue-all a:hover {
+  text-decoration-thickness: 2px;
+}
+.rd .hdue-all span {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* services: every service by name in large type, under its group */
+.rd .hsvc {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 5vw, 72px);
+  padding-top: clamp(72px, 9.6vw, 144px);
+  padding-bottom: clamp(72px, 9.6vw, 144px);
+  background: var(--sand);
+}
+.rd .hsvc-g {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(26px, 3.2vw, 44px);
+  max-width: 1240px;
+}
+.rd .hsvc-g h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.rd .hsvc-g ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 58px);
+  line-height: 1.1;
+  letter-spacing: -0.006em;
+  color: var(--muted);
+  text-wrap: balance;
+}
+.rd .hsvc-g li {
+  display: inline;
+}
+.rd .hsvc-g li:not(:last-child)::after {
+  content: ', ';
+}
+.rd .hsvc-g a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--copper-d);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.13em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-color 0.15s;
+}
+.rd .hsvc-g a:hover {
+  background-color: rgba(201, 138, 87, 0.24);
+}
+.rd .hsvc-f {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px 64px;
+  padding-top: 28px;
+  border-top: 1px solid var(--hline);
+}
+.rd .hsvc-f p {
+  flex: 999 1 420px;
+  max-width: 760px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--body);
+}
+
+/* the firm and its proprietor on the dark band; the photograph is black and
+   white on black, so it runs to the top of the band without a frame */
+.rd .habout {
+  padding-bottom: clamp(64px, 8vw, 112px);
+  background: var(--night);
+  color: var(--cream);
+}
+.rd .habout ::selection {
+  background-color: rgba(236, 232, 222, 0.24);
+}
+.rd .habout-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0 clamp(32px, 5vw, 80px);
+}
+.rd .habout-photo {
+  position: relative;
+  flex: 1 1 460px;
+  max-width: 540px;
+  aspect-ratio: 4 / 5;
+  align-self: flex-start;
+  overflow: hidden;
+}
+.rd .habout-photo img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 10%;
+  mix-blend-mode: lighten;
+}
+.rd .habout-text {
+  display: flex;
+  flex: 999 1 520px;
+  flex-direction: column;
+  gap: clamp(28px, 3.4vw, 48px);
+  min-width: 0;
+  padding-top: clamp(40px, 8vw, 120px);
+}
+.rd .habout-h p {
+  max-width: 600px;
+  margin: 18px 0 0;
+  font-size: clamp(17px, 1.4vw, 19px);
+  line-height: 1.6;
+  color: var(--cream);
+}
+.rd .habout-cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px clamp(32px, 4vw, 64px);
+}
+.rd .habout-bio {
+  flex: 1 1 320px;
+  max-width: 460px;
+}
+.rd .habout-bio h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 30px;
+  line-height: 1.1;
+  color: var(--cream);
+}
+.rd .habout-bio .role {
+  margin: 2px 0 20px;
+  font-size: 14px;
+  color: var(--cream-m);
+}
+.rd .habout-bio p:not(.role) {
+  margin: 14px 0 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--cream-m);
+}
+.rd .hfacts {
+  flex: 1 1 260px;
+  max-width: 340px;
+  align-self: flex-start;
+  margin: 0;
+  border-bottom: 1px solid var(--rule-d);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.rd .hfacts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 0;
+  border-top: 1px solid var(--rule-d);
+}
+.rd .hfacts dt {
+  color: var(--cream-m);
+}
+.rd .hfacts dd {
+  margin: 0;
+  text-align: right;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+/* how an engagement runs: five steps under a rule */
+.rd .hsteps {
+  margin-top: clamp(56px, 7vw, 96px);
+  padding-top: clamp(32px, 4vw, 48px);
+  border-top: 1px solid var(--rule-d);
+}
+.rd .hsteps-h {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 40px;
+  margin-bottom: clamp(28px, 3.4vw, 44px);
+}
+.rd .hsteps-h h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(26px, 2.3vw, 34px);
+  line-height: 1.08;
+  color: var(--cream);
+}
+.rd .hsteps-h p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--cream-m);
+}
+.rd .hsteps ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: 32px clamp(24px, 2.6vw, 40px);
+}
+.rd .hsteps li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rd .hsteps .sn {
+  font-family: var(--serif);
+  font-size: 44px;
+  line-height: 1;
+  color: var(--copper);
+}
+.rd .hsteps h4 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--cream);
+}
+.rd .hsteps li p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--cream-m);
+}
+
+/* the latest articles, and three questions answered beside them */
+.rd .hread {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 64px clamp(48px, 7vw, 112px);
+  padding-top: clamp(72px, 9vw, 128px);
+  padding-bottom: clamp(72px, 9vw, 128px);
+}
+.rd .hread-a {
+  flex: 999 1 540px;
+  min-width: 0;
+}
+.rd .hread-f {
+  flex: 1 1 460px;
+  max-width: 520px;
+  min-width: 0;
+}
+.rd .hread .hh {
+  margin-bottom: 28px;
+}
+.rd .hlead h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(34px, 4.5vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.008em;
+}
+.rd .hlead h3 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.rd .hlead h3 a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+.rd .hlead p {
+  max-width: 620px;
+  margin: 16px 0 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--body);
+}
+.rd .hlead .am {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.rd .hrows {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  border-bottom: 1px solid var(--rule-s);
+}
+.rd .hrows a {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 32px;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule-s);
+  text-decoration: none;
+  color: var(--ink);
+}
+.rd .hrows .t {
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.2vw, 28px);
+  line-height: 1.15;
+}
+.rd .hrows a:hover .t,
+.rd .hrows a:focus-visible .t {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+.rd .hrows time {
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--muted);
+}
+/* while the articles load, and if they cannot */
+.rd .hread-wait span {
+  height: clamp(34px, 4.5vw, 64px);
+  width: min(560px, 90%);
+  background: rgba(22, 25, 26, 0.07);
+}
+.rd .hread-wait span + span {
+  height: 17px;
+  margin-top: 22px;
+}
+.rd .hread-wait span + span + span {
+  width: min(380px, 60%);
+  margin-top: 10px;
+}
+.rd .hread-none {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--body);
+}
+/* the questions: the FAQ page's rows (.qi, .qb, .ans), ruled to match the
+   articles beside them */
+.rd .hfaq {
+  border-top: 1px solid var(--rule-s);
+}
+.rd .hfaq .qi {
+  border-bottom-color: var(--rule-s);
+}
+.rd .hfaq.qlist > .qi:first-child .qb {
+  padding-top: 22px;
+}
+.rd .hfaq .rd-answer p,
+.rd .hfaq .rd-answer li {
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+/* section numbers: the old number, the new one very large, and what it covers */
+.rd .hnum {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 5vw, 68px);
+  padding-top: clamp(72px, 9vw, 128px);
+  padding-bottom: clamp(72px, 9vw, 128px);
+  background: var(--sand);
+}
+.rd .hnum-h {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px 64px;
+}
+.rd .hnum-h p {
+  flex: 0 1 560px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--body);
+}
+.rd .hnum-r {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 32px clamp(32px, 5vw, 80px);
+}
+.rd .hnum-r p {
+  margin: 0;
+}
+.rd .hnum-r .cap {
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.rd .hnum-r .old,
+.rd .hnum-r .now {
+  font-family: var(--serif);
+  line-height: 0.8;
+}
+.rd .hnum-r .old {
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  color: #6f7168;
+}
+.rd .hnum-r .old.s1 {
+  font-size: clamp(96px, 15vw, 216px);
+}
+.rd .hnum-r .old.s2 {
+  font-size: clamp(72px, 10.5vw, 152px);
+}
+.rd .hnum-r .old.s3 {
+  font-size: clamp(52px, 8vw, 116px);
+}
+.rd .hnum-r .old.s4 {
+  font-size: clamp(40px, 5.6vw, 82px);
+}
+.rd .hnum-r .now {
+  font-size: clamp(132px, 23vw, 328px);
+  letter-spacing: -0.025em;
+  color: var(--copper-d);
+}
+/* a longer new reference, should the list ever hold one */
+.rd .hnum-r .now.s2 {
+  font-size: clamp(96px, 15vw, 216px);
+}
+.rd .hnum-r .now.s3,
+.rd .hnum-r .now.s4 {
+  font-size: clamp(52px, 8vw, 116px);
+}
+.rd .hnum-r .what {
+  flex: 1 1 240px;
+  max-width: 420px;
+}
+.rd .hnum-r .what > p:first-child {
+  font-family: var(--serif);
+  font-size: clamp(24px, 2.6vw, 34px);
+  line-height: 1.15;
+  color: var(--ink);
+}
+.rd .hnum-r .hmore {
+  margin-top: 8px;
+}
+.rd .hnum-c {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 64px;
+  padding-top: 28px;
+  border-top: 1px solid var(--rule-s);
+}
+.rd .hnum-c > div {
+  flex: 999 1 420px;
+}
+.rd .hnum-c > div + div {
+  flex: 1 1 320px;
+}
+.rd .hnum-c .lbl {
+  margin-bottom: 10px;
+}
+.rd .hnum .hchip {
+  font-size: 15px;
+}
+
+/* the office: address, hours, telephone and email beside the map */
+.rd .hoffice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 44px clamp(40px, 6vw, 96px);
+  padding-top: clamp(72px, 9vw, 128px);
+  padding-bottom: clamp(72px, 9vw, 128px);
+  background: var(--paper);
+}
+.rd .hoffice-d {
+  flex: 1 1 460px;
+  max-width: 520px;
+}
+.rd .hoffice address {
+  margin: 20px 0 0;
+  font-style: normal;
+  font-family: var(--serif);
+  font-size: clamp(26px, 2.5vw, 34px);
+  line-height: 1.12;
+  color: var(--ink);
+}
+.rd .hoffice address span {
+  display: block;
+}
+.rd .hoffice .hours {
+  margin: 20px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.rd .hoffice .lines {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 30px 0 0;
+}
+.rd .hoffice .lines a {
+  font-family: var(--serif);
+  font-size: clamp(24px, 2.4vw, 32px);
+  line-height: 1.25;
+  color: var(--ink);
+  text-decoration: none;
+}
+.rd .hoffice .lines a:first-child {
+  font-size: clamp(32px, 3.2vw, 44px);
+  line-height: 1.15;
+}
+.rd .hoffice .lines a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+.rd .hoffice .hacts {
+  gap: 10px;
+  margin-top: 34px;
+}
+.rd .hghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 24px;
+  border: 1px solid rgba(22, 25, 26, 0.45);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    background 0.25s,
+    color 0.25s;
+}
+.rd .hghost:hover {
+  background: var(--ink);
+  color: var(--stone);
+}
+.rd .hoffice-m {
+  display: flex;
+  flex: 999 1 460px;
+  flex-direction: column;
+  min-width: 0;
+}
+.rd .hoffice .map {
+  flex: 1 1 auto;
+  aspect-ratio: auto;
+  min-height: clamp(300px, 34vw, 480px);
+  margin: 0;
+}
+.rd .hoffice .hmore {
+  margin-top: 8px;
+}
+
+/* phones: the arrows beside the heading, the areas on a line of their own */
+@media (max-width: 600px) {
+  .rd .hdue-h {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title arrows'
+      'areas areas';
+    align-items: end;
+  }
+  .rd .hdue-h .hh {
+    grid-area: title;
+    padding-right: 0;
+  }
+  .rd .hdue-h .hchips {
+    grid-area: areas;
+  }
+  .rd .hdue-nav {
+    grid-area: arrows;
+  }
+}
+@media print {
+  .rd .hdue-h .hchips,
+  .rd .hdue-nav,
+  .rd .hnum-c {
+    display: none;
+  }
+  /* the days wrap onto the sheet instead of running off its edge */
+  .rd .hdue-scroll {
+    overflow: visible;
+    contain: none;
+  }
+  .rd .hdue-days {
+    flex-wrap: wrap;
+    width: auto;
+    padding-left: 0;
+  }
+  /* index.css prints all text in black, so the dark band loses its ground */
+  .rd .habout {
+    background: none;
+  }
+  .rd .habout-photo img {
+    mix-blend-mode: normal;
+  }
+  .rd .hfacts dt,
+  .rd .hfacts dd,
+  .rd .hsteps .sn {
+    color: #000;
   }
 }
 

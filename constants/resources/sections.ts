@@ -221,3 +221,46 @@ export const FORM_ROWS: SectionRow[] = [
   { old: '49B', now: '134, 135', subject: 'TAN application: Government (134), others (135)' },
   { old: '60', now: '97', subject: 'Declaration where there is no PAN' },
 ];
+
+/** A row of the section finder, marked when it is a form of the Rules rather than a section of the Act. */
+export interface CommonSection extends SectionRow {
+  form: boolean;
+}
+
+/**
+ * What most people come looking for: the "Most looked up" list that opens
+ * the section finder (pages/ResourceTools/SectionFinder.tsx), also offered on
+ * the home page (pages/home/SectionNumbers.tsx). Each entry is a group above,
+ * or 'forms', and the old number of a row in it.
+ */
+const COMMON_KEYS: [string, string][] = [
+  ['deductions', '80C, 80CCC'],
+  ['deductions', '80D'],
+  ['deductions', '87A'],
+  ['deductions', '115BAC'],
+  ['salary-property', '16'],
+  ['salary-property', '24'],
+  ['business', '44AB'],
+  ['business', '44AD, 44ADA, 44AE'],
+  ['capital-gains', '54'],
+  ['capital-gains', '54F'],
+  ['capital-gains', '111A'],
+  ['capital-gains', '112'],
+  ['capital-gains', '112A'],
+  ['returns', '139'],
+  ['returns', '143'],
+  ['returns', '148'],
+  ['interest', '234B'],
+  ['interest', '234F'],
+  ['forms', '16'],
+  ['forms', '26AS'],
+  ['forms', '15G, 15H'],
+  ['forms', '3CA, 3CB, 3CD'],
+];
+
+export const COMMON_SECTIONS: CommonSection[] = COMMON_KEYS.flatMap(([groupId, old]) => {
+  const form = groupId === 'forms';
+  const rows = form ? FORM_ROWS : SECTION_GROUPS.find((group) => group.id === groupId)?.rows;
+  const row = rows?.find((item) => item.old === old);
+  return row ? [{ ...row, form }] : [];
+});

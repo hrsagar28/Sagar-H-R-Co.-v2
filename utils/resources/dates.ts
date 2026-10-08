@@ -53,3 +53,11 @@ export const daysBetween = (from: string, to: string) => {
   const [y2, m2, d2] = parts(to);
   return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000);
 };
+
+/** How far off a due date is, in words: "Today", "Tomorrow" or "In 5 days". */
+export const inDays = (today: string, date: string) => {
+  const days = daysBetween(today, date);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  return `In ${days} days`;
+};

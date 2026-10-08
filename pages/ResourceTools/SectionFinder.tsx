@@ -2,7 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
 import { SearchIcon } from '../../components/redesign/icons';
-import { FORM_ROWS, SECTION_GROUPS, TDS_TCS_GROUPS, getResourceTool, type SectionRow } from '../../constants/resources';
+import {
+  COMMON_SECTIONS,
+  FORM_ROWS,
+  SECTION_GROUPS,
+  TDS_TCS_GROUPS,
+  getResourceTool,
+  type SectionRow,
+} from '../../constants/resources';
 
 const TOOL = getResourceTool('section-finder')!;
 
@@ -30,45 +37,15 @@ const FULL_GROUPS: FinderGroup[] = [
   { id: 'forms', name: 'Forms', cols: ['1962 Rules', '2026 Rules'], rows: FORM_ROWS },
 ];
 
-/**
- * What most people come looking for, shown first so the page opens short.
- * Each entry is a group and the old number of a row in it.
- */
-const COMMON: [string, string][] = [
-  ['deductions', '80C, 80CCC'],
-  ['deductions', '80D'],
-  ['deductions', '87A'],
-  ['deductions', '115BAC'],
-  ['salary-property', '16'],
-  ['salary-property', '24'],
-  ['business', '44AB'],
-  ['business', '44AD, 44ADA, 44AE'],
-  ['capital-gains', '54'],
-  ['capital-gains', '54F'],
-  ['capital-gains', '111A'],
-  ['capital-gains', '112'],
-  ['capital-gains', '112A'],
-  ['returns', '139'],
-  ['returns', '143'],
-  ['returns', '148'],
-  ['interest', '234B'],
-  ['interest', '234F'],
-  ['forms', '16'],
-  ['forms', '26AS'],
-  ['forms', '15G, 15H'],
-  ['forms', '3CA, 3CB, 3CD'],
-];
-
+// What most people come looking for, shown first so the page opens short. The
+// list is COMMON_SECTIONS, which the home page offers too.
 const COMMON_GROUP: FinderGroup = {
   id: 'common',
   name: 'Most looked up',
   cols: ['Old', 'New'],
-  rows: COMMON.flatMap(([groupId, old]) => {
-    const group = FULL_GROUPS.find((item) => item.id === groupId);
-    const row = group?.rows.find((item) => item.old === old);
-    if (!group || !row) return [];
-    return [group.id === 'forms' ? { ...row, old: `Form ${row.old}`, now: `Form ${row.now}` } : row];
-  }),
+  rows: COMMON_SECTIONS.map(({ form, ...row }) =>
+    form ? { ...row, old: `Form ${row.old}`, now: `Form ${row.now}` } : row,
+  ),
 };
 
 const GROUPS: FinderGroup[] = [COMMON_GROUP, ...FULL_GROUPS];

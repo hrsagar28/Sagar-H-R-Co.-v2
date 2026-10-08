@@ -31,7 +31,10 @@ export default {
         'network-status': '1100',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        // The document's default face (Tailwind's base styles put it on <html>).
+        // The pages set their own in redesign.css; this is what hidden text
+        // such as "Loading" renders in, so it is the face the pages already load.
+        sans: ['"Host Grotesk"', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
         heading: ['Fraunces', 'Georgia', 'serif'],
         serif: ['Fraunces', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],

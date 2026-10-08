@@ -63,16 +63,14 @@ export default tseslint.config(
       //      hoist it then flip this.
       //   3. 'react-hooks/immutability'   — usually trivial to fix
       //      (immutable update spreads); flip after a sweep.
-      //   4. 'react-hooks/purity'         — needs the
-      //      `document.body.style.overflow` mutation in `Navbar.tsx` to
-      //      carry an eslint-disable-next-line (the comment is already
-      //      in place from CQ-06; add the suppression line when flipping).
-      //   5. 'react-hooks/set-state-in-effect' — last because
-      //      `components/Reveal.tsx`'s IntersectionObserver callback sets
-      //      state from an effect. (MNT-2: there is currently NO
-      //      eslint-disable in Reveal.tsx — an earlier version of this note
-      //      wrongly claimed one existed. When promoting this rule, add the
-      //      suppression or refactor the IO bridges then.)
+      //   4. 'react-hooks/purity'         — `hooks/useRateLimit.ts` still
+      //      warns. (The old Navbar's `document.body.style.overflow` mutation
+      //      went with the old design; RdHeader locks scrolling in its open
+      //      and close handlers, not during render.)
+      //   5. 'react-hooks/set-state-in-effect' — last because effects such
+      //      as `hooks/useReducedMotion.ts` still set state as they
+      //      subscribe. When promoting this rule, refactor those or add the
+      //      suppression then.
       //
       // Once all five are 'error', delete this block and rely on
       // `eslint-plugin-react-hooks`'s default error level.

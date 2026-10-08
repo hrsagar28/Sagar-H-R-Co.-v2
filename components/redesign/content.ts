@@ -1,14 +1,17 @@
-// Links and fixed wording shared by the redesigned header, menu and footer.
+// Links and fixed wording shared by the header, menu and footer.
+
+import { ABOUT_PATH } from './routes';
 
 export interface RdLink {
   label: string;
   to: string;
 }
 
-/** The single row of links in the top bar and the sticky bar. */
+/** The single row of links in the top bar and the sticky bar. "About" is a
+ *  section of the home page. */
 export const RD_PRIMARY_LINKS: RdLink[] = [
   { label: 'Services', to: '/services' },
-  { label: 'About', to: '/about' },
+  { label: 'About', to: ABOUT_PATH },
   { label: 'Insights', to: '/insights' },
   { label: 'Resources', to: '/resources' },
   { label: 'FAQs', to: '/faqs' },
@@ -16,7 +19,7 @@ export const RD_PRIMARY_LINKS: RdLink[] = [
 
 export const RD_FOOTER_EXPLORE: RdLink[] = [
   { label: 'Home', to: '/' },
-  { label: 'About the firm', to: '/about' },
+  { label: 'About the firm', to: ABOUT_PATH },
   { label: 'Services', to: '/services' },
   { label: 'Insights', to: '/insights' },
 ];
@@ -44,4 +47,4 @@ export const RD_HOURS_TABLE = [
 ];
 
 /** The date the privacy policy, terms of service and disclaimer last changed. */
-export const RD_LEGAL_UPDATED = '2026-10-03';
+export const RD_LEGAL_UPDATED = '2026-10-08';

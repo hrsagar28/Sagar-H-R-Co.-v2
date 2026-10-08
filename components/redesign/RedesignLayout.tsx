@@ -2,24 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import RdHeader from './RdHeader';
 import RdFooter from './RdFooter';
-import { hasLightHeader } from './routes';
+import { hasLightHeader, isHomeRoute } from './routes';
 import './redesign.css';
 
 /**
- * Layout for the pages rebuilt in the 2026 redesign (see ./routes.ts). It
- * replaces the site-wide Navbar and Footer on those routes, keeping the top
- * bar and footer outside <main> so they stay banner / contentinfo landmarks
- * and the skip link still skips them.
+ * Layout for every page: the top bar, the sticky bar, the phone menu and the
+ * footer, kept outside <main> so they stay banner / contentinfo landmarks and
+ * the skip link still skips them. ./routes.ts says which header a page has.
  *
- * App.tsx loads this lazily so the redesign's stylesheet and fonts are only
- * fetched by the pages that use them.
+ * App.tsx loads this lazily, so the stylesheet arrives in its own file.
  */
 const RedesignLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Mirrors the slim bar's visibility so sticky headings inside the page
   // can drop below it (`.rd.bar-on` in redesign.css).
   const [barOn, setBarOn] = useState(false);
   const { pathname } = useLocation();
-  const lightHeader = hasLightHeader(pathname);
+  const head = isHomeRoute(pathname) ? 'head-home' : hasLightHeader(pathname) ? 'head-light' : '';
 
   // RouteHandler focuses #main-content one frame after a route change. On the
   // first visit to a redesigned page this lazy layout may not have arrived by
@@ -31,7 +29,7 @@ const RedesignLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }, []);
 
   return (
-    <div className={`rd rd-shell ${barOn ? 'bar-on' : ''} ${lightHeader ? 'head-light' : ''}`}>
+    <div className={`rd rd-shell ${barOn ? 'bar-on' : ''} ${head}`}>
       <RdHeader barOn={barOn} onBarChange={setBarOn} />
       {/* Own stacking context: the global :focus-visible rule lifts the
           focused <main> to z-index 999, which would otherwise cover the top bar. */}

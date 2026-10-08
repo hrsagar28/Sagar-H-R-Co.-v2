@@ -13,18 +13,26 @@ interface BarRowProps {
 }
 
 /** Wordmark, the single row of links, and the contact button. Shared by the
- *  top bar and the sticky bar so the two can never drift apart. */
+ *  top bar and the sticky bar so the two can never drift apart. A link to a
+ *  section of a page (About, on the home page) is a plain Link: a NavLink
+ *  would mark it as the current page all the way down the home page. */
 const BarRow: React.FC<BarRowProps> = ({ navLabel, menuOpen, onOpenMenu }) => (
   <>
     <Link to="/" className="wordmark">
       Sagar H R &amp; Co.
     </Link>
     <nav className="navrow" aria-label={navLabel}>
-      {RD_PRIMARY_LINKS.map((link) => (
-        <NavLink key={link.to} to={link.to} end>
-          {link.label}
-        </NavLink>
-      ))}
+      {RD_PRIMARY_LINKS.map((link) =>
+        link.to.includes('#') ? (
+          <Link key={link.to} to={link.to}>
+            {link.label}
+          </Link>
+        ) : (
+          <NavLink key={link.to} to={link.to} end>
+            {link.label}
+          </NavLink>
+        ),
+      )}
     </nav>
     <div className="tb-end">
       <NavLink className="cta-ghost" to="/contact" end>
@@ -73,7 +81,7 @@ const RdHeader: React.FC<RdHeaderProps> = ({ barOn, onBarChange }) => {
   const menuOpenRef = useRef(false);
 
   // Scroll lock lives in the open/close handlers rather than an effect so
-  // nothing touches document.body during render (see Audit CQ-06 in Navbar).
+  // nothing touches document.body during render (Audit CQ-06).
   const openMenu = (opener: HTMLButtonElement) => {
     openerRef.current = opener;
     menuOpenRef.current = true;
@@ -201,9 +209,15 @@ const RdHeader: React.FC<RdHeaderProps> = ({ barOn, onBarChange }) => {
               <ul>
                 {[...RD_PRIMARY_LINKS, { label: 'Contact us', to: '/contact' }].map((link) => (
                   <li key={link.to}>
-                    <NavLink to={link.to} end onClick={() => closeMenu(false)}>
-                      {link.label}
-                    </NavLink>
+                    {link.to.includes('#') ? (
+                      <Link to={link.to} onClick={() => closeMenu(false)}>
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <NavLink to={link.to} end onClick={() => closeMenu(false)}>
+                        {link.label}
+                      </NavLink>
+                    )}
                   </li>
                 ))}
               </ul>

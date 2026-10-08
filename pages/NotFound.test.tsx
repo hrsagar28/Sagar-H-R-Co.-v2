@@ -7,7 +7,7 @@ import { axe } from 'vitest-axe';
 import * as matchers from 'vitest-axe/matchers';
 import NotFound from './NotFound';
 import { CONTACT_INFO } from '../constants';
-import { hasLightHeader, isRedesignedRoute } from '../components/redesign/routes';
+import { hasLightHeader, isHomeRoute } from '../components/redesign/routes';
 
 expect.extend(matchers);
 
@@ -53,15 +53,15 @@ describe('NotFound', () => {
     expect(container.querySelector('.rd-page.head-light')).not.toBeNull();
   });
 
-  it('shows in the new layout on any address that has no page', () => {
-    ['/no-such-page', '/resources/old-name', '/services/no-such-service', '/insights/no-such-article'].forEach((path) =>
-      expect(isRedesignedRoute(path)).toBe(true),
-    );
-    ['/', '/about'].forEach((path) => expect(isRedesignedRoute(path)).toBe(false));
-    ['/resources', '/resources/gst-calculator', '/resources/checklist/gst'].forEach((path) =>
-      expect(isRedesignedRoute(path)).toBe(true),
-    );
-    expect(hasLightHeader('/no-such-page')).toBe(false);
+  it('does not rely on the address for its light header', () => {
+    // RedesignLayout only knows the routes in routes.ts; an address with no
+    // page is none of them, and the home page has a header of its own.
+    ['/no-such-page', '/resources/old-name', '/services/no-such-service'].forEach((path) => {
+      expect(hasLightHeader(path)).toBe(false);
+      expect(isHomeRoute(path)).toBe(false);
+    });
+    expect(isHomeRoute('/')).toBe(true);
+    expect(hasLightHeader('/')).toBe(false);
   });
 
   it('renders no axe violations', async () => {

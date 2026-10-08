@@ -17,23 +17,12 @@ export interface IconComponentProps {
  */
 export type IconComponent = ComponentType<IconComponentProps>;
 
-export interface NavLink {
-  name: string;
-  path: string;
-}
-
 export interface ServiceItem {
   id: string;
   title: string;
   description: string;
   Icon: IconComponent;
   link: string;
-}
-
-export interface IndustryItem {
-  title: string;
-  description: string;
-  Icon: IconComponent;
 }
 
 export interface InsightItem {
