@@ -40,12 +40,14 @@ export const CONTACT_INFO = {
   social: {
     whatsapp: 'https://wa.me/919482359455?text=Hi,%20I%20would%20like%20to%20book%20a%20consultation.',
   },
+  // The office's exact position, as given by CA Sagar (October 2026). The
+  // search data, the embedded map and the directions link all use it.
   geo: {
-    latitude: 12.3051,
-    longitude: 76.6551,
+    latitude: 12.300441780819392,
+    longitude: 76.65174665460887,
     mapEmbedUrl:
-      'https://maps.google.com/maps?q=12.300430367886586,76.65174852128196&t=&z=15&ie=UTF8&iwloc=&output=embed',
-    mapShareUrl: 'https://www.google.com/maps?q=12.300430,76.651748',
+      'https://maps.google.com/maps?q=12.300441780819392,76.65174665460887&t=&z=15&ie=UTF8&iwloc=&output=embed',
+    mapShareUrl: 'https://www.google.com/maps?q=12.300441780819392,76.65174665460887',
   },
   tagline: 'Chartered Accountants',
   firmRegistrationNo: '026642S',
