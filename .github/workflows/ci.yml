@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
 
     steps:
       - name: Checkout
@@ -34,6 +34,11 @@ jobs:
 
       - name: Install
         run: npm ci
+
+      # Audit SEC-02: advisories in the code that ships to the browser fail
+      # the build; advisories in build and test tooling do not.
+      - name: Audit shipped dependencies
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Lint
         run: npm run lint

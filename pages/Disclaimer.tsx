@@ -2,6 +2,7 @@ import React from 'react';
 import SEO from '../components/SEO';
 import LegalPage, { type LegalSection } from '../components/redesign/LegalPage';
 import { CONTACT_INFO } from '../constants';
+import { PAGE_META } from '../constants/pageMeta';
 
 // 2026 redesign of /disclaimer. Rendered inside RedesignLayout, which supplies
 // the top bar, footer and stylesheet.
@@ -92,8 +93,8 @@ const Disclaimer: React.FC = () => (
     {/* SEO-3: legal pages previously rendered no metadata despite being in
         the sitemap. */}
     <SEO
-      title="Disclaimer | Sagar H R & Co."
-      description="What the information on the Sagar H R & Co. website is and isn't: general information on tax and compliance, not advice on your situation."
+      title={PAGE_META.disclaimer.title}
+      description={PAGE_META.disclaimer.description}
       canonicalUrl="https://casagar.co.in/disclaimer"
       breadcrumbs={[
         { name: 'Home', url: '/' },

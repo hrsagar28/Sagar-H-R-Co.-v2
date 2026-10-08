@@ -109,9 +109,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
     windowMs: 60 * 1000,
     storageKey: 'career_submission_limit',
   });
-  const { values, handleChange, errors, setValues, setErrors } = useFormValidation<ApplicationValues>(INITIAL_VALUES, {
-    validationSchema: schema,
-  });
+  const { values, handleChange, errors, setValues, setErrors } = useFormValidation<ApplicationValues>(INITIAL_VALUES);
   const { loadDraft, clearDraft } = useFormDraft('career_form_draft', values);
 
   // Bring back an unfinished application after a reload (the draft lasts until

@@ -69,10 +69,29 @@
   color: inherit;
 }
 .rd :focus-visible {
-  outline: 2px solid var(--copper);
+  /* the darker copper: at least 3:1 against every ground the site uses
+     (stone 4.5, paper 4.9, sand 4.0, night 3.7, deep 3.1, footer 3.6) */
+  outline: 2px solid var(--copper-d);
   outline-offset: 3px;
   border-radius: 0;
   box-shadow: none;
+}
+/* Links inside running text are the same colour as the text around them, so
+   they need the underline to be seen at all (WCAG 1.4.1). Tailwind's preflight
+   sets `text-decoration: inherit` on every link, which removes the browser's
+   underline; the rules below only set its colour and offset. */
+.rd .still a,
+.rd .fine a,
+.rd .sent p a,
+.rd .next .more a,
+.rd .inc a,
+.rd .needs a,
+.rd .sec-h .desc a,
+.rd .closed a,
+.rd .ainfo .mailto a,
+.rd .fnote a,
+.rd .nudge a {
+  text-decoration-line: underline;
 }
 .rd h1,
 .rd h2,
@@ -523,7 +542,7 @@
   border-radius: 0;
 }
 .rd .srow input::placeholder {
-  color: #8e918a;
+  color: var(--muted); /* 5.1:1 on the panel; #8e918a was 3.0:1 */
 }
 .rd .srow input::-webkit-search-cancel-button {
   display: none;
@@ -854,6 +873,7 @@
 .rd .hours td {
   text-align: right;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap; /* "10:00 am – 8:00 pm" on one line at 360 px */
 }
 .rd .hours tr.today th,
 .rd .hours tr.today td {
@@ -914,7 +934,9 @@
   width: 100%;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--rule-s);
+  /* the only visible edge of the field: 3:1 or better against the panel
+     (WCAG 1.4.11); --rule-s was 1.8:1 */
+  border-bottom: 1px solid var(--muted);
   border-radius: 0;
   padding: 6px 0 10px;
   font-size: 17px;
@@ -2826,7 +2848,9 @@
   padding: 24px 28px 26px;
   background: var(--sand);
 }
-.rd .asum h3 {
+/* the box's heading ("In short") is a paragraph, not an h3: it sits above
+   the article's first h2 (ArticleMarkdown.tsx, Audit A11Y-05) */
+.rd .asum .asum-h {
   margin: 0 0 14px;
   font-family: var(--sans);
   font-size: 13px;
@@ -3176,7 +3200,7 @@
   min-height: 44px;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--rule-s);
+  border-bottom: 1px solid var(--muted);
   border-radius: 0;
   padding: 6px 0 10px;
   font-size: 17px;
@@ -3879,6 +3903,15 @@
    A4 sheet is narrower than the 900px breakpoint, so the phone layout
    applies; the tables below go back into columns. */
 @media print {
+  /* accordions (FAQ, careers, the home page's questions, TDS groups on a
+     phone): every answer open, no plus/minus mark */
+  .rd .qi .ans {
+    grid-template-rows: 1fr;
+  }
+  .rd .qb .x,
+  .rd .foldbtn .cnt::after {
+    display: none;
+  }
   .rd .phead,
   .rd .phead * {
     color: var(--ink) !important;
@@ -3907,6 +3940,12 @@
   .rd .hgrid {
     padding-top: 0;
     padding-bottom: 20px;
+  }
+  /* the document column (checklists, service pages) without the screen's
+     top padding, which printed as a blank band under the heading */
+  .rd .sdoc {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   /* no full-height shell, which would push the footer onto a page of its own */
@@ -4192,12 +4231,8 @@
   /* lines around controls, a shade darker than --rule-s so they hold on sand */
   --hline: #b3ad9e;
 }
-/* the focus ring: the darker copper on the light grounds, where the lighter
-   one is hard to see; the lighter one stays on the dark band */
-.rd.head-home .topbar :focus-visible,
-.rd .home :focus-visible {
-  outline-color: var(--copper-d);
-}
+/* the focus ring is the darker copper everywhere (see .rd :focus-visible);
+   the lighter one stays on the dark About band, where it reads better */
 .rd .home .habout :focus-visible {
   outline-color: var(--copper);
 }

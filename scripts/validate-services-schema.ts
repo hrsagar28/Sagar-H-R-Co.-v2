@@ -2,7 +2,31 @@ import { buildServicesSchema } from '../constants/servicesSchema';
 import { SERVICES } from '../constants/services';
 import { SITE_URL } from '../config/site';
 
-type SchemaObject = Record<string, any>;
+// The parts of the JSON-LD this script checks; everything is optional because
+// checking that it is there is the point.
+interface ListItem {
+  '@type'?: string;
+  position?: number;
+  name?: string;
+  description?: string;
+  url?: string;
+}
+
+interface SchemaObject {
+  '@type'?: string;
+  '@id'?: string;
+  url?: string;
+  name?: string;
+  telephone?: string;
+  mainEntity?: { '@type'?: string; numberOfItems?: number; itemListElement?: ListItem[] };
+  address?: {
+    '@type'?: string;
+    streetAddress?: string;
+    addressLocality?: string;
+    postalCode?: string;
+    addressCountry?: string;
+  };
+}
 
 const assert = (condition: unknown, message: string) => {
   if (!condition) throw new Error(message);
@@ -27,7 +51,7 @@ assert(
   'ItemList entries must match SERVICES length.',
 );
 
-collection?.mainEntity?.itemListElement?.forEach((item: SchemaObject, index: number) => {
+collection?.mainEntity?.itemListElement?.forEach((item, index) => {
   const service = SERVICES[index];
   if (!service) throw new Error(`Service ${index + 1} is missing.`);
   assert(item['@type'] === 'ListItem', `Item ${index + 1} must be a ListItem.`);
@@ -47,7 +71,7 @@ assert(organization?.address?.postalCode, 'PostalAddress postalCode is required.
 assert(organization?.address?.addressCountry === 'IN', 'PostalAddress addressCountry must be IN.');
 
 assert(
-  (collection?.mainEntity?.itemListElement ?? []).every((item: SchemaObject) => isAbsoluteSiteUrl(item.url)),
+  (collection?.mainEntity?.itemListElement ?? []).every((item) => isAbsoluteSiteUrl(item.url)),
   'All service URLs must be absolute site URLs.',
 );
 

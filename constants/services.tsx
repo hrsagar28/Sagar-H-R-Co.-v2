@@ -1,20 +1,4 @@
 import type { ServiceGroup, ServiceItem, ServicePage } from '../types';
-import {
-  BadgeCheck,
-  BookOpen,
-  Briefcase,
-  Building2,
-  Calculator,
-  FileText,
-  Gavel,
-  Globe,
-  Handshake,
-  HeartHandshake,
-  Landmark,
-  Receipt,
-  Rocket,
-  ShieldCheck,
-} from 'lucide-react';
 
 // 2026 redesign: the fourteen service pages (/services/:slug), the groups they
 // are listed under on /services, and the kinds of client the firm works with.
@@ -67,7 +51,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Any notice from the department, as soon as it is received.',
     ],
     faqIds: ['gst-registration-mandatory', 'gst-returns', 'itc-mismatch'],
-    Icon: FileText,
   },
   {
     slug: 'income-tax',
@@ -112,7 +95,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'For a business or profession: books of account, or bank statements for the year.',
     ],
     faqIds: ['old-vs-new-tax-regime', 'shares-mutual-funds-taxation', 'missed-due-date'],
-    Icon: Calculator,
   },
   {
     slug: 'tds-and-tcs',
@@ -155,7 +137,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'For a property purchase: the sale agreement and the seller’s PAN.',
     ],
     faqIds: ['tds-obligation', 'tds-late-payment'],
-    Icon: Receipt,
   },
   {
     slug: 'nri-taxation',
@@ -201,7 +182,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'A tax residency certificate from your country of residence, where treaty relief is claimed.',
     ],
     faqIds: ['nri-return-filing', 'nri-property-sale-tds', 'services-outside-mysuru'],
-    Icon: Globe,
   },
   {
     slug: 'notices-and-appeals',
@@ -243,7 +223,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Any earlier replies and documents submitted to the department.',
     ],
     faqIds: ['income-tax-notice', 'appeal-against-order', 'gst-registration-cancelled'],
-    Icon: Gavel,
   },
   {
     slug: 'audit',
@@ -287,7 +266,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'For a company: minutes of board meetings and the statutory registers.',
     ],
     faqIds: ['tax-audit-applicability', 'switching-ca', 'trust-annual-compliance'],
-    Icon: ShieldCheck,
   },
   {
     slug: 'certificates',
@@ -329,7 +307,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'For a net worth certificate: a statement of assets and liabilities, with supporting documents such as property records and account statements.',
     ],
     faqIds: ['udin-verification', 'net-worth-certificate'],
-    Icon: BadgeCheck,
   },
   {
     slug: 'company-law',
@@ -374,7 +351,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'For annual filings: the audited financial statements and the dates of the board and general meetings.',
     ],
     faqIds: ['company-or-llp-setup', 'roc-annual-filings', 'close-company-llp'],
-    Icon: Building2,
   },
   {
     slug: 'partnership-firms-and-llps',
@@ -416,7 +392,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Proof of the business premises.',
     ],
     faqIds: ['partner-change', 'company-or-llp-setup', 'roc-annual-filings'],
-    Icon: Handshake,
   },
   {
     slug: 'trusts-and-npos',
@@ -458,7 +433,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Current registration and approval orders under the Income-tax Act, with their validity dates.',
     ],
     faqIds: ['trust-registration', 'trust-annual-compliance'],
-    Icon: HeartHandshake,
   },
   {
     slug: 'advisory',
@@ -498,7 +472,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'For projections: financial statements for the last two or three years, if the business is already running.',
     ],
     faqIds: ['company-or-llp-setup', 'engagement-process', 'service-fees'],
-    Icon: Briefcase,
   },
   {
     slug: 'bank-loans-and-project-reports',
@@ -539,7 +512,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Any formats prescribed by the bank.',
     ],
     faqIds: ['project-report-contents', 'cma-data'],
-    Icon: Landmark,
   },
   {
     slug: 'startup-and-grant-support',
@@ -577,7 +549,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'Bills and bank statements for expenditure from the grant.',
     ],
     faqIds: ['udyam-registration', 'utilisation-certificate', 'company-or-llp-setup'],
-    Icon: Rocket,
   },
   {
     slug: 'bookkeeping-and-payroll',
@@ -615,7 +586,6 @@ export const SERVICE_PAGES: ServicePage[] = [
       'PF, ESI and professional tax portal logins, if registered.',
     ],
     faqIds: ['bookkeeping-payroll', 'tds-obligation', 'communication-document-sharing'],
-    Icon: BookOpen,
   },
 ];
 
@@ -683,6 +653,5 @@ export const SERVICES: ServiceItem[] = SERVICE_PAGES.map((page) => ({
   id: page.slug,
   title: page.name,
   description: page.intro,
-  Icon: page.Icon,
   link: `/services/${page.slug}`,
 }));

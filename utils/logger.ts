@@ -85,6 +85,4 @@ export const logger = {
       if (isDevelopment) console.warn('Failed to persist error log', error);
     }
   },
-  report: () => getStoredLogs(),
-  getLogs: () => getStoredLogs(),
 };

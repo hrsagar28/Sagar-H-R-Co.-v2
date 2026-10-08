@@ -32,7 +32,6 @@ vi.mock('../hooks', async () => {
     ...actual,
     useToast: () => ({ addToast: mocks.addToast }),
     useFormDraft: () => ({
-      hasDraft: false,
       loadDraft: mocks.loadDraft,
       clearDraft: mocks.clearDraft,
       lastSaved: null,
@@ -100,6 +99,15 @@ describe('Careers', () => {
       const toggle = screen.getByRole('button', { name: new RegExp(`^${role.role}`) });
       expect(toggle).toHaveAttribute('aria-expanded', 'true');
       expect(screen.getByText(role.responsibilities[0]!)).toBeInTheDocument();
+    });
+  });
+
+  it("separates the parts of a role's line with a spaced dot (Audit DES-02)", () => {
+    renderCareers(WHILE_OPEN);
+
+    OPEN_ROLES.filter((role) => role.meta.length > 1).forEach((role) => {
+      const toggle = screen.getByRole('button', { name: new RegExp(`^${role.role}`) });
+      expect(toggle.textContent).toContain(role.meta.join(' · '));
     });
   });
 

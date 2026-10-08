@@ -44,7 +44,7 @@ Three points to note:
 
 - **Rent paid by individuals.** Individuals and HUFs who are not liable to tax audit deduct 2% on rent above ₹50,000 a month (the old section 194-IB), not 10%.
 - **Manpower supply.** The Finance Act, 2026 added the supply of manpower to the definition of "work" from 1 April 2026. Payments for it now attract TDS at the contractor rates of 1% or 2%.
-- **Payments to partners.** TDS on a firm's payments to its partners has applied since 1 April 2025. Many firms had no history of deducting tax on these payments and should check that they now do.
+- **Payments to partners.** TDS on a firm’s payments to its partners has applied since 1 April 2025. Many firms had no history of deducting tax on these payments and should check that they now do.
 
 The higher rates for non-filers (old sections 206AB and 206CCA) and TCS on the sale of goods (old section 206C(1H)) were withdrawn from 1 April 2025 and have not returned.
 
@@ -68,7 +68,7 @@ The Finance Act, 2026 changed several TCS rates:
 
 ## Payments around 31 March 2026
 
-Which Act applies depends on when the tax was deductible, which is on credit or payment, whichever is earlier. If an expense was credited to the payee's account on or before 31 March 2026, the 1961 Act applies even if the payment is made later. If tax was deducted on credit under the old Act, it is not deducted again when the payment is made.
+Which Act applies depends on when the tax was deductible, which is on credit or payment, whichever is earlier. If an expense was credited to the payee’s account on or before 31 March 2026, the 1961 Act applies even if the payment is made later. If tax was deducted on credit under the old Act, it is not deducted again when the payment is made.
 
 ## What to check now
 

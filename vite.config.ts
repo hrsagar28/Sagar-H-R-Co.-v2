@@ -6,8 +6,13 @@ import react from '@vitejs/plugin-react';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
   return {
+    // The date of the build, for WebSite.dateModified on the home page
+    // (pages/Home.tsx). Without it the page used the visitor's date.
+    define: {
+      'import.meta.env.VITE_BUILD_DATE': JSON.stringify(new Date().toISOString().slice(0, 10)),
+    },
     server: {
       port: 3000,
       host: '0.0.0.0',
@@ -51,10 +56,6 @@ export default defineConfig(({ mode }) => {
               normalizedId.includes('/node_modules/react-router-dom/')
             ) {
               return 'react-vendor';
-            }
-
-            if (normalizedId.includes('/node_modules/lucide-react/')) {
-              return 'ui-vendor';
             }
 
             if (

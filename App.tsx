@@ -1,9 +1,9 @@
-import React, { useEffect, Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import { PageLoader, Preloader, ToastContainer, NetworkStatus, RouteErrorBoundary, TopProgressBar } from './components';
 import { ToastProvider } from './context/ToastContext';
 import { AnnounceProvider } from './context/AnnounceContext';
-import { useAnnounce } from './hooks';
+import RouteHandler from './components/RouteHandler';
 import { ABOUT_PATH } from './components/redesign/routes';
 import RdPageSkeleton from './components/redesign/RdPageSkeleton';
 
@@ -27,60 +27,6 @@ const CustomCursor = lazy(() => import('./components/CustomCursor'));
 // The header, sticky bar, menu and footer around every page. Lazy so its
 // stylesheet arrives in a file of its own.
 const RedesignLayout = lazy(() => import('./components/redesign/RedesignLayout'));
-
-const RouteHandler = () => {
-  const { pathname } = useLocation();
-  const { announce } = useAnnounce();
-
-  useEffect(() => {
-    let rafId = 0;
-
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'instant',
-    });
-
-    rafId = window.requestAnimationFrame(() => {
-      document.getElementById('main-content')?.focus({ preventScroll: true });
-    });
-
-    return () => window.cancelAnimationFrame(rafId);
-  }, [pathname]);
-
-  // Accessibility Announcement for Route Change
-  useEffect(() => {
-    let pageName = 'Home';
-    if (pathname !== '/') {
-      // Improve page name extraction
-      const parts = pathname.substring(1).split('/');
-
-      // Handle known routes
-      if (pathname.startsWith('/services/')) {
-        const serviceSlug = parts[1] || '';
-        pageName = `Service: ${serviceSlug
-          .split('-')
-          .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-          .join(' ')}`;
-      } else if (pathname.startsWith('/insights/')) {
-        pageName = `Insight Article`;
-      } else if (pathname.startsWith('/resources/checklist/')) {
-        pageName = `Checklist`;
-      } else if (pathname.startsWith('/resources/')) {
-        pageName = (parts[1] || '').replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()) || 'Resources';
-      } else {
-        // Generic fallback: Capitalize words
-        const firstPart = parts[0] || '';
-        pageName = firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
-        if (pageName === 'Faqs') pageName = 'FAQ';
-      }
-    }
-
-    announce(`Navigated to ${pageName}`);
-  }, [pathname, announce]);
-
-  return null;
-};
 
 const MainContent = () => {
   const { pathname } = useLocation();

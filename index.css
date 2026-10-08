@@ -79,12 +79,13 @@ html {
   outline: none;
 }
 
-/* PRINT STYLES */
+/* PRINT STYLES
+   Audit CODE-02: only what holds on every page is here: black text on white,
+   and the shell's chrome hidden. The page size, margins and each page's print
+   layout are in components/redesign/redesign.css. (The rules for the old
+   design's classes, .container, .grid, .max-w-*, .col-span-* and the like,
+   were removed in October 2026.) */
 @media print {
-  @page {
-    margin: 1cm;
-    size: auto;
-  }
   body {
     background-color: white !important;
     color: black !important;
@@ -92,31 +93,21 @@ html {
     print-color-adjust: exact !important;
   }
 
-  /* Hide unnecessary elements */
+  /* Hide the chrome. Not the question buttons (.qb) or the TDS group buttons
+     (.foldbtn): they are the headings of the FAQ, careers and home-page
+     accordions, and redesign.css prints them with their answers (Audit
+     PRINT-01). */
   nav,
   footer,
   iframe,
-  .no-print,
-  .print-hidden,
   [role='dialog'],
-  button,
-  .sticky-sidebar {
+  button:not(.qb):not(.foldbtn) {
     display: none !important;
   }
 
-  /* Reset layout constraints */
-  .container,
-  .max-w-7xl,
-  .max-w-5xl,
-  .max-w-4xl,
-  .w-full {
-    max-width: 100% !important;
-    width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Styling fixes for print readability */
+  /* Text in black on no background, whatever band it sits on on screen;
+     redesign.css relies on this (the home page's dark About band, the page
+     headers). */
   p,
   h1,
   h2,
@@ -135,54 +126,11 @@ html {
     box-shadow: none !important;
   }
 
-  /* Restore background for specific elements if needed */
-  .print-bg-force {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Borders */
-  .border,
-  .border-b,
-  .border-t {
-    border-color: #000 !important;
-  }
-
-  /* Layout resets */
-  .fixed,
-  .sticky,
-  .absolute {
-    position: static !important;
-  }
-  .min-h-screen {
-    min-height: auto !important;
-  }
-  .grid {
-    display: block !important;
-  }
-  .col-span-1,
-  .col-span-2,
-  .lg\:col-span-7,
-  .lg\:col-span-5 {
-    width: 100% !important;
-    margin-bottom: 20px !important;
-  }
-
-  /* Inputs */
   input,
   select,
   textarea {
     border: 1px solid #ccc !important;
     box-shadow: none !important;
-  }
-
-  /* Expand hidden sections */
-  .overflow-hidden,
-  .max-h-0 {
-    overflow: visible !important;
-    max-height: none !important;
-    opacity: 1 !important;
-    display: block !important;
   }
 }
 

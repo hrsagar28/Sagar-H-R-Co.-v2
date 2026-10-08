@@ -99,8 +99,11 @@ const TDSRates: React.FC = () => {
         {groups.map((item) => {
           const closable = phone && !query && group === 'all';
           const open = !closable || opened.has(item.id);
+          // Audit DES-03: two whole class strings. A template literal with a
+          // leading space (`sec${closable ? ' fold' : ''}`) loses the space to
+          // Prettier's Tailwind plugin, which gave "secfold".
           return (
-            <section key={item.id} className={`sec${closable ? 'fold' : ''}`} aria-labelledby={`rates-${item.id}`}>
+            <section key={item.id} className={closable ? 'sec fold' : 'sec'} aria-labelledby={`rates-${item.id}`}>
               <div className="sec-h">
                 <h2 id={`rates-${item.id}`}>
                   {closable ? (

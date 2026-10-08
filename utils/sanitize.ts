@@ -24,5 +24,3 @@ export const headerSafe = (input: string, maxLength = 200): string =>
     .replace(/\s+/g, ' ')
     .slice(0, maxLength)
     .trim();
-
-export const sanitizeInput = normalizeInput;

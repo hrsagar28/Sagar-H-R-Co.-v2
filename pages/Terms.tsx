@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import LegalPage, { ContactCard, type LegalSection } from '../components/redesign/LegalPage';
 import { CONTACT_INFO } from '../constants';
+import { PAGE_META } from '../constants/pageMeta';
 
 // 2026 redesign of /terms. Rendered inside RedesignLayout, which supplies the
 // top bar, footer and stylesheet.
@@ -162,8 +163,8 @@ const Terms: React.FC = () => (
     {/* SEO-3: legal pages previously rendered no metadata despite being in
         the sitemap. */}
     <SEO
-      title="Terms of Service | Sagar H R & Co."
-      description="The terms for using the Sagar H R & Co. website: what the information on it is, how you may use it, and the law that applies."
+      title={PAGE_META.terms.title}
+      description={PAGE_META.terms.description}
       canonicalUrl="https://casagar.co.in/terms"
       breadcrumbs={[
         { name: 'Home', url: '/' },

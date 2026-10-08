@@ -12,8 +12,9 @@ in Mysuru, Karnataka. It is a single-page application: a polished, editorial
 brochure site, not a web app with user accounts.
 
 **Stack:** React 19 · Vite 5 · TypeScript 5 · Tailwind CSS 3.4 · React Router 7
-(`BrowserRouter`). Deployed on Netlify. Node **20.x** is pinned in
-`package.json` `engines`.
+(`BrowserRouter`). Deployed on Netlify. Node **22.x** is pinned in
+`package.json` `engines`, `netlify.toml` and the CI workflow (moved from 20,
+which reached end of life in April 2026; Audit SEC-01).
 
 The codebase is deliberately well-built — it has a real design system, strong
 accessibility, performance discipline, SEO/structured data, and a Vitest suite.
@@ -122,16 +123,16 @@ rather than raw values. `index.css` repeats the few the shared pieces need as
 
 Run these locally or in CI (see the sandbox caveat below):
 
-| Command               | What it does                                                                                                                                          |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`         | Vite dev server on port 3000.                                                                                                                         |
-| `npm run build`       | Full production build — runs `generate-icons`, `check-csp-hash`, `generate-sitemap`, `generate-responsive-images` (all via `tsx`), then `vite build`. |
-| `npx tsc --noEmit`    | TypeScript typecheck.                                                                                                                                 |
-| `npm run lint`        | ESLint over the repo.                                                                                                                                 |
-| `npm run test`        | Vitest (jsdom, globals, setup in `vitest.setup.ts`).                                                                                                  |
-| `npm run test:a11y`   | Vitest accessibility run (`pages/Home.test.tsx`).                                                                                                     |
-| `npm run lint:schema` | Validates the services structured-data schema.                                                                                                        |
-| `npm run format`      | Prettier (with the Tailwind class-sorting plugin).                                                                                                    |
+| Command               | What it does                                                                                                                                                                      |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`         | Vite dev server on port 3000.                                                                                                                                                     |
+| `npm run build`       | Full production build — runs `generate-icons`, `check-csp-hash`, `generate-sitemap`, `generate-responsive-images` (all via `tsx`), then `vite build`, then `generate-route-html`. |
+| `npx tsc --noEmit`    | TypeScript typecheck.                                                                                                                                                             |
+| `npm run lint`        | ESLint over the repo.                                                                                                                                                             |
+| `npm run test`        | Vitest (jsdom, globals, setup in `vitest.setup.ts`).                                                                                                                              |
+| `npm run test:a11y`   | Vitest accessibility run (`pages/Home.test.tsx`).                                                                                                                                 |
+| `npm run lint:schema` | Validates the services structured-data schema.                                                                                                                                    |
+| `npm run format`      | Prettier (with the Tailwind class-sorting plugin).                                                                                                                                |
 
 A Husky `pre-commit` hook runs `lint-staged`.
 
@@ -177,19 +178,30 @@ on every route change (`RouteHandler` in `App.tsx`); route-change screen-reader
 announcements via `AnnounceProvider` / `useAnnounce`; `:focus-visible`
 styling; `inert` on hidden interactive regions; a global
 `prefers-reduced-motion` override in `index.css` paired with the
-`useReducedMotion` hook for JS-driven animation; manual `scrollRestoration`;
-print stylesheet. The focus ring is copper, set in `redesign.css`.
+`useReducedMotion` hook for JS-driven animation; manual `scrollRestoration`, with `RouteHandler` itself returning to the
+saved position on back and forward (Audit UX-01);
+print stylesheet. The focus ring is the darker copper (`--copper-d`), set in
+`redesign.css`: the lighter `--copper` is under 3:1 on the light grounds
+(Audit A11Y-02). Links inside running text are underlined, because they are
+the same colour as the text around them (Audit A11Y-01).
 
 **Performance** — routes are `React.lazy`-loaded with Suspense skeleton
 fallbacks; the React Compiler, there for files that opt in; the page styles in
 a stylesheet of their own (`redesign.css`, loaded with the layout); manual
-vendor chunks in `vite.config.ts` (`react-vendor`, `ui-vendor`,
-`markdown-vendor`); self-hosted preloaded fonts; the `#preload-hero` overlay
+vendor chunks in `vite.config.ts` (`react-vendor`, `markdown-vendor`); self-hosted preloaded fonts; the `#preload-hero` overlay
 that paints the first screen instantly (the splash's black on a first visit,
 then the home page's limestone) and is removed on the `app:hero-ready` event.
 
 **SEO** — `components/SEO.tsx`, generated sitemap, structured data, and the geo
-meta tags in `index.html`.
+meta tags in `index.html`. Link previews: WhatsApp and other clients that do
+not run JavaScript read the served HTML, so `scripts/generate-route-html.ts`
+writes `dist/<route>.html` for every address after `vite build`, each with
+its own title, description and share picture (Audit SEO-02). The text comes
+from the same data the pages use: `constants/pageMeta.ts` for the pages whose
+text is fixed. A new route needs an entry there (`scripts/route-html.ts`).
+The served tags carry `data-fallback`, and `SEO.tsx` removes them once the
+page's own are in the head, so a page has one title and one description
+(Audit SEO-01).
 
 **Cursor** — `components/CustomCursor.tsx` draws every cursor itself (a dot, a
 see-through circle over links, a text bar over text), because the browser

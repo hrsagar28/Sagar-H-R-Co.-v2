@@ -11,11 +11,6 @@ export const required =
   (value) =>
     !value || (typeof value === 'string' && !value.trim()) ? message : undefined;
 
-export const minLength =
-  (min: number, message?: string): Validator<string> =>
-  (value) =>
-    value && value.length < min ? message || `Must be at least ${min} characters` : undefined;
-
 export const maxLength =
   (max: number, message?: string): Validator<string> =>
   (value) =>

@@ -54,7 +54,7 @@ Text of the first section.
 
 _General information only._`;
 
-const state = vi.hoisted(() => ({ body: '' as string, error: false }));
+const state = vi.hoisted(() => ({ body: '' as string, error: false, loading: false }));
 
 vi.mock('../hooks', () => ({
   useInsights: () => ({
@@ -63,7 +63,7 @@ vi.mock('../hooks', () => ({
     error: null,
     getInsightBySlug: (slug: string) => insights.find((item) => item.slug === slug),
   }),
-  useArticleBody: () => ({ content: state.body, loading: false, error: state.error, refetch: vi.fn() }),
+  useArticleBody: () => ({ content: state.body, loading: state.loading, error: state.error, refetch: vi.fn() }),
   useReducedMotion: () => true,
 }));
 
@@ -83,6 +83,7 @@ describe('InsightDetail', () => {
   beforeEach(() => {
     state.body = BODY;
     state.error = false;
+    state.loading = false;
     window.IntersectionObserver = class {
       observe() {}
       disconnect() {}
@@ -109,6 +110,26 @@ describe('InsightDetail', () => {
     expect(screen.getByRole('button', { name: /share this article/i })).toBeInTheDocument();
     expect(screen.getByText('General information only.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /all insights/i })).toHaveAttribute('href', '/insights');
+  });
+
+  it('holds back "More insights" until the body is in, so the page does not shift (Audit PERF-02)', () => {
+    state.body = '';
+    state.loading = true;
+    const { rerender } = renderArticle('presumptive-taxation');
+    expect(screen.queryByRole('heading', { name: /more insights/i })).not.toBeInTheDocument();
+
+    state.body = BODY;
+    state.loading = false;
+    rerender(
+      <MemoryRouter initialEntries={['/insights/presumptive-taxation']}>
+        <main>
+          <Routes>
+            <Route path="/insights/:slug" element={<InsightDetail />} />
+          </Routes>
+        </main>
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('heading', { name: /more insights/i })).toBeInTheDocument();
   });
 
   it('copies the link when shared from a computer', async () => {

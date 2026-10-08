@@ -4,8 +4,10 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 const publicImagesDir = path.resolve('public/images');
+// Audit PERF-04: the full-size original lives outside public/, so that it is
+// not published with the site; only the sizes below are.
+const sourceDir = path.resolve('assets-src');
 const sourceBaseName = 'founder-source';
-const fallbackSource = path.join(publicImagesDir, 'founder.jpg');
 const widths = [400, 800, 1080] as const;
 
 type OutputFormat = 'avif' | 'webp' | 'jpg';
@@ -13,18 +15,14 @@ type OutputFormat = 'avif' | 'webp' | 'jpg';
 const formats: OutputFormat[] = ['avif', 'webp', 'jpg'];
 
 async function findSource(): Promise<string> {
-  const entries = await readdir(publicImagesDir);
+  const entries = existsSync(sourceDir) ? await readdir(sourceDir) : [];
   const source = entries.find((entry) => path.parse(entry).name === sourceBaseName);
 
   if (source) {
-    return path.join(publicImagesDir, source);
+    return path.join(sourceDir, source);
   }
 
-  if (existsSync(fallbackSource)) {
-    return fallbackSource;
-  }
-
-  throw new Error(`No founder image source found. Expected ${sourceBaseName}.<ext> or founder.jpg in public/images.`);
+  throw new Error(`No founder image source found. Expected assets-src/${sourceBaseName}.<ext>.`);
 }
 
 async function isOutputFresh(sourcePath: string, outputPath: string): Promise<boolean> {
