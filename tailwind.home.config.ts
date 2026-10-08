@@ -14,6 +14,7 @@ export default {
     './index.tsx',
     './App.tsx',
     './components/PageLoader.tsx',
+    './components/Preloader.tsx',
     './components/TopProgressBar.tsx',
     './components/NetworkStatus.tsx',
     './components/Toast.tsx',

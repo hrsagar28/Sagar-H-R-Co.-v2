@@ -29,11 +29,34 @@ root.render(
   </React.StrictMode>,
 );
 
+// Whether the first-visit splash (components/Preloader.tsx) is about to
+// show: the same two conditions it checks for itself.
+const splashDue = () => {
+  try {
+    return (
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches && sessionStorage.getItem('preloader_done') !== '1'
+    );
+  } catch {
+    return false;
+  }
+};
+
+// The first-paint overlay in index.html. It starts in the splash's black so
+// the splash arrives without a flash. Once the splash is up (it holds for a
+// second and a half), or straight away when none is due, the overlay turns to
+// the page's limestone on the home page and goes altogether on the others,
+// so the curtain never lifts onto black.
 const preloadHero = document.getElementById('preload-hero');
 if (preloadHero) {
-  if (window.location.pathname !== '/') {
-    preloadHero.remove();
-  } else {
+  const home = window.location.pathname === '/';
+  const settle = () => {
+    if (home) preloadHero.classList.add('page');
+    else preloadHero.remove();
+  };
+  if (splashDue()) window.setTimeout(settle, 400);
+  else settle();
+
+  if (home) {
     // Audit H-02: previous implementation polled the DOM every 100 ms looking
     // for the literal hero words ("Audit.", "Taxation.", "Advisory.") as
     // text content, which broke silently any time the hero copy changed.

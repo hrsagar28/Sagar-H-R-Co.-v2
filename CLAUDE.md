@@ -87,8 +87,9 @@ components were removed in October 2026. Still in the repository and unused
 by any page, for a clean-up of their own:
 
 - The base Tailwind theme in `tailwind.config.ts` (brand colours, radii, the
-  `heading`, `serif` and `mono` faces). Its `sans` face is Host Grotesk, the
-  document's default, so that one is in use.
+  `heading` and `mono` faces). Its `sans` face is Host Grotesk, the document's
+  default, and the first-visit splash uses `serif`, two animations and
+  `z-preloader` (see "Patterns to preserve"), so those are in use.
 - In `index.css`: the `zone-*`, `.glass*`, `.bg-grid`, `.bg-noise` and similar
   helpers, and the `@font-face` rules for Fraunces, Plus Jakarta Sans and
   JetBrains Mono, with their files in `public/fonts`. Check nothing asks for a
@@ -154,7 +155,8 @@ A Husky `pre-commit` hook runs `lint-staged`.
 `sha256` hash of the inline `<style>` block in `index.html`. If you edit that
 inline `<style>`, the build will fail until you regenerate the hash in
 `netlify.toml`. The same script also asserts that the `#preload-hero`
-background matches `--stone` in `components/redesign/redesign.css`.
+overlay starts in the splash's black (`Preloader.tsx`) and turns to `--stone`
+(`components/redesign/redesign.css`).
 
 ### Sandbox build caveat
 
@@ -173,6 +175,19 @@ sandbox-infrastructure issue, not a project problem.
 
 These are deliberate. Do not "simplify" them away.
 
+**First-visit splash** — `components/Preloader.tsx`: the firm's name on black,
+held for a second and a half and then lifted away, once per browser tab. **The
+owner wants it.** It was removed in October 2026 as "a two-second black
+screen" and he asked for it back the same week, unchanged except for the
+typefaces, which are now the redesign's. Do not remove, shorten or restyle it
+without asking him. These exist for it and stay: the Instrument Serif italic
+font ("Sagar"), with its `@font-face` rule and its preload in `index.html`;
+the `serif` face, the `expand-width` and `fade-in-up` animations and
+`z-preloader` in `tailwind.config.ts`; and `Preloader.tsx` in the `content`
+list of `tailwind.home.config.ts`. The other splash the site once had, the
+words "Audit. Taxation. Advisory." painted by `index.html`, is gone for good:
+the two clashed.
+
 **Accessibility** — skip-to-content link; programmatic focus of `#main-content`
 on every route change (`RouteHandler` in `App.tsx`); route-change screen-reader
 announcements via `AnnounceProvider` / `useAnnounce`; `:focus-visible`
@@ -186,8 +201,8 @@ fallbacks; the React Compiler, there for files that opt in; the page styles in
 a stylesheet of their own (`redesign.css`, loaded with the layout); manual
 vendor chunks in `vite.config.ts` (`react-vendor`, `ui-vendor`,
 `markdown-vendor`); self-hosted preloaded fonts; the `#preload-hero` overlay
-that paints the home page's limestone instantly and is removed on the
-`app:hero-ready` event.
+that paints the first screen instantly (the splash's black on a first visit,
+then the home page's limestone) and is removed on the `app:hero-ready` event.
 
 **SEO** — `components/SEO.tsx`, generated sitemap, structured data, and the geo
 meta tags in `index.html`.

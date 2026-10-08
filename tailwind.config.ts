@@ -36,7 +36,8 @@ export default {
         // such as "Loading" renders in, so it is the face the pages already load.
         sans: ['"Host Grotesk"', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
         heading: ['Fraunces', 'Georgia', 'serif'],
-        serif: ['Fraunces', 'Georgia', 'serif'],
+        // The firm's name on the first-visit splash (components/Preloader.tsx).
+        serif: ['"Instrument Serif"', 'Georgia', '"Times New Roman"', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
@@ -99,6 +100,8 @@ export default {
         marquee: 'marquee 25s linear infinite',
         'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'scale-in': 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        // The rule under the firm's name on the splash (components/Preloader.tsx).
+        'expand-width': 'expandWidth 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
       keyframes: {
         marquee: {
@@ -112,6 +115,10 @@ export default {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.9)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        expandWidth: {
+          '0%': { transform: 'scaleX(0)' },
+          '100%': { transform: 'scaleX(1)' },
         },
       },
     },

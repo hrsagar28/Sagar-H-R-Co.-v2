@@ -66,6 +66,15 @@
   src: url('/fonts/instrument-serif-latin-400-normal.woff2') format('woff2');
 }
 
+/* The italic is "Sagar" on the first-visit splash (components/Preloader.tsx). */
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-latin-400-italic.woff2') format('woff2');
+}
+
 @font-face {
   font-family: 'Host Grotesk';
   font-style: normal;
