@@ -51,7 +51,6 @@ const HOME_SCHEMA = {
       },
       image: `${SITE_URL}/og/og-default.png`,
       description: HOME_DESCRIPTION,
-      priceRange: '₹₹',
       availableLanguage: CONTACT_INFO.languages,
       areaServed: [
         { '@type': 'City', name: 'Mysuru' },
