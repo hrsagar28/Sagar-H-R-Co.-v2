@@ -1,120 +1,55 @@
 import type { Config } from 'tailwindcss';
 
+// Tailwind styles only the app shell and the shared pieces: the files in
+// `content`. The pages are styled by components/redesign/redesign.css, which
+// is plain CSS and never purged. A Tailwind class used in a file that is not
+// listed here is dropped silently, so list the file before using one.
 export default {
   content: [
     './index.html',
-    './*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './pages/**/*.{ts,tsx}',
-    './hooks/**/*.{ts,tsx}',
-    './utils/**/*.{ts,tsx}',
-    './context/**/*.{ts,tsx}',
-    './constants/**/*.{ts,tsx}',
-    './config/**/*.{ts,tsx}',
-    './types/**/*.{ts,tsx}',
+    './index.tsx',
+    './App.tsx',
+    './components/PageLoader.tsx',
+    './components/Preloader.tsx',
+    './components/TopProgressBar.tsx',
+    './components/NetworkStatus.tsx',
+    './components/Toast.tsx',
+    './components/ToastContainer.tsx',
+    // MNT-9: LiveRegion renders globally (via AnnounceProvider) but was unscanned;
+    // it only survived by coincidence (its lone `sr-only` class is used elsewhere).
+    './components/LiveRegion.tsx',
+    './components/ErrorBoundary.tsx',
+    './components/RouteErrorBoundary.tsx',
+    './components/SEO.tsx',
+    './components/CustomCursor.tsx',
   ],
   theme: {
     extend: {
       zIndex: {
         base: '1',
-        dropdown: '100',
-        sticky: '200',
-        fixed: '300',
-        'modal-backdrop': '400',
-        modal: '500',
-        popover: '600',
-        tooltip: '700',
-        toast: '800',
+        // The first-visit splash (components/Preloader.tsx).
+        preloader: '1000',
         // Above everything, including the shared pieces in index.css.
         cursor: '9700',
-        preloader: '1000',
-        'network-status': '1100',
       },
       fontFamily: {
         // The document's default face (Tailwind's base styles put it on <html>).
         // The pages set their own in redesign.css; this is what hidden text
         // such as "Loading" renders in, so it is the face the pages already load.
         sans: ['"Host Grotesk"', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
-        heading: ['Fraunces', 'Georgia', 'serif'],
-        // The firm's name on the first-visit splash (components/Preloader.tsx).
+        // The firm's name on the first-visit splash.
         serif: ['"Instrument Serif"', 'Georgia', '"Times New Roman"', 'serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
-      colors: {
-        'zone-text': 'rgb(var(--zone-text-rgb) / <alpha-value>)',
-        'zone-text-muted': 'rgb(var(--zone-text-muted-rgb) / <alpha-value>)',
-        'zone-accent': 'rgb(var(--zone-accent-rgb) / <alpha-value>)',
-        brand: {
-          bg: '#F2F2F0',
-          surface: '#FFFFFF',
-          dark: '#111111',
-          black: '#0A0A0A',
-          moss: '#1A4D2E',
-          mossLight: '#E8F5E9',
-          'paper-mint': '#E8F5E9',
-          border: '#e7e5e4',
-          stone: '#746d68',
-          inverse: '#FFFFFF',
-          'surface-dark': '#1e1e1e',
-          'surface-dark-hover': '#161616',
-          ink: '#0a0908',
-          'ink-deep': '#0d0c0b',
-          'ink-soft': '#252321',
-          paper: '#f4f1ea',
-          cream: '#eae5d9',
-          brass: '#b8924c',
-          'brass-bright': '#d4a961',
-          'brass-light': '#FBBF24',
-          'brass-soft': '#FCD34D',
-          rust: '#8b3a2f',
-          line: '#1a1814',
-          muted: '#7a7366',
-          accent: '#4ADE80',
-        },
-      },
-      borderRadius: {
-        card: '2rem',
-        bento: '3rem',
-      },
-      backgroundImage: {
-        'card-moss-deep': 'linear-gradient(135deg, #1A4D2E 0%, #0f2e1b 100%)',
-        'card-moss-cta': 'linear-gradient(135deg, #1A4D2E 0%, #15803d 100%)',
-      },
-      transitionTimingFunction: {
-        // House easing curve (audit MA-09). One expo-out curve is used for
-        // entrances and any sizeable transform or opacity move. Both token
-        // names resolve to it, so the value is the single source of truth.
-        // The previously-unused out-quart token was removed.
-        'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
-        brand: 'cubic-bezier(0.16, 1, 0.3, 1)',
-      },
-      fontSize: {
-        eyebrow: ['clamp(0.65rem, 0.7vw, 0.75rem)', { lineHeight: '1' }],
-        lead: ['clamp(1.15rem, 1.5vw, 1.4rem)', { lineHeight: '1.5' }],
-        'display-sm': ['clamp(2rem, 5vw, 4rem)', { lineHeight: '1' }],
-        'display-md': ['clamp(2.5rem, 6vw, 5rem)', { lineHeight: '1' }],
-        'display-lg': ['clamp(3rem, 8vw, 7rem)', { lineHeight: '0.95' }],
-        'display-xl': ['clamp(4rem, 12vw, 12rem)', { lineHeight: '0.9' }],
-      },
+      // Both animations are the splash's: its name and tagline rise in, and a
+      // rule is drawn under the name.
       animation: {
-        marquee: 'marquee 25s linear infinite',
         'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        'scale-in': 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        // The rule under the firm's name on the splash (components/Preloader.tsx).
         'expand-width': 'expandWidth 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
       keyframes: {
-        marquee: {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-100%)' },
-        },
         fadeInUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        scaleIn: {
-          '0%': { opacity: '0', transform: 'scale(0.9)' },
-          '100%': { opacity: '1', transform: 'scale(1)' },
         },
         expandWidth: {
           '0%': { transform: 'scaleX(0)' },
