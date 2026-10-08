@@ -228,10 +228,24 @@ export interface CommonSection extends SectionRow {
 }
 
 /**
+ * Tax deducted and collected at source, in one line each: the three sections
+ * of the 2025 Act that replace sections 192, 193 to 196D and 206C. The rates
+ * table (tds.ts, read against the official text of s.392, 393 and 394) has a
+ * row for every payment, and the section finder lists those under "TDS and
+ * TCS"; these three are for the "Most looked up" list only.
+ */
+const TDS_SUMMARY_ROWS: SectionRow[] = [
+  { old: '192', now: '392', subject: 'TDS on salary' },
+  { old: '193 to 196D', now: '393', subject: 'TDS on other payments' },
+  { old: '206C', now: '394', subject: 'TCS' },
+];
+
+/**
  * What most people come looking for: the "Most looked up" list that opens
  * the section finder (pages/ResourceTools/SectionFinder.tsx), also offered on
  * the home page (pages/home/SectionNumbers.tsx). Each entry is a group above,
- * or 'forms', and the old number of a row in it.
+ * 'tds' for the three lines just above, or 'forms', and the old number of a
+ * row in it.
  */
 const COMMON_KEYS: [string, string][] = [
   ['deductions', '80C, 80CCC'],
@@ -242,6 +256,7 @@ const COMMON_KEYS: [string, string][] = [
   ['salary-property', '24'],
   ['business', '44AB'],
   ['business', '44AD, 44ADA, 44AE'],
+  ['capital-gains', '45'],
   ['capital-gains', '54'],
   ['capital-gains', '54F'],
   ['capital-gains', '111A'],
@@ -252,15 +267,24 @@ const COMMON_KEYS: [string, string][] = [
   ['returns', '148'],
   ['interest', '234B'],
   ['interest', '234F'],
+  ['tds', '192'],
+  ['tds', '193 to 196D'],
+  ['tds', '206C'],
   ['forms', '16'],
+  ['forms', '16A'],
   ['forms', '26AS'],
   ['forms', '15G, 15H'],
   ['forms', '3CA, 3CB, 3CD'],
+  ['forms', '13'],
 ];
 
 export const COMMON_SECTIONS: CommonSection[] = COMMON_KEYS.flatMap(([groupId, old]) => {
   const form = groupId === 'forms';
-  const rows = form ? FORM_ROWS : SECTION_GROUPS.find((group) => group.id === groupId)?.rows;
+  const rows = form
+    ? FORM_ROWS
+    : groupId === 'tds'
+      ? TDS_SUMMARY_ROWS
+      : SECTION_GROUPS.find((group) => group.id === groupId)?.rows;
   const row = rows?.find((item) => item.old === old);
   return row ? [{ ...row, form }] : [];
 });
