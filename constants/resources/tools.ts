@@ -44,6 +44,13 @@ export const RESOURCE_TOOLS: ResourceTool[] = [
     group: 'calculators',
   },
   {
+    slug: 'rent-agreement-stamp-duty',
+    name: 'Stamp duty on rent agreements',
+    summary:
+      'Work out the stamp duty on a lease or leave and licence agreement in Karnataka, residential or commercial.',
+    group: 'calculators',
+  },
+  {
     slug: 'tds-tcs-rates',
     name: 'TDS and TCS rates',
     summary: 'Thresholds and rates for 2026-27 under the Income-tax Act, 2025, with the due dates.',
@@ -67,7 +74,8 @@ export const RESOURCE_GROUPS: { id: ResourceGroup; name: string; description: st
   {
     id: 'calculators',
     name: 'Calculators',
-    description: 'Quick estimates for tax year 2026-27, under the Income-tax Act, 2025 and the GST rates in force.',
+    description:
+      'Quick estimates: tax for 2026-27 under the Income-tax Act, 2025, GST at the rates in force, and stamp duty on rent agreements in Karnataka.',
   },
   {
     id: 'reference',

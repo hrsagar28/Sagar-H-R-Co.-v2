@@ -19,10 +19,12 @@ interface ToolPageProps {
   tool: ResourceTool;
   /** The line under the summary: which year and which law the tool follows. */
   law: string;
+  /** When this tool's figures were last checked, if not the date shared by the tax tools. */
+  asAt?: string;
   children: React.ReactNode;
 }
 
-const ToolPage: React.FC<ToolPageProps> = ({ tool, law, children }) => {
+const ToolPage: React.FC<ToolPageProps> = ({ tool, law, asAt = RESOURCES_LAW_AS_AT, children }) => {
   const url = `${SITE_URL}/resources/${tool.slug}`;
 
   return (
@@ -79,7 +81,7 @@ const ToolPage: React.FC<ToolPageProps> = ({ tool, law, children }) => {
       <div className={`tool pad ${tool.group === 'calculators' ? 'is-calc' : ''}`}>
         {children}
         <p className="asof">
-          Figures as at {formatLongDate(RESOURCES_LAW_AS_AT)}. General information, not advice on any particular case.
+          Figures as at {formatLongDate(asAt)}. General information, not advice on any particular case.
         </p>
       </div>
     </div>

@@ -8,3 +8,4 @@ export * from './calendar';
 export * from './checklists';
 export * from './links';
 export * from './sections';
+export * from './stampDuty';

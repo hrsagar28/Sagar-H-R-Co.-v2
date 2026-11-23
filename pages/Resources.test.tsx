@@ -87,6 +87,36 @@ describe('Resources', () => {
     expect(screen.getByRole('button', { name: 'Print this estimate' })).toBeInTheDocument();
   });
 
+  it('works out stamp duty on a rent agreement, and offers the family choice only for a lease', async () => {
+    renderAt('/resources/rent-agreement-stamp-duty');
+
+    const type = (label: string, value: string) => {
+      const input = screen.getByLabelText(label);
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value } });
+    };
+    await screen.findByLabelText('Rent, a month');
+    type('Rent, a month', '15000');
+    type('Security deposit', '100000');
+    const big = () => screen.getByText('Stamp duty').nextElementSibling!;
+    // 11 months residential: 0.5% of ₹2,65,000 is ₹1,325, capped at ₹500.
+    expect(big()).toHaveTextContent('₹500');
+
+    fireEvent.click(screen.getByLabelText('Commercial or industrial'));
+    expect(big()).toHaveTextContent('₹1,325');
+
+    fireEvent.change(screen.getByLabelText('Term, years'), { target: { value: '3' } });
+    fireEvent.change(screen.getByLabelText('Term, months'), { target: { value: '0' } });
+    // 1% of ₹1,80,000 average annual rent plus ₹1,00,000 deposit.
+    expect(big()).toHaveTextContent('₹2,800');
+    expect(screen.getByText(/must be registered with the Sub-Registrar/)).toBeInTheDocument();
+
+    expect(screen.getByRole('group', { name: /spouse, parent, child/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('Leave and licence'));
+    expect(screen.queryByRole('group', { name: /spouse, parent, child/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/must be registered with the Sub-Registrar/)).not.toBeInTheDocument();
+  });
+
   it('shows a property loss as a loss, and offers improvement years only from the purchase', async () => {
     renderAt('/resources/capital-gains-calculator');
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { calculateGst } from './gst';
 import { calculateHra } from './hra';
+import { calculateRentStampDuty, totalRentForTerm, type StampDutyInput } from './stampDuty';
 import { calculatePropertyGain, improvementYears, indexedAmount, taxYearOf } from './capitalGains';
 import {
   advanceTax,
@@ -456,5 +457,81 @@ describe('calendar file', () => {
     expect(ics).toContain('TRIGGER:-P2D');
     expect(ics).toContain('DTSTAMP:20261006T100000Z');
     expect(ics.split('\r\n').every((line) => new TextEncoder().encode(line).length <= 75)).toBe(true);
+  });
+});
+
+describe('Stamp duty on rent agreements (Karnataka Stamp Act, Article 30)', () => {
+  const lease = (over: Partial<StampDutyInput>): StampDutyInput => ({
+    kind: 'lease',
+    use: 'residential',
+    months: 11,
+    monthlyRent: 0,
+    escalation: 0,
+    deposit: 0,
+    otherAdvance: 0,
+    family: null,
+    ...over,
+  });
+
+  it('caps a residential lease of up to a year at ₹500, counting the deposit', () => {
+    const result = calculateRentStampDuty(lease({ monthlyRent: 15000, deposit: 100000 }));
+    expect(result.chargeable).toBe(265000);
+    expect(result.duty).toBe(500);
+    expect(result.basis).toBe('capped');
+    expect(result.mustRegister).toBe(false);
+  });
+  it('charges 0.5% with no cap on a commercial lease of up to a year', () => {
+    const result = calculateRentStampDuty(lease({ use: 'commercial', monthlyRent: 50000, deposit: 300000 }));
+    expect(result.duty).toBe(4250);
+  });
+  it('charges 1% over a year, residential or commercial, and asks for registration', () => {
+    const result = calculateRentStampDuty(lease({ months: 36, monthlyRent: 20000, deposit: 150000 }));
+    expect(result.averageAnnualRent).toBe(240000);
+    expect(result.duty).toBe(3900);
+    expect(result.mustRegister).toBe(true);
+  });
+  it('averages an escalating rent and rounds the base up to the next ₹100', () => {
+    expect(totalRentForTerm(100000, 60, 5)).toBeCloseTo(6630757.5, 2);
+    const result = calculateRentStampDuty(
+      lease({ use: 'commercial', months: 60, monthlyRent: 100000, escalation: 5, deposit: 1000000 }),
+    );
+    expect(result.chargeable).toBe(2326200);
+    expect(result.duty).toBe(23262);
+  });
+  it('moves to 2% and 3% for longer terms, and stops beyond 30 years', () => {
+    expect(calculateRentStampDuty(lease({ months: 180, monthlyRent: 10000 })).rate).toBe(2);
+    expect(calculateRentStampDuty(lease({ months: 360, monthlyRent: 10000 })).rate).toBe(3);
+    expect(calculateRentStampDuty(lease({ months: 361, monthlyRent: 10000 })).computed).toBe(false);
+  });
+  it('charges the fixed duty on a lease to a close family member, by area', () => {
+    expect(calculateRentStampDuty(lease({ monthlyRent: 10000, family: 'city' })).duty).toBe(5000);
+    expect(calculateRentStampDuty(lease({ months: 120, monthlyRent: 90000, family: 'other' })).duty).toBe(1000);
+  });
+  it('changes slab just past 1, 10 and 20 years', () => {
+    const rate = (months: number) => calculateRentStampDuty(lease({ months, monthlyRent: 10000 })).rate;
+    expect([rate(12), rate(13), rate(120), rate(121), rate(240), rate(241)]).toEqual([0.5, 1, 1, 2, 2, 3]);
+  });
+  it('counts a base just over a ₹100 multiple as the next ₹100', () => {
+    expect(calculateRentStampDuty(lease({ months: 12, monthlyRent: 0, deposit: 100000.01 })).chargeable).toBe(100100);
+  });
+  it('gives no figure for a nil term, or beyond 30 years', () => {
+    expect(calculateRentStampDuty(lease({ months: 0, monthlyRent: 10000 })).computed).toBe(false);
+    expect(calculateRentStampDuty(lease({ months: 372, monthlyRent: 10000 })).computed).toBe(false);
+  });
+  it('keeps the fixed family duty beyond 30 years, and ignores it for a licence', () => {
+    expect(calculateRentStampDuty(lease({ months: 372, monthlyRent: 10000, family: 'town' })).duty).toBe(3000);
+    expect(calculateRentStampDuty(lease({ kind: 'licence', monthlyRent: 10000, family: 'city' })).basis).toBe('capped');
+  });
+  it('applies the licence minimums to residential and commercial alike over a year', () => {
+    const licence = (months: number) =>
+      calculateRentStampDuty(lease({ kind: 'licence', months, monthlyRent: 100 })).duty;
+    expect([licence(24), licence(180), licence(300)]).toEqual([100, 200, 300]);
+    // A residential licence up to a year has no minimum: 0.5% of ₹5,500.
+    expect(calculateRentStampDuty(lease({ kind: 'licence', monthlyRent: 500 })).duty).toBe(28);
+  });
+  it('applies the minimum for a leave and licence agreement', () => {
+    const result = calculateRentStampDuty(lease({ kind: 'licence', use: 'commercial', monthlyRent: 500 }));
+    expect(result.duty).toBe(50);
+    expect(result.basis).toBe('minimum');
   });
 });
