@@ -105,8 +105,7 @@ describe('Resources', () => {
     fireEvent.click(screen.getByLabelText('Commercial or industrial'));
     expect(big()).toHaveTextContent('₹1,325');
 
-    fireEvent.change(screen.getByLabelText('Term, years'), { target: { value: '3' } });
-    fireEvent.change(screen.getByLabelText('Term, months'), { target: { value: '0' } });
+    fireEvent.click(screen.getByRole('radio', { name: '3 years' }));
     // 1% of ₹1,80,000 average annual rent plus ₹1,00,000 deposit.
     expect(big()).toHaveTextContent('₹2,800');
     expect(screen.getByText(/must be registered with the Sub-Registrar/)).toBeInTheDocument();
@@ -115,6 +114,30 @@ describe('Resources', () => {
     fireEvent.click(screen.getByLabelText('Leave and licence'));
     expect(screen.queryByRole('group', { name: /spouse, parent, child/ })).not.toBeInTheDocument();
     expect(screen.queryByText(/must be registered with the Sub-Registrar/)).not.toBeInTheDocument();
+
+    // Any other term is typed in years and months, added as they stand.
+    fireEvent.click(screen.getByRole('radio', { name: 'Other' }));
+    expect(screen.getByText(/Enter the term of the agreement/)).toBeInTheDocument();
+    const years = screen.getByLabelText('Term, years');
+    const months = screen.getByLabelText('Term, months');
+    fireEvent.change(months, { target: { value: '18' } });
+    expect(screen.getByText('Over 1 year, up to 10 years, at 1%')).toBeInTheDocument();
+    // A decimal stops at the point: 1.5 years is read as 1, not 15.
+    fireEvent.change(years, { target: { value: '1.5' } });
+    expect(years).toHaveValue('1');
+    fireEvent.change(years, { target: { value: '31' } });
+    expect(screen.getByText(/Beyond 30 years/)).toBeInTheDocument();
+
+    // Choosing a set term again hides the typed boxes.
+    fireEvent.click(screen.getByRole('radio', { name: '5 years' }));
+    expect(screen.queryByLabelText('Term, years')).not.toBeInTheDocument();
+  });
+
+  it('shows no result rows on the stamp duty page until a figure is entered', async () => {
+    renderAt('/resources/rent-agreement-stamp-duty');
+    await screen.findByLabelText('Rent, a month');
+    expect(screen.queryByText('Amount the duty is charged on')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Up to 1 year, at/)).not.toBeInTheDocument();
   });
 
   it('shows a property loss as a loss, and offers improvement years only from the purchase', async () => {
