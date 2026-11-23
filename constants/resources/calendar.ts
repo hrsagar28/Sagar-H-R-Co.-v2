@@ -5,6 +5,17 @@
 // LLP Rules, and Karnataka's Profession Tax Act. Assumes a company AGM on
 // 30 September 2026. Monthly items are generated below so that no month is
 // skipped; the one-off dates are listed after them.
+//
+// Rechecked 23 November 2026 for MCA General Circular 05/2026 (24 October
+// 2026): AOC-4 and its variants for 2025-26 may be filed up to 31 December
+// 2026, and MGT-7 and MGT-7A up to 31 January 2027, without additional fees.
+// It does not extend the AGM, and does not cover LLP forms. Filed after those
+// dates, additional fees run from the date due under the Act. The other dates
+// were rechecked the same day: no further CBDT or CBIC extension since
+// 6 October (audit-case returns stay at 21 November, GSTR-9/9C at 31 December).
+
+/** When these dates were last checked (shown on the due dates page). */
+export const DUE_DATES_AS_AT = '2026-11-23';
 
 export type DueCategory = 'gst' | 'income-tax' | 'tds' | 'company' | 'payroll';
 
@@ -235,7 +246,12 @@ const ONE_OFF: DueDate[] = [
     detail: 'Business or profession without an audit, and partners of such firms (ITR-3, ITR-4)',
   },
   { date: '2026-09-15', category: 'income-tax', title: 'Advance tax, second instalment: 45% of the year’s tax' },
-  { date: '2026-09-30', category: 'company', title: 'Annual general meeting for 2025-26' },
+  {
+    date: '2026-09-30',
+    category: 'company',
+    title: 'Annual general meeting for 2025-26',
+    detail: 'Not extended by the MCA relaxation for AOC-4 and MGT-7',
+  },
   // October to December 2026
   { date: '2026-10-15', category: 'company', title: 'ADT-1 (auditor appointed at the AGM)' },
   {
@@ -256,8 +272,12 @@ const ONE_OFF: DueDate[] = [
     title: 'ITC-04 for April to September 2026',
     detail: 'Turnover above ₹5 crore',
   },
-  { date: '2026-10-30', category: 'company', title: 'AOC-4 (financial statements) for 2025-26' },
-  { date: '2026-10-30', category: 'company', title: 'LLP Form 8 (statement of account and solvency) for 2025-26' },
+  {
+    date: '2026-10-30',
+    category: 'company',
+    title: 'LLP Form 8 (statement of account and solvency) for 2025-26',
+    detail: 'Not covered by the MCA relaxation for companies',
+  },
   {
     date: '2026-10-31',
     category: 'tds',
@@ -278,7 +298,6 @@ const ONE_OFF: DueDate[] = [
     title: 'Income tax return for 2025-26, audit cases',
     detail: 'Companies, audited businesses, trusts and partners of audited firms; extended from 31 October',
   },
-  { date: '2026-11-29', category: 'company', title: 'MGT-7 or MGT-7A (annual return) for 2025-26' },
   {
     date: '2026-11-29',
     category: 'company',
@@ -298,12 +317,26 @@ const ONE_OFF: DueDate[] = [
     category: 'income-tax',
     title: 'Revised income tax return for 2025-26, without a fee',
   },
+  {
+    date: '2026-12-31',
+    category: 'company',
+    title: 'AOC-4 (financial statements) for 2025-26',
+    detail:
+      'Without additional fees, MCA General Circular 05/2026; due under the Act 30 days after the AGM (30 October)',
+  },
   // January to March 2027
   {
     date: '2027-01-31',
     category: 'tds',
     title: 'TDS and TCS statements for October to December 2026',
     detail: 'Forms 138, 140, 144 and 143',
+  },
+  {
+    date: '2027-01-31',
+    category: 'company',
+    title: 'MGT-7 or MGT-7A (annual return) for 2025-26',
+    detail:
+      'Without additional fees, MCA General Circular 05/2026; due under the Act 60 days after the AGM (29 November)',
   },
   { date: '2027-02-15', category: 'tds', title: 'Forms 131 and 133 for October to December 2026' },
   {

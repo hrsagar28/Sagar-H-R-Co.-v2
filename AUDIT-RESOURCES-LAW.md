@@ -34,6 +34,18 @@ The calculations are in `utils/resources/`, with tests in
   2026 and audit-case returns to 21 November 2026. Forms 10B and 10BB (trusts)
   are covered by the 21 October date. Form 3CEB stays at 31 October; it is not
   extended. Confirmed by CA Sagar.
+- **MCA relaxation (checked 23 November 2026).** MCA General Circular
+  05/2026 (24 October 2026): AOC-4, AOC-4 (CFS), AOC-4 (XBRL), AOC-4 NBFC
+  (Ind AS) and AOC-4 CFS NBFC (Ind AS) for 2025-26 up to 31 December 2026,
+  and MGT-7 and MGT-7A up to 31 January 2027, without additional fees. The
+  due dates page lists them on those dates, with the Act's dates (30 October,
+  29 November) in the note. It does not extend the AGM (para 3), and does not
+  cover LLP Forms 8 and 11, ADT-1 or other forms. Filed later, additional
+  fees run from the date due under the Act (para 4). `DUE_DATES_AS_AT` in
+  `calendar.ts` dates the due dates page separately; the rest of the list
+  was rechecked the same day (no further CBDT or CBIC extension since
+  6 October). General Circular 06/2026 (27 October 2026) extends CRA-4 (cost
+  audit report) to 31 December 2026; not listed, as CRA-4 is not tracked.
 - **Rebate (s.156).** In the new regime, up to ₹60,000 for income up to ₹12
   lakh, with marginal relief just above. It is capped at the tax at the
   s.202(1) slab rates, so it does not reduce tax on capital gains at special
@@ -224,6 +236,9 @@ The calculations are in `utils/resources/`, with tests in
   the Articles it amends (not 30 or 32-A).
 - Karnataka Stamp (Amendment) Act, 2025 and the Digital e-Stamp Rules, 2025
   (secondary summaries only).
+- MCA General Circular 05/2026, 24 October 2026 (File No.
+  Policy-17/111/2022-CL-V-MCA), relaxation of additional fees for AOC-4 and
+  MGT-7 for 2025-26.
 - Finance Act, 2026 (First Schedule, Parts I to III); CBDT Circular 7/2026;
   Notification 85/2026 (CII 384); CBIC Notification 01/2026-CT (GSTR-3B for
   March 2026).
