@@ -41,6 +41,16 @@ describe('due dates for 2026-27', () => {
     expect(on('2026-11-21')).toContain('Income tax return for 2025-26, audit cases');
   });
 
+  it('carries the MCA relaxation for AOC-4 and MGT-7 (General Circular 05/2026)', () => {
+    expect(on('2026-12-31')).toContain('AOC-4 (financial statements) for 2025-26');
+    expect(on('2027-01-31')).toContain('MGT-7 or MGT-7A (annual return) for 2025-26');
+    // Listed once each, at the relaxed date only.
+    expect(DUE_DATES.filter((due) => due.title.startsWith('AOC-4')).length).toBe(1);
+    expect(DUE_DATES.filter((due) => due.title.startsWith('MGT-7')).length).toBe(1);
+    // LLP Form 8 is not covered.
+    expect(on('2026-10-30')).toContain('LLP Form 8 (statement of account and solvency) for 2025-26');
+  });
+
   it('has GSTR-4 on 30 June and no annual director KYC', () => {
     expect(on('2026-06-30')).toContain('GSTR-4 for 2025-26');
     expect(DUE_DATES.some((due) => /DIR-3/.test(due.title))).toBe(false);

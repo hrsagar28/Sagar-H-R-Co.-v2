@@ -1,7 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ToolPage from './ToolPage';
-import { DUE_CATEGORIES, DUE_DATES, getResourceTool, type DueCategory } from '../../constants/resources';
+import {
+  DUE_CATEGORIES,
+  DUE_DATES,
+  DUE_DATES_AS_AT,
+  getResourceTool,
+  type DueCategory,
+} from '../../constants/resources';
 import { dayMonth, inDays, monthYear, todayIso, weekday } from '../../utils/resources/dates';
 import { buildIcs, downloadText } from '../../utils/resources/ics';
 
@@ -76,7 +82,11 @@ const DueDates: React.FC = () => {
   };
 
   return (
-    <ToolPage tool={TOOL} law="1 April 2026 to 31 March 2027 · Karnataka where a state date applies">
+    <ToolPage
+      tool={TOOL}
+      law="1 April 2026 to 31 March 2027 · Karnataka where a state date applies"
+      asAt={DUE_DATES_AS_AT}
+    >
       <div className="seam panel spanel dnext">
         <p className="lbl" id="next-heading">
           Next due
@@ -190,7 +200,7 @@ const DueDates: React.FC = () => {
           <li>Company dates assume the annual general meeting was held on 30 September 2026.</li>
           <li>
             The calendar file adds each date as an all-day event with a reminder two days before. It does not update
-            itself: download it again after an extension.
+            itself: after an extension, download it again and delete the old entries from your calendar.
           </li>
           <li>Extensions are announced by notification or circular. We update this list when they are.</li>
         </ul>
