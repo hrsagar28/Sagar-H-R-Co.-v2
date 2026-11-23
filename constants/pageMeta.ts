@@ -36,7 +36,7 @@ export const PAGE_META = {
   resources: {
     title: `Resources | ${FIRM}`,
     description:
-      'Income tax, HRA, capital gains and GST calculators, TDS and TCS rates, due dates and old-to-new section numbers for tax year 2026-27, and checklists of documents, from Sagar H R & Co., Chartered Accountants, Mysuru.',
+      'Income tax, HRA, capital gains, GST and rent agreement stamp duty calculators, TDS and TCS rates, due dates and old-to-new section numbers for tax year 2026-27, and checklists of documents, from Sagar H R & Co., Chartered Accountants, Mysuru.',
   },
   contact: {
     title: `Contact us | ${FIRM}`,

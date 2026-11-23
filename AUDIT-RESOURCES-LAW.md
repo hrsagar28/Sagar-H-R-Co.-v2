@@ -20,6 +20,7 @@ changes.
 | `constants/resources/cii.ts`        | Cost Inflation Index, the 23 July 2024 date, the sale-date range, 24 months, 110% rule                       |
 | `constants/resources/hra.ts`        | Rule 279: the eight cities at 50%, the ₹1 lakh landlord-PAN limit                                            |
 | `constants/resources/gst.ts`        | GST rates                                                                                                    |
+| `constants/resources/stampDuty.ts`  | Karnataka stamp duty on leases (Art. 30) and leave and licence (Art. 32-A); its own "as at" date             |
 | `constants/resources/tools.ts`      | `RESOURCES_TAX_YEAR` and `RESOURCES_LAW_AS_AT` (the "Figures as at" date on every tool)                      |
 | `constants/resources/checklists.ts` | Documents to send, with new form numbers and the old names in brackets                                       |
 | `constants/resources/sections.ts`   | Old and new section numbers (1961 Act to 2025 Act) and form numbers (1962 Rules to 2026 Rules)               |
@@ -128,6 +129,47 @@ The calculations are in `utils/resources/`, with tests in
     s.19 Table.
     Forms: the CBDT's form navigator (June 2026) and its transition FAQs.
 
+- **Stamp duty on rent agreements (checked 23 November 2026, reviewed the
+  same day against the India Code consolidation).** Karnataka Stamp Act,
+  1957, Article 30(1) as substituted from 1 April 2010: up to a year 0.5%,
+  capped at ₹500 for residential and uncapped for commercial or industrial;
+  over a year 1% to 10 years, 2% to 20, 3% to 30; beyond 30 years conveyance
+  duty on the higher of the base and market value (the calculator stops
+  there). Rates are per ₹100 or part, so the base is rounded up to the next
+  ₹100.
+  - Term up to a year: the rent for the term is taken as the average annual
+    rent (11 months at ₹50,000 gives ₹5,50,000, not ₹6,00,000), the lower of
+    the two readings of "average annual rent". Confirmed by CA Sagar,
+    23 November 2026.
+  - Base: average annual rent plus premium, fine and money advanced, which the
+    Explanation to Article 30 says includes a security deposit "whether
+    refundable or adjustable towards the rent" (applied in S. Velu v. Mahesh,
+    Kar HC, 2017). The 2025 High Court ruling excluding a refundable deposit
+    (WP 4326/2020, following Texas Instruments, AIR 2004 Kar 70) concerned a
+    1996 lease under the old wording, so it is not followed.
+  - Family: a lease to a spouse, parent, child, brother or sister pays a fixed
+    ₹5,000 (BMRDA or a City Corporation, Bengaluru's included), ₹3,000 (CMC,
+    TMC or Town Panchayat), ₹1,000 elsewhere; the highest where areas overlap.
+    The proviso sits under Article 30(1) as a whole, so it applies at any
+    term, and even where the ordinary duty would be lower. Kept as the Act
+    reads (CA Sagar, 23 November 2026).
+  - Article 32-A (leave and licence): same rates; ₹500 cap for residential up
+    to a year; minimum ₹50 for commercial up to a year, and ₹100, ₹200, ₹300
+    for the longer slabs, residential and commercial alike.
+  - A lease under an agreement to lease already stamped ad valorem: at most
+    ₹50 (first proviso to Article 30).
+  - Who pays: the lessee (s.30(b)), the licensee (s.30(zr)), unless agreed
+    otherwise. When: before or at execution (s.17). Under-stamped: impounded,
+    with penalty (ss.33, 34). Registration: compulsory for a lease for more
+    than a year (Registration Act, 1908, s.17(1)(d)).
+  - E-stamp: the Karnataka Stamp (Amendment) Act, 2025 added the digital
+    e-stamp (ss.2, 10, 10-A; not the Schedule); Digital e-Stamp Rules
+    notified 7 August 2025; Kaveri 2.0 designated by notification of 19
+    January 2026. Not shown to be the only route, so the page says "such as".
+  - The Karnataka Stamp (Amendment) Act, 2023 does not touch Articles 30 or
+    32-A. Registration fee is not given: sources disagree after the August
+    2025 fee revision, so the page leaves it out.
+
 ## Open
 
 - GST rates: recheck after the 57th GST Council meeting (reported for
@@ -149,7 +191,9 @@ The calculations are in `utils/resources/`, with tests in
    `cii.ts`.
 4. **Extensions and circulars, as issued.** Due dates in `calendar.ts`.
 5. **GST Council meetings.** Rates in `gst.ts` and the text on the GST page.
-6. **Every change.** Set `RESOURCES_LAW_AS_AT` to the date checked, and update
+6. **Karnataka stamp duty, as amended.** Rates in `stampDuty.ts`; set
+   `STAMP_DUTY_LAW_AS_AT` when rechecked. Not tied to the tax year.
+7. **Every change.** Set `RESOURCES_LAW_AS_AT` to the date checked, and update
    this note.
 
 ## Official sources read
@@ -170,6 +214,16 @@ The calculations are in `utils/resources/`, with tests in
   [Rule 279](https://www.incometaxindia.gov.in/w/rule-279-1)
 - [PIB, Summary of Union Budget 2026-27](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2221458&reg=48&lang=2)
 - [PIB, 56th GST Council recommendations](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2163555&reg=48&lang=2)
+- [Karnataka Stamp Act, 1957, India Code consolidation](https://www.indiacode.nic.in/bitstream/123456789/7744/1/34_of_1957%28e%29.pdf)
+  (to Act 32 of 2017): Articles 30 and 32-A with provisos and Explanation;
+  ss.17, 30, 33, 34.
+- [Karnataka Stamp (Second Amendment) Act, 2010](https://www.courtkutchehry.com/bare-acts/karnataka-stamp-second-amendment-act-2010)
+  and [(Amendment) Act, 2009](https://www.courtkutchehry.com/bare-acts/karnataka-stamp-amendment-act-2009):
+  the current Article 30(1) and 32-A.
+- [Karnataka Stamp (Amendment) Act, 2023, s.3](https://www.legitquest.com/act/the-karnataka-stamp-amendment-act-2023/F4D9):
+  the Articles it amends (not 30 or 32-A).
+- Karnataka Stamp (Amendment) Act, 2025 and the Digital e-Stamp Rules, 2025
+  (secondary summaries only).
 - Finance Act, 2026 (First Schedule, Parts I to III); CBDT Circular 7/2026;
   Notification 85/2026 (CII 384); CBIC Notification 01/2026-CT (GSTR-3B for
   March 2026).

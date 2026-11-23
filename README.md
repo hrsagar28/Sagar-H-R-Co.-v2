@@ -43,7 +43,8 @@ files, and is what Netlify runs.
 - **FAQs** — `constants/faq.ts`.
 - **Due dates** — `constants/resources/calendar.ts`, updated each year before
   April. The other Resources figures (tax slabs, TDS rates, GST rates, cost
-  inflation index, section numbers) are in `constants/resources/`;
+  inflation index, section numbers, Karnataka stamp duty on rent agreements)
+  are in `constants/resources/`;
   `AUDIT-RESOURCES-LAW.md` records what each was checked against. Update it
   with any figure you change.
 - **Articles** — add an entry to `public/data/insights.json` and the article
