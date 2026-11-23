@@ -27,11 +27,15 @@ const termLabel = (months: number) => {
   return parts.join(' ') || 'Nil';
 };
 
+/** Up to two digits as typed, stopping at anything else (1.5 is 1, not 15), without leading zeros. */
+const wholeNumber = (text: string) => (/^\d*/.exec(text)?.[0] ?? '').replace(/^0+(?=\d)/, '').slice(0, 2);
+
 const RentStampDutyCalculator: React.FC = () => {
   const [kind, setKind] = useState<AgreementKind>('lease');
   const [use, setUse] = useState<PropertyUse>('residential');
-  const [years, setYears] = useState(0);
-  const [extraMonths, setExtraMonths] = useState(11);
+  const [termChoice, setTermChoice] = useState('11');
+  const [otherYears, setOtherYears] = useState('');
+  const [otherMonths, setOtherMonths] = useState('');
   const [rent, setRent] = useState(0);
   const [escalation, setEscalation] = useState('');
   const [deposit, setDeposit] = useState(0);
@@ -39,7 +43,10 @@ const RentStampDutyCalculator: React.FC = () => {
   const [toFamily, setToFamily] = useState<'no' | 'yes'>('no');
   const [area, setArea] = useState<FamilyArea>('city');
 
-  const months = years * 12 + extraMonths;
+  // Typed years and months are added as they stand (18 months is 1 year 6),
+  // so a term is never changed behind the visitor's back.
+  const months =
+    termChoice === 'other' ? (Number(otherYears) || 0) * 12 + (Number(otherMonths) || 0) : Number(termChoice);
   const multiYear = months > 12;
   const family = kind === 'lease' && toFamily === 'yes' ? area : null;
   const escalationRate = Math.min(MAX_YEARLY_INCREASE, Number(escalation) || 0);
@@ -98,30 +105,41 @@ const RentStampDutyCalculator: React.FC = () => {
               { value: 'commercial', label: 'Commercial or industrial' },
             ]}
           />
-          <div className="pair">
-            <FormField id="sd-years" label="Term, years">
-              <select id="sd-years" value={years} onChange={(event) => setYears(Number(event.target.value))}>
-                {Array.from({ length: 31 }, (_, index) => index).map((count) => (
-                  <option key={count} value={count}>
-                    {count}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            <FormField id="sd-months" label="Term, months">
-              <select
-                id="sd-months"
-                value={extraMonths}
-                onChange={(event) => setExtraMonths(Number(event.target.value))}
-              >
-                {Array.from({ length: 12 }, (_, index) => index).map((count) => (
-                  <option key={count} value={count}>
-                    {count}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-          </div>
+          <ChoiceField
+            name="sd-term"
+            legend="Term of the agreement"
+            value={termChoice}
+            onChange={setTermChoice}
+            options={[
+              { value: '11', label: '11 months' },
+              { value: '12', label: '1 year' },
+              { value: '36', label: '3 years' },
+              { value: '60', label: '5 years' },
+              { value: 'other', label: 'Other' },
+            ]}
+          />
+          {termChoice === 'other' && (
+            <div className="pair">
+              <FormField id="sd-years" label="Term, years">
+                <input
+                  id="sd-years"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={otherYears}
+                  onChange={(event) => setOtherYears(wholeNumber(event.target.value))}
+                />
+              </FormField>
+              <FormField id="sd-months" label="Term, months">
+                <input
+                  id="sd-months"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={otherMonths}
+                  onChange={(event) => setOtherMonths(wholeNumber(event.target.value))}
+                />
+              </FormField>
+            </div>
+          )}
           <div className="pair">
             <MoneyField
               id="sd-rent"
@@ -189,13 +207,13 @@ const RentStampDutyCalculator: React.FC = () => {
         <Result entries={entries}>
           <p className="lbl">Stamp duty</p>
           <p className="big tnum">{entered && result.computed ? rupees(result.duty) : '—'}</p>
-          {result.computed && slabLabel && (
+          {entered && result.computed && slabLabel && (
             <p className="sub">
               {slabLabel}
               {result.basis !== 'family' && <>, at {result.rate}%</>}
             </p>
           )}
-          {result.computed && result.basis !== 'family' && (
+          {entered && result.computed && result.basis !== 'family' && (
             <dl className="brk">
               <Row
                 label={months <= 12 ? 'Rent for the term' : 'Average annual rent'}
@@ -233,7 +251,7 @@ const RentStampDutyCalculator: React.FC = () => {
               higher. That needs the guidance value, so this calculator stops at 30 years.
             </p>
           )}
-          {months === 0 && <p className="nudge">Choose the term of the agreement.</p>}
+          {months === 0 && <p className="nudge">Enter the term of the agreement in years and months.</p>}
           <Announce
             text={
               entered && result.computed

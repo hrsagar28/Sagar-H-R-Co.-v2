@@ -481,6 +481,11 @@ html {
   :root:not(.cur-native) [data-hide-cursor='true'] * {
     cursor: auto !important;
   }
+  /* The open list of a styled dropdown (redesign.css) is drawn above the
+     custom cursor, so the browser's own cursor shows over it. */
+  :root:not(.cur-native) select option {
+    cursor: pointer !important;
+  }
 }
 /* White, inverted against the page: dark on light sections, light on dark
    ones. The blend sits on the fixed element itself so it mixes with the page,

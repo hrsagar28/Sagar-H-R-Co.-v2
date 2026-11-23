@@ -1031,7 +1031,8 @@
   color: var(--cream);
 }
 .rd .chip input:focus-visible + span {
-  outline: 2px solid var(--copper);
+  /* The darker copper: the lighter one is under 3:1 here (Audit A11Y-02). */
+  outline: 2px solid var(--copper-d);
   outline-offset: 2px;
 }
 .rd .submit-row {
@@ -3212,10 +3213,12 @@
     box-shadow 0.2s;
 }
 .rd .fld select {
+  /* The chevron, here and on the open-list button below. */
+  --chev: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235f625c' stroke-width='1.6'><path d='m6 9 6 6 6-6'/></svg>");
   -webkit-appearance: none;
   appearance: none;
   padding-right: 24px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235f625c' stroke-width='1.6'><path d='m6 9 6 6 6-6'/></svg>");
+  background-image: var(--chev);
   background-repeat: no-repeat;
   background-position: right 2px center;
 }
@@ -3223,6 +3226,122 @@
 .rd .fld input[type='date']:focus {
   border-bottom-color: var(--ink);
   box-shadow: 0 1px 0 0 var(--ink);
+}
+
+/* The open list of a dropdown, in the site's paper, rules and type rather
+   than the operating system's blue-on-white list. Only where the browser lets
+   a page style it (appearance: base-select: Chrome and Edge 135 and later,
+   Safari 27); other browsers keep their own list, which works the same. The
+   list sits above the custom cursor, so index.css gives the browser's cursor
+   back over it. */
+@supports (appearance: base-select) {
+  .rd .fld select,
+  .rd .fld select::picker(select) {
+    appearance: base-select;
+  }
+  .rd .fld select {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-right: 2px;
+    background-image: none;
+    cursor: pointer;
+  }
+  .rd .fld select::picker-icon {
+    content: '';
+    width: 14px;
+    height: 14px;
+    margin-left: auto;
+    background: var(--chev) center / 14px no-repeat;
+  }
+  .rd .fld select:open::picker-icon {
+    rotate: 180deg;
+  }
+  .rd .fld select:open {
+    border-bottom-color: var(--ink);
+    box-shadow: 0 1px 0 0 var(--ink);
+  }
+  .rd .fld select::picker(select) {
+    margin-block: 6px;
+    max-height: min(320px, 50vh);
+    padding: 6px 0;
+    background: var(--paper);
+    border: 1px solid var(--rule-s);
+    border-radius: 0;
+    box-shadow: 0 22px 44px -22px rgba(22, 25, 26, 0.38);
+    color: var(--body);
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule-s) transparent;
+  }
+  .rd .fld select option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    padding: 8px 18px;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+    color: var(--body);
+  }
+  .rd .fld select option::checkmark {
+    order: 1;
+    margin-left: auto;
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--copper-d);
+  }
+  .rd .fld select option:hover,
+  .rd .fld select option:focus-visible {
+    background: var(--sand);
+    color: var(--ink);
+    outline: none;
+  }
+  .rd .fld select option:checked {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  /* High contrast drops the backgrounds, so the row in focus and the chosen
+     one are marked in the system's highlight colour instead. */
+  @media (forced-colors: active) {
+    .rd .fld select option:hover,
+    .rd .fld select option:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+    .rd .fld select option::checkmark {
+      forced-color-adjust: none;
+      background: Highlight;
+    }
+  }
+  /* The global reduced-motion override in index.css does not reach these
+     pseudo-elements, so the movement is added only when motion is allowed. */
+  @media (prefers-reduced-motion: no-preference) {
+    .rd .fld select::picker-icon {
+      transition: rotate 0.3s var(--ease);
+    }
+    .rd .fld select option {
+      transition: background-color 0.15s;
+    }
+    .rd .fld select::picker(select) {
+      transition:
+        opacity 0.22s var(--ease),
+        translate 0.32s var(--ease),
+        overlay 0.32s allow-discrete,
+        display 0.32s allow-discrete;
+    }
+    .rd .fld select:not(:open)::picker(select) {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+    @starting-style {
+      .rd .fld select:open::picker(select) {
+        opacity: 0;
+        translate: 0 -6px;
+      }
+    }
+  }
 }
 .rd .check {
   display: flex;
