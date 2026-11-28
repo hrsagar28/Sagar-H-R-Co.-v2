@@ -257,9 +257,11 @@ describe('Resources', () => {
     expect(screen.queryByRole('region', { name: 'Government portals' })).toBeNull();
     // A search counts the matches under each button.
     fireEvent.change(screen.getByLabelText('Search the resources'), { target: { value: 'GST' } });
-    expect(screen.getByRole('button', { name: /^Calculators \d+$/ })).toBeInTheDocument();
+    // (The count is a <span> straight after the name; whether a space is read
+    // between them depends on the test DOM's version, so allow either.)
+    expect(screen.getByRole('button', { name: /^Calculators ?\d+$/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Show all' }));
-    expect(screen.getByRole('button', { name: /^All \d+$/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^All ?\d+$/ })).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('opens the due dates on this month and next', async () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import SEO from './SEO';
 
@@ -21,6 +21,10 @@ const addFallbacks = () => {
 };
 
 afterEach(() => {
+  // Unmount first: React removes the tags it put in the head, and cannot if
+  // they have already been cleared away. (Vitest runs afterEach hooks last
+  // registered first, so the library's own cleanup would otherwise come second.)
+  cleanup();
   document.head.innerHTML = '';
 });
 

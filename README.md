@@ -7,7 +7,7 @@ keep, build and deployment). This file covers the everyday tasks.
 
 ## Stack
 
-React 19 · TypeScript · Vite 5 · React Router 7 (`BrowserRouter`) · plain CSS
+React 19 · TypeScript · Vite 8 · React Router 7 (`BrowserRouter`) · plain CSS
 (`components/redesign/redesign.css`), with Tailwind for the app shell only.
 Node 22. Deployed on Netlify.
 

@@ -11,7 +11,7 @@ bugs.
 in Mysuru, Karnataka. It is a single-page application: a polished, editorial
 brochure site, not a web app with user accounts.
 
-**Stack:** React 19 · Vite 5 · TypeScript 5 · Tailwind CSS 3.4 · React Router 7
+**Stack:** React 19 · Vite 8 · TypeScript 5 · Tailwind CSS 3.4 · React Router 7
 (`BrowserRouter`). Deployed on Netlify. Node **22.x** is pinned in
 `package.json` `engines`, `netlify.toml` and the CI workflow (moved from 20,
 which reached end of life in April 2026; Audit SEC-01).
@@ -106,7 +106,8 @@ rather than raw values. `index.css` repeats the few the shared pieces need as
   repo root. When you change such code, update or keep the comment — it is the
   reason the code looks the way it does.
 - **`'use memo'` (React Compiler).** The React Compiler runs in **annotation
-  mode** (`vite.config.ts`): only files/functions carrying a `'use memo'`
+  mode** (`vite.config.ts`, through `@rolldown/plugin-babel` since the move to
+  Vite 8; Audit NOV-10): only files/functions carrying a `'use memo'`
   directive are compiled; everything else behaves exactly as before. Adding the
   directive opts a file in — only do so once it follows the Rules of React.
   No file carries it at present: the ones that did went with the old design.

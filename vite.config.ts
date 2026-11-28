@@ -1,7 +1,8 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,15 +19,14 @@ export default defineConfig(() => {
       host: '0.0.0.0',
     },
     plugins: [
-      react({
-        babel: {
-          // React Compiler in annotation mode: only files/functions that opt in
-          // with a `'use memo'` directive are compiled. This keeps the rollout
-          // incremental — un-annotated files behave exactly as before. To compile
-          // the whole app later, switch compilationMode to 'all' (or remove it).
-          plugins: [['babel-plugin-react-compiler', { compilationMode: 'annotation' }]],
-        },
-      }),
+      react(),
+      // React Compiler in annotation mode: only files/functions that opt in
+      // with a `'use memo'` directive are compiled. This keeps the rollout
+      // incremental — un-annotated files behave exactly as before. To compile
+      // the whole app later, drop compilationMode. (Audit NOV-10: since
+      // @vitejs/plugin-react 6 the compiler runs through this Babel plugin;
+      // the `babel` option of react() is gone.)
+      babel({ presets: [reactCompilerPreset({ compilationMode: 'annotation' })] }),
     ],
     test: {
       globals: true,
@@ -53,7 +53,15 @@ export default defineConfig(() => {
             if (
               normalizedId.includes('/node_modules/react/') ||
               normalizedId.includes('/node_modules/react-dom/') ||
-              normalizedId.includes('/node_modules/react-router-dom/')
+              normalizedId.includes('/node_modules/react-router-dom/') ||
+              // Audit NOV-10: named one by one. Vite 8's bundler puts only the
+              // modules matched here in the chunk; the old one also brought in
+              // whatever they import, and without these the router and the
+              // scheduler land in the first file instead.
+              normalizedId.includes('/node_modules/react-router/') ||
+              normalizedId.includes('/node_modules/scheduler/') ||
+              normalizedId.includes('/node_modules/cookie/') ||
+              normalizedId.includes('/node_modules/set-cookie-parser/')
             ) {
               return 'react-vendor';
             }

@@ -12,7 +12,7 @@ Audited on 28 November 2026 at commit `9feb361` ("Merge pull request #29 from hr
 - NOV-03 (Prompt 2): the calculators' phone strip (`ResultPeek`). It also hides itself once the result is on screen.
 - NOV-04 (Prompt 3): each page's text is in its served file, rendered from the page components (`scripts/static-body.tsx`); `dist/404.html` is the fallback. The no-flash condition was checked frame by frame over 84 page loads (first visit, repeat visit, reduced motion; fast and slowed; desktop and phone): the text was never uncovered.
 
-That is Prompts 1 to 5: **do not run them again.**
+That is Prompts 1 to 6: **do not run them again.**
 
 **The owner's decisions, 28 November 2026. Do not raise these again without new reason:**
 
@@ -22,7 +22,9 @@ That is Prompts 1 to 5: **do not run them again.**
 - The contact form: **a mobile number or an email, not both** (NOV-12, done).
 - NOV-04: **a visitor must never see the plain page text, not for one frame.**
 
-**Still to do:** NOV-10 (Prompt 6, the build tools upgrade), put off by the owner until the above is committed and live. Open with the owner: the `@casagarhr` handle and a Google Business Profile link.
+**Done last, in the working folder:** NOV-10 (Prompt 6), the build tools upgrade: Vite 5 to 8, Vitest 1 to 5, the React plugin 4 to 6, jsdom 24 to 31, sharp 0.34 to 0.35, plus the non-breaking fixes. `npm audit` went from 15 advisories (two critical) to one, rated low, in the development server on Windows; the code that ships has none. All 238 tests pass; all 53 pages were checked at four widths and the no-flash check was repeated on the new build (84 loads, never uncovered). Three things changed with it: the React Compiler now runs through `@rolldown/plugin-babel` (`vite.config.ts`); the router and scheduler are named in `manualChunks`, because the new bundler no longer pulls a chunk's imports in with it; two tests were adjusted to the new test tools. Left alone, as planned: Tailwind 3, ESLint 9, TypeScript 5, react-markdown 9.
+
+**Nothing from this audit is left to do.** Open with the owner: the `@casagarhr` handle and a Google Business Profile link.
 
 ---
 
@@ -489,7 +491,7 @@ Also in this pull request: remove the unused devDependency @axe-core/react from 
 
 ---
 
-### Prompt 6 — Bring the build and test tools up to date (NOV-10)
+### Prompt 6 — Bring the build and test tools up to date (NOV-10) — DONE 28 Nov 2026
 
 ```
 Audit ID: NOV-10. Branch: chore/tooling-upgrade. Nothing a visitor sees should change.

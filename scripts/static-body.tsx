@@ -2,7 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import React from 'react';
 import { prerenderToNodeStream } from 'react-dom/static';
-import { Route, Routes, StaticRouter } from 'react-router';
+// From 'react-router-dom', as the pages import it: two copies of the router
+// (one per package name) would not see each other's <Router>.
+import { Route, Routes, StaticRouter } from 'react-router-dom';
 
 import { AnnounceProvider } from '../context/AnnounceContext.tsx';
 import { ToastProvider } from '../context/ToastContext.tsx';
