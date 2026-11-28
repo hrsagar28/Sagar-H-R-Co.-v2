@@ -2,14 +2,20 @@
 
 Audited on 28 November 2026 at commit `9feb361` ("Merge pull request #29 from hrsagar28/fix/mca-extension"). Nothing in the repository was changed except this file.
 
-## Status after the first round of fixes, 28 November 2026
+## Status, 28 November 2026
 
-**Done, in the working folder, not yet committed or published:** NOV-01 (form failure message), NOV-05 (first download), NOV-06 (true "not found"), NOV-07 (keyboard starting point), NOV-08 (cursor in high-contrast mode), NOV-09 (picture caching, phone spacing). That is Prompts 1, 4 and 5: **do not run them again.** Type check, lint (same 5 warnings as before), 228 of 228 tests and the full build pass on these changes; each was also checked in a browser.
+**Live** (commit `b66e588`, checked on casagar.co.in the same day): NOV-01 (form failure message), NOV-05 (first download), NOV-06 (true "not found"), NOV-07 (keyboard starting point), NOV-08 (cursor in high-contrast mode), NOV-09 (picture caching, phone spacing). That is Prompts 1, 4 and 5: **do not run them again.** The unused `@axe-core/react` package was left in place (removing it would have rewritten the lock file for no visible gain).
 
-- One thing left out of Prompt 5: removing the unused `@axe-core/react` package (it would have rewritten the lock file for no visible gain).
-- **Before merging, check NOV-06 on the deploy preview:** a real page such as `/services/gst` must answer 200, and `/no-such-page` must answer 404 and still show "Page not found".
+**Done after that:** NOV-12, the contact form accepts a mobile number or an email address; either is enough (see "Decisions", item 4).
 
-**Still to do:** NOV-03 (Prompt 2, needs your eye on the look), NOV-04 (Prompt 3, plan first), NOV-10 (Prompt 6), and the items that wait for your decision (NOV-02, NOV-11 and the list under "Decisions still with you").
+**The owner's decisions, 28 November 2026. Do not raise these again without new reason:**
+
+- NOV-11, service page titles: **no change.** Prompt 7 is not to be run.
+- The "S" icon and `logo.png`: **stay as they are.**
+- The biography lines on the home page (teaching, software, writing, hobbies, "litigation"): **stay as they are.**
+- The contact form: **a mobile number or an email, not both** (NOV-12, done).
+
+**Still to do:** NOV-02 (the old Vercel copy), NOV-03 (Prompt 2, needs the owner's eye on the look), NOV-04 (Prompt 3, plan first), NOV-10 (Prompt 6). Open with the owner: the `@casagarhr` handle and a Google Business Profile link.
 
 ---
 
@@ -356,7 +362,7 @@ Option 2 (fallback): write the markup from the data, without rendering component
 Extend scripts/route-html.ts with a small function per page type that builds plain HTML from the same data the pages use: constants/services.tsx (SERVICE_PAGES: intro, scope of work, documents, linked FAQs), constants/faq.ts (questions and answers; utils/markdownToHtml.ts already turns an answer into safe HTML), constants/resources/tools.ts and checklists.ts, public/data/insights.json plus the article markdown, config/contact.ts. The three legal pages keep their text in JSX; for those use Option 1's renderToStaticMarkup on the page component alone, or give them a heading and a one-paragraph summary. Escape everything with the existing escapeHtml.
 
 Whichever option, these also apply:
-  a. No flash of unstyled text. The static markup has no redesign.css (it loads with the lazy layout). Today index.tsx removes the #preload-hero overlay on non-home routes as soon as it runs, which is before React's first commit, so the raw markup could show for a frame. Make the first render synchronous (flushSync from react-dom around root.render) and remove the overlay only after it, or keep the overlay until the first commit. Check by recording a load with CPU throttling: at no frame is unstyled text visible, on a first visit (splash) and on a later one (no splash), on the home page and on an inner page.
+  a. No flash of unstyled text. THIS IS A HARD CONDITION SET BY THE OWNER (28 Nov 2026): a normal visitor must never see the plain, unstyled markup, not even for one frame. If it cannot be ruled out on the deploy preview, the change does not ship; say so and stop. The static markup has no redesign.css (it loads with the lazy layout). Today index.tsx removes the #preload-hero overlay on non-home routes as soon as it runs, which is before React's first commit, so the raw markup could show for a frame. Make the first render synchronous (flushSync from react-dom around root.render) and remove the overlay only after it, or keep the overlay until the first commit. Check by recording a load with CPU throttling: at no frame is unstyled text visible, on a first visit (splash) and on a later one (no splash), on the home page and on an inner page.
   b. Scripts blocked. Today the overlay then covers the page for ever. Give it a CSS-only failsafe inside the existing inline <style> (for example an animation that hides it after about 6 seconds, longer than the 5-second safety timer in index.tsx), regenerate the CSP hash, and update scripts/check-csp-hash.ts if its colour assertions are affected. With scripts blocked the visitor should then see readable, if plain, text and working links.
   c. scripts/route-html.test.ts: for one service page, the FAQ page, one article and one checklist, the generated HTML contains the page's h1 text, a known sentence from its body, and at least five internal <a href="/…"> links; and contains no <script type="application/ld+json"> duplicates and no "Loading" skeleton text.
   d. dist size: report the total size of the route files before and after.
@@ -497,7 +503,7 @@ If any step turns into a long fight, stop there, keep the steps that worked, and
 
 ---
 
-### Prompt 7 — Service page titles (NOV-11). Only if the owner has said yes.
+### Prompt 7 — Service page titles (NOV-11). Only if the owner has said yes. — NOT TO BE RUN (owner's decision, 28 Nov 2026)
 
 ```
 Audit ID: NOV-11. Branch: seo/service-titles

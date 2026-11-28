@@ -94,15 +94,30 @@ const normalizeContactValues = (data: Partial<ContactFormData>, fallback?: Conta
   };
 };
 
+// Audit NOV-12 (the owner's decision, 28 November 2026): a mobile number or an
+// email address is enough; not every client uses email. Each is checked for
+// its form when given, and EITHER_REQUIRED is raised when both are blank
+// (contactErrors below).
 const contactSchema = createFormSchema<ContactFormData>({
   name: [required('Please enter your name.')],
-  phone: [
-    required('Please enter a mobile number we can call.'),
-    anyCountryPhone('Please enter a 10-digit mobile number. From abroad, start with + and the country code.'),
-  ],
-  email: [required('Please enter your email address.'), email('This email address looks incomplete. Please check it.')],
+  phone: [anyCountryPhone('Please enter a 10-digit mobile number. From abroad, start with + and the country code.')],
+  email: [email('This email address looks incomplete. Please check it.')],
   message: [required('Please write a short message.')],
 });
+
+const EITHER_REQUIRED = 'Please enter a mobile number or an email address, so that we can reply.';
+const REPLY_FIELDS: (keyof ContactFormData)[] = ['phone', 'email'];
+const noReplyAddress = (values: ContactFormData) => !values.phone.trim() && !values.email.trim();
+
+/** Every field's error for the whole form, apart from the "Other" box. */
+const contactErrors = (values: ContactFormData) => {
+  const found = validateForm(values, contactSchema);
+  if (noReplyAddress(values)) {
+    found.phone = EITHER_REQUIRED;
+    found.email = EITHER_REQUIRED;
+  }
+  return found;
+};
 
 const CONTACT_FIELD_ORDER: (keyof ContactFormData)[] = ['name', 'phone', 'email', 'subjectOther', 'message'];
 const fieldId = (field: keyof ContactFormData) => `contact-${field}`;
@@ -116,7 +131,11 @@ const checkField = (field: keyof ContactFormData, values: ContactFormData): stri
   if (!validators) {
     return undefined;
   }
-  return validateForm(values, { [field]: validators } as FormSchema<ContactFormData>)[field];
+  const own = validateForm(values, { [field]: validators } as FormSchema<ContactFormData>)[field];
+  if (own) {
+    return own;
+  }
+  return REPLY_FIELDS.includes(field) && noReplyAddress(values) ? EITHER_REQUIRED : undefined;
 };
 
 // Matches the textarea's min-height in redesign.css (four lines).
@@ -294,6 +313,14 @@ const Contact: React.FC = () => {
       if (errors[field]) {
         setFieldError(field, checkField(field, { ...values, [field]: value }));
       }
+      // Filling in one of the two reply fields answers "one of these, please"
+      // on the other as well.
+      if (REPLY_FIELDS.includes(field) && value.trim()) {
+        const other = field === 'phone' ? 'email' : 'phone';
+        if (errors[other] === EITHER_REQUIRED) {
+          setFieldError(other, undefined);
+        }
+      }
     };
 
   const onFieldBlur =
@@ -353,7 +380,7 @@ const Contact: React.FC = () => {
     }
 
     triedRef.current = true;
-    const validationErrors = validateForm(values, contactSchema);
+    const validationErrors = contactErrors(values);
     const otherError = checkField('subjectOther', values);
 
     if (Object.keys(validationErrors).length > 0 || otherError) {
@@ -549,7 +576,8 @@ const Contact: React.FC = () => {
           <div hidden={isSuccess}>
             <h2 id="contact-form-heading">Send us a message</h2>
             <p className="fintro">
-              Tell us briefly what you need. Fields marked <span className="req-key">*</span> are required.
+              Tell us briefly what you need. Fields marked <span className="req-key">*</span> are required, and we need
+              a mobile number or an email address to reply.
             </p>
             <form className="rd-form" onSubmit={handleSubmit} noValidate>
               <Honeypot name="_honey" value={honeypot} onChange={setHoneypot} />
@@ -569,7 +597,7 @@ const Contact: React.FC = () => {
                     {...errorProps('name', errors.name)}
                   />
                 </FormField>
-                <FormField id={fieldId('phone')} label="Mobile number" required error={errors.phone}>
+                <FormField id={fieldId('phone')} label="Mobile number" qualifier="or email" error={errors.phone}>
                   <input
                     id={fieldId('phone')}
                     name="phone"
@@ -577,7 +605,6 @@ const Contact: React.FC = () => {
                     inputMode="tel"
                     autoComplete="tel"
                     maxLength={20}
-                    required
                     value={values.phone}
                     onChange={onFieldChange('phone')}
                     onBlur={onFieldBlur('phone')}
@@ -587,14 +614,13 @@ const Contact: React.FC = () => {
               </div>
 
               <div className="row2">
-                <FormField id={fieldId('email')} label="Email" required error={errors.email}>
+                <FormField id={fieldId('email')} label="Email" qualifier="or mobile number" error={errors.email}>
                   <input
                     id={fieldId('email')}
                     name="email"
                     type="email"
                     autoComplete="email"
                     maxLength={254}
-                    required
                     value={values.email}
                     onChange={onFieldChange('email')}
                     onBlur={onFieldBlur('email')}

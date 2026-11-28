@@ -240,6 +240,9 @@ NOV-06), a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
   When a send fails, `components/redesign/SendFailed.tsx` stays above the Send
   button with the phone, WhatsApp and email; no wording may show a status code
   or claim that anyone was notified (Audit NOV-01).
+- **The contact form asks for a mobile number or an email, not both** (the
+  owner's decision, Audit NOV-12): not every client uses email. Do not make
+  either one required on its own.
 
 ## Working norms
 

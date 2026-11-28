@@ -84,12 +84,54 @@ describe('Contact', () => {
     fireEvent.click(sendButton());
 
     expect(await screen.findByText('Please enter your name.')).toBeInTheDocument();
-    expect(screen.getByText('Please enter your email address.')).toBeInTheDocument();
-    expect(screen.getByText('Please enter a mobile number we can call.')).toBeInTheDocument();
+    // Audit NOV-12: one way to reply is enough, so the two fields share one message.
+    expect(screen.getAllByText('Please enter a mobile number or an email address, so that we can reply.')).toHaveLength(
+      2,
+    );
     expect(screen.getByText('Please write a short message.')).toBeInTheDocument();
     expect(screen.getByLabelText(/^name/i)).toHaveAttribute('aria-invalid', 'true');
     expect(mocks.addToast).toHaveBeenCalledWith('Please check the highlighted fields.', 'error');
     expect(mocks.post).not.toHaveBeenCalled();
+  });
+
+  it('sends with a mobile number and no email, and with an email and no mobile number (Audit NOV-12)', async () => {
+    mocks.post.mockResolvedValue({});
+    const first = renderContact();
+
+    fireEvent.change(screen.getByLabelText(/^name/i), { target: { value: 'Ramesh' } });
+    fireEvent.change(screen.getByLabelText(/^mobile number/i), { target: { value: '9482359455' } });
+    fireEvent.change(screen.getByLabelText(/^message/i), { target: { value: 'Please call me back.' } });
+    fireEvent.click(sendButton());
+
+    await waitFor(() => expect(mocks.post).toHaveBeenCalledTimes(1));
+    const [, byPhone] = mocks.post.mock.calls[0]!;
+    expect(byPhone).toMatchObject({ name: 'Ramesh', phone: '9482359455' });
+    expect(byPhone).not.toHaveProperty('email');
+    first.unmount();
+
+    mocks.post.mockClear();
+    renderContact();
+    fireEvent.change(screen.getByLabelText(/^name/i), { target: { value: 'Asha' } });
+    fireEvent.change(screen.getByLabelText(/^email/i), { target: { value: 'asha@example.com' } });
+    fireEvent.change(screen.getByLabelText(/^message/i), { target: { value: 'Please write to me.' } });
+    fireEvent.click(sendButton());
+
+    await waitFor(() => expect(mocks.post).toHaveBeenCalledTimes(1));
+    const [, byEmail] = mocks.post.mock.calls[0]!;
+    expect(byEmail).toMatchObject({ name: 'Asha', email: 'asha@example.com' });
+    expect(byEmail).not.toHaveProperty('phone');
+  });
+
+  it('clears "one of these, please" on both fields once either is filled in (Audit NOV-12)', async () => {
+    renderContact();
+    const either = 'Please enter a mobile number or an email address, so that we can reply.';
+
+    fireEvent.click(sendButton());
+    expect(await screen.findAllByText(either)).toHaveLength(2);
+
+    fireEvent.change(screen.getByLabelText(/^email/i), { target: { value: 'asha@example.com' } });
+    await waitFor(() => expect(screen.queryByText(either)).not.toBeInTheDocument());
+    expect(screen.getByLabelText(/^mobile number/i)).not.toHaveAttribute('aria-invalid');
   });
 
   it('checks a field when it is left', async () => {
