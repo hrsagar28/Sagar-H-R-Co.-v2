@@ -26,7 +26,13 @@ That is Prompts 1 to 6: **do not run them again.**
 
 **A slip in NOV-10, found on the live site and put right the same day:** Vite 8's bundler groups files differently, and React itself ended up inside the markdown chunk, so every page downloaded the markdown renderer (about 55 kB compressed) to start. Nothing broke and no test or page looked different, which is how it got through. The chunks are now set as the bundler's own groups with priorities (`vite.config.ts`), and `scripts/check-chunks.ts` runs in every build and fails it if the markdown renderer or the site's content is ever part of the first download again.
 
-**Nothing from this audit is left to do.** Open with the owner: the `@casagarhr` handle and a Google Business Profile link.
+**Last three points, settled by the owner the same day:**
+
+- NOV-13: the firm has no X (Twitter) account. The `twitter:site` and `twitter:creator` tags, which named `@casagarhr`, are removed from `components/SEO.tsx`. Do not add a handle the firm does not own.
+- The two open roles now close on 30 June 2027 (`constants/careers.ts`), not 31 December 2026.
+- A Google Business Profile link: **to be added in February 2027, with the office move**, together with the new address, the map position (`config/contact.ts`) and the contact page's description (`constants/pageMeta.ts`).
+
+**Nothing else from this audit is left to do.**
 
 ---
 
@@ -140,7 +146,7 @@ These need your answer, not code. The first three are carried over from October.
 
 ### Dates to keep in mind (not faults today)
 
-- **31 December 2026:** both open roles close and will hide themselves. You are interviewing now; extend the date in `constants/careers.ts` if hiring runs on.
+- **30 June 2027:** both open roles close and will hide themselves (extended from 31 December 2026 on the owner's word). The date is in `constants/careers.ts`.
 - **25 February 2027:** the office move. The address, the map position, the contact page's description ("Visit our KR Mohalla office") and the Google listing all change together; the address and map are in `config/contact.ts`, the description in `constants/pageMeta.ts`.
 - **Before 1 April 2027:** the due-date calendar and all tool figures are for 2026-27 only. The home page's due-date strip will run dry in March.
 

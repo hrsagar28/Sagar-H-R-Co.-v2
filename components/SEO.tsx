@@ -189,8 +189,9 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
-      <meta name="twitter:site" content="@casagarhr" />
-      <meta name="twitter:creator" content="@casagarhr" />
+      {/* No twitter:site or twitter:creator: the firm has no X account. The
+          tags once named a handle it does not own, which anyone could have
+          registered (Audit NOV-13). */}
 
       {article && (
         <>

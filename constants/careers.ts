@@ -48,7 +48,7 @@ export const OPEN_ROLES: JobPosting[] = [
       'CA Intermediate, B.Com or M.Com.',
     ],
     datePosted: '2026-10-05T00:00:00+05:30',
-    applicationDeadline: '2026-12-31T23:59:59+05:30',
+    applicationDeadline: '2027-06-30T23:59:59+05:30',
     workMode: 'On-site',
   },
   {
@@ -74,7 +74,7 @@ export const OPEN_ROLES: JobPosting[] = [
       'You live in Mysuru.',
     ],
     datePosted: '2026-10-05T00:00:00+05:30',
-    applicationDeadline: '2026-12-31T23:59:59+05:30',
+    applicationDeadline: '2027-06-30T23:59:59+05:30',
     workMode: 'On-site',
     applicantLocationType: 'City',
     applicantLocationName: 'Mysuru',
