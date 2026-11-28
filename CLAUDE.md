@@ -129,25 +129,33 @@ rather than raw values. `index.css` repeats the few the shared pieces need as
 
 Run these locally or in CI (see the sandbox caveat below):
 
-| Command               | What it does                                                                                                                                                                                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm run dev`         | Vite dev server on port 3000.                                                                                                                                                                                                                          |
-| `npm run build`       | Full production build — runs `generate-icons`, `check-csp-hash`, `generate-sitemap`, `generate-responsive-images` (all via `tsx`), then `vite build`, then `check-chunks`, then `generate-route-html` (each page's file, with its text; Audit NOV-04). |
-| `npx tsc --noEmit`    | TypeScript typecheck.                                                                                                                                                                                                                                  |
-| `npm run lint`        | ESLint over the repo.                                                                                                                                                                                                                                  |
-| `npm run test`        | Vitest (jsdom, globals, setup in `vitest.setup.ts`).                                                                                                                                                                                                   |
-| `npm run test:a11y`   | Vitest accessibility run (`pages/Home.test.tsx`).                                                                                                                                                                                                      |
-| `npm run lint:schema` | Validates the services structured-data schema.                                                                                                                                                                                                         |
-| `npm run format`      | Prettier (with the Tailwind class-sorting plugin).                                                                                                                                                                                                     |
+| Command               | What it does                                                                                                                                                                                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`         | Vite dev server on port 3000.                                                                                                                                                                                                                                                         |
+| `npm run build`       | Full production build — runs `generate-icons`, `check-csp-hash`, `generate-sitemap`, `generate-responsive-images` (all via `tsx`), then `vite build`, then `check-chunks`, then `generate-route-html` (each page's file, with its text; Audit NOV-04), then `check-csp-hash --built`. |
+| `npx tsc --noEmit`    | TypeScript typecheck.                                                                                                                                                                                                                                                                 |
+| `npm run lint`        | ESLint over the repo.                                                                                                                                                                                                                                                                 |
+| `npm run test`        | Vitest (jsdom, globals, setup in `vitest.setup.ts`).                                                                                                                                                                                                                                  |
+| `npm run test:a11y`   | Vitest accessibility run (`pages/Home.test.tsx`).                                                                                                                                                                                                                                     |
+| `npm run lint:schema` | Validates the services structured-data schema.                                                                                                                                                                                                                                        |
+| `npm run format`      | Prettier (with the Tailwind class-sorting plugin).                                                                                                                                                                                                                                    |
 
 A Husky `pre-commit` hook runs `lint-staged`.
 
 **`check-csp-hash` matters:** the production CSP in `netlify.toml` pins a
-`sha256` hash of the inline `<style>` block in `index.html`. If you edit that
-inline `<style>`, the build will fail until you regenerate the hash in
-`netlify.toml`. The same script also asserts that the `#preload-hero`
-overlay starts in the splash's black (`Preloader.tsx`) and turns to `--stone`
-(`components/redesign/redesign.css`).
+`sha256` hash of the inline `<style>` block that styles the first-paint
+overlay (`#preload-hero`). The hash is of the block **as built**, not as
+written in `index.html`: Vite 8 minifies it, so the two differ. The script
+therefore runs twice. Before the build it asserts that the overlay starts in
+the splash's black (`Preloader.tsx`) and turns to `--stone`
+(`components/redesign/redesign.css`). After the build (`--built`) it hashes
+the inline `<style>` in every page under `dist/` and fails if `netlify.toml`
+does not carry that hash, printing the token to paste in. If you edit the
+inline `<style>`, or a tooling upgrade changes how it is minified, the build
+fails until `netlify.toml` is updated. Do not go back to checking
+`index.html`: that check passed while browsers refused the block on the live
+site, the overlay lost its styling and the static page text showed while the
+app loaded (Audit NOV-14, the hard condition under NOV-04).
 
 ### Sandbox build caveat
 

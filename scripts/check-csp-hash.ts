@@ -1,23 +1,62 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
-const indexHtml = readFileSync('index.html', 'utf8');
+// Two checks, run at two points of `npm run build`.
+//
+//   tsx scripts/check-csp-hash.ts           before the build: the overlay's colours
+//   tsx scripts/check-csp-hash.ts --built   after the build: the fingerprint in the CSP
+//
+// The second one reads the finished pages in dist/, not index.html, and that
+// is the point of it (Audit NOV-14). The build rewrites the inline <style>
+// (Vite 8 minifies it), so the block a browser receives is not the block in
+// index.html, and its fingerprint is different. When the check compared
+// against index.html it passed while every browser refused the block: the
+// first-paint overlay lost its styling on the live site and no longer covered
+// the static page text (Audit NOV-04).
+const BUILT = process.argv.includes('--built');
 const netlifyToml = readFileSync('netlify.toml', 'utf8');
-const redesignCss = readFileSync('components/redesign/redesign.css', 'utf8');
 
-const styleMatch = indexHtml.match(/<style>([\s\S]*?)<\/style>/);
-if (!styleMatch?.[1]) {
-  throw new Error('Unable to find an inline <style> block in index.html.');
+if (BUILT) {
+  const csp = netlifyToml.match(/Content-Security-Policy = "([^"]+)"/)?.[1] ?? '';
+  const allowed = csp.match(/style-src-elem([^;]*)/)?.[1] ?? '';
+  const pages = (readdirSync('dist', { recursive: true }) as string[]).filter((file) => file.endsWith('.html'));
+  if (pages.length === 0) throw new Error('No built pages in dist/. Run this after the build.');
+
+  const wanted = new Map<string, string>();
+  let covered = 0;
+  for (const page of pages) {
+    const html = readFileSync(join('dist', page), 'utf8');
+    for (const match of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)) {
+      const css = match[1] ?? '';
+      const token = `'sha256-${createHash('sha256').update(css).digest('base64')}'`;
+      if (!allowed.includes(token)) wanted.set(token, page);
+    }
+    if (html.includes('id="preload-hero"') && /<style\b[^>]*>[^<]*#preload-hero\s*\{/.test(html)) covered += 1;
+  }
+
+  if (wanted.size > 0) {
+    const list = [...wanted].map(([token, page]) => `  ${token}  (first seen in dist/${page})`).join('\n');
+    throw new Error(
+      'CSP style hash is stale: browsers will refuse an inline <style> block in the built pages, ' +
+        'and the first-paint overlay will stop covering the page.\n' +
+        `Put this in style-src-elem in netlify.toml, in place of the old sha256 token:\n${list}`,
+    );
+  }
+  if (covered !== pages.length) {
+    throw new Error(
+      `${pages.length - covered} of ${pages.length} built pages lack the #preload-hero overlay or its inline <style>.`,
+    );
+  }
+  console.log(`CSP inline style hash matches the ${pages.length} built pages: ${allowed.trim()}`);
+  process.exit(0);
 }
 
-const computedHash = createHash('sha256').update(styleMatch[1]).digest('base64');
-const expectedToken = `'sha256-${computedHash}'`;
+const indexHtml = readFileSync('index.html', 'utf8');
+const redesignCss = readFileSync('components/redesign/redesign.css', 'utf8');
 
-if (!netlifyToml.includes(expectedToken)) {
-  throw new Error(
-    `CSP style hash is stale. Expected netlify.toml to include ${expectedToken}. ` +
-      'Regenerate it after editing the inline <style> block in index.html.',
-  );
+if (!/<style>[\s\S]*?#preload-hero[\s\S]*?<\/style>/.test(indexHtml)) {
+  throw new Error('Unable to find the inline <style> block for #preload-hero in index.html.');
 }
 
 // The first-paint overlay starts in the black of the first-visit splash
@@ -47,5 +86,4 @@ if (reducedBg?.toLowerCase() !== stone.toLowerCase()) {
   throw new Error(`Preload overlay for reduced motion (${reducedBg}) must match --stone (${stone}).`);
 }
 
-console.log(`CSP inline style hash is current: ${expectedToken}`);
 console.log(`Preload overlay matches the splash (${splashBg}), then --stone (${stone})`);
