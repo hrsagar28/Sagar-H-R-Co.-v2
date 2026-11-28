@@ -24,6 +24,8 @@ That is Prompts 1 to 6: **do not run them again.**
 
 **Done last, in the working folder:** NOV-10 (Prompt 6), the build tools upgrade: Vite 5 to 8, Vitest 1 to 5, the React plugin 4 to 6, jsdom 24 to 31, sharp 0.34 to 0.35, plus the non-breaking fixes. `npm audit` went from 15 advisories (two critical) to one, rated low, in the development server on Windows; the code that ships has none. All 238 tests pass; all 53 pages were checked at four widths and the no-flash check was repeated on the new build (84 loads, never uncovered). Three things changed with it: the React Compiler now runs through `@rolldown/plugin-babel` (`vite.config.ts`); the router and scheduler are named in `manualChunks`, because the new bundler no longer pulls a chunk's imports in with it; two tests were adjusted to the new test tools. Left alone, as planned: Tailwind 3, ESLint 9, TypeScript 5, react-markdown 9.
 
+**A slip in NOV-10, found on the live site and put right the same day:** Vite 8's bundler groups files differently, and React itself ended up inside the markdown chunk, so every page downloaded the markdown renderer (about 55 kB compressed) to start. Nothing broke and no test or page looked different, which is how it got through. The chunks are now set as the bundler's own groups with priorities (`vite.config.ts`), and `scripts/check-chunks.ts` runs in every build and fails it if the markdown renderer or the site's content is ever part of the first download again.
+
 **Nothing from this audit is left to do.** Open with the owner: the `@casagarhr` handle and a Google Business Profile link.
 
 ---

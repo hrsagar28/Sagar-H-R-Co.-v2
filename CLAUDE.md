@@ -129,16 +129,16 @@ rather than raw values. `index.css` repeats the few the shared pieces need as
 
 Run these locally or in CI (see the sandbox caveat below):
 
-| Command               | What it does                                                                                                                                                                                                                      |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`         | Vite dev server on port 3000.                                                                                                                                                                                                     |
-| `npm run build`       | Full production build — runs `generate-icons`, `check-csp-hash`, `generate-sitemap`, `generate-responsive-images` (all via `tsx`), then `vite build`, then `generate-route-html` (each page's file, with its text; Audit NOV-04). |
-| `npx tsc --noEmit`    | TypeScript typecheck.                                                                                                                                                                                                             |
-| `npm run lint`        | ESLint over the repo.                                                                                                                                                                                                             |
-| `npm run test`        | Vitest (jsdom, globals, setup in `vitest.setup.ts`).                                                                                                                                                                              |
-| `npm run test:a11y`   | Vitest accessibility run (`pages/Home.test.tsx`).                                                                                                                                                                                 |
-| `npm run lint:schema` | Validates the services structured-data schema.                                                                                                                                                                                    |
-| `npm run format`      | Prettier (with the Tailwind class-sorting plugin).                                                                                                                                                                                |
+| Command               | What it does                                                                                                                                                                                                                                           |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run dev`         | Vite dev server on port 3000.                                                                                                                                                                                                                          |
+| `npm run build`       | Full production build — runs `generate-icons`, `check-csp-hash`, `generate-sitemap`, `generate-responsive-images` (all via `tsx`), then `vite build`, then `check-chunks`, then `generate-route-html` (each page's file, with its text; Audit NOV-04). |
+| `npx tsc --noEmit`    | TypeScript typecheck.                                                                                                                                                                                                                                  |
+| `npm run lint`        | ESLint over the repo.                                                                                                                                                                                                                                  |
+| `npm run test`        | Vitest (jsdom, globals, setup in `vitest.setup.ts`).                                                                                                                                                                                                   |
+| `npm run test:a11y`   | Vitest accessibility run (`pages/Home.test.tsx`).                                                                                                                                                                                                      |
+| `npm run lint:schema` | Validates the services structured-data schema.                                                                                                                                                                                                         |
+| `npm run format`      | Prettier (with the Tailwind class-sorting plugin).                                                                                                                                                                                                     |
 
 A Husky `pre-commit` hook runs `lint-staged`.
 
@@ -195,8 +195,8 @@ the same colour as the text around them (Audit A11Y-01).
 
 **Performance** — routes are `React.lazy`-loaded with Suspense skeleton
 fallbacks; the React Compiler, there for files that opt in; the page styles in
-a stylesheet of their own (`redesign.css`, loaded with the layout); manual
-vendor chunks in `vite.config.ts` (`react-vendor`, `markdown-vendor`); self-hosted preloaded fonts; the `#preload-hero` overlay
+a stylesheet of their own (`redesign.css`, loaded with the layout); two
+shared chunks in `vite.config.ts` (`react-vendor`, and `markdown-vendor`, which only an article loads; `scripts/check-chunks.ts` fails the build if the markdown renderer or the site's content ever joins the first download, Audits NOV-05 and NOV-10); self-hosted preloaded fonts; the `#preload-hero` overlay
 that paints the first screen instantly (the splash's black on a first visit,
 then the home page's limestone) and is removed on the `app:hero-ready` event.
 

@@ -43,38 +43,30 @@ export default defineConfig(() => {
       // down-levelling for syntax all supported browsers already handle,
       // shaving a little output size. (Default is a broad 'modules' target.)
       target: 'es2022',
-      rollupOptions: {
+      rolldownOptions: {
         output: {
-          manualChunks(id) {
-            if (!id.includes('node_modules')) return;
-
-            const normalizedId = id.replace(/\\/g, '/');
-
-            if (
-              normalizedId.includes('/node_modules/react/') ||
-              normalizedId.includes('/node_modules/react-dom/') ||
-              normalizedId.includes('/node_modules/react-router-dom/') ||
-              // Audit NOV-10: named one by one. Vite 8's bundler puts only the
-              // modules matched here in the chunk; the old one also brought in
-              // whatever they import, and without these the router and the
-              // scheduler land in the first file instead.
-              normalizedId.includes('/node_modules/react-router/') ||
-              normalizedId.includes('/node_modules/scheduler/') ||
-              normalizedId.includes('/node_modules/cookie/') ||
-              normalizedId.includes('/node_modules/set-cookie-parser/')
-            ) {
-              return 'react-vendor';
-            }
-
-            if (
-              normalizedId.includes('/node_modules/react-markdown/') ||
-              normalizedId.includes('/node_modules/remark-gfm/') ||
-              normalizedId.includes('/node_modules/remark-directive/') ||
-              normalizedId.includes('/node_modules/rehype-sanitize/') ||
-              normalizedId.includes('/node_modules/unist-util-visit/')
-            ) {
-              return 'markdown-vendor';
-            }
+          // Two shared chunks beside the pages' own: React with the router,
+          // which every page needs, and the markdown renderer, which only an
+          // article needs. Audit NOV-10: written as rolldown's groups, not as
+          // a manualChunks function. A group takes in what its modules import
+          // as well, so with the old function the markdown chunk (through
+          // react-markdown) swallowed React itself, and every page then had
+          // to download the markdown renderer to start. The higher priority
+          // gives React and the router to react-vendor first.
+          // scripts/check-chunks.ts fails the build if that ever recurs.
+          codeSplitting: {
+            groups: [
+              {
+                name: 'react-vendor',
+                test: /[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler|cookie|set-cookie-parser)[\\/]/,
+                priority: 20,
+              },
+              {
+                name: 'markdown-vendor',
+                test: /[\\/]node_modules[\\/](react-markdown|remark-gfm|remark-directive|rehype-sanitize|unist-util-visit)[\\/]/,
+                priority: 10,
+              },
+            ],
           },
         },
       },
