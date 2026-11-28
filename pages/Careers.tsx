@@ -3,7 +3,7 @@ import SEO from '../components/SEO';
 import ApplicationForm, { ANY_ROLE } from '../components/redesign/ApplicationForm';
 import { ArrowRight } from '../components/redesign/icons';
 import { useReducedMotion } from '../hooks';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { careersMeta } from '../constants/pageMeta';
 import { CAREERS_APPLY_URL, CAREERS_RESPONSE_TIME, getOpenRoles, type JobPosting } from '../constants/careers';
 

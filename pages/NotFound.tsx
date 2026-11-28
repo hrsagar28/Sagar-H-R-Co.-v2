@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { ArrowRight } from '../components/redesign/icons';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 
 // 2026 redesign of the "page not found" screen. Any address that matches no
 // page renders inside RedesignLayout (routes.ts); ServiceDetail shows it with

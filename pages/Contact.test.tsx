@@ -1,9 +1,10 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, type InitialEntry } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Contact from './Contact';
+import { ApiError } from '../utils/api';
 
 const mocks = vi.hoisted(() => ({
   addToast: vi.fn(),
@@ -202,6 +203,42 @@ describe('Contact', () => {
     });
     expect(screen.queryByRole('heading', { name: /thank you/i })).not.toBeInTheDocument();
     expect(mocks.clearDraft).not.toHaveBeenCalled();
+  });
+
+  it('offers the phone, WhatsApp and email when the sending service fails, and claims nothing else (Audit NOV-01)', async () => {
+    mocks.post.mockRejectedValue(new ApiError('', 500, 'SERVER_ERROR'));
+    renderContact();
+
+    fillRequiredFields();
+    fireEvent.click(sendButton());
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/We could not send your message just now/);
+    expect(within(alert).getByRole('link', { name: '+91 94823 59455' })).toHaveAttribute('href', 'tel:+919482359455');
+    expect(within(alert).getByRole('link', { name: /WhatsApp/ })).toHaveAttribute('target', '_blank');
+    expect(within(alert).getByRole('link', { name: 'mail@casagar.co.in' })).toHaveAttribute(
+      'href',
+      'mailto:mail@casagar.co.in',
+    );
+    // What was typed is kept, and no wording invents a notification or shows a status code.
+    expect(screen.getByLabelText(/^message/i)).toHaveValue('Please call me back.');
+    const said = `${document.body.textContent} ${mocks.addToast.mock.calls.map(([text]) => String(text)).join(' ')}`;
+    expect(said).not.toMatch(/notified/i);
+    expect(said).not.toMatch(/\(\d{3}\)/);
+    expect(mocks.clearDraft).not.toHaveBeenCalled();
+  });
+
+  it('asks the visitor to check the connection, with no other-ways message, when the network fails', async () => {
+    mocks.post.mockRejectedValue(new ApiError('Connection failed. Please check your internet.', 0, 'NETWORK_ERROR'));
+    renderContact();
+
+    fillRequiredFields();
+    fireEvent.click(sendButton());
+
+    await waitFor(() => {
+      expect(mocks.addToast).toHaveBeenCalledWith(expect.stringMatching(/check your connection/), 'error');
+    });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('blocks after three attempts and shows the wait message', async () => {

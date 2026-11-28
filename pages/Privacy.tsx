@@ -1,7 +1,7 @@
 import React from 'react';
 import SEO from '../components/SEO';
 import LegalPage, { ContactCard, LegalTable, type LegalSection } from '../components/redesign/LegalPage';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { PAGE_META } from '../constants/pageMeta';
 
 // 2026 redesign of /privacy. Rendered inside RedesignLayout, which supplies the

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { ArrowRight } from '../components/redesign/icons';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { PAGE_META } from '../constants/pageMeta';
 import { SITE_URL } from '../config/site';
 import { useInsights } from '../hooks';

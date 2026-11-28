@@ -7,6 +7,7 @@ import { axe } from 'vitest-axe';
 import * as matchers from 'vitest-axe/matchers';
 import { OPEN_ROLES } from '../constants/careers';
 import Careers from './Careers';
+import { ApiError } from '../utils/api';
 
 expect.extend(matchers);
 
@@ -149,6 +150,24 @@ describe('Careers', () => {
     });
     expect(await screen.findByRole('heading', { name: 'Thank you, Priya.' })).toBeInTheDocument();
     expect(mocks.clearDraft).toHaveBeenCalled();
+  });
+
+  it('offers the phone and email when the sending service fails, with no status code (Audit NOV-01)', async () => {
+    mocks.post.mockRejectedValue(new ApiError('', 503, 'SERVER_ERROR'));
+    renderCareers(WHILE_OPEN);
+
+    fireEvent.click(within(form()).getByLabelText('Audit Associate'));
+    fillForm();
+    fireEvent.click(screen.getByRole('button', { name: /send application/i }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/We could not send your application just now/);
+    expect(within(alert).getByRole('link', { name: '+91 94823 59455' })).toHaveAttribute('href', 'tel:+919482359455');
+    expect(within(alert).getByRole('link', { name: 'mail@casagar.co.in' })).toBeInTheDocument();
+    expect(within(form()).getByLabelText(/^full name/i)).toHaveValue('Priya Raman');
+    const said = `${document.body.textContent} ${mocks.addToast.mock.calls.map(([text]) => String(text)).join(' ')}`;
+    expect(said).not.toMatch(/notified/i);
+    expect(said).not.toMatch(/\(\d{3}\)/);
   });
 
   it('does not send when the honeypot is filled, and says how else to reach us', () => {

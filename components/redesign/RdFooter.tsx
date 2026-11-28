@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CONTACT_INFO } from '../../constants';
+import { CONTACT_INFO } from '../../config/contact';
 import { useReducedMotion } from '../../hooks';
 import { toRomanNumeral } from '../../utils/toRomanNumeral';
 import {

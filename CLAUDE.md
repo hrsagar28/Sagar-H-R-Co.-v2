@@ -116,6 +116,11 @@ rather than raw values. `index.css` repeats the few the shared pieces need as
   documented plan to promote them one at a time. Do **not** introduce new
   violations of these rules, and do not flip them to `'error'` casually —
   follow the order written in that file.
+- **The constants barrel (Audit NOV-05).** `constants/index.ts` re-exports
+  every FAQ, service page and due date. The files of the first screen
+  (`App.tsx`, `index.tsx`, `components/**`, `hooks/**`, `context/**`) must not
+  import from it, or all of that joins the first download; they take
+  `CONTACT_INFO` from `config/contact`. ESLint enforces it.
 - `@typescript-eslint/no-explicit-any` is `warn`; unused vars are allowed only
   with a leading underscore (`_unused`).
 
@@ -174,8 +179,10 @@ words "Audit. Taxation. Advisory." painted by `index.html`, is gone for good:
 the two clashed.
 
 **Accessibility** — skip-to-content link; programmatic focus of `#main-content`
-on every route change (`RouteHandler` in `App.tsx`); route-change screen-reader
-announcements via `AnnounceProvider` / `useAnnounce`; `:focus-visible`
+on every route change after arrival (`components/RouteHandler.tsx`; on arrival
+focus stays at the top, so the skip link and the menu come first, Audit
+NOV-07); route-change screen-reader announcements via `AnnounceProvider` /
+`useAnnounce`; `:focus-visible`
 styling; `inert` on hidden interactive regions; a global
 `prefers-reduced-motion` override in `index.css` paired with the
 `useReducedMotion` hook for JS-driven animation; manual `scrollRestoration`, with `RouteHandler` itself returning to the
@@ -206,7 +213,8 @@ page's own are in the head, so a page has one title and one description
 **Cursor** — `components/CustomCursor.tsx` draws every cursor itself (a dot, a
 see-through circle over links, a text bar over text), because the browser
 only redraws its own cursor when the mouse moves. For mouse/trackpad users
-with motion allowed, `index.css` hides the browser's cursor everywhere with
+with motion allowed, and neither forced colours nor a request for more
+contrast (Audit NOV-08), `index.css` hides the browser's cursor everywhere with
 `cursor: none !important`, from the first paint — so a `cursor:` rule in a
 component has no visible effect for them. `html.cur-native` gives the
 browser's cursor back (crash, or the cursor's code failing to load:
@@ -216,7 +224,9 @@ must keep the browser's cursor (embedded maps).
 ## Deployment
 
 Netlify. Pushing to `main` triggers an auto-deploy. `netlify.toml` defines the
-SPA fallback redirect, a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
+SPA fallback (status 404: an address with no file of its own in `dist/` is
+"not found", so every route needs its entry in `scripts/route-html.ts`; Audit
+NOV-06), a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
 `X-Frame-Options`, …), and cache headers. Serverless functions live in
 `netlify/`.
 
@@ -227,6 +237,9 @@ SPA fallback redirect, a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
   to FormSubmit (`utils/formSubmit.ts`, endpoint in `config/contact.ts`).
   FormSubmit answers requests from hosting servers with 403, so routing them
   through a Netlify function does not work.
+  When a send fails, `components/redesign/SendFailed.tsx` stays above the Send
+  button with the phone, WhatsApp and email; no wording may show a status code
+  or claim that anyone was notified (Audit NOV-01).
 
 ## Working norms
 

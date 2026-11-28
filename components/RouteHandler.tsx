@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { useAnnounce } from '../hooks';
 
 // On every route change: the scroll position (top for a new page, the saved
 // position on back and forward, Audit UX-01), focus on #main-content, and the
-// screen-reader announcement.
+// screen-reader announcement. Focus and the announcement wait until the
+// visitor has gone from one page to another (Audit NOV-07).
 
 /** What the live region says after a route change: "Navigated to …". */
 export const routeAnnouncement = (pathname: string): string => {
@@ -54,9 +55,17 @@ const readScroll = (pathname: string): number | null => {
 };
 
 const RouteHandler = () => {
-  const { pathname } = useLocation();
+  const { pathname, key } = useLocation();
   const navigationType = useNavigationType();
   const { announce } = useAnnounce();
+  // Audit NOV-07: on arrival the keyboard starts at the top of the document,
+  // so the skip link and the menu come first; moving focus into <main> then
+  // put both behind the starting point. Focus moves to the page, and the
+  // page is announced, only once the visitor has navigated within the site.
+  // (Not `key === 'default'`: after a reload the browser hands back the
+  // entry's earlier key. Refs also hold through StrictMode's second run.)
+  const arrivalKey = useRef(key);
+  const navigated = useRef(false);
 
   // Remember the position as the visitor scrolls.
   useEffect(() => {
@@ -78,6 +87,8 @@ const RouteHandler = () => {
   useEffect(() => {
     let rafId = 0;
     const stored = navigationType === 'POP' ? readScroll(pathname) : null;
+    if (key !== arrivalKey.current) navigated.current = true;
+    const arrival = !navigated.current;
 
     if (stored === null) {
       window.scrollTo({
@@ -85,6 +96,7 @@ const RouteHandler = () => {
         left: 0,
         behavior: 'instant',
       });
+      if (arrival) return;
 
       rafId = window.requestAnimationFrame(() => {
         document.getElementById('main-content')?.focus({ preventScroll: true });
@@ -100,7 +112,7 @@ const RouteHandler = () => {
       const maxY = document.documentElement.scrollHeight - window.innerHeight;
       if (maxY >= stored || tries > 60) {
         window.scrollTo({ top: stored, left: 0, behavior: 'instant' });
-        document.getElementById('main-content')?.focus({ preventScroll: true });
+        if (!arrival) document.getElementById('main-content')?.focus({ preventScroll: true });
         return;
       }
       tries += 1;
@@ -109,10 +121,16 @@ const RouteHandler = () => {
     rafId = window.requestAnimationFrame(restore);
 
     return () => window.cancelAnimationFrame(rafId);
+    // `key` is read, not listed: a move within one page (/#about) changes it,
+    // and Home.tsx places those itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, navigationType]);
 
-  // Accessibility Announcement for Route Change
+  // Accessibility Announcement for Route Change. Not on arrival: the screen
+  // reader reads the page's title then, and "Navigated to …" would be noise.
+  // (The effect above runs first and has already noted a navigation.)
   useEffect(() => {
+    if (!navigated.current) return;
     announce(routeAnnouncement(pathname));
   }, [pathname, announce]);
 

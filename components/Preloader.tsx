@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useReducedMotion } from '../hooks';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 
 /**
  * The first-visit splash: the firm's name on black, a rule drawn under it and

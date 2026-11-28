@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, NavLink } from 'react-router-dom';
-import { CONTACT_INFO } from '../../constants';
+import { CONTACT_INFO } from '../../config/contact';
 import { useFocusTrap } from '../../hooks';
 import { RD_PRIMARY_LINKS } from './content';
 import { CloseIcon, MenuIcon, PhoneIcon } from './icons';

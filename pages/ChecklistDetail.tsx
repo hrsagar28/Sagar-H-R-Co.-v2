@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { RD_HOURS_SUMMARY } from '../components/redesign/content';
 import { ArrowLeft, ArrowRight } from '../components/redesign/icons';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { CHECKLISTS, getChecklist } from '../constants/resources';
 import { SITE_URL } from '../config/site';
 import NotFound from './NotFound';

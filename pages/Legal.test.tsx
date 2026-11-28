@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Privacy from './Privacy';
 import Terms from './Terms';
 import Disclaimer from './Disclaimer';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { hasLightHeader } from '../components/redesign/routes';
 
 vi.mock('../components/SEO', () => ({

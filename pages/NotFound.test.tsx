@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import * as matchers from 'vitest-axe/matchers';
 import NotFound from './NotFound';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { hasLightHeader, isHomeRoute } from '../components/redesign/routes';
 
 expect.extend(matchers);

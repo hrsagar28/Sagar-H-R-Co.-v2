@@ -1,5 +1,5 @@
 import React from 'react';
-import { CONTACT_INFO } from '../../constants';
+import { CONTACT_INFO } from '../../config/contact';
 
 /**
  * The Google map of the office, on the Contact page and the home page. Muted

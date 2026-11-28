@@ -2,7 +2,7 @@ import React from 'react';
 import '@testing-library/jest-dom/vitest';
 import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import Preloader from './Preloader';
 
 // The first-visit splash is kept at the owner's request, exactly as it was

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import RdHeader from './RdHeader';
 import RdFooter from './RdFooter';
@@ -18,15 +18,6 @@ const RedesignLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const [barOn, setBarOn] = useState(false);
   const { pathname } = useLocation();
   const head = isHomeRoute(pathname) ? 'head-home' : hasLightHeader(pathname) ? 'head-light' : '';
-
-  // RouteHandler focuses #main-content one frame after a route change. On the
-  // first visit to a redesigned page this lazy layout may not have arrived by
-  // then, so pick that focus up here instead of leaving it on <body>.
-  useEffect(() => {
-    if (!document.activeElement || document.activeElement === document.body) {
-      document.getElementById('main-content')?.focus({ preventScroll: true });
-    }
-  }, []);
 
   return (
     <div className={`rd rd-shell ${barOn ? 'bar-on' : ''} ${head}`}>

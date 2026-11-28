@@ -7,7 +7,7 @@ import RdPageSkeleton from '../components/redesign/RdPageSkeleton';
 import { ABOUT_PATH } from '../components/redesign/routes';
 import ShareLink from '../components/redesign/ShareLink';
 import { ArrowLeft, ArrowRight } from '../components/redesign/icons';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { articleTitle } from '../constants/pageMeta';
 import { SITE_URL } from '../config/site';
 import { useArticleBody, useInsights } from '../hooks';

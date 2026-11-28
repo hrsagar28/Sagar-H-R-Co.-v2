@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import Honeypot from '../forms/Honeypot';
 import FormField, { fieldErrorProps } from './FormField';
 import { ArrowRight } from './icons';
-import { CONTACT_INFO } from '../../constants';
+import { CONTACT_INFO } from '../../config/contact';
+import SendFailed from './SendFailed';
 import { CAREERS_RESPONSE_TIME } from '../../constants/careers';
 import { useFormDraft, useFormValidation, useRateLimit, useToast } from '../../hooks';
 import {
@@ -98,6 +99,8 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState<{ name: string; role: string } | null>(null);
   const [honeypot, setHoneypot] = useState('');
+  // Audit NOV-01: see <SendFailed>. Not set when the visitor's own connection failed.
+  const [sendFailed, setSendFailed] = useState(false);
   const [roleError, setRoleError] = useState<string>();
   const [maxDob] = useState(todayInIndia);
   const sentHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -175,6 +178,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
     // reach us rather than seeing nothing happen.
     if (honeypot) {
       logger.warn('Career form: hidden spam-check field was filled', { form: 'careers' });
+      setSendFailed(true);
       addToast(`We could not send your application. Please email us at ${CONTACT_INFO.email}`, 'error');
       return;
     }
@@ -203,6 +207,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
     // Count an attempt only once the form is valid and about to be sent, so
     // validation mistakes don't use up the rate limit.
     recordAttempt();
+    setSendFailed(false);
     setIsSubmitting(true);
 
     try {
@@ -228,16 +233,21 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
       triedRef.current = false;
     } catch (error) {
       logger.error('Career form error', { error, form: 'careers' });
-      let message = `We could not send your application. Please email us at ${CONTACT_INFO.email}`;
+      // Audit NOV-01: plain words, never a status code.
+      let message = `We could not send your application just now. Please call ${CONTACT_INFO.phone.display} or email ${CONTACT_INFO.email}`;
+      let ownConnection = false;
       if (error instanceof ApiError) {
         if (error.code === 'NETWORK_ERROR') {
           message = 'Network unavailable. Please check your connection and try again.';
+          ownConnection = true;
         } else if (error.code === 'TIMEOUT') {
           message = 'The request timed out. Please check your connection and try again.';
+          ownConnection = true;
         } else if (error.message) {
           message = error.message;
         }
       }
+      setSendFailed(!ownConnection);
       addToast(message, 'error');
     } finally {
       setIsSubmitting(false);
@@ -444,6 +454,7 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ roles, role, onRoleCh
             />
           </FormField>
 
+          {sendFailed && <SendFailed what="application" />}
           <div className="submit-row">
             <button className="btn" type="submit" disabled={isSubmitting || !canSubmit}>
               {isSubmitting ? (

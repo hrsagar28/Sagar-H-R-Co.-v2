@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Honeypot from '../components/forms/Honeypot';
-import { CONTACT_INFO } from '../constants';
+import { CONTACT_INFO } from '../config/contact';
 import { PAGE_META } from '../constants/pageMeta';
 import { useFormDraft, useFormValidation, useRateLimit, useToast } from '../hooks';
 import {
@@ -20,6 +20,7 @@ import { logger } from '../utils/logger';
 import { ArrowRight } from '../components/redesign/icons';
 import FormField, { fieldErrorProps } from '../components/redesign/FormField';
 import OfficeMap from '../components/redesign/OfficeMap';
+import SendFailed from '../components/redesign/SendFailed';
 import { RD_HOURS_TABLE } from '../components/redesign/content';
 
 // 2026 redesign of /contact. Rendered inside RedesignLayout, which supplies the
@@ -174,6 +175,9 @@ const Contact: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(() => new URLSearchParams(location.search).get('sent') === '1');
   const [sentName, setSentName] = useState('');
   const [honeypot, setHoneypot] = useState('');
+  // Audit NOV-01: a send that failed for a reason other than the visitor's own
+  // connection. Shows <SendFailed> above the Send button until the next attempt.
+  const [sendFailed, setSendFailed] = useState(false);
   const [today, setToday] = useState(weekdayInIndia);
   const successHeadingRef = useRef<HTMLHeadingElement>(null);
   const formSectionRef = useRef<HTMLElement>(null);
@@ -338,6 +342,7 @@ const Contact: React.FC = () => {
     // with a Send button that seems to do nothing.
     if (honeypot) {
       logger.warn('Contact form: hidden spam-check field was filled', { form: 'contact' });
+      setSendFailed(true);
       addToast(`We could not send your message. Please email us directly at ${CONTACT_INFO.email}`, 'error');
       return;
     }
@@ -370,6 +375,7 @@ const Contact: React.FC = () => {
     // the network, so validation mistakes don't burn the client rate limit.
     recordAttempt();
 
+    setSendFailed(false);
     setIsSubmitting(true);
 
     try {
@@ -396,25 +402,26 @@ const Contact: React.FC = () => {
       logger.error('Contact form error', { error, form: 'contact', canSubmit, timeUntilReset });
       // CF-6: distinguish "wait a day" from "outage" from "bad connection", and
       // surface the function's own message where it is more specific.
-      let msg = `Failed to send message. Please email us directly at ${CONTACT_INFO.email}`;
+      // Audit NOV-01: plain words, never a status code, and no claim that
+      // anyone has been told (the site has no backend to tell).
+      let msg = `We could not send your message just now. Please call ${CONTACT_INFO.phone.display} or email ${CONTACT_INFO.email}`;
+      let ownConnection = false;
       if (error instanceof ApiError) {
         if (error.code === 'NETWORK_ERROR') {
           msg = 'Network unavailable. Please check your connection and try again.';
+          ownConnection = true;
         } else if (error.code === 'TIMEOUT') {
           msg = 'The request timed out. Please check your connection and try again.';
+          ownConnection = true;
         } else if (error.status === 429) {
           msg =
             error.message || `You’ve reached the submission limit. Please email us directly at ${CONTACT_INFO.email}`;
-        } else if (error.status === 422 || error.status === 400) {
-          msg =
-            error.message ||
-            `We couldn't verify your submission. Please refresh the page and try again, or email us at ${CONTACT_INFO.email}`;
-        } else {
-          msg =
-            error.message ||
-            `Our contact system is temporarily unavailable. Please email us directly at ${CONTACT_INFO.email}`;
+        } else if (error.message) {
+          // FormSubmit's own refusal, worded in utils/formSubmit.ts.
+          msg = error.message;
         }
       }
+      setSendFailed(!ownConnection);
       addToast(msg, 'error');
     } finally {
       setIsSubmitting(false);
@@ -664,6 +671,7 @@ const Contact: React.FC = () => {
                 />
               </FormField>
 
+              {sendFailed && <SendFailed what="message" whatsapp />}
               <div className="submit-row">
                 <button className="btn" type="submit" disabled={isSubmitting || !canSubmit}>
                   {isSubmitting ? (

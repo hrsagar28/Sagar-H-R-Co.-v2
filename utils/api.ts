@@ -68,19 +68,15 @@ async function fetchWithRetry(url: string, options: RequestInit, config: ApiConf
         if (response.status === 429) {
           throw new ApiError(serverMessage || 'Too many requests. Please try again later.', 429, 'RATE_LIMIT');
         }
+        // Audit NOV-01: no invented wording here. The site has no backend, so
+        // "our team has been notified" was untrue, and "Request failed (403)"
+        // means nothing to a visitor. The message is the server's own, or
+        // empty, and the caller chooses what to say.
         if (response.status >= 500) {
-          throw new ApiError(
-            serverMessage || `Server error (${response.status}). Our team has been notified.`,
-            response.status,
-            'SERVER_ERROR',
-          );
+          throw new ApiError(serverMessage, response.status, 'SERVER_ERROR');
         }
         // Client errors (4xx)
-        throw new ApiError(
-          serverMessage || `Request failed (${response.status}): ${response.statusText}`,
-          response.status,
-          'CLIENT_ERROR',
-        );
+        throw new ApiError(serverMessage, response.status, 'CLIENT_ERROR');
       }
 
       return response;

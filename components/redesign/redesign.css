@@ -90,6 +90,7 @@
 .rd .closed a,
 .rd .ainfo .mailto a,
 .rd .fnote a,
+.rd .fail a,
 .rd .nudge a {
   text-decoration-line: underline;
 }
@@ -1034,6 +1035,21 @@
   /* The darker copper: the lighter one is under 3:1 here (Audit A11Y-02). */
   outline: 2px solid var(--copper-d);
   outline-offset: 2px;
+}
+/* Audit NOV-01: a send that failed (components/redesign/SendFailed.tsx). It
+   stays above the Send button until the next attempt. */
+.rd .fail {
+  margin: 0 0 22px;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--err);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  max-width: 56ch;
+}
+.rd .fail a {
+  color: var(--ink);
+  text-underline-offset: 3px;
 }
 .rd .submit-row {
   display: flex;
@@ -2570,6 +2586,12 @@
   }
   .rd .sdoc .sec-h,
   .rd .cdoc .sec-h {
+    margin-bottom: 22px;
+  }
+  /* Audit NOV-09: the tools' sections too. Without it the first row of the
+     list touched the sand band of the heading (TDS rates, stamp duty). A
+     band section's heading has no band of its own here, so it needs none. */
+  .rd .tool .sec:not(.band) > .sec-h {
     margin-bottom: 22px;
   }
   .rd .inc li {

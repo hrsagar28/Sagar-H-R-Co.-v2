@@ -1,3 +1,9 @@
+// Audit NOV-05: this barrel carries every FAQ, every service page and the
+// year's due dates. A file that needs only the firm's details imports
+// CONTACT_INFO from '../config/contact' instead; if a file of the first
+// screen (App.tsx, the splash, the layout) imports from here, all of that
+// content joins the first download. eslint.config.js enforces this for the
+// shell files.
 // Constants barrel. Audit CQ-09: previously this barrel lived at
 // `constants.tsx` in the repo root, alongside the `constants/` directory
 // it pointed at. Moved here so the root contains directory-level units

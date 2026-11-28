@@ -92,19 +92,20 @@
   to = "/services/bookkeeping-and-payroll"
   status = 301
 
-# The single-page fallback. Every public address also has a file of its own
-# in dist/ (scripts/generate-route-html.ts, Audit SEO-02), which Netlify serves
-# ahead of this rule; this rule answers everything else.
+# The single-page fallback. Every public address has a file of its own in
+# dist/ (scripts/generate-route-html.ts, Audit SEO-02), which Netlify serves
+# ahead of this rule with status 200; this rule answers everything else.
 #
-# Audit SEO-05: once a deploy shows the route files being served (a link to
-# /services/gst previews with its own title, and answers 200), this status can
-# become 404, so that an unknown address answers 404 while the application
-# still boots on it and shows "Page not found". Do not change it before then:
-# if the route files were not served, every page would answer 404.
+# Audit SEO-05 / NOV-06: an address that has no page answers 404. The
+# application still boots on it and shows "Page not found". The route files
+# were seen being served on the live site on 28 November 2026 (/services/gst
+# answered 200 with its own title), which is what makes this safe: if they
+# were ever not served, every page but the home page would answer 404. A new
+# route therefore needs its entry in scripts/route-html.ts before it ships.
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200
+  status = 404
 
 [[headers]]
   for = "/data/*"
@@ -132,6 +133,13 @@
   for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# Audit NOV-09: the portrait. Its file names carry no hash of the content, so
+# not "immutable", but a week saves returning visitors a round trip.
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
 
 [[headers]]
   for = "/*"

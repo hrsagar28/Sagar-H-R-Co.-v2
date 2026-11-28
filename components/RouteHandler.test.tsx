@@ -62,10 +62,35 @@ describe('RouteHandler', () => {
     expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 640, left: 0, behavior: 'instant' });
   });
 
-  it('announces the page by name', () => {
-    renderAt('/faqs');
+  it('announces the page by name once the visitor navigates, not on arrival (Audit NOV-07)', () => {
+    renderAt('/services');
+    expect(announce).not.toHaveBeenCalled();
 
+    act(() => navigate('/faqs'));
     expect(announce).toHaveBeenCalledWith('Navigated to FAQ');
+
+    act(() => navigate(-1));
+    expect(announce).toHaveBeenLastCalledWith('Navigated to Services');
+  });
+
+  it('leaves keyboard focus at the top on arrival and moves it to the page on navigation (Audit NOV-07)', () => {
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    main.tabIndex = -1;
+    document.body.appendChild(main);
+    try {
+      renderAt('/services');
+      expect(document.activeElement).toBe(document.body);
+
+      act(() => navigate('/services/gst'));
+      expect(document.activeElement).toBe(main);
+
+      main.blur();
+      act(() => navigate(-1));
+      expect(document.activeElement).toBe(main);
+    } finally {
+      main.remove();
+    }
   });
 });
 

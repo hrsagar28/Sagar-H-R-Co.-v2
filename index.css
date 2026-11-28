@@ -471,8 +471,12 @@ html {
    mouse or trackpad, motion allowed. html.cur-native gives it back (a crash,
    or the cursor's code failing to load: components/cursors/early.ts). Maps
    (data-hide-cursor) keep the browser's cursor. !important because
-   component styles set cursor: pointer on their own controls. */
-@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+   component styles set cursor: pointer on their own controls.
+
+   Audit NOV-08: not under forced colours (Windows high contrast) or a request
+   for more contrast. Those visitors have usually set up a pointer they can
+   see, and the dot is drawn with a blend mode that forced colours override. */
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) and (forced-colors: none) and (prefers-contrast: no-preference) {
   :root:not(.cur-native),
   :root:not(.cur-native) * {
     cursor: none !important;

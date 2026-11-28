@@ -90,4 +90,25 @@ export default tseslint.config(
       'prefer-const': 'off',
     },
   },
+  {
+    // Audit NOV-05: the files of the first screen. The constants barrel
+    // re-exports every FAQ, service page and due date, so one import of it
+    // from any of these puts all of that content in the first download.
+    files: ['App.tsx', 'index.tsx', 'components/**/*.{ts,tsx}', 'context/**/*.{ts,tsx}', 'hooks/**/*.{ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '^(\\.\\./)+constants$|^\\./constants$',
+              message:
+                "Import CONTACT_INFO from 'config/contact' (or the data from its own file under constants/), not from the constants barrel: see constants/index.ts (Audit NOV-05).",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

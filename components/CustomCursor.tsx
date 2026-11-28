@@ -141,24 +141,29 @@ const DotCursor: React.FC = () => {
   return <div ref={ref} className="cur-dot off default" aria-hidden="true" />;
 };
 
-/** Only for a mouse or trackpad; phones and tablets keep their own behaviour. */
-const useFinePointer = () => {
-  const [fine, setFine] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches);
+/** Whether a media query matches, kept up to date. */
+const useMedia = (media: string) => {
+  const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia(media).matches);
   useEffect(() => {
-    const query = window.matchMedia('(pointer: fine)');
-    const change = (event: MediaQueryListEvent) => setFine(event.matches);
+    const query = window.matchMedia(media);
+    const change = (event: MediaQueryListEvent) => setMatches(event.matches);
     query.addEventListener('change', change);
     return () => query.removeEventListener('change', change);
-  }, []);
-  return fine;
+  }, [media]);
+  return matches;
 };
 
 const CustomCursor: React.FC = () => {
-  const fine = useFinePointer();
+  // Only for a mouse or trackpad; phones and tablets keep their own behaviour.
+  const fine = useMedia('(pointer: fine)');
+  // Audit NOV-08: visitors using forced colours (Windows high contrast) or
+  // asking for more contrast keep the pointer they have set up.
+  const ownPointer = useMedia('(forced-colors: active), (prefers-contrast: more)');
   const reducedMotion = useReducedMotion();
   // The same conditions as the rule in index.css that hides the browser's
-  // cursor: a mouse or trackpad, motion allowed.
-  if (!fine || reducedMotion) return null;
+  // cursor: a mouse or trackpad, motion allowed, no forced colours and no
+  // request for more contrast.
+  if (!fine || reducedMotion || ownPointer) return null;
   return <DotCursor />;
 };
 

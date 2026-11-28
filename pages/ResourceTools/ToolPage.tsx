@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../../components/SEO';
 import { ArrowLeft } from '../../components/redesign/icons';
-import { CONTACT_INFO } from '../../constants';
+import { CONTACT_INFO } from '../../config/contact';
 import { RESOURCES_LAW_AS_AT, type ResourceTool } from '../../constants/resources';
 import { SITE_URL } from '../../config/site';
 import { formatLongDate } from '../../utils/insightDates';
