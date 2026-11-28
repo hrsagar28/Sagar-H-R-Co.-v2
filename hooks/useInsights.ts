@@ -6,6 +6,15 @@ import { parseInsights } from '../utils/insightValidation';
 
 let insightsPromise: Promise<InsightItem[]> | null = null;
 
+// Audit NOV-04: the build script renders the pages to text (scripts/
+// static-body.tsx), where effects do not run and nothing can be fetched. It
+// hands the articles over beforehand; in the browser this stays null and the
+// hook fetches as it always has.
+let seeded: InsightItem[] | null = null;
+export const seedInsights = (items: InsightItem[]) => {
+  seeded = items;
+};
+
 const getInsightsUrl = () => {
   const baseUrl = import.meta.env.BASE_URL || '/';
   if (typeof window === 'undefined') return `${baseUrl.replace(/\/$/, '')}/data/insights.json`;
@@ -26,8 +35,8 @@ const fetchInsights = () => {
 };
 
 export const useInsights = () => {
-  const [insights, setInsights] = useState<InsightItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [insights, setInsights] = useState<InsightItem[]>(() => seeded ?? []);
+  const [loading, setLoading] = useState(() => seeded === null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

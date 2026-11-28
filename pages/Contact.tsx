@@ -107,6 +107,7 @@ const contactSchema = createFormSchema<ContactFormData>({
 
 const EITHER_REQUIRED = 'Please enter a mobile number or an email address, so that we can reply.';
 const REPLY_FIELDS: (keyof ContactFormData)[] = ['phone', 'email'];
+const REACH_ERROR_ID = 'contact-reach-error';
 const noReplyAddress = (values: ContactFormData) => !values.phone.trim() && !values.email.trim();
 
 /** Every field's error for the whole form, apart from the "Other" box. */
@@ -361,6 +362,16 @@ const Contact: React.FC = () => {
     window.requestAnimationFrame(() => document.getElementById(fieldId('name'))?.focus());
   };
 
+  // "One of these, please" is said once, under the two reply boxes, and marks
+  // both; a mistake in one box (a short number, a mistyped address) is said
+  // under that box, as for any other field.
+  const eitherMissing = errors.phone === EITHER_REQUIRED || errors.email === EITHER_REQUIRED;
+  const ownError = (field: 'phone' | 'email') => (errors[field] === EITHER_REQUIRED ? undefined : errors[field]);
+  const replyErrorProps = (field: 'phone' | 'email') =>
+    ownError(field) || !eitherMissing
+      ? errorProps(field, ownError(field))
+      : { 'aria-invalid': true as const, 'aria-describedby': REACH_ERROR_ID };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -576,8 +587,7 @@ const Contact: React.FC = () => {
           <div hidden={isSuccess}>
             <h2 id="contact-form-heading">Send us a message</h2>
             <p className="fintro">
-              Tell us briefly what you need. Fields marked <span className="req-key">*</span> are required, and we need
-              a mobile number or an email address to reply.
+              Tell us briefly what you need. Fields marked <span className="req-key">*</span> are required.
             </p>
             <form className="rd-form" onSubmit={handleSubmit} noValidate>
               <Honeypot name="_honey" value={honeypot} onChange={setHoneypot} />
@@ -597,36 +607,6 @@ const Contact: React.FC = () => {
                     {...errorProps('name', errors.name)}
                   />
                 </FormField>
-                <FormField id={fieldId('phone')} label="Mobile number" qualifier="or email" error={errors.phone}>
-                  <input
-                    id={fieldId('phone')}
-                    name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    maxLength={20}
-                    value={values.phone}
-                    onChange={onFieldChange('phone')}
-                    onBlur={onFieldBlur('phone')}
-                    {...errorProps('phone', errors.phone)}
-                  />
-                </FormField>
-              </div>
-
-              <div className="row2">
-                <FormField id={fieldId('email')} label="Email" qualifier="or mobile number" error={errors.email}>
-                  <input
-                    id={fieldId('email')}
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    maxLength={254}
-                    value={values.email}
-                    onChange={onFieldChange('email')}
-                    onBlur={onFieldBlur('email')}
-                    {...errorProps('email', errors.email)}
-                  />
-                </FormField>
                 <FormField id={fieldId('company')} label="Business or firm name" optional>
                   <input
                     id={fieldId('company')}
@@ -637,6 +617,58 @@ const Contact: React.FC = () => {
                     onChange={onFieldChange('company')}
                   />
                 </FormField>
+              </div>
+
+              {/* Audit NOV-12: a mobile number or an email is enough. The two
+                  boxes sit under one line that says so; a note beside each
+                  label read as "type either one in this box". */}
+              <div
+                className="reach"
+                role="group"
+                aria-labelledby="contact-reach-label"
+                data-err={eitherMissing ? '' : undefined}
+              >
+                <p className="reach-l" id="contact-reach-label">
+                  How can we reply?{' '}
+                  <span className="req" aria-hidden="true">
+                    *
+                  </span>{' '}
+                  <span className="opt">Fill in either one, or both.</span>
+                </p>
+                <div className="row2">
+                  <FormField id={fieldId('phone')} label="Mobile number" error={ownError('phone')}>
+                    <input
+                      id={fieldId('phone')}
+                      name="phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      maxLength={20}
+                      value={values.phone}
+                      onChange={onFieldChange('phone')}
+                      onBlur={onFieldBlur('phone')}
+                      {...replyErrorProps('phone')}
+                    />
+                  </FormField>
+                  <FormField id={fieldId('email')} label="Email" error={ownError('email')}>
+                    <input
+                      id={fieldId('email')}
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      maxLength={254}
+                      value={values.email}
+                      onChange={onFieldChange('email')}
+                      onBlur={onFieldBlur('email')}
+                      {...replyErrorProps('email')}
+                    />
+                  </FormField>
+                </div>
+                {eitherMissing && (
+                  <p className="err" id={REACH_ERROR_ID}>
+                    {EITHER_REQUIRED}
+                  </p>
+                )}
               </div>
 
               <fieldset className="fld">

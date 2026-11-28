@@ -182,10 +182,16 @@ const FAQ: React.FC = () => {
     const target = resolveHash(hash);
     return new Set(target?.kind === 'question' ? [target.id] : []);
   });
-  const [revealedIds, setRevealedIds] = useState<Set<string>>(() => new Set(openIds));
+  // An answer is put on the page the first time its question is opened. Where
+  // the build script renders this page to text there is no visitor to open
+  // anything (no window), so every answer is written out (Audit NOV-04).
+  const [revealedIds, setRevealedIds] = useState<Set<string>>(() =>
+    typeof window === 'undefined' ? new Set(FAQS.map((faq) => faq.id)) : new Set(openIds),
+  );
   const [activeSlug, setActiveSlug] = useState(() => sectionOfTarget(resolveHash(hash)));
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [narrow, setNarrow] = useState(() => window.matchMedia(NARROW_QUERY).matches);
+  // No window where the build script renders this page to text (Audit NOV-04).
+  const [narrow, setNarrow] = useState(() => typeof window !== 'undefined' && window.matchMedia(NARROW_QUERY).matches);
 
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);

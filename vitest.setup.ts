@@ -17,15 +17,19 @@ class MockIntersectionObserver {
   takeRecords = vi.fn(() => []);
 }
 
-window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+// A test file that asks for the node environment (scripts/static-body.test.tsx
+// renders the pages as the build does, with no browser) has no window.
+if (typeof window !== 'undefined') {
+  window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
 
-window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+}

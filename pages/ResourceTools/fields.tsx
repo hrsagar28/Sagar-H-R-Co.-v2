@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import FormField from '../../components/redesign/FormField';
+import { useReducedMotion } from '../../hooks';
 import { cleanAmount, grouped, rupees, toAmount } from '../../utils/resources/format';
 
 // Inputs for the Resources calculators, in the redesigned form style (a label
@@ -83,7 +84,56 @@ export const ChoiceField = <T extends string>({ name, legend, value, options, on
   </fieldset>
 );
 
+interface ResultPeekProps {
+  /** What the figure is, such as "Stamp duty". */
+  label: string;
+  /** The figure as the result shows it, or "—" before anything is entered. */
+  value: string;
+  /** id of the result column (<Result id>), which a tap goes to. */
+  targetId: string;
+}
+
+/**
+ * Audit NOV-03: phones only (.cpeek in redesign.css). The main figure, kept at
+ * the top of the calculator while the form is filled in: on a phone the result
+ * column sits below the form, off the screen, so typing seemed to do nothing.
+ * The first child of `.calc`. Hidden from screen readers and the keyboard,
+ * because <Announce> already speaks the result and the result itself follows.
+ */
+export const ResultPeek: React.FC<ResultPeekProps> = ({ label, value, targetId }) => {
+  const reduced = useReducedMotion();
+  // Once the result itself is on screen the strip would only repeat it.
+  const [resultInView, setResultInView] = useState(false);
+  useEffect(() => {
+    const target = document.getElementById(targetId);
+    if (!target || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => setResultInView(Boolean(entry?.isIntersecting)), {
+      // "On screen" once its top is a little way up from the bottom edge.
+      rootMargin: '0px 0px -120px 0px',
+    });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [targetId]);
+  return (
+    <button
+      type="button"
+      className="cpeek"
+      data-off={resultInView ? '' : undefined}
+      aria-hidden="true"
+      tabIndex={-1}
+      onClick={() =>
+        document.getElementById(targetId)?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' })
+      }
+    >
+      <span className="cpeek-l">{label}</span>
+      <span className="cpeek-v tnum">{value}</span>
+    </button>
+  );
+};
+
 interface ResultProps {
+  /** For <ResultPeek targetId>. */
+  id?: string;
   children: React.ReactNode;
   /** What was entered, as [label, value]. Printed above the result in place of the form. */
   entries: [string, string][];
@@ -94,8 +144,8 @@ interface ResultProps {
  * view while a long form scrolls past (.cstick in redesign.css). Printed, the
  * form is left out and the figures entered are listed here instead (.psum).
  */
-export const Result: React.FC<ResultProps> = ({ children, entries }) => (
-  <div className="cout">
+export const Result: React.FC<ResultProps> = ({ id, children, entries }) => (
+  <div className="cout" id={id}>
     <div className="cstick">
       {entries.length > 0 && (
         <div className="psum">

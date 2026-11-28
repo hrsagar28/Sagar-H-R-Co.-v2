@@ -128,16 +128,16 @@ rather than raw values. `index.css` repeats the few the shared pieces need as
 
 Run these locally or in CI (see the sandbox caveat below):
 
-| Command               | What it does                                                                                                                                                                      |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`         | Vite dev server on port 3000.                                                                                                                                                     |
-| `npm run build`       | Full production build — runs `generate-icons`, `check-csp-hash`, `generate-sitemap`, `generate-responsive-images` (all via `tsx`), then `vite build`, then `generate-route-html`. |
-| `npx tsc --noEmit`    | TypeScript typecheck.                                                                                                                                                             |
-| `npm run lint`        | ESLint over the repo.                                                                                                                                                             |
-| `npm run test`        | Vitest (jsdom, globals, setup in `vitest.setup.ts`).                                                                                                                              |
-| `npm run test:a11y`   | Vitest accessibility run (`pages/Home.test.tsx`).                                                                                                                                 |
-| `npm run lint:schema` | Validates the services structured-data schema.                                                                                                                                    |
-| `npm run format`      | Prettier (with the Tailwind class-sorting plugin).                                                                                                                                |
+| Command               | What it does                                                                                                                                                                                                                      |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`         | Vite dev server on port 3000.                                                                                                                                                                                                     |
+| `npm run build`       | Full production build — runs `generate-icons`, `check-csp-hash`, `generate-sitemap`, `generate-responsive-images` (all via `tsx`), then `vite build`, then `generate-route-html` (each page's file, with its text; Audit NOV-04). |
+| `npx tsc --noEmit`    | TypeScript typecheck.                                                                                                                                                                                                             |
+| `npm run lint`        | ESLint over the repo.                                                                                                                                                                                                             |
+| `npm run test`        | Vitest (jsdom, globals, setup in `vitest.setup.ts`).                                                                                                                                                                              |
+| `npm run test:a11y`   | Vitest accessibility run (`pages/Home.test.tsx`).                                                                                                                                                                                 |
+| `npm run lint:schema` | Validates the services structured-data schema.                                                                                                                                                                                    |
+| `npm run format`      | Prettier (with the Tailwind class-sorting plugin).                                                                                                                                                                                |
 
 A Husky `pre-commit` hook runs `lint-staged`.
 
@@ -210,6 +210,24 @@ The served tags carry `data-fallback`, and `SEO.tsx` removes them once the
 page's own are in the head, so a page has one title and one description
 (Audit SEO-01).
 
+**Page text in the served files (Audit NOV-04)** — clients that do not run
+JavaScript (the crawlers behind AI assistants, some search engines) would
+otherwise get an empty page. After `vite build`, `scripts/static-body.tsx`
+renders each page component to plain HTML and `generate-route-html.ts` puts it
+inside `#root` of that page's file (and of `index.html` for the home page);
+`dist/404.html` is the plain template, served for unknown addresses. The
+pages themselves are rendered, so the text cannot drift from the site; a page
+must therefore render where there is no `window` (guard browser-only calls
+made during render, as `pages/FAQ.tsx` does; effects are fine). The articles
+are handed to the hooks beforehand (`seedInsights`, `seedArticleBody`).
+**The owner's hard condition: a visitor must never see that text, not for one
+frame.** It has none of the site's styling. Two things guarantee it, and
+neither may be loosened: the `#preload-hero` overlay covers it from the first
+paint, and `index.tsx` makes the first render with `flushSync` before it
+touches the overlay, so `#root` already holds the application by then. Keep
+`createRoot` (not `hydrateRoot`). With JavaScript blocked the overlay stays,
+as it always has.
+
 **Cursor** — `components/CustomCursor.tsx` draws every cursor itself (a dot, a
 see-through circle over links, a text bar over text), because the browser
 only redraws its own cursor when the mouse moves. For mouse/trackpad users
@@ -224,9 +242,9 @@ must keep the browser's cursor (embedded maps).
 ## Deployment
 
 Netlify. Pushing to `main` triggers an auto-deploy. `netlify.toml` defines the
-SPA fallback (status 404: an address with no file of its own in `dist/` is
-"not found", so every route needs its entry in `scripts/route-html.ts`; Audit
-NOV-06), a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
+fallback (`dist/404.html` with status 404: an address with no file of its own
+in `dist/` is "not found", so every route needs its entry in
+`scripts/route-html.ts`; Audits NOV-06 and NOV-04), a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
 `X-Frame-Options`, …), and cache headers. Serverless functions live in
 `netlify/`.
 
@@ -240,6 +258,10 @@ NOV-06), a `/faq` → `/faqs` 301, security headers (CSP, HSTS,
   When a send fails, `components/redesign/SendFailed.tsx` stays above the Send
   button with the phone, WhatsApp and email; no wording may show a status code
   or claim that anyone was notified (Audit NOV-01).
+- **The calculators' phone strip (Audit NOV-03).** On phones the result column
+  is below the form, so `ResultPeek` (`pages/ResourceTools/fields.tsx`) keeps
+  the main figure at the top of the calculator while the form is filled in. A
+  new calculator needs one, as the first child of its `.calc`.
 - **The contact form asks for a mobile number or an email, not both** (the
   owner's decision, Audit NOV-12): not every client uses email. Do not make
   either one required on its own.

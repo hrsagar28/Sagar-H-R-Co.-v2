@@ -4,9 +4,15 @@ Audited on 28 November 2026 at commit `9feb361` ("Merge pull request #29 from hr
 
 ## Status, 28 November 2026
 
-**Live** (commit `b66e588`, checked on casagar.co.in the same day): NOV-01 (form failure message), NOV-05 (first download), NOV-06 (true "not found"), NOV-07 (keyboard starting point), NOV-08 (cursor in high-contrast mode), NOV-09 (picture caching, phone spacing). That is Prompts 1, 4 and 5: **do not run them again.** The unused `@axe-core/react` package was left in place (removing it would have rewritten the lock file for no visible gain).
+**Live** (commits `b66e588` and `678f956`, checked on casagar.co.in the same day): NOV-01 (form failure message), NOV-05 (first download), NOV-06 (true "not found"), NOV-07 (keyboard starting point), NOV-08 (cursor in high-contrast mode), NOV-09 (picture caching, phone spacing), and NOV-12 (the contact form accepts a mobile number or an email). NOV-02: the old Vercel project `sagar-h-r-co-v2` was deleted the same day. The unused `@axe-core/react` package was left in place (removing it would have rewritten the lock file for no visible gain).
 
-**Done after that:** NOV-12, the contact form accepts a mobile number or an email address; either is enough (see "Decisions", item 4).
+**Done after that, in the working folder:**
+
+- NOV-12, second pass: the two reply boxes sit under one line ("How can we reply? Fill in either one, or both.") with plain labels. "(or email)" beside a label read as "type either one in this box".
+- NOV-03 (Prompt 2): the calculators' phone strip (`ResultPeek`). It also hides itself once the result is on screen.
+- NOV-04 (Prompt 3): each page's text is in its served file, rendered from the page components (`scripts/static-body.tsx`); `dist/404.html` is the fallback. The no-flash condition was checked frame by frame over 84 page loads (first visit, repeat visit, reduced motion; fast and slowed; desktop and phone): the text was never uncovered.
+
+That is Prompts 1 to 5: **do not run them again.**
 
 **The owner's decisions, 28 November 2026. Do not raise these again without new reason:**
 
@@ -14,8 +20,9 @@ Audited on 28 November 2026 at commit `9feb361` ("Merge pull request #29 from hr
 - The "S" icon and `logo.png`: **stay as they are.**
 - The biography lines on the home page (teaching, software, writing, hobbies, "litigation"): **stay as they are.**
 - The contact form: **a mobile number or an email, not both** (NOV-12, done).
+- NOV-04: **a visitor must never see the plain page text, not for one frame.**
 
-**Still to do:** NOV-02 (the old Vercel copy), NOV-03 (Prompt 2, needs the owner's eye on the look), NOV-04 (Prompt 3, plan first), NOV-10 (Prompt 6). Open with the owner: the `@casagarhr` handle and a Google Business Profile link.
+**Still to do:** NOV-10 (Prompt 6, the build tools upgrade), put off by the owner until the above is committed and live. Open with the owner: the `@casagarhr` handle and a Google Business Profile link.
 
 ---
 
@@ -225,7 +232,7 @@ Done when: with FormSubmit forced to fail, the visitor sees a lasting message wi
 
 ---
 
-### Prompt 2 — Keep the calculator's answer in view on phones (NOV-03)
+### Prompt 2 — Keep the calculator's answer in view on phones (NOV-03) — DONE 28 Nov 2026
 
 ```
 Audit ID: NOV-03. Branch: fix/calculator-result-on-phones
@@ -330,7 +337,7 @@ Show the owner a phone screenshot of the stamp duty and income tax calculators b
 
 ---
 
-### Prompt 3 — Put each page's text in its served file (NOV-04). Plan first.
+### Prompt 3 — Put each page's text in its served file (NOV-04). Plan first. — DONE 28 Nov 2026
 
 ```
 Audit ID: NOV-04. Branch: feature/static-page-text

@@ -927,6 +927,34 @@
 .rd .fld .opt {
   color: var(--muted);
 }
+/* Audit NOV-12: the two ways to reply on the Contact form, under one line
+   that says either is enough. The line is set as a field label is. */
+.rd .reach {
+  margin: 0 0 26px;
+}
+.rd .reach-l {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--body);
+}
+.rd .reach-l .req {
+  color: var(--copper-d);
+}
+.rd .reach-l .opt {
+  color: var(--muted);
+}
+.rd .reach .fld {
+  margin-bottom: 0;
+}
+.rd .reach[data-err] .fld input {
+  border-bottom-color: var(--err);
+  box-shadow: 0 1px 0 0 var(--err);
+}
+.rd .reach > .err {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--err);
+}
 /* A field is a label over a single rule, like the FAQ search box: no box or
    fill. The rule darkens while typing and turns red on an error. */
 .rd .fld input,
@@ -1421,6 +1449,7 @@
   .rd .qb .x::after,
   .rd.sbar,
   .rd .sec-h,
+  .rd .cpeek,
   .rd .picker,
   .rd .map iframe {
     transition: none;
@@ -1640,6 +1669,9 @@
   .rd .row2 {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
+  }
+  .rd .reach .fld + .fld {
+    margin-top: 26px;
   }
   .rd .submit-row .btn {
     width: 100%;
@@ -3170,6 +3202,17 @@
 .rd.bar-on .cstick {
   top: calc(var(--bar) + 28px);
 }
+/* Audit NOV-03: phones only. The main figure, pinned to the top of the
+   calculator while the form scrolls under it (ResultPeek in
+   pages/ResourceTools/fields.tsx). At the top, not the bottom: a strip at the
+   bottom is covered by the on-screen keyboard. */
+.rd .cpeek {
+  display: none;
+}
+/* the result column lands clear of the slim bar when the strip is tapped */
+.rd .cout {
+  scroll-margin-top: calc(var(--bar) + 8px);
+}
 /* printed in place of the form; see the print section at the end */
 .rd .psum {
   display: none;
@@ -3955,6 +3998,46 @@
   }
   .rd .cstick {
     position: static;
+  }
+  .rd .cpeek {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 12px;
+    width: 100%;
+    margin: 0;
+    padding: 11px 18px 10px;
+    border: 0;
+    border-bottom: 1px solid var(--rule-s);
+    background: var(--sand);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    transition: top 0.4s var(--ease);
+  }
+  .rd.bar-on .cpeek {
+    top: var(--bar);
+  }
+  /* the result itself is on screen */
+  .rd .cpeek[data-off] {
+    visibility: hidden;
+  }
+  .rd .cpeek-l {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .rd .cpeek-v {
+    font-family: var(--serif);
+    font-size: 24px;
+    line-height: 1.1;
+  }
+  /* a field brought into view by the browser stops below the strip */
+  .rd .calc .cin :is(input, select, textarea) {
+    scroll-margin-top: 72px;
   }
   .rd .ixrow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5292,6 +5375,10 @@
   display: none;
 }
 @media print {
+  /* Audit NOV-03: the phone strip is for the screen only */
+  .rd .cpeek {
+    display: none !important;
+  }
   @page {
     size: A4;
     margin: 14mm 14mm 16mm;

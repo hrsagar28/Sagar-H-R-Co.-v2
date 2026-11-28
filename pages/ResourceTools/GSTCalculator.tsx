@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result, Row } from './fields';
+import { ResultPeek, Announce, ChoiceField, MoneyField, Result, Row } from './fields';
 import FormField from '../../components/redesign/FormField';
 import { GST_MAIN_RATES, GST_OTHER_RATES, getResourceTool } from '../../constants/resources';
 import { calculateGst, type GstDirection, type SupplyPlace } from '../../utils/resources/gst';
@@ -36,6 +36,11 @@ const GSTCalculator: React.FC = () => {
   return (
     <ToolPage tool={TOOL} law="GST rates in force from 22 September 2025, including the changes from 1 February 2026">
       <div className="seam panel calc">
+        <ResultPeek
+          label={direction === 'add' ? 'Price including GST' : 'Price before GST'}
+          value={rupeesPaise(direction === 'add' ? result.total : result.taxable)}
+          targetId="gst-result"
+        />
         <form className="cin" onSubmit={(event) => event.preventDefault()} aria-label="GST calculator">
           <MoneyField id="gst-amount" label="Amount" value={amount} onChange={setAmount} />
           <ChoiceField
@@ -82,7 +87,7 @@ const GSTCalculator: React.FC = () => {
           />
         </form>
 
-        <Result entries={entries}>
+        <Result id="gst-result" entries={entries}>
           <p className="lbl">{direction === 'add' ? 'Price including GST' : 'Price before GST'}</p>
           <p className="big tnum">{rupeesPaise(direction === 'add' ? result.total : result.taxable)}</p>
           <dl className="brk">

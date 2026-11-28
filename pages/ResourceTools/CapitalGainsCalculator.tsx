@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
+import { ResultPeek, Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
 import FormField from '../../components/redesign/FormField';
 import {
   COST_INFLATION_INDEX,
@@ -137,6 +137,8 @@ const CapitalGainsCalculator: React.FC = () => {
   const lossShown = taxedGain < 0;
   let headline: React.ReactNode;
   let spoken = '';
+  // What the phone strip shows (ResultPeek, Audit NOV-03): the figure in the headline.
+  let peek: [string, string] = ['Tax on the gain', '—'];
   if (!saleInRange) {
     headline = <p className="sub">Enter a sale date from 1 April 2024 to 31 March 2027.</p>;
   } else if (purchaseDate && purchaseDate >= saleDate) {
@@ -156,6 +158,7 @@ const CapitalGainsCalculator: React.FC = () => {
         </p>
       </>
     );
+    peek = [loss ? 'Short-term loss' : 'Short-term gain', rupees(Math.abs(result.plainGain))];
     spoken = loss
       ? `Short-term loss ${rupees(-result.plainGain)}.`
       : `Short-term gain ${rupees(result.plainGain)}, taxed at slab rates.`;
@@ -167,6 +170,7 @@ const CapitalGainsCalculator: React.FC = () => {
         <p className="sub">No tax on this sale.</p>
       </>
     );
+    peek = ['Long-term loss', rupees(-taxedGain)];
     spoken = `Long-term loss ${rupees(-taxedGain)}. No tax on this sale.`;
   } else {
     const noGain = result.tax === 0;
@@ -195,6 +199,7 @@ const CapitalGainsCalculator: React.FC = () => {
         </p>
       </>
     );
+    peek = ['Tax on the gain', rupees(result.tax)];
     spoken = `Tax on the gain ${rupees(result.tax)}. ${how}`;
   }
 
@@ -223,6 +228,7 @@ const CapitalGainsCalculator: React.FC = () => {
       law="Sales from 1 April 2024 · Section 197 of the Income-tax Act, 2025, and section 112 of the 1961 Act before it"
     >
       <div className="seam panel calc">
+        <ResultPeek label={peek[0]} value={peek[1]} targetId="cg-result" />
         <form className="cin" onSubmit={(event) => event.preventDefault()} aria-label="Capital gains calculator">
           <ChoiceField
             name="cg-seller"
@@ -329,7 +335,7 @@ const CapitalGainsCalculator: React.FC = () => {
           </fieldset>
         </form>
 
-        <Result entries={entries}>
+        <Result id="cg-result" entries={entries}>
           {headline}
           {result?.longTerm && (
             <dl className="brk">

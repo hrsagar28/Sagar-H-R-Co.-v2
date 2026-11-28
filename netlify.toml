@@ -92,9 +92,9 @@
   to = "/services/bookkeeping-and-payroll"
   status = 301
 
-# The single-page fallback. Every public address has a file of its own in
-# dist/ (scripts/generate-route-html.ts, Audit SEO-02), which Netlify serves
-# ahead of this rule with status 200; this rule answers everything else.
+# The fallback. Every public address has a file of its own in dist/
+# (scripts/generate-route-html.ts, Audit SEO-02), which Netlify serves ahead of
+# this rule with status 200; this rule answers everything else.
 #
 # Audit SEO-05 / NOV-06: an address that has no page answers 404. The
 # application still boots on it and shows "Page not found". The route files
@@ -102,9 +102,12 @@
 # answered 200 with its own title), which is what makes this safe: if they
 # were ever not served, every page but the home page would answer 404. A new
 # route therefore needs its entry in scripts/route-html.ts before it ships.
+#
+# Audit NOV-04: the file served is dist/404.html, the plain template, not
+# index.html, which now carries the home page's text.
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/404.html"
   status = 404
 
 [[headers]]

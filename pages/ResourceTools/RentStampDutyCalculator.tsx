@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
+import { ResultPeek, Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
 import FormField from '../../components/redesign/FormField';
 import {
   FAMILY_AREA_LABEL,
@@ -84,6 +84,11 @@ const RentStampDutyCalculator: React.FC = () => {
       asAt={STAMP_DUTY_LAW_AS_AT}
     >
       <div className="seam panel calc">
+        <ResultPeek
+          label="Stamp duty"
+          value={entered && result.computed ? rupees(result.duty) : '—'}
+          targetId="sd-result"
+        />
         <form className="cin" onSubmit={(event) => event.preventDefault()} aria-label="Stamp duty calculator">
           <ChoiceField
             name="sd-kind"
@@ -204,7 +209,7 @@ const RentStampDutyCalculator: React.FC = () => {
           )}
         </form>
 
-        <Result entries={entries}>
+        <Result id="sd-result" entries={entries}>
           <p className="lbl">Stamp duty</p>
           <p className="big tnum">{entered && result.computed ? rupees(result.duty) : '—'}</p>
           {entered && result.computed && slabLabel && (

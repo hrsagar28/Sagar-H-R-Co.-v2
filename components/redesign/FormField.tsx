@@ -6,8 +6,6 @@ interface FormFieldProps {
   label: string;
   required?: boolean;
   optional?: boolean;
-  /** A few words after the label, in brackets, such as "or email" where one of two fields is enough. */
-  qualifier?: string;
   error?: string;
   /** Shown beside the label, such as a character count. */
   aside?: React.ReactNode;
@@ -19,7 +17,7 @@ interface FormFieldProps {
  * single underline, with the error below it. No hint or placeholder text; the
  * labels say what to enter. Styled by `.fld` in redesign.css.
  */
-const FormField: React.FC<FormFieldProps> = ({ id, label, required, optional, qualifier, error, aside, children }) => (
+const FormField: React.FC<FormFieldProps> = ({ id, label, required, optional, error, aside, children }) => (
   <div className="fld" data-err={error ? '' : undefined}>
     <label htmlFor={id}>
       {label}
@@ -35,12 +33,6 @@ const FormField: React.FC<FormFieldProps> = ({ id, label, required, optional, qu
         <>
           {' '}
           <span className="opt">(optional)</span>
-        </>
-      )}
-      {qualifier && (
-        <>
-          {' '}
-          <span className="opt">({qualifier})</span>
         </>
       )}
     </label>

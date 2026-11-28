@@ -13,8 +13,15 @@ const getArticleBodyUrl = (slug: string) => {
 const isSafeInsightSlug = (slug: string) => /^[a-z0-9-]+$/i.test(slug);
 const articleBodyCache = new Map<string, string>();
 
+/** Audit NOV-04: the build script hands an article's text over before it renders the page (see useInsights). */
+export const seedArticleBody = (slug: string, text: string) => {
+  articleBodyCache.set(slug, text);
+};
+
 export const useArticleBody = (slug?: string, enabled = true) => {
-  const [content, setContent] = useState<string | null>(null);
+  const [content, setContent] = useState<string | null>(() =>
+    slug && enabled ? (articleBodyCache.get(slug) ?? null) : null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);

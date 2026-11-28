@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { InsightItem } from '../types';
-import { buildRoutes, renderRouteHtml, routeFile } from './route-html';
+import { buildRoutes, renderNotFoundHtml, renderRouteHtml, routeFile, withStaticBody } from './route-html';
 
 const TEMPLATE = `<!doctype html><html><head>
     <title data-fallback>Sagar H R &amp; Co. | Chartered Accountants | Mysuru</title>
@@ -69,5 +69,23 @@ describe('route HTML (Audit SEO-02)', () => {
   it('names each file after its address, not a folder index (which Netlify answers with a redirect)', () => {
     expect(routeFile('/services/gst')).toBe('services/gst.html');
     expect(routeFile('/resources/checklist/salaried')).toBe('resources/checklist/salaried.html');
+  });
+});
+
+describe('the page text in the served file (Audit NOV-04)', () => {
+  it('puts the text inside #root, marked so that it can be told from the application', () => {
+    const html = withStaticBody(TEMPLATE, '<main><h1>GST</h1></main>');
+
+    expect(html).toContain('<div id="root"><div data-static><main><h1>GST</h1></main></div></div>');
+    expect(() => withStaticBody(html, 'again')).toThrow(/no empty #root/);
+  });
+
+  it('writes a not-found file with no page text, that asks not to be indexed', () => {
+    const html = renderNotFoundHtml(TEMPLATE);
+
+    expect(html).toContain('<title data-fallback>Page not found | Sagar H R &amp; Co.</title>');
+    expect(html).toContain('<meta data-fallback name="robots" content="noindex, follow" />');
+    expect(html).toContain('<div id="root"></div>');
+    expect(html).not.toContain('rel="canonical"');
   });
 });

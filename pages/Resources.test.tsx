@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
@@ -87,6 +87,41 @@ describe('Resources', () => {
     expect(screen.getByRole('button', { name: 'Print this estimate' })).toBeInTheDocument();
   });
 
+  it('repeats the main figure in the phone strip of every calculator, out of the way of screen readers (Audit NOV-03)', async () => {
+    for (const slug of [
+      'gst-calculator',
+      'hra-calculator',
+      'income-tax-calculator',
+      'capital-gains-calculator',
+      'rent-agreement-stamp-duty',
+    ]) {
+      const { container, unmount } = renderAt(`/resources/${slug}`);
+      const strip = await waitFor(
+        () => {
+          const found = container.querySelector('.calc > .cpeek');
+          expect(found).not.toBeNull();
+          return found as HTMLElement;
+        },
+        { timeout: 5000 },
+      );
+      // The first thing in the calculator, so that it can stay at the top of it.
+      expect(container.querySelector('.calc')?.firstElementChild).toBe(strip);
+      expect(strip).toHaveAttribute('aria-hidden', 'true');
+      expect(strip).toHaveAttribute('tabindex', '-1');
+      // It points at the result column.
+      expect(container.querySelector('.calc > .cout')?.id).toMatch(/-result$/);
+      unmount();
+    }
+
+    const { container } = renderAt('/resources/gst-calculator');
+    const amount = await screen.findByLabelText('Amount');
+    fireEvent.focus(amount);
+    fireEvent.change(amount, { target: { value: '1000' } });
+    const big = container.querySelector('.cout .big')?.textContent;
+    expect(big).toBeTruthy();
+    expect(container.querySelector('.cpeek .cpeek-v')?.textContent).toBe(big);
+  });
+
   it('works out stamp duty on a rent agreement, and offers the family choice only for a lease', async () => {
     renderAt('/resources/rent-agreement-stamp-duty');
 
@@ -98,7 +133,7 @@ describe('Resources', () => {
     await screen.findByLabelText('Rent, a month');
     type('Rent, a month', '15000');
     type('Security deposit', '100000');
-    const big = () => screen.getByText('Stamp duty').nextElementSibling!;
+    const big = () => screen.getByText('Stamp duty', { selector: '.cout *' }).nextElementSibling!;
     // 11 months residential: 0.5% of ₹2,65,000 is ₹1,325, capped at ₹500.
     expect(big()).toHaveTextContent('₹500');
 
@@ -153,7 +188,7 @@ describe('Resources', () => {
       fireEvent.focus(input);
       fireEvent.change(input, { target: { value } });
     }
-    expect(screen.getByText('Long-term loss')).toBeInTheDocument();
+    expect(screen.getByText('Long-term loss', { selector: '.cout *' })).toBeInTheDocument();
     expect(screen.getByText('Loss without indexation').nextSibling).toHaveTextContent('₹20,00,000');
     expect(screen.queryByText(/₹-/)).toBeNull();
 

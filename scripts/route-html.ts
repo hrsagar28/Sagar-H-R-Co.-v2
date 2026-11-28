@@ -94,6 +94,42 @@ export const renderRouteHtml = (template: string, meta: RouteMeta): string => {
   );
 };
 
+const EMPTY_ROOT = '<div id="root"></div>';
+
+/**
+ * Audit NOV-04: puts a page's text (scripts/static-body.tsx) inside #root, so
+ * that a client which does not run JavaScript gets the words and the links.
+ * The application replaces everything inside #root when it starts; the
+ * first-paint overlay covers it until then (index.tsx), so it is never shown.
+ */
+export const withStaticBody = (html: string, body: string): string => {
+  if (!html.includes(EMPTY_ROOT)) throw new Error('route-html: no empty #root in the template');
+  return html.replace(EMPTY_ROOT, () => `<div id="root"><div data-static>${body}</div></div>`);
+};
+
+/**
+ * dist/404.html: what netlify.toml serves, with status 404, at an address that
+ * has no page. The application boots on it and shows "Page not found". It
+ * carries no page's text and asks not to be indexed. (dist/index.html cannot
+ * do this job any more: it now holds the home page's text.)
+ */
+export const renderNotFoundHtml = (template: string): string => {
+  if (!TITLE.test(template)) throw new Error('route-html: no <title> in the template');
+  const title = `Page not found | ${CONTACT_INFO.name}`;
+  const description = 'There is no page at this address.';
+  let html = template.replace(
+    TITLE,
+    () =>
+      `<title data-fallback>${escapeHtml(title)}</title>\n    <meta data-fallback name="robots" content="noindex, follow" />`,
+  );
+  html = setMeta(html, 'name', 'description', description);
+  html = setMeta(html, 'property', 'og:title', title);
+  html = setMeta(html, 'property', 'og:description', description);
+  html = setMeta(html, 'name', 'twitter:title', title);
+  html = setMeta(html, 'name', 'twitter:description', description);
+  return html;
+};
+
 /**
  * Where a route's file goes, relative to dist/: `/services/gst` →
  * `services/gst.html`. Netlify serves `services/gst.html` at `/services/gst`

@@ -25,7 +25,18 @@ import { GROUPS, Portrait, pickHomeInsights } from './home/shared';
 // engagement runs; the latest articles beside three questions; old and new
 // section numbers; and the office with its map.
 
-const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString().slice(0, 10);
+// `import.meta.env` does not exist where the build script renders this page to
+// text (scripts/static-body.tsx, Audit NOV-04), hence the guard. Keep the
+// expression `import.meta.env.VITE_BUILD_DATE` whole: Vite replaces exactly
+// that text with the build's date (vite.config.ts).
+const readBuildDate = (): string | undefined => {
+  try {
+    return import.meta.env.VITE_BUILD_DATE;
+  } catch {
+    return undefined;
+  }
+};
+const BUILD_DATE = readBuildDate() || new Date().toISOString().slice(0, 10);
 
 const HOME_DESCRIPTION = `${CONTACT_INFO.name}, Chartered Accountants in Mysuru: income tax, GST, TDS, audit, company law and trusts, for individuals, businesses and institutions.`;
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
+import { ResultPeek, Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
 import FormField from '../../components/redesign/FormField';
 import { HRA_FIFTY_PERCENT_CITIES, HRA_LANDLORD_PAN_RENT, getResourceTool } from '../../constants/resources';
 import { calculateHra, type HraLimit } from '../../utils/resources/hra';
@@ -48,6 +48,11 @@ const HRACalculator: React.FC = () => {
   return (
     <ToolPage tool={TOOL} law="Tax year 2026-27 · Rule 279 of the Income-tax Rules, 2026">
       <div className="seam panel calc">
+        <ResultPeek
+          label="Exempt HRA for the year"
+          value={entered ? rupees(result.exempt) : '—'}
+          targetId="hra-result"
+        />
         <form className="cin" onSubmit={(event) => event.preventDefault()} aria-label="HRA calculator">
           <p className="lbl">Monthly amounts</p>
           <div className="pair">
@@ -84,7 +89,7 @@ const HRACalculator: React.FC = () => {
           <p className="fnote">The eight cities: {cityList}.</p>
         </form>
 
-        <Result entries={entries}>
+        <Result id="hra-result" entries={entries}>
           <p className="lbl">Exempt HRA for the year</p>
           <p className="big tnum">{entered ? rupees(result.exempt) : '—'}</p>
           <p className="sub">

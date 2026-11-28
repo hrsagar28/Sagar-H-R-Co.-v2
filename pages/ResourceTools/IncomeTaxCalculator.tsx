@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ToolPage from './ToolPage';
-import { Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
+import { ResultPeek, Announce, ChoiceField, MoneyField, Result, Row, amountEntry } from './fields';
 import FormField from '../../components/redesign/FormField';
 import { ADVANCE_TAX, getResourceTool, type AgeBand } from '../../constants/resources';
 import {
@@ -211,6 +211,11 @@ const IncomeTaxCalculator: React.FC = () => {
       law="Tax year 2026-27 · Income-tax Act, 2025 and Finance Act, 2026 · For a resident individual"
     >
       <div className="seam panel calc wide">
+        <ResultPeek
+          label="New / old regime"
+          value={entered ? `${rupees(newRegime.total)} / ${rupees(oldRegime.total)}` : '—'}
+          targetId="it-result"
+        />
         <form className="cin" onSubmit={(event) => event.preventDefault()} aria-label="Income tax calculator">
           <ChoiceField<AgeBand>
             name="it-age"
@@ -492,7 +497,7 @@ const IncomeTaxCalculator: React.FC = () => {
           </details>
         </form>
 
-        <Result entries={entries}>
+        <Result id="it-result" entries={entries}>
           <p className="lbl">Tax for 2026-27</p>
           <div className="duo">
             {[newRegime, oldRegime].map((result) => (

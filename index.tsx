@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { flushSync } from 'react-dom';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { startCursorEarly } from './components/cursors/early';
@@ -20,14 +21,24 @@ if (!rootElement) {
   throw new Error('Could not find root element to mount to');
 }
 
+// Audit NOV-04: the served file carries the page's text inside #root, for
+// clients that do not run JavaScript. It has none of the site's styling, so a
+// visitor must never see it: the first-paint overlay (#preload-hero) covers
+// it, and the first render is made at once, before the overlay is touched
+// below, so that by then #root holds the application (a loading screen, at
+// least) and not that text. createRoot, not hydrateRoot: the text is replaced,
+// not adopted. Do not make this render asynchronous again, and do not remove
+// the overlay before it.
 const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </React.StrictMode>,
-);
+flushSync(() => {
+  root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </React.StrictMode>,
+  );
+});
 
 // Whether the first-visit splash (components/Preloader.tsx) is about to
 // show: the same two conditions it checks for itself.

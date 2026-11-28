@@ -84,10 +84,13 @@ describe('Contact', () => {
     fireEvent.click(sendButton());
 
     expect(await screen.findByText('Please enter your name.')).toBeInTheDocument();
-    // Audit NOV-12: one way to reply is enough, so the two fields share one message.
-    expect(screen.getAllByText('Please enter a mobile number or an email address, so that we can reply.')).toHaveLength(
-      2,
-    );
+    // Audit NOV-12: one way to reply is enough. It is said once, under the two
+    // boxes, and both are marked.
+    expect(
+      screen.getByText('Please enter a mobile number or an email address, so that we can reply.'),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/^mobile number/i)).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText(/^email/i)).toHaveAttribute('aria-describedby', 'contact-reach-error');
     expect(screen.getByText('Please write a short message.')).toBeInTheDocument();
     expect(screen.getByLabelText(/^name/i)).toHaveAttribute('aria-invalid', 'true');
     expect(mocks.addToast).toHaveBeenCalledWith('Please check the highlighted fields.', 'error');
@@ -122,12 +125,16 @@ describe('Contact', () => {
     expect(byEmail).not.toHaveProperty('phone');
   });
 
-  it('clears "one of these, please" on both fields once either is filled in (Audit NOV-12)', async () => {
+  it('says "one of these, please" once and clears it when either is filled in (Audit NOV-12)', async () => {
     renderContact();
     const either = 'Please enter a mobile number or an email address, so that we can reply.';
 
     fireEvent.click(sendButton());
-    expect(await screen.findAllByText(either)).toHaveLength(2);
+    expect(await screen.findByText(either)).toBeInTheDocument();
+    // The labels are plain; neither says "or" the other (it read as "type either one here").
+    expect(screen.getByLabelText('Mobile number')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /How can we reply/ })).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText(/^email/i), { target: { value: 'asha@example.com' } });
     await waitFor(() => expect(screen.queryByText(either)).not.toBeInTheDocument());
